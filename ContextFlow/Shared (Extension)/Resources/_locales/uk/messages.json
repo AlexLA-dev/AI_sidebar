@@ -2729,6 +2729,72 @@
  "phSimilar": {
   "message": "Знайти схоже дешевше?"
  },
+ "fabFirstLabel": {
+  "message": "Запитайте про цю сторінку"
+ },
+ "rqProductWorth": {
+  "message": "Чи варте це своїх грошей?"
+ },
+ "rqProductCons": {
+  "message": "Які мінуси?"
+ },
+ "rqProductCheck": {
+  "message": "Що перевірити перед покупкою?"
+ },
+ "rqArticleMain": {
+  "message": "Яка головна думка?"
+ },
+ "rqArticleArgue": {
+  "message": "З чим тут можна посперечатися?"
+ },
+ "rqArticleMe": {
+  "message": "Що це означає для мене?"
+ },
+ "rqVideoAbout": {
+  "message": "Про що це відео?"
+ },
+ "rqVideoKey": {
+  "message": "Які ключові моменти?"
+ },
+ "rqFormNeed": {
+  "message": "Що потрібно, щоб це заповнити?"
+ },
+ "rqFormWatch": {
+  "message": "На що тут звернути увагу?"
+ },
+ "rqEventWhen": {
+  "message": "Коли, де і скільки коштує?"
+ },
+ "rqEventWorth": {
+  "message": "Чи варто йти?"
+ },
+ "rqStayKey": {
+  "message": "Які головні деталі?"
+ },
+ "rqStayWatch": {
+  "message": "Що знати, перш ніж зважитися?"
+ },
+ "rqAnyMain": {
+  "message": "Що тут головне?"
+ },
+ "rqAnyWorth": {
+  "message": "Що тут варто знати?"
+ },
+ "rqTitle": {
+  "message": "Запитайте про цю сторінку"
+ },
+ "rqAgree": {
+  "message": "Погодитися й запитати"
+ },
+ "rqAgreeNote": {
+  "message": "Натискаючи на запитання, ви даєте цю згоду й ставите його."
+ },
+ "rqContinue": {
+  "message": "Продовжити «{0}»"
+ },
+ "rqOwnWords": {
+  "message": "Або запитайте своїми словами…"
+ },
  "phWatch": {
   "message": "Стежити за ціною?"
  },
@@ -2749,6 +2815,24 @@
  },
  "phCalendar": {
   "message": "Додати в календар?"
+ },
+ "phAgent": {
+  "message": "Заповнити за вас?"
+ },
+ "googleOffer": {
+  "message": "Знайти це в Google"
+ },
+ "googleOfferFree": {
+  "message": "Не витрачає безкоштовні відповіді: одна з {0} відповідей із Google на день."
+ },
+ "googleOfferPro": {
+  "message": "Одна з {0} відповідей із Google цього тижня."
+ },
+ "collectTip": {
+  "message": "Зберігайте скопійовані відповіді в одному місці: додайте цю до добірки."
+ },
+ "collectTipAdd": {
+  "message": "Додати до добірки"
  },
  "phClose": {
   "message": "Сховати підказку"

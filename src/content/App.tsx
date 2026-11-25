@@ -19,7 +19,8 @@ import {
   type FindReply,
   type StatusInfo,
   type StreamEvent,
-  type Usage
+  type Usage,
+  STORAGE
 } from "../shared/types"
 import * as Icon from "./icons"
 import { ownKeyPlace, providerName } from "../shared/ownKeyError"
@@ -122,6 +123,7 @@ import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { appleNow, loadApple } from "./ux/apple"
 import { asksForAction } from "../shared/agent/hint"
 import { withoutItemMarker } from "../shared/appleItems"
+import { splitNext } from "../shared/nextQuestions"
 import { Tour, tourSteps } from "./Tour"
 import { answerLanguage, preferredLanguages, readerLanguageName, withAnswerLanguage } from "./answerLanguage"
 import { languageName, translateTarget } from "./translateTarget"
@@ -145,6 +147,11 @@ import { wheelSwitch, wheelSwitchStep } from "./ux/wheelSwitch"
 import { markPointerHintSeen, pointerHintSeen, SendMenu } from "./ux/SendMenu"
 import { EdgeGlow } from "./side/EdgeGlow"
 import { HintLine, hintText, revealOnce, usePageHints } from "./pagehints/PageHints"
+import { pageKind } from "./pagehints/detect"
+import { panelRoot } from "./root"
+import { ReadyQuestions } from "./ready/ReadyQuestions"
+import { readyFor } from "./ready/questions"
+import { firstArm, type FirstArm } from "../shared/variant"
 import { CookieLine, useCookieLine } from "./cookies/CookieLine"
 import { InviteRewardCard, markActiveSeen, seenActive } from "./invite/Invite"
 import { resolveSide, type Side } from "./side/snap"
@@ -158,10 +165,39 @@ import { moveRange } from "./ux/moveAnswer"
 import { placesOf, type Card } from "../shared/collections"
 import type { ChatDigest } from "../shared/history"
 import type { ConsentStatus } from "../shared/consent"
+import { useCoach, type Coach } from "./coach/useCoach"
+import { dayKey, type CoachHint } from "./coach/rules"
 
 export type Bus = EventTarget
 
 type Turn = Entry
+
+/** How a question came, beyond a chip's label or the field: a ready question (В4.1), a follow-up under an answer (В6.1). */
+type AskVia = "ready" | "followup" | "hint"
+
+/** The device day the ✦ was last reported seen (fab.shown, once a day). */
+const FAB_SHOWN_KEY = "cf:fabShownDay"
+/** Panel openings not closed yet, by a random id: { at, last, did } (2.8.1, panel.close when the page went away). */
+const OPENINGS_KEY = "cf:openings"
+type OpeningRecord = { at: number; last: number; did: PanelDid }
+const keepOpening = (id: string, rec: OpeningRecord | null) =>
+  void chrome.storage.local.get(OPENINGS_KEY).then((got) => {
+    const all = { ...((got[OPENINGS_KEY] as Record<string, OpeningRecord> | undefined) ?? {}) }
+    if (rec) all[id] = rec
+    else delete all[id]
+    return chrome.storage.local.set({ [OPENINGS_KEY]: all })
+  }).catch(() => undefined)
+
+/** What one opening of the panel came to (events-2.8 §2, `panel.close` did), and what its first screen showed. */
+type PanelDid = "none" | "chip" | "ask" | "tour" | "settings" | "other"
+type PanelScreen = "guide" | "tour" | "ask" | "empty" | "chat" | "agent" | "plans"
+
+/** The page's kind for events, decided on the device (pagehints/detect.ts); "other" for none. Once per address. */
+let kindKept: { url: string; kind: string } | null = null
+function pageKindNow(): string {
+  if (kindKept?.url !== location.href) kindKept = { url: location.href, kind: pageKind(document, location.href) ?? "other" }
+  return kindKept.kind
+}
 
 // Pro's weekly allowance (PRO_WEEKLY_LIMIT on the server), quoted by the offers.
 const PRO_WEEKLY = 375
@@ -306,6 +342,8 @@ function offerUrl(code: string): string {
 
 // A question whose answer was lost while nobody followed it shows these as they were; anything else as "interrupted".
 const RESUMABLE = ["STREAM", "NETWORK", "UPSTREAM", "BUSY", "LIMIT_REACHED", "LINK"]
+/** A question that hasn't reached a connection in this long has lost its link (2.8.1). */
+const STUCK_MS = 25_000
 
 /** The device's region from its language ("ru-RU" → "RU"), for Find similar's "near me" before the server says. */
 function localeCountry(): string | undefined {
@@ -404,9 +442,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [partial, setPartial] = useState<string | null>(null)
   // Before asking: a video's transcript or a PDF being read (shown instead of "Reading the page…").
   const [reading, setReading] = useState<"video" | "pdf" | null>(null)
+  const readingRef = useRef(reading)
+  readingRef.current = reading
   // The question being prepared (page still being read); cleared when it's sent or stopped.
   const askToken = useRef<object | null>(null)
-  const sendRef = useRef<(base: Turn[], content: string, opts: { label?: string; action?: string; mode?: "google"; resent?: boolean }, full: PageRead, selection: string | null, history?: ChatDigest[]) => void>(() => undefined)
+  const sendRef = useRef<(base: Turn[], content: string, opts: { label?: string; action?: string; mode?: "google"; resent?: boolean; via?: AskVia }, full: PageRead, selection: string | null, history?: ChatDigest[]) => void>(() => undefined)
   // The chat shown is "Ask your chats" (Pro): questions about all the other chats, not the page.
   const [historyMode, setHistoryMode] = useState(false)
   const historyRef = useRef(false)
@@ -544,7 +584,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The Pro offer, shown once more to an install that ran out of free answers before.
   const [offerCard, setOfferCard] = useState(false)
   const [findConsent, setFindConsent] = useState<{ resolve: (agreed: boolean) => void } | null>(null)
-  const [pending, setPending] = useState<{ text: string; label?: string; action?: string; mode?: "google"; similar?: string; similarSel?: string; similarAsk?: SimilarAsk } | null>(null)
+  const [pending, setPending] = useState<{ text: string; label?: string; action?: string; mode?: "google"; via?: AskVia; similar?: string; similarSel?: string; similarAsk?: SimilarAsk } | null>(null)
   const [selection, setSelection] = useState<SelectionInfo | null>(null)
   // For closing the panel: whether it was about a selection, and whether it was open before (92: the buttons come back).
   const keptSelectionRef = useRef<SelectionInfo | null>(null)
@@ -643,6 +683,31 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The messages of the chat shown as last stored (2.6 (98)): while the shown ones are others, a change here isn't stored yet.
   const savedRef = useRef<{ id: string; m: Entry[] } | null>(null)
   const openedAt = useRef(0)
+  // The hint coordinator (2.8, В3.1, coach/): every prompt asks it; one shows at a time. The ref for callbacks.
+  const coach = useCoach({ consent: consent === "ok", paid: (status?.plan ?? keptPlan ?? "free") !== "free" })
+  const coachRef = useRef<Coach | null>(null)
+  coachRef.current = coach
+  // 2.8.1: the platform said before the first event (the background's events carry it; it learned it only from the
+  // first status, after the first fab.shown).
+  useEffect(() => {
+    if (!popup) void sendBackground({ type: "platform", platform })
+  }, [])
+  // 2.8 (В6.2): this install's arm of the first-open test, by its id (src/shared/variant.ts): the guided first request,
+  // or ready questions. Null until the id is read.
+  const [armById, setArm] = useState<FirstArm | null>(null)
+  // An install updated from 2.7 is in no arm: its first run stays 2.7's (the guide), and nothing is labelled.
+  const arm: FirstArm | null = armById === null || !coach.ready ? null : coach.armed ? armById : "guide"
+  const armRef = useRef(arm)
+  armRef.current = arm
+  useEffect(() => {
+    // Stored, else the background's own (it makes it if it has to): the arm is always the one the events report (R10).
+    const fromBackground = () => void sendBackground<string>({ type: "installId" }).then((id) => setArm(typeof id === "string" ? firstArm(id) ?? "guide" : "guide"))
+    void chrome.storage.local.get(STORAGE.installId).then((got) => {
+      const id = got[STORAGE.installId]
+      if (typeof id === "string") setArm(firstArm(id) ?? "guide")
+      else fromBackground()
+    }).catch(fromBackground)
+  }, [])
   // The chat being loaded as the panel opens: a question typed by the selection waits for it.
   const loadingRef = useRef<Promise<void>>(Promise.resolve())
   const settingsRef = useRef(settings)
@@ -802,8 +867,36 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // Opened with the circle or Safari's toolbar button (2.6 (98)): the panel opens on this page's latest chat
   // (chatForPage), not on a selection's Ask AI, a link or a notification, which bring their own chat.
   const pageChatRef = useRef(false)
-  const show = useCallback((captured?: SelectionInfo, how?: { pageChat?: true }) => {
+  // 2.8 (events-2.8 §2, rungs 8 and 9): how the panel was opened, and what this opening came to (sent as it closes).
+  const openViaRef = useRef<"toolbar" | "fab" | "bubble" | "hint">("toolbar")
+  const openingRef = useRef<{ at: number; did: PanelDid; id: string; sendOpen: (() => void) | null } | null>(null)
+  const screenNowRef = useRef<() => PanelScreen>(() => "empty")
+  const show = useCallback((captured?: SelectionInfo, how?: { pageChat?: true }, by?: "fab") => {
     openedAt.current = Date.now()
+    // One opening per time the panel is on screen (R11): show() while it's open already (Ask AI by a selection, a
+    // link) is the same opening.
+    if (!openingRef.current) {
+      // The circle's tap (fab.tap), and how the panel came (panel.open via).
+      if (by === "fab") {
+        openViaRef.current = "fab"
+        void sendBackground({ type: "useEvent", f: "fab", a: "tap" })
+      }
+      const via = captured ? "bubble" : openViaRef.current
+      openViaRef.current = "toolbar"
+      const first = (coachRef.current?.panelOpens ?? 1) === 0 && coachRef.current?.armed === true
+      coachRef.current?.panelOpened()
+      coachRef.current?.done("fab_pulse")
+      const opening = { at: Date.now(), did: "none" as PanelDid, id: crypto.randomUUID(), sendOpen: null as (() => void) | null }
+      // What the first screen showed, once the panel has settled on it (the guide starts 450 ms after the panel is in
+      // view; on a device that was over 0.7 s after the tap); a panel closed sooner sends its open as it closes.
+      opening.sendOpen = () => {
+        opening.sendOpen = null
+        void sendBackground({ type: "useEvent", f: "panel", a: "open", via, lay: layoutRef.current, page: pageKindNow(), screen: screenNowRef.current(), ...(first ? { first: 1 } : {}) })
+      }
+      openingRef.current = opening
+      keepOpening(opening.id, { at: opening.at, last: Date.now(), did: "none" })
+      setTimeout(() => opening.sendOpen?.(), 1500)
+    }
     pageChatRef.current = Boolean(how?.pageChat && !captured)
     if (captured) {
       rememberSelection(captured)
@@ -829,6 +922,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [touch])
 
   const hide = useCallback(() => {
+    const opening = openingRef.current
+    openingRef.current = null
+    if (opening) {
+      opening.sendOpen?.()
+      void sendBackground({ type: "useEvent", f: "panel", a: "close", open_s: Math.min(9999, Math.round((Date.now() - opening.at) / 1000)), did: opening.did })
+      keepOpening(opening.id, null)
+    }
     if (popup) {
       window.close()
       return
@@ -836,6 +936,61 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setVisible(false)
     setTimeout(() => setOpen(false), 220)
   }, [popup])
+
+  // What an opening of the panel came to (panel.close did): any tap in it, Settings, the guide taken a step on; left
+  // with the page, it's said then.
+  const guideWas = useRef<GuideStep | null>(null)
+  useEffect(() => {
+    const o = openingRef.current
+    if (o && guide !== null && guideWas.current !== null && guide !== guideWas.current && (o.did === "none" || o.did === "other")) o.did = "tour"
+    guideWas.current = guide
+  }, [guide])
+  useEffect(() => {
+    const o = openingRef.current
+    if (o && view === "settings" && (o.did === "none" || o.did === "other")) o.did = "settings"
+  }, [view])
+  // Any tap in the panel: the opening did something (its root is there once the panel has rendered).
+  useEffect(() => {
+    const root = panelRoot()
+    if (!root) return
+    const tapped = () => {
+      if (openingRef.current?.did === "none") openingRef.current.did = "other"
+    }
+    root.addEventListener("click", tapped, true)
+    return () => root.removeEventListener("click", tapped, true)
+  }, [open])
+  useEffect(() => {
+    // The page goes away, or Safari is put away, with the panel open: a message from a page going away often never
+    // arrives, so the opening is kept (with when it was last seen) and its close is sent from the next page.
+    const keep = () => {
+      const o = openingRef.current
+      if (!o) return
+      o.sendOpen?.()
+      keepOpening(o.id, { at: o.at, last: Date.now(), did: o.did })
+    }
+    const hidden = () => document.visibilityState === "hidden" && keep()
+    const beat = setInterval(keep, 15_000)
+    window.addEventListener("pagehide", keep)
+    document.addEventListener("visibilitychange", hidden)
+    // Openings left by pages that went away (not seen for a minute: a panel open in another tab keeps its own fresh).
+    const flush = () => void chrome.storage.local.get(OPENINGS_KEY).then((got) => {
+      const all = (got[OPENINGS_KEY] as Record<string, OpeningRecord> | undefined) ?? {}
+      for (const [id, rec] of Object.entries(all)) {
+        if (Date.now() - rec.last < 60_000 || id === openingRef.current?.id) continue
+        void sendBackground({ type: "useEvent", f: "panel", a: "close", open_s: Math.min(9999, Math.max(0, Math.round((rec.last - rec.at) / 1000))), did: rec.did, cut: 1 })
+        keepOpening(id, null)
+      }
+    }).catch(() => undefined)
+    flush()
+    // …and again a minute on (a page opened right after another one left its record fresh).
+    const later = setTimeout(flush, 65_000)
+    return () => {
+      clearInterval(beat)
+      clearTimeout(later)
+      window.removeEventListener("pagehide", keep)
+      document.removeEventListener("visibilitychange", hidden)
+    }
+  }, [])
 
   // ------------------------------------------------------------ quick insert
   // "Template" by a selection: the selected text becomes a template (the AI marks its blanks).
@@ -1071,14 +1226,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The first time the panel is open and idle: the guided first request where there's a page to summarize (2.6),
   // else the tour of what it can do.
   useEffect(() => {
-    if (popup || tourSeen || touring || guideRef.current || !visible || view !== "chat" || streaming || pending) return
+    if (popup || tourSeen || touring || guideRef.current || !visible || view !== "chat" || streaming || pending || arm === null) return
     const timer = setTimeout(() => {
       firstRunRef.current = true
-      if (firstGuideRef.current()) startGuideRef.current("first")
+      // 2.8 (В6.2): the "ask" arm has ready questions instead of the guide; its first run is over as it starts.
+      if (armRef.current === "ask" && firstGuideRef.current()) endTour()
+      else if (firstGuideRef.current()) startGuideRef.current("first")
       else setTouring(true)
     }, 450)
     return () => clearTimeout(timer)
-  }, [popup, tourSeen, touring, visible, view, streaming, pending])
+  }, [popup, tourSeen, touring, visible, view, streaming, pending, arm])
 
   // Recently Deleted emptied (everything restored or deleted, here or elsewhere): back to the list, where its row goes too.
   useEffect(() => {
@@ -1300,15 +1457,23 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setStreamMode(null)
     if (entry || text) {
       const shown = withoutItemMarker(text)
-      const answer: Turn = grounding ? { role: "assistant", content: shown.text, grounding } : { role: "assistant", content: shown.text }
-      const next: Turn[] = [...history, entry ?? stamped(shown.marked ? { ...answer, addable: true } : answer)]
+      // 2.8 (В6.1): the follow-up questions come off the text and stay on the answer.
+      const split = splitNext(shown.text)
+      const answer: Turn = grounding ? { role: "assistant", content: split.text, grounding } : { role: "assistant", content: split.text }
+      const next: Turn[] = [...history, entry ?? stamped({ ...answer, ...(shown.marked ? { addable: true as const } : {}), ...(split.next.length ? { next: split.next } : {}), ...(split.web ? { web: true as const } : {}) })]
       setMessages(next)
       const skipped = skippedFor(next, next.length - 1)
       if (skipped) void sendBackground({ type: "mediaNotice", action: "shown", media: skipped })
       // Right away, not on the debounced save: the user may go to another page as soon as the answer is in.
       void saveThread(threadRef.current, next, historyRef.current ? "history" : undefined)
       memoryNudgeRef.current(next)
+      // The ladder (2.8): an answer, and whether its question was the person's own words (not a chip's).
+      if (!err) {
+        const asked = history[history.length - 1]
+        coachRef.current?.answered(asked?.role === "user" && !asked.label && asked.similarAsk === undefined)
+      }
     }
+    if (err?.code === "LIMIT_REACHED") coachRef.current?.limited()
     if (err) setError(err)
   }, [])
 
@@ -1331,14 +1496,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // `cite`: Retry of a question asked on a selection that's gone now: about that text again (build 110).
   // `resent`: the question sent again on its own once, because the background never got it (123).
-  const ask = useCallback((text: string, opts: { label?: string; action?: string; retry?: boolean; mode?: "google"; cite?: string; resent?: boolean } = {}) => {
+  const ask = useCallback((text: string, opts: { label?: string; action?: string; retry?: boolean; mode?: "google"; cite?: string; resent?: boolean; via?: AskVia } = {}) => {
     const content = text.trim()
     if (!content || portRef.current || askToken.current) return
+    if (openingRef.current) openingRef.current.did = opts.label || opts.via === "ready" || opts.via === "followup" ? "chip" : "ask"
     setUndoBar(null)
     setFirstWin(null)
     setMemoryOffer(null)
     if (consent !== "ok") {
-      setPending({ text: content, label: opts.label, action: opts.action, mode: opts.mode })
+      setPending({ text: content, label: opts.label, action: opts.action, mode: opts.mode, via: opts.via })
       return
     }
     // The same question again after it was left without an answer (interrupted): it takes that one's place.
@@ -1379,6 +1545,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     partialRef.current = ""
     const token = {}
     askToken.current = token
+    askedAtRef.current = Date.now()
     // A selection or a Google search doesn't need the transcript or the PDFs.
     const whole = !about && opts.mode !== "google"
     const quick = (): PageRead => ({ ...source.quick(), sources: [] })
@@ -1484,7 +1651,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           mode: opts.mode,
           stats,
           // Asked during the guided first request: the server doesn't count it, for an install's first few (2.6).
-          ...(guideRef.current && !planTour.current ? { tour: true as const } : {}),
+          // 2.8 (В6.4): every new install's first three answers, in both arms of the first-open test (the server keeps
+          // its own count per install, never reset: the mark gains nothing later).
+          ...((guideRef.current && !planTour.current) || (coachRef.current?.ready && coachRef.current.answers < 3) ? { tour: true as const } : {}),
+          // 2.8 (В6.1): the first answer of a chat comes with two follow-up questions (nextQuestions.ts).
+          ...(!base.some((e) => e.role === "assistant") && opts.mode !== "google" ? { next: true as const } : {}),
+          // 2.8: how the question came (a ready question, a follow-up, a chip, typed) and the page's kind, for the
+          // answer's row (src/shared/usage.ts uiFields).
+          ui: { via: opts.via ?? (opts.label ? "chip" : "composer"), page: pageKindNow() },
           // 2.7: reminders and events can be added here, so the answer may suggest one (a card under it).
           ...(appleNow()?.available ? { items: true as const } : {}),
           // 2.7.1: a question that asks for an action gets «Сделать на этой странице?» under it: the answer says so.
@@ -1504,6 +1678,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // page, another chat and back), the one still running, from what came so far. A job that ended while nobody
   // followed it left its answer in the chat; one lost (the connection, the background closed) leaves "interrupted".
   const heardRef = useRef(0)
+  // When the question being prepared was asked (its page read, then its connection): bounded by STUCK_MS.
+  const askedAtRef = useRef(0)
 
   /** Follows a chat answer on `port`: what came so far first when it's a job followed again ("snapshot"). */
   const listenChat = (port: chrome.runtime.Port, history: Turn[], onUndelivered?: () => void) => {
@@ -1630,7 +1806,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const lostRef = useRef(lost)
   lostRef.current = lost
   // The question just sent, until anything comes back for it (then it reached the background).
-  const pendingAskRef = useRef<{ history: Turn[]; content: string; opts: { label?: string; action?: string; mode?: "google"; resent?: boolean } } | null>(null)
+  const pendingAskRef = useRef<{ history: Turn[]; content: string; opts: { label?: string; action?: string; mode?: "google"; resent?: boolean; via?: AskVia } } | null>(null)
   /** A quiet or closed answer: a question that never got there is undelivered; one that did is followed again. */
   const quietRef = useRef(() => {
     const p = pendingAskRef.current
@@ -1639,7 +1815,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   })
 
   /** A question the background never got: asked again once (a fresh port), then an error the person can retry. */
-  const undelivered = (history: Turn[], content: string, opts: { label?: string; action?: string; mode?: "google"; resent?: boolean }) => {
+  const undelivered = (history: Turn[], content: string, opts: { label?: string; action?: string; mode?: "google"; resent?: boolean; via?: AskVia }) => {
     const port = portRef.current
     portRef.current = null
     askToken.current = null
@@ -1668,8 +1844,20 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => {
     if (partial === null) return
     const quiet = (ms: number) => portRef.current !== null && heardRef.current > 0 && Date.now() - heardRef.current > ms
+    // 2.8.1 (the director, a tab left open across an update): a question that never got as far as a connection (the
+    // page's read or the plan's status waits on a link that's gone) ends in the lost-link message with Reload, not in
+    // «Reading the page…» for good.
+    // (Not while a video's transcript or PDFs are read: that can take longer, and says so.)
+    const stuck = () => askToken.current !== null && portRef.current === null && askedAtRef.current > 0 && readingRef.current === null && Date.now() - askedAtRef.current > STUCK_MS
     const timer = setInterval(() => {
       if (quiet(20_000)) quietRef.current()
+      else if (stuck()) {
+        askToken.current = null
+        askedAtRef.current = 0
+        setReading(null)
+        setLinkLost(true)
+        finish(nowRef.current.messages, "", { code: "LINK" })
+      }
     }, 5_000)
     const onVisible = () => {
       if (document.visibilityState === "visible" && quiet(6_000)) quietRef.current()
@@ -2052,7 +2240,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const p = pending
     setPending(null)
     if (p?.action === "similar") setTimeout(() => findSimilarRef.current(p.similar ?? "", p.label ?? p.text, false, p.similarSel, undefined, p.similarAsk), 0)
-    else if (p) setTimeout(() => askRef.current(p.text, { label: p.label, action: p.action, mode: p.mode }), 0)
+    else if (p) setTimeout(() => askRef.current(p.text, { label: p.label, action: p.action, mode: p.mode, via: p.via }), 0)
   }, [pending])
   // "Not now": the question stays in the box, nothing is sent.
   const declineConsent = useCallback(() => setPending(null), [])
@@ -2090,6 +2278,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
     if (selHintAsked.current) return
     selHintAsked.current = true
+    // 2.8 (В5.7): after the second answer, at the moment of a selection (the coordinator's sel_ask), not before.
+    if ((coachRef.current?.answers ?? 0) < 2 || !coachRef.current?.may("sel_ask")) return
     void selHintCount().then((count) => {
       if (count < 0 || count >= 3) return
       setSelHint(true)
@@ -2098,6 +2288,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [bubble])
 
   const selFeatureUsed = () => {
+    if (selHint) coachRef.current?.done("sel_ask")
     setSelHint(false)
     void setSelHintCount(-1)
   }
@@ -2339,6 +2530,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           // An answer with highlights goes as rich text too (bold), then as plain text.
           if ((await ux.copyAnswer(idx, text)) || (await copyText(text))) {
             setCopied(idx)
+            // 2.8 (В5.8): from the second answer copied, keeping them in a collection is offered under it.
+            if (!m.note && dropped.has("collect") && !historyMode && (coachRef.current?.copies ?? 0) >= 1) setCollectOffer(idx)
+            coachRef.current?.copied()
             setTimeout(() => setCopied(null), 1500)
             // ContextFlow's own Copy goes to Copied too.
             void keepCopied(text, "", "contextflow")
@@ -2549,6 +2743,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const flipMode = useCallback(() => {
     setNoteMode((on) => !on)
     setAgentMode(false)
+    coachRef.current?.done("note_tip")
     setNoteHint(false)
     void setNoteHintCount(-1)
   }, [])
@@ -2623,6 +2818,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const hintAsked = useRef(false)
   useEffect(() => {
     if (!draft.trim() || noteMode || hintAsked.current) return
+    // 2.8.1 (R3): not counted while the coordinator wouldn't show it (day 1, its budget): it was spent unseen.
+    if (!coachRef.current?.may("note_tip")) return
     hintAsked.current = true
     // 2.7.1: a pointer's hint (up and down for Note and Do) once on this device, even after the finger's was used.
     void Promise.all([noteHintCount(), pointerUsed ? pointerHintSeen() : Promise.resolve(true)]).then(([count, seen]) => {
@@ -2642,6 +2839,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [fullAt, setFullAt] = useState<number | null | undefined>(undefined)
   useEffect(() => void loadFullAt().then(setFullAt), [])
   const offerCardAsked = useRef(false)
+  const offerByTap = useRef(false)
+  const offerCounted = useRef(false)
   // Whether the limit card is up (the discount notification's tap then needs no «once more»).
   const limitUpRef = useRef(false)
   limitUpRef.current = error?.code === "LIMIT_REACHED"
@@ -2651,9 +2850,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     offerCardAsked.current = true
     void offerCardCount().then((count) => {
       if (count < 0 || count >= 3) return
+      offerByTap.current = false
       setOfferCard(true)
-      void setOfferCardCount(count + 1)
-      void sendBackground({ type: "useEvent", f: "chat_plans", a: "shown", via: "return", state: "discount" })
     })
   }, [open, status, fullAt])
   // Bought (here, in the app or on another device): the answers-back reminder goes, with whatever it would have said,
@@ -2685,6 +2883,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const store = statusRef.current?.store
     if (!store?.period) return
     void sendBackground({ type: "renewalAnswer", reason, period: store.period, productId: store.productId, expiresAt: store.expiresAt })
+    if (reason === "later") coachRef.current?.dismiss("renewal")
+    else coachRef.current?.done("renewal")
     setRenewal(reason === "later" ? null : "thanks")
     if (reason !== "later") setTimeout(() => setRenewal(null), 4000)
   }, [])
@@ -3118,9 +3318,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const offerFor = lastUserIndex >= 0 && !historyMode && !agentBusy && messages[lastUserIndex].similarAsk === undefined && asksForAction(messages[lastUserIndex].content) ? lastUserIndex : -1
   // Under the answer once it's there (where the answer says it is), under the question while it's written.
   const offerAt = offerFor < 0 ? -1 : messages[offerFor + 1]?.role === "assistant" ? offerFor + 1 : offerFor
+  // (2.8.1: the answer's own button, outside the hint coordinator: the director's review, R7.)
+  const offerTap = () => {
+    void startAgent(messages[offerFor].content, undefined, threadFor(offerFor))
+  }
   const offerChip = (at: number) =>
     at === offerAt && (
-      <button type="button" class="cf-chip cf-agent-hint" onClick={() => void startAgent(messages[offerFor].content, undefined, threadFor(offerFor))}>
+      <button type="button" class="cf-chip cf-agent-hint" onClick={offerTap}>
         <Icon.Sparkle size={13} /> {t("agentHint")}{!hasPro(plan) && <span class="cf-pro-badge">Pro</span>}
       </button>
     )
@@ -3284,8 +3488,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       if (!openNowRef.current) show()
       if (limitUpRef.current) return
       offerCardAsked.current = true
+      offerByTap.current = true
+      offerCounted.current = false
       setOfferCard(true)
-      void sendBackground({ type: "useEvent", f: "chat_plans", a: "shown", via: "return", state: "discount" })
     }
     const onHash = () => void take()
     onHash()
@@ -3425,7 +3630,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       const b = agentBubbleRef.current
       if (b && b.kind !== "end" && bubbleGoneRef.current === b.key) return setBubbleGone("")
       if (agentNoticeRef.current && !b) return setNoticeOpen(true)
-      show(undefined, { pageChat: true })
+      show(undefined, { pageChat: true }, "fab")
     },
     // Held down: the page's translation by hand (the pill by the circle), on any page.
     onHold: () => setFabHeld((n) => n + 1)
@@ -3434,7 +3639,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const openFromHint = useCallback(() => show(undefined, { pageChat: true }), [show])
   // 2.7.1: the cookie closer's confirmation by the circle, the first few times a banner is answered.
   const cookieLine = useCookieLine(fabVisible && !open && !bubble?.rect)
-  const pageHints = usePageHints({ plan: status?.plan ?? keptPlan ?? "free", ready: fabVisible && !fabDrag.state.dragging && !bubble?.rect && !open, firstRunAhead: !tourSeen, open: openFromHint })
+  const pageHints = usePageHints({ plan: status?.plan ?? keptPlan ?? "free", ready: fabVisible && !fabDrag.state.dragging && !bubble?.rect && !open, firstRunAhead: !tourSeen, open: openFromHint,
+    may: (id) => coachRef.current?.may(`page_${id}` as CoachHint) ?? false, onUsed: (id) => coachRef.current?.done(`page_${id}` as CoachHint) })
   const panelDrag = usePanelDrag({
     panel: panelRef,
     side,
@@ -3697,6 +3903,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // Подборки (2.7, Collections.tsx): the space's collections, «В подборку» on a message (its index), the line after.
   const cols = useCollections(spaces.list, spaces.current.id, settings.spaces !== false)
   const [collecting, setCollecting] = useState<number | null>(null)
+  // 2.8 (В5.8): the answer under which keeping copied answers in a collection is offered.
+  const [collectOffer, setCollectOffer] = useState<number | null>(null)
   // The collection the window opens on (from "In «…»" under an answer); null: the first one.
   const [colOpen, setColOpen] = useState<string | null>(null)
   const [colToast, setColToast] = useState<string | null>(null)
@@ -3856,6 +4064,18 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // full price first). What a return would bring: for the one notification that may say it.
   const offerGiven = TARGET === "safari" && plan === "free" && !ownKeyActive ? error?.offer ?? status?.offer ?? null : null
   const offer = offerGiven && fullAt !== undefined && isReturn(status?.limitedBefore, fullAt) ? offerGiven : null
+  // 2.8.1 (the director, R1): the discount is a purchase surface, not a hint: nothing holds it (hints wait for it), and
+  // its visit is counted and reported only once it is on screen (the card needs the offer, no error, no answer coming).
+  const offerOnScreen = open && offerCard && !!offer && !error && partial === null
+  useEffect(() => {
+    if (!offerOnScreen || offerCounted.current) return
+    offerCounted.current = true
+    // From the notification's tap: «once more», whatever its count of visits (not counted).
+    if (!offerByTap.current) void offerCardCount().then((count) => {
+      if (count >= 0) void setOfferCardCount(count + 1)
+    })
+    void sendBackground({ type: "useEvent", f: "chat_plans", a: "shown", via: "return", state: "discount" })
+  }, [offerOnScreen])
   const returnDiscount = TARGET === "safari" && plan === "free" && !ownKeyActive ? status?.returnOffer?.discount ?? offerGiven?.discount ?? null : null
   // Videos and PDFs on the page are read for Pro (and the user's own key); free answers say they skipped them.
   const mediaOn = readsMedia(status, TARGET)
@@ -4671,31 +4891,46 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (byok) upgrade("pro_only")
     else void openApp("subscribe", "organize")
   }
-  const organizeCardsView = (
+  const organizeCardsView = () => (
     <>
-      {consentCard && (
+      {consentCard && slot === "organize_consent" && (
         <OrganizeCard
           kind="consent"
-          onPrimary={() => turnOnOrganize("card")}
+          onPrimary={() => {
+            coach.tap("organize_consent")
+            coach.done("organize_consent")
+            turnOnOrganize("card")
+          }}
           onClose={() => {
+            coach.dismiss("organize_consent")
             void setOrganizeCards({ consent: "declined" }).then(setCards)
             orgEvent({ kind: "organize_optin", action: "declined", from: "card" })
           }}
         />
       )}
-      {messCard && (
+      {messCard && slot === "organize_mess" && (
         <OrganizeCard
           kind="mess"
           pro={byok ? (byokDiscount !== null ? t("upgradeProOff", byokDiscount) : t("upgradePro")) : undefined}
-          onPrimary={() => tryOrganizePro("inchat_mess")}
+          onPrimary={() => {
+            coach.tap("organize_mess")
+            tryOrganizePro("inchat_mess")
+          }}
           onClose={() => {
+            coach.dismiss("organize_mess")
             setMessFor(null)
             void setOrganizeCards({ mess: { chats: cards?.mess?.chats ?? [], at: cards?.mess?.at ?? Date.now(), closed: true } }).then(setCards)
           }}
         />
       )}
-      {tagsCard && !messCard && promoOk && (
-        <OrganizeCard kind="tags" pro={byok ? t("upgradePro") : undefined} onPrimary={() => tryOrganizePro("third_tag")} onClose={() => setTagsCard(false)} />
+      {slot === "organize_tags" && (
+        <OrganizeCard kind="tags" pro={byok ? t("upgradePro") : undefined} onPrimary={() => {
+          coach.tap("organize_tags")
+          tryOrganizePro("third_tag")
+        }} onClose={() => {
+          coach.dismiss("organize_tags")
+          setTagsCard(false)
+        }} />
       )}
     </>
   )
@@ -4734,6 +4969,113 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const bubbleUp = !!agentBubble && fabVisible && !fabDrag.state.dragging && !bubble?.rect && !pageTyping && bubbleGone !== agentBubble.key
   const fabRing = agentBubble ? (agentBubble.kind === "end" && agentBubble.ok ? "done" : "needs") : agentNotice ? (agentNotice.status === "done" ? "done" : "needs") : null
 
+  // ✦ seen (events-2.8 rung 7): once a device day, with the page's kind (and `first` the first time ever).
+  useEffect(() => {
+    if (!fabVisible || popup || !coach.ready) return
+    const today = dayKey(Date.now())
+    void chrome.storage.local.get(FAB_SHOWN_KEY).then((got) => {
+      const last = got[FAB_SHOWN_KEY] as string | undefined
+      if (last === today) return
+      void chrome.storage.local.set({ [FAB_SHOWN_KEY]: today })
+      // `first`: the first time ever for someone who never opened the panel (an update from 2.7 has no mark yet).
+      void sendBackground({ type: "useEvent", f: "fab", a: "shown", page: pageKindNow(), ...(!last && coachRef.current?.panelOpens === 0 && coachRef.current.armed ? { first: 1 } : {}) })
+    }).catch(() => undefined)
+  }, [fabVisible, coach.ready])
+
+  // ------------------------------------------------------------ never an empty panel (2.8, В4.1, В4.2, В6.2)
+  // Ready questions about this page in the empty chat: the "ask" arm from its first opening, everyone once they've had an
+  // answer (the returner's panel). Not over the guide, the tour or an agent task's card.
+  const showReady = !popup && !historyMode && messages.length === 0 && partial === null && !agentCardShown && contextKind === "page" &&
+    guide === null && !touring && arm !== null && coach.ready && (arm === "ask" || (tourSeen && (coach.answers > 0 || coach.day >= 2)))
+  const readyQuestions = showReady ? readyFor(pageKind(document, location.href), mediaOn) : []
+  // The chat the person was in last, when this one is new: «Continue «…»» (with an answer in it, the last two weeks).
+  const lastChat = showReady && coach.answers > 0
+    ? threadList.find((th) => th.id !== threadRef.current && th.kind !== "history" && th.m.some((e) => e.role === "assistant") && Date.now() - (th.a ?? th.u) < 14 * 86_400_000) ?? null
+    : null
+  // The consent in the question's own tap (В6.3) is the ask arm's, for a new install; anyone else asked with ready
+  // questions gets the consent card as before (R5: not «Agree and ask» to someone from 2.7 who never gave it).
+  const consentInTap = consent !== "ok" && arm === "ask" && coach.armed
+  const askReady = (text: string) => {
+    if (!consentInTap) return ask(text, { via: "ready" })
+    // The question's own button said «Agree and ask» over the consent's text: given by this tap.
+    void giveConsent().then(() => {
+      setConsent("ok")
+      setTimeout(() => askRef.current(text, { via: "ready" }), 0)
+    })
+  }
+
+  // ------------------------------------------------------------ one capability a day (2.8, В5)
+  // A page line's tap does its feature on this page once the panel is open: Find similar's card, Listen, a watch on the
+  // page, the summary, the agent's Do (Pro; its offer otherwise). Paid ones lead to their plans or taste by their own way.
+  const DO_IT: ReadonlySet<string> = new Set(["similar", "listen", "watch", "summary", "agent"])
+  const doHint = (id: string) => {
+    if (id === "similar") return openSimilar("chip")
+    if (id === "listen") return void listenPage()
+    if (id === "watch") {
+      const watcher = listsKind("watch") ? pageWatcher() : null
+      if (watcher) watcher({ url: source.href(), title: source.title() })
+      return
+    }
+    if (id === "summary") {
+      const summarize = actions.find((a) => a.id === "summarize")
+      if (summarize) runAction(summarize)
+      return
+    }
+    if (id === "agent") {
+      if (!hasPro(plan)) return setAgentUpsell(true)
+      setNoteMode(false)
+      setAgentMode(true)
+      setTimeout(() => inputRef.current?.focus(), 60)
+    }
+  }
+  const doHintRef = useRef(doHint)
+  doHintRef.current = doHint
+  // The question an answer offering Google was for (В5.6): the latest answer's, when it says the page lacks it.
+  const lastAnswer = messages[messages.length - 1]
+  const webFor = lastAnswer?.role === "assistant" && lastAnswer.web && !lastAnswer.grounding && partial === null && !historyMode
+    ? messages.slice(0, -1).reverse().find((e) => e.role === "user" && !e.note) ?? null
+    : null
+
+  // ------------------------------------------------------------ the hint coordinator (2.8, В3.1)
+  // Every prompt says here whether it fits now; the coordinator gives one of them the slot (coach/rules.ts). Prompts on
+  // the page need the panel closed; prompts in the panel need it open on the chat.
+  const coachWants: CoachHint[] = []
+  const wantIf = (id: CoachHint, on: unknown) => void (on && coachWants.push(id))
+  const pageFree = fabVisible && !fabDrag.state.dragging && !bubble?.rect && !bubbleUp
+  const mediaDue = contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)
+  const chatFree = open && view === "chat" && !historyMode && partial === null && !pending && !pageHints.chat
+  wantIf("fab_pulse", fabVisible && coach.ready && coach.panelOpens === 0)
+  if (pageHints.line) wantIf(`page_${pageHints.line}` as CoachHint, pageFree)
+  wantIf("cookie_line", cookieLine.line && !fabDrag.state.dragging && !bubbleUp)
+  wantIf("sel_ask", selHint && bubble?.rect && !open)
+  wantIf("organize_consent", open && consentCard)
+  wantIf("organize_mess", open && messCard)
+  wantIf("organize_tags", open && tagsCard && !messCard && promoOk)
+  wantIf("byok_offer", open && byokCard && byokDiscount !== null && !error && partial === null)
+  wantIf("renewal", open && renewal === "ask" && !error && partial === null)
+  wantIf("media_tip", chatFree && mediaDue)
+  wantIf("invite", chatFree && inviteNew)
+  wantIf("whatsnew", chatFree && !inviteNew && hintDue("new27") && !mediaDue)
+  wantIf("side", chatFree && !inviteNew && hintDue("side") && !hintDue("new27") && !mediaDue)
+  wantIf("chats_tip", open && view === "threads" && hintDue("chats") && threadList.length > 0 && guide !== "chatList" && !(guide && PLAN_VIEW[guide] === "threads"))
+  wantIf("note_tip", open && noteHint && draft.trim() && !noteMode && !sendMenu)
+  wantIf("google_offer", open && view === "chat" && webFor)
+  wantIf("collect_tip", open && view === "chat" && collectOffer !== null && collectOffer < messages.length && !picked)
+  // What the person is in the middle of holds every hint: the consent, the guide or the tour, the plans, the limit.
+  // (Ready questions that carry the consent are the consent too: nothing beside them until it's given.)
+  // (The limit card and the return discount are purchase surfaces: when one is due, hints wait — never the other way.)
+  const coachFlow = guide !== null || touring || (open && (pending !== null || findConsent !== null || plansOpen !== null || memoryOffer !== null || error?.code === "LIMIT_REACHED" || offerOnScreen || (showReady && consentInTap)))
+  const slot = coach.pick(coachWants, coachFlow)
+  // A page line counts as shown once it holds the slot (R4: picked but held back, it was counted unseen).
+  const lineUp = !!pageHints.line && slot === `page_${pageHints.line}`
+  useEffect(() => {
+    if (lineUp) pageHints.seen()
+  }, [lineUp, pageHints.line])
+  const pulse = slot === "fab_pulse"
+  // What the first screen of an opening shows (panel.open's screen).
+  screenNowRef.current = () =>
+    guide !== null ? "guide" : touring ? "tour" : agentCardShown ? "agent" : plansOpen !== null ? "plans" : messages.length > 0 ? "chat" : showReady ? "ask" : "empty"
+
   // ------------------------------------------------------------ render
   return (
     <div class="cf" data-theme={theme} data-size={settings.textSize} data-layout={layout} data-side={side} data-glow={pageHints.glow ?? undefined} data-touch={touch ? "1" : undefined} data-density={density}
@@ -4745,7 +5087,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         <button
           type="button"
           ref={fabRef}
-          class={`cf-fab ${side} ${fabDrag.state.dragging ? "dragged" : "glide"}${haloFlash ? " flash" : ""}${fabRing ? ` agent-ring ${fabRing}` : ""}`}
+          class={`cf-fab ${side} ${fabDrag.state.dragging ? "dragged" : "glide"}${haloFlash ? " flash" : ""}${fabRing ? ` agent-ring ${fabRing}` : ""}${pulse ? " first-pulse" : ""}`}
           data-halo={halo ? spaces.fabSpace?.color : undefined}
           style={{ top: fabTop, ...(halo && spaces.fabSpace ? spaceVars(spaces.fabSpace.color) : {}) }}
           aria-label={t("fabLabel")}
@@ -4759,6 +5101,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         </button>
       )}
 
+      {/* 2.8 (В2.5): until the panel is opened for the first time, the circle pulses softly with a short label by it. */}
+      {pulse && fabVisible && !fabDrag.state.dragging && (
+        <button type="button" class={`cf-fab-label ${side}`} style={{ top: fabTop }} onClick={() => {
+          openViaRef.current = "fab"
+          openFromHint()
+        }}>{t("fabFirstLabel")}</button>
+      )}
+
       {/* A page in another language (2.7): the pill to translate it in place, beside the circle on its side. */}
       {!popup && fabEnabled && !settings.fabHiddenSites.includes(source.site()) && (
         <TranslatePill
@@ -4767,6 +5117,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           show={fabVisible && !fabDrag.state.dragging && !bubble?.rect && !bubbleUp}
           free={!hasPro(plan)}
           held={fabHeld}
+          offerOk={slot === "translate_pill"}
+          onWant={(on) => coach.want("translate_pill", on)}
+          onHint={(what) => {
+            // Only for the pill that offered itself (asked for by hand it's no hint).
+            if (what === "done") coach.done("translate_pill")
+            else if (slot === "translate_pill") (what === "tap" ? coach.tap : coach.dismiss)("translate_pill")
+          }}
           onPlans={() => {
             show()
             openPlans("pro", "translate")
@@ -4796,11 +5153,28 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       )}
 
       {/* 2.7 (plan section 6): the page's hint by the circle, on its side (never with the translate pill). */}
-      {pageHints.line && fabVisible && !fabDrag.state.dragging && !bubble?.rect && !bubbleUp && (
-        <HintLine id={pageHints.line} side={side} top={fabTop} onTap={pageHints.tap} onClose={pageHints.close} />
+      {pageHints.line && slot === `page_${pageHints.line}` && (
+        <HintLine id={pageHints.line} side={side} top={fabTop} onTap={() => {
+          const id = pageHints.line
+          if (!id) return
+          openViaRef.current = "hint"
+          coach.tap(`page_${id}` as CoachHint)
+          if (!DO_IT.has(id)) return pageHints.tap()
+          // 2.8 (В5): the line does its feature, here, once the panel is open.
+          pageHints.act()
+          coach.done(`page_${id}` as CoachHint)
+          openFromHint()
+          setTimeout(() => doHintRef.current(id), 400)
+        }} onClose={() => {
+          coach.dismiss(`page_${pageHints.line}` as CoachHint)
+          pageHints.close()
+        }} />
       )}
-      {cookieLine.line && !pageHints.line && !fabDrag.state.dragging && !bubbleUp && (
-        <CookieLine line={cookieLine.line} side={side} top={fabTop} onClose={cookieLine.close} />
+      {cookieLine.line && slot === "cookie_line" && (
+        <CookieLine line={cookieLine.line} side={side} top={fabTop} onClose={() => {
+          coach.dismiss("cookie_line")
+          cookieLine.close()
+        }} />
       )}
 
       {/* The page reminder is set: said here too (on iPhone the selection, and its buttons, are gone by now). */}
@@ -4925,8 +5299,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 <div class="cf-bubble-hint guide">{t(touch ? "guideTapAskTouch" : "guideTapAskMouse", t("selAsk"))}</div>
               ) : (
                 <>
-                  {selHint && <div class="cf-bubble-hint">{t("selHint")}</div>}
-                  {!selHint && <SelIconsTip watching={listsKind("watch")} />}
+                  {selHint && slot === "sel_ask" && <div class="cf-bubble-hint">{t("selHint")}</div>}
+                  {!selHint && coach.may("sel_icons") && <SelIconsTip watching={listsKind("watch")} allowed={slot === "sel_icons"} onWant={(on) => coach.want("sel_icons", on)} />}
                 </>
               )}
             </>
@@ -5150,14 +5524,17 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
           {view === "threads" ? (
             <>
-              {hintDue("chats") && threadList.length > 0 && guide !== "chatList" && !(guide && PLAN_VIEW[guide] === "threads") && (
+              {slot === "chats_tip" && (
                 <div class="cf-upsell-wrap">
-                  <Hint line={compact} icon={<Icon.Chats />} title={t("hintChatsTitle")} onDone={() => doneHint("chats")}>{t("hintChatsBody")}</Hint>
+                  <Hint line={compact} icon={<Icon.Chats />} title={t("hintChatsTitle")} onDone={() => {
+                    coach.done("chats_tip")
+                    doneHint("chats")
+                  }}>{t("hintChatsBody")}</Hint>
                 </div>
               )}
               {findConsent && (
                 <div class="cf-upsell-wrap">
-                  <ConsentCard again={consent === "old"} onAccept={() => findConsent.resolve(true)} onDecline={() => findConsent.resolve(false)} />
+                  <ConsentCard via="find" again={consent === "old"} onAccept={() => findConsent.resolve(true)} onDecline={() => findConsent.resolve(false)} />
                 </div>
               )}
               {upsell && (
@@ -5236,7 +5613,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             <>
               {findConsent && (
                 <div class="cf-upsell-wrap">
-                  <ConsentCard again={consent === "old"} onAccept={() => findConsent.resolve(true)} onDecline={() => findConsent.resolve(false)} />
+                  <ConsentCard via="find" again={consent === "old"} onAccept={() => findConsent.resolve(true)} onDecline={() => findConsent.resolve(false)} />
                 </div>
               )}
               <CollectionsWindow
@@ -5359,9 +5736,23 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {/* (Not while an agent task's card is there: the card comes first, the director on the real-Safari shots.) */}
                 {!historyMode && messages.length === 0 && partial === null && !agentCardShown && (
                   <div class="cf-empty">
-                    <div class="cf-empty-icon"><Icon.Sparkle size={28} /></div>
+                    {/* 2.8: with ready questions the icon goes (on an iPhone's sheet it was cut off at the top). */}
+                    {!showReady && <div class="cf-empty-icon"><Icon.Sparkle size={28} /></div>}
                     <h2>{t("emptyTitle")}</h2>
-                    <p>{t(contextKind === "selection" ? "emptySelection" : contextKind === "page" ? (source.kind() === "video" ? (mediaOn ? "emptyVideo" : "emptyVideoFree") : source.kind() === "pdf" ? (mediaOn ? "emptyPdf" : "emptyPdfFree") : "emptyPage") : "emptyNone")}</p>
+                    {!showReady && <p>{t(contextKind === "selection" ? "emptySelection" : contextKind === "page" ? (source.kind() === "video" ? (mediaOn ? "emptyVideo" : "emptyVideoFree") : source.kind() === "pdf" ? (mediaOn ? "emptyPdf" : "emptyPdfFree") : "emptyPage") : "emptyNone")}</p>}
+                    {/* 2.8: ready questions about this page, «Continue «…»», the consent in the same tap (ready/). */}
+                    {showReady && (
+                      <ReadyQuestions
+                        questions={readyQuestions}
+                        consentFirst={consentInTap}
+                        again={consent === "old"}
+                        onAsk={askReady}
+                        last={lastChat ? { name: threadName(lastChat), open: () => {
+                          void sendBackground({ type: "useEvent", f: "chat", a: "continue" })
+                          openThread(lastChat.id)
+                        } } : null}
+                      />
+                    )}
                     {actions.length > 0 && (
                       <ChipsRow cls="cf-actions" sig={chipsSig} arrows={!touch} still={guide !== null || touring}>
                         {actions.map((a) => (
@@ -5420,6 +5811,42 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       ), !picked)}
                       {messageFooter(m, idx, () => toPlainText(m.content), () => answerShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
                       {!picked && offerChip(idx)}
+                      {/* 2.8 (В6.1): two follow-up questions the answer came with, under the chat's latest answer. */}
+                      {!picked && idx === messages.length - 1 && m.next && m.next.length > 0 && partial === null && !historyMode && (
+                        <div class="cf-next" role="group" aria-label={t("rqTitle")}>
+                          {m.next.map((q) => <button type="button" key={q} class="cf-next-q" dir="auto" onClick={() => ask(q, { via: "followup" })}>{q}</button>)}
+                        </div>
+                      )}
+                      {/* 2.8 (В5.6): the answer needs what isn't on the page: a Google answer, one tap. */}
+                      {!picked && idx === messages.length - 1 && slot === "google_offer" && webFor && (
+                        <button type="button" class="cf-chip cf-google-offer" onClick={() => {
+                          coach.tap("google_offer")
+                          coach.done("google_offer")
+                          ask(webFor.content, { mode: "google", via: "hint" })
+                        }}><Icon.Search size={13} /> {t("googleOffer")}</button>
+                      )}
+                      {/* What it costs, said before the tap (the director: Free's Google answers are apart from the five). */}
+                      {!picked && idx === messages.length - 1 && slot === "google_offer" && webFor && (
+                        <p class="cf-google-cost">{hasPro(plan) ? t("googleOfferPro", search.proWeekly) : t("googleOfferFree", search.freeDaily)}</p>
+                      )}
+                      {/* 2.8 (В5.8): the second answer copied: keeping them in a collection, one tap. */}
+                      {!picked && idx === collectOffer && slot === "collect_tip" && (
+                        <div class="cf-collect-tip" role="note">
+                          <p>{t("collectTip")}</p>
+                          <div class="cf-card-actions">
+                            <button type="button" class="cf-primary" onClick={() => {
+                              coach.tap("collect_tip")
+                              coach.done("collect_tip")
+                              setCollectOffer(null)
+                              setCollecting(idx)
+                            }}>{t("collectTipAdd")}</button>
+                            <button type="button" class="cf-link" onClick={() => {
+                              coach.dismiss("collect_tip")
+                              setCollectOffer(null)
+                            }}>{t("offerLater")}</button>
+                          </div>
+                        </div>
+                      )}
                       {!picked && ux.addCard(m, idx)}
                     </div>
                   )
@@ -5427,7 +5854,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
                 {partial !== null && (
                   <div class="cf-msg ai">
-                    {similarRun ? <SimilarList items={similarRun.items} step={similarRun.step} pages={similarRun.pages} onOpen={openPage} light={similarMode(plan, tasteOf(status, "similar")) === "light"} /> : partial ? <Markdown text={withoutItemMarker(partial).text} /> : <div class="cf-thinking"><span /><span /><span /> {t(reading === "video" ? "readingVideo" : reading === "pdf" ? "readingPdf" : streamMode === "google" ? "searching" : "thinking")}</div>}
+                    {similarRun ? <SimilarList items={similarRun.items} step={similarRun.step} pages={similarRun.pages} onOpen={openPage} light={similarMode(plan, tasteOf(status, "similar")) === "light"} /> : partial ? <Markdown text={splitNext(withoutItemMarker(partial).text).text} /> : <div class="cf-thinking"><span /><span /><span /> {t(reading === "video" ? "readingVideo" : reading === "pdf" ? "readingPdf" : streamMode === "google" ? "searching" : "thinking")}</div>}
                   </div>
                 )}
 
@@ -5586,20 +6013,20 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {jobs.running.has(threadRef.current) && partial === null && (
                   <div class="cf-busy-row" role="status"><span class="cf-busy-spin" aria-hidden="true" /> {t("busyWorking")}</div>
                 )}
-                {organizeCardsView}
+                {organizeCardsView()}
 
-                {byokCard && byokDiscount !== null && !error && partial === null && (
+                {slot === "byok_offer" && byokDiscount !== null && (
                   <div class="cf-card offer">
                     <strong>{t("byokOfferTitle", byokDiscount)}</strong>
                     <p>{t("byokOfferBody", PRO_WEEKLY, search.proWeekly)}</p>
                     <div class="cf-card-actions">
-                      <button type="button" class="cf-primary" onClick={() => { setByokCard(false); upgrade("offer") }}><Icon.Sparkle size={14} /> {t("upgradeProOff", byokDiscount)}</button>
-                      <button type="button" class="cf-secondary" onClick={() => setByokCard(false)}>{t("offerLater")}</button>
+                      <button type="button" class="cf-primary" onClick={() => { coach.tap("byok_offer"); coach.done("byok_offer"); setByokCard(false); upgrade("offer") }}><Icon.Sparkle size={14} /> {t("upgradeProOff", byokDiscount)}</button>
+                      <button type="button" class="cf-secondary" onClick={() => { coach.dismiss("byok_offer"); setByokCard(false) }}>{t("offerLater")}</button>
                     </div>
                   </div>
                 )}
 
-                {renewal && !error && partial === null && (
+                {renewal && (renewal === "thanks" || slot === "renewal") && !error && partial === null && (
                   <div class={`cf-card renewal ${renewal === "thanks" ? "done" : ""}`} role="group" aria-label={t("renewalBody")}>
                     {renewal === "thanks" ? (
                       <p>{t("renewalThanks")}</p>
@@ -5839,12 +6266,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 )}
 
                 {/* Not with a page hint's how-to (2.7): one hint at a time, the video's or the PDF's comes next time. */}
-                {!historyMode && partial === null && !pageHints.chat && contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey) && (
+                {slot === "media_tip" && (
                   <Hint reveal
                     line={compact}
                     icon={source.kind() === "video" ? <Icon.Play /> : <Icon.Doc />}
                     title={t(source.kind() === "video" ? "hintVideoTitle" : mediaOn ? "hintPdfTitle" : "hintPdfTitleFree")}
-                    onDone={() => doneHint(source.kind() as HintKey)}
+                    onDone={() => {
+                      coach.done("media_tip")
+                      doneHint(source.kind() as HintKey)
+                    }}
                   >
                     {/* Free answers don't read them: the hint says Pro does. */}
                     {t(source.kind() === "video" ? (mediaOn ? "hintVideoBody" : "hintVideoBodyFree") : mediaOn ? "hintPdfBody" : "hintPdfBodyFree")}
@@ -5858,8 +6288,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   return <div ref={revealOnce}><Hint icon={<Icon.Sparkle size={16} />} title={how.title} action={allTips} onDone={pageHints.doneChat}>{how.body}</Hint></div>
                 })()}
                 {/* 2.7 (plan section 5): a friend who came with this install's code became active: the reward, once. */}
-                {!historyMode && partial === null && !pending && !pageHints.chat && inviteNew && (
+                {slot === "invite" && (
                   <InviteRewardCard onRedeem={redeemOffer} onDone={() => {
+                    coach.done("invite")
                     setInviteNew(false)
                     void markActiveSeen(status?.invite?.active ?? 0)
                   }} />
@@ -5868,22 +6299,28 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     the side too, so the side's own hint isn't shown after it). */}
                 {/* 2.7 (after 107): on the compact chat it's one line («New in ContextFlow 2.7 · Show · ×»), shown in one
                     opening of the panel and gone with it (newLineShown), never a card over the answer. */}
-                {!historyMode && partial === null && !pending && !pageHints.chat && !inviteNew && hintDue("new27") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
+                {slot === "whatsnew" && (
                   <Hint reveal
                     line={compact && (newLineShown.current = true)}
                     icon={<Icon.Sparkle size={16} />}
                     title={t("hintNewTitle")}
                     list={[t("hintNewTranslate"), t("hintNewWrite"), t("hintNewSpaces"), t("hintNewApple"), t("hintNewShot"), t("hintNewSide")]}
                     action={allTips}
-                    onDone={() => doneHint(["new27", "side"])}
+                    onDone={() => {
+                      coach.done("whatsnew")
+                      doneHint(["new27", "side"])
+                    }}
                   />
                 )}
-                {!historyMode && partial === null && !pending && !pageHints.chat && !inviteNew && hintDue("side") && !hintDue("new27") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
+                {slot === "side" && (
                   <Hint reveal
                     line={compact}
                     icon={<Icon.Sparkle size={16} />}
                     title={t(layout === "side" ? "hintSideTitle" : "hintSideTitleSheet")}
-                    onDone={() => doneHint("side")}
+                    onDone={() => {
+                      coach.done("side")
+                      doneHint("side")
+                    }}
                   >
                     {t(layout === "side" ? "hintSideBody" : "hintSideBodySheet")}
                   </Hint>
@@ -5893,7 +6330,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {/* Listen to this page or Find similar from the chat (build 92): the consent they wait for shows here too (it
                     showed only in the chat list, so from a chat they did nothing without consent). */}
                 {findConsent && !pending && (
-                  <ConsentCard again={consent === "old"} onAccept={() => findConsent.resolve(true)} onDecline={() => findConsent.resolve(false)} />
+                  <ConsentCard via="find" again={consent === "old"} onAccept={() => findConsent.resolve(true)} onDecline={() => findConsent.resolve(false)} />
                 )}
               </div>
 
@@ -5917,7 +6354,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 <footer class="cf-composer">
                   {listenBar}
                   {undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}
-                  {noteHint && draft.trim() && !noteMode && !sendMenu && <div class="cf-note-hint" role="status">{t(sendHintKey)}</div>}
+                  {slot === "note_tip" && <div class="cf-note-hint" role="status">{t(sendHintKey)}</div>}
                   {sendMenu && !streaming && (
                     <SendMenu note={noteMode} doing={doMode} canDo={swipeDo} onNote={flipMode} onDo={flipDo} onClose={() => setSendMenu(false)} />
                   )}
@@ -6030,7 +6467,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       rows={1}
                       dir="auto"
                       value={draft}
-                      placeholder={t(noteMode ? "placeholderNote" : historyMode ? "placeholderHistory" : agentMode ? "placeholderAgent" : googleMode ? "placeholderGoogle" : contextKind === "selection" ? "placeholderSelection" : contextKind === "page" ? "placeholderPage" : "placeholderNone")}
+                      placeholder={t(noteMode ? "placeholderNote" : historyMode ? "placeholderHistory" : agentMode ? "placeholderAgent" : googleMode ? "placeholderGoogle" : contextKind === "selection" ? "placeholderSelection" : showReady || (coach.answers < 3 && messages[messages.length - 1]?.next?.length) ? "rqOwnWords" : contextKind === "page" ? "placeholderPage" : "placeholderNone")}
                       enterkeyhint="send"
                       // What the screen does once the field has the focus tells a hardware keyboard from the one on
                       // screen (quiet/density.ts): noted for the next opening.
@@ -6175,7 +6612,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             setView("templates")
           }}
           onAdapt={adaptTemplate}
-          hintUp={Boolean(pageHints.line && fabVisible)}
+          hintUp={(slot !== null && slot !== "write_tip") || !coach.may("write_tip")}
+          tipOk={slot === "write_tip"}
+          onTipWant={(on) => coach.want("write_tip", on)}
         />
       )}
     </div>

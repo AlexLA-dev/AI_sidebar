@@ -306,6 +306,12 @@ export interface TranslatePillProps {
   onPlans: () => void
   // Counts the times the circle was held down: each opens the pill by hand, on any page (build 107).
   held?: number
+  // 2.8, the hint coordinator (src/content/coach): the pill offering itself is a hint («translate_pill»). It says when
+  // it would offer itself (`onWant`), shows only when let (`offerOk`; else the small entry, as on a page it fits less),
+  // and reports what happened to it. Asked for by hand (the entry, a hold), it is never held back.
+  offerOk?: boolean
+  onWant?: (on: boolean) => void
+  onHint?: (what: "tap" | "dismiss" | "done") => void
 }
 
 const Chevron = (): VNode => (
@@ -330,7 +336,7 @@ function LanguagePick({ to, from, onPick }: { to: string; from: string | null; o
   )
 }
 
-export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: TranslatePillProps): VNode | null {
+export function TranslatePill({ side, top, show, free, onPlans, held = 0, offerOk = true, onWant, onHint }: TranslatePillProps): VNode | null {
   const { offer, part, controls, pageLang, hidden, auto, setAuto: setAutoSite, looked, to, setTo, hide, unhide } = useOffer()
   const typing = useTyping()
   const state = useEngine()
@@ -368,6 +374,7 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
     if (tapped.current && prev.current === "working" && state.at === "on") {
       step("done")
       void showHere().then((was) => was && unhide())
+      onHintRef.current?.("done")
       cameOut.current = true
     }
     if (state.at === "limit") step("limit")
@@ -482,6 +489,7 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
     tapped.current = true
     autoRun.current = false
     step("tap")
+    onHintRef.current?.("tap")
     const status = await loadConsent()
     if (status !== "ok") {
       setConsent(status)
@@ -517,7 +525,14 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
   // dialog and hid its main button. Where the page has a button or a link under the pill, the small entry shows
   // instead (until it's tapped: then the pill, asked for).
   const [offerRef, overPage] = useOverPageControls<HTMLDivElement>(state.at === "off" && !closed && !opened && byItself && !hidden && show)
-  const pill = state.at !== "off" ? !closed : !closed && (opened || (byItself && !hidden && !overPage))
+  const wantsOffer = state.at === "off" && !closed && !opened && byItself && !hidden && !overPage && show
+  const onWantRef = useRef(onWant)
+  onWantRef.current = onWant
+  useEffect(() => onWantRef.current?.(wantsOffer), [wantsOffer])
+  useEffect(() => () => onWantRef.current?.(false), [])
+  const onHintRef = useRef(onHint)
+  onHintRef.current = onHint
+  const pill = state.at !== "off" ? !closed : !closed && (opened || (byItself && !hidden && !overPage && offerOk))
   const entry = !pill && (state.at !== "off" || (target !== null && !manual) || !!offer || !!controls || !!part)
   const visible = show && !(typing && state.at === "off") && (pill ? (target !== null || state.at !== "off") : entry)
   // The entry itself over a page's button (108, iPhone: by the circle it lay on the dialog's «İzin ver»): it steps
@@ -570,6 +585,7 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
   }
   const dismiss = () => {
     step("dismiss")
+    onHintRef.current?.("dismiss")
     setClosed(true)
     setOpened(false)
     setManual(false)
@@ -636,7 +652,7 @@ export function TranslatePill({ side, top, show, free, onPlans, held = 0 }: Tran
     const low = top.endsWith("%") ? at >= 50 : at >= window.innerHeight / 2
     return (
       <div class={`cf-tr-consent ${side}${low ? "" : " below"}`} style={style}>
-        <ConsentCard again={consent === "old"} onAccept={() => void accept()} onDecline={() => setConsent(null)} />
+        <ConsentCard via="translate" again={consent === "old"} onAccept={() => void accept()} onDecline={() => setConsent(null)} />
       </div>
     )
   }

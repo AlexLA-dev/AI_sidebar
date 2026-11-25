@@ -2729,6 +2729,72 @@
  "phSimilar": {
   "message": "Tìm chỗ rẻ hơn?"
  },
+ "fabFirstLabel": {
+  "message": "Hỏi về trang này"
+ },
+ "rqProductWorth": {
+  "message": "Có đáng tiền không?"
+ },
+ "rqProductCons": {
+  "message": "Nhược điểm là gì?"
+ },
+ "rqProductCheck": {
+  "message": "Cần kiểm tra gì trước khi mua?"
+ },
+ "rqArticleMain": {
+  "message": "Ý chính là gì?"
+ },
+ "rqArticleArgue": {
+  "message": "Có điểm nào ở đây đáng tranh luận?"
+ },
+ "rqArticleMe": {
+  "message": "Điều này có ý nghĩa gì với tôi?"
+ },
+ "rqVideoAbout": {
+  "message": "Video này nói về gì?"
+ },
+ "rqVideoKey": {
+  "message": "Những điểm chính là gì?"
+ },
+ "rqFormNeed": {
+  "message": "Tôi cần gì để điền mẫu này?"
+ },
+ "rqFormWatch": {
+  "message": "Cần lưu ý gì ở đây?"
+ },
+ "rqEventWhen": {
+  "message": "Khi nào, ở đâu và giá bao nhiêu?"
+ },
+ "rqEventWorth": {
+  "message": "Có đáng để đi không?"
+ },
+ "rqStayKey": {
+  "message": "Những chi tiết chính là gì?"
+ },
+ "rqStayWatch": {
+  "message": "Cần biết gì trước khi quyết định?"
+ },
+ "rqAnyMain": {
+  "message": "Điều chính ở đây là gì?"
+ },
+ "rqAnyWorth": {
+  "message": "Có gì đáng biết ở đây?"
+ },
+ "rqTitle": {
+  "message": "Hỏi về trang này"
+ },
+ "rqAgree": {
+  "message": "Đồng ý và hỏi"
+ },
+ "rqAgreeNote": {
+  "message": "Chạm vào một câu hỏi là đồng ý điều này và gửi câu hỏi."
+ },
+ "rqContinue": {
+  "message": "Tiếp tục «{0}»"
+ },
+ "rqOwnWords": {
+  "message": "Hoặc hỏi bằng lời của bạn…"
+ },
  "phWatch": {
   "message": "Theo dõi giá?"
  },
@@ -2749,6 +2815,24 @@
  },
  "phCalendar": {
   "message": "Thêm vào Lịch?"
+ },
+ "phAgent": {
+  "message": "Điền giúp bạn nhé?"
+ },
+ "googleOffer": {
+  "message": "Tìm trên Google"
+ },
+ "googleOfferFree": {
+  "message": "Không dùng lượt trả lời miễn phí: một trong {0} câu trả lời Google mỗi ngày."
+ },
+ "googleOfferPro": {
+  "message": "Một trong {0} câu trả lời Google của bạn tuần này."
+ },
+ "collectTip": {
+  "message": "Giữ các câu trả lời bạn sao chép ở một chỗ: thêm câu này vào bộ sưu tập."
+ },
+ "collectTipAdd": {
+  "message": "Thêm vào bộ sưu tập"
  },
  "phClose": {
   "message": "Ẩn gợi ý"

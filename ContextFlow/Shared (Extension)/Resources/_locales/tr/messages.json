@@ -2729,6 +2729,72 @@
  "phSimilar": {
   "message": "Daha ucuzu aransın mı?"
  },
+ "fabFirstLabel": {
+  "message": "Bu sayfa hakkında sorun"
+ },
+ "rqProductWorth": {
+  "message": "Fiyatına değer mi?"
+ },
+ "rqProductCons": {
+  "message": "Dezavantajları neler?"
+ },
+ "rqProductCheck": {
+  "message": "Satın almadan önce neye bakmalıyım?"
+ },
+ "rqArticleMain": {
+  "message": "Ana fikir ne?"
+ },
+ "rqArticleArgue": {
+  "message": "Burada nelere itiraz edilebilir?"
+ },
+ "rqArticleMe": {
+  "message": "Bu benim için ne anlama geliyor?"
+ },
+ "rqVideoAbout": {
+  "message": "Bu video ne hakkında?"
+ },
+ "rqVideoKey": {
+  "message": "Önemli noktalar neler?"
+ },
+ "rqFormNeed": {
+  "message": "Bunu doldurmak için neye ihtiyacım var?"
+ },
+ "rqFormWatch": {
+  "message": "Burada nelere dikkat etmeliyim?"
+ },
+ "rqEventWhen": {
+  "message": "Ne zaman, nerede ve ne kadar?"
+ },
+ "rqEventWorth": {
+  "message": "Gitmeye değer mi?"
+ },
+ "rqStayKey": {
+  "message": "Önemli ayrıntılar neler?"
+ },
+ "rqStayWatch": {
+  "message": "Karar vermeden önce neyi bilmeliyim?"
+ },
+ "rqAnyMain": {
+  "message": "Buradaki asıl mesele ne?"
+ },
+ "rqAnyWorth": {
+  "message": "Burada bilinmeye değer ne var?"
+ },
+ "rqTitle": {
+  "message": "Bu sayfa hakkında sorun"
+ },
+ "rqAgree": {
+  "message": "Kabul et ve sor"
+ },
+ "rqAgreeNote": {
+  "message": "Bir soruya dokunmak bu onayı verir ve soruyu sorar."
+ },
+ "rqContinue": {
+  "message": "«{0}» sohbetine devam et"
+ },
+ "rqOwnWords": {
+  "message": "Ya da kendi sözlerinizle sorun…"
+ },
  "phWatch": {
   "message": "Fiyat takip edilsin mi?"
  },
@@ -2749,6 +2815,24 @@
  },
  "phCalendar": {
   "message": "Takvime eklensin mi?"
+ },
+ "phAgent": {
+  "message": "Sizin için doldurayım mı?"
+ },
+ "googleOffer": {
+  "message": "Bunu Google'da ara"
+ },
+ "googleOfferFree": {
+  "message": "Ücretsiz yanıtlarınızı kullanmaz: günde {0} Google yanıtından biri."
+ },
+ "googleOfferPro": {
+  "message": "Bu haftaki {0} Google yanıtınızdan biri."
+ },
+ "collectTip": {
+  "message": "Kopyaladığınız yanıtları tek yerde tutun: bunu bir koleksiyona ekleyin."
+ },
+ "collectTipAdd": {
+  "message": "Koleksiyona ekle"
  },
  "phClose": {
   "message": "Bu ipucunu gizle"

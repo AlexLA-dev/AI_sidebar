@@ -129,6 +129,10 @@ export interface AskPayload {
   agent?: true
   // The chip's own words (the answer names the button with them).
   agentLabel?: string
+  // 2.8 (В6.1): the answer ends with two follow-up questions (src/shared/nextQuestions.ts).
+  next?: true
+  // 2.8: how the question came and the page's kind, for the answer's row (src/shared/usage.ts uiFields).
+  ui?: { via: string; page: string }
 }
 
 /** Where an Own key subscriber met Pro: a refusal (answers, Google, a Pro-only feature), the discount card, Settings. */
@@ -204,6 +208,10 @@ export type ErrorCode =
 
 export type BackgroundRequest =
   | { type: "status"; refresh?: boolean; fresh?: boolean; platform?: Platform }
+  // 2.8.1: the panel says its platform as it starts, before its first event (the first fab.shown went out as "other").
+  | { type: "platform"; platform: Platform }
+  // 2.8.1 (R10): the install's id when the panel doesn't find it stored yet (its arm must be the background's).
+  | { type: "installId" }
   // 2.6 (91): a Tips clip from the app (App Group) for the clip page.
   | { type: "tipClip"; name: string; lang: string }
   // «Снимок страницы в заметке» (2.7): the tab's visible area captured; a note's picture kept, and fetched to open it.

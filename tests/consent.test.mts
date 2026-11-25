@@ -108,7 +108,9 @@ test("the card is compact: folded at first, what each feature sends unfolds and 
   const { window, document } = parseHTML(`<!doctype html><html><body><div id="at"></div></body></html>`)
   Object.assign(globalThis as any, { window, document, Node: window.Node, Element: window.Element, HTMLElement: window.HTMLElement })
   const opened: string[] = []
-  ;(globalThis as any).chrome = { i18n: { getMessage: () => "" }, runtime: { sendMessage: (m: any, cb?: () => void) => { opened.push(m.url); cb?.() }, lastError: undefined } }
+  // 2.8: the card counts itself (consent.shown / accepted / declined, events-2.8 rung 10), apart from links opened.
+  const steps: string[] = []
+  ;(globalThis as any).chrome = { i18n: { getMessage: () => "" }, runtime: { sendMessage: (m: any, cb?: () => void) => { if (m?.type === "useEvent") steps.push(`${m.f}.${m.a}.${m.via}`); else opened.push(m.url); cb?.() }, lastError: undefined } }
   const dir = mkdtempSync(join(tmpdir(), "cf-consent-card-"))
   const out = join(dir, "card.mjs")
   await build({
@@ -148,6 +150,8 @@ test("the card is compact: folded at first, what each feature sends unfolds and 
   assert.equal(at.querySelectorAll(".cf-consent-list li").length, 0)
   at.querySelector(".cf-primary").dispatchEvent(new window.Event("click", { bubbles: true }))
   at.querySelector(".cf-card-actions .cf-link").dispatchEvent(new window.Event("click", { bubbles: true }))
+  await tick()
+  assert.deepEqual(steps, ["consent.shown.ask", "consent.accepted.ask", "consent.declined.ask"])
   at.querySelector(".cf-consent-policy").dispatchEvent(new window.Event("click", { bubbles: true }))
   assert.deepEqual(seen, ["accept", "decline"])
   assert.equal(opened.length, 1, "the privacy policy")

@@ -69,6 +69,9 @@ interface Props {
   // Another hint of ours shows by the circle (the page's hint line, «Reply with a template?»): the tip waits (2.7, the
   // director's acceptance of 108: both showed at once on an iPad's first reply).
   hintUp?: boolean
+  // 2.8.1, the hint coordinator: the tip says it would show (`onTipWant`) and shows only when let (`tipOk`).
+  tipOk?: boolean
+  onTipWant?: (on: boolean) => void
   onAdapt: (text: string, conversation: string | null) => void
 }
 
@@ -594,7 +597,11 @@ export function QuickInsert(props: Props): VNode | null {
   }, [buttonPos?.top, buttonPos?.left])
   // 2.7 (the director's acceptance of 108: on an iPad it stayed over a minute, over the selection's buttons): shown, it
   // goes by itself after a few seconds, or at the first touch anywhere; and it gives way to our selection's buttons.
-  const tipShown = Boolean(buttonPos && tip && field && !fixCount && !props.hintUp && !selectionShown)
+  const tipWanted = Boolean(buttonPos && tip && field && !fixCount && !selectionShown)
+  const tipWantRef = useRef(props.onTipWant)
+  tipWantRef.current = props.onTipWant
+  useEffect(() => tipWantRef.current?.(tipWanted), [tipWanted])
+  const tipShown = Boolean(buttonPos && tip && field && !fixCount && !props.hintUp && !selectionShown) && props.tipOk !== false
   const dropTipRef = useRef(dropTip)
   dropTipRef.current = dropTip
   // Seen at least once: only then does our selection's coming drop it for good (before, it just waits).
@@ -1072,7 +1079,7 @@ function InsertList(p: ListProps): VNode {
               </div>
             )}
             {askConsent && (
-              <ConsentCard again={p.consent === "old"} onAccept={() => {
+              <ConsentCard via="qi" again={p.consent === "old"} onAccept={() => {
                 setAskConsent(false)
                 void p.onConsent().then(askAi)
               }} onDecline={() => setAskConsent(false)} />

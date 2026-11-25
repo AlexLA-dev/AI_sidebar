@@ -2729,6 +2729,72 @@
  "phSimilar": {
   "message": "Find it cheaper?"
  },
+ "fabFirstLabel": {
+  "message": "Ask about this page"
+ },
+ "rqProductWorth": {
+  "message": "Is it worth the money?"
+ },
+ "rqProductCons": {
+  "message": "What are the downsides?"
+ },
+ "rqProductCheck": {
+  "message": "What should I check before buying?"
+ },
+ "rqArticleMain": {
+  "message": "What's the main point?"
+ },
+ "rqArticleArgue": {
+  "message": "What could be argued with here?"
+ },
+ "rqArticleMe": {
+  "message": "What does this mean for me?"
+ },
+ "rqVideoAbout": {
+  "message": "What is this video about?"
+ },
+ "rqVideoKey": {
+  "message": "What are the key points?"
+ },
+ "rqFormNeed": {
+  "message": "What do I need to fill this in?"
+ },
+ "rqFormWatch": {
+  "message": "What should I watch out for here?"
+ },
+ "rqEventWhen": {
+  "message": "When and where is it, and how much?"
+ },
+ "rqEventWorth": {
+  "message": "Is it worth going?"
+ },
+ "rqStayKey": {
+  "message": "What are the key details?"
+ },
+ "rqStayWatch": {
+  "message": "What should I know before I go ahead?"
+ },
+ "rqAnyMain": {
+  "message": "What's the main point here?"
+ },
+ "rqAnyWorth": {
+  "message": "What's worth knowing here?"
+ },
+ "rqTitle": {
+  "message": "Ask about this page"
+ },
+ "rqAgree": {
+  "message": "Agree and ask"
+ },
+ "rqAgreeNote": {
+  "message": "Tapping a question gives this consent and asks it."
+ },
+ "rqContinue": {
+  "message": "Continue «{0}»"
+ },
+ "rqOwnWords": {
+  "message": "Or ask in your own words…"
+ },
  "phWatch": {
   "message": "Watch the price?"
  },
@@ -2749,6 +2815,24 @@
  },
  "phCalendar": {
   "message": "Add to Calendar?"
+ },
+ "phAgent": {
+  "message": "Fill it in for you?"
+ },
+ "googleOffer": {
+  "message": "Search Google for this"
+ },
+ "googleOfferFree": {
+  "message": "Doesn't use your free answers: one of {0} Google answers a day."
+ },
+ "googleOfferPro": {
+  "message": "One of your {0} Google answers this week."
+ },
+ "collectTip": {
+  "message": "Keep answers you copy in one place: add this one to a collection."
+ },
+ "collectTipAdd": {
+  "message": "Add to a collection"
  },
  "phClose": {
   "message": "Hide this tip"

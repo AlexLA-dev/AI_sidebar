@@ -107,10 +107,10 @@ test("the server, the background and the panel: marker out, flag on, counts only
   assert.match(chat, /withItemRule\(systemPromptParts\(page, profile, locale, others, fromApp, hasMarks\(messages\), tokens\), items\)/)
   assert.match(chat, /withItemRule\(\[googlePrompt\(/)
   assert.match(read("../src/background/chat.ts"), /\.\.\.\(req\.payload\.items \? \{ items: true \} : \{\}\)/)
-  assert.match(read("../src/background/jobs.ts"), /const \{ text, marked \} = withoutItemMarker\(grounded\?\.text \?\? job\.snapshot\.text\)/)
+  assert.match(read("../src/background/jobs.ts"), /const \{ text: whole, marked \} = withoutItemMarker\(grounded\?\.text \?\? job\.snapshot\.text\)/)
   const app = read("../src/content/App.tsx")
   assert.match(app, /\.\.\.\(appleNow\(\)\?\.available \? \{ items: true as const \} : \{\}\)/)
-  assert.match(app, /<Markdown text=\{withoutItemMarker\(partial\)\.text\} \/>/)
+  assert.match(app, /<Markdown text=\{splitNext\(withoutItemMarker\(partial\)\.text\)\.text\} \/>/)
   assert.match(app, /\{!picked && ux\.addCard\(m, idx\)\}/)
   // Counted as "use" steps of "apple": named values only.
   assert.deepEqual(FEATURES.apple.fields, { what: ["reminder", "event"] })

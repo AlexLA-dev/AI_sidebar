@@ -44,6 +44,10 @@ export interface PageHints {
   // Has the person's plan the feature (the how-to), or is it offered to them.
   has: (id: HintId) => boolean
   tap: () => void
+  /** The line is on screen (the coordinator gave it the slot): counted once. */
+  seen: () => void
+  // 2.8 (В5): the line's tap does its feature on this page (the panel runs it): counted as tapped and used, no how-to.
+  act: () => HintId | null
   close: () => void
   doneChat: () => void
 }
@@ -57,7 +61,12 @@ export interface PageHints {
  * by a button they have never tapped (the director's clean install: that line on our own site, where the app's
  * «Open Safari» takes everyone). Nothing is counted for it either: the first days' lines start after the first run.
  */
-export function usePageHints({ plan, ready, firstRunAhead, open }: { plan: Plan; ready: boolean; firstRunAhead: boolean; open: () => void }): PageHints {
+export function usePageHints({ plan, ready, firstRunAhead, open, may, onUsed }: {
+  plan: Plan; ready: boolean; firstRunAhead: boolean; open: () => void
+  // 2.8: the hint coordinator (src/content/coach): whether this line may show at all now (its day and budget), and
+  // its feature used after it.
+  may?: (id: HintId) => boolean; onUsed?: (id: HintId) => void
+}): PageHints {
   const [line, setLine] = useState<HintId | null>(null)
   const [chat, setChat] = useState<HintId | null>(null)
   const [glow, setGlowState] = useState<{ id: HintId; target: GlowTarget } | null>(null)
@@ -74,6 +83,10 @@ export function usePageHints({ plan, ready, firstRunAhead, open }: { plan: Plan;
   planRef.current = plan
   const aheadRef = useRef(firstRunAhead)
   aheadRef.current = firstRunAhead
+  const mayRef = useRef(may)
+  mayRef.current = may
+  const usedRef = useRef(onUsed)
+  usedRef.current = onUsed
   const done = useRef(false)
 
   // One look per page, once it has settled.
@@ -98,9 +111,10 @@ export function usePageHints({ plan, ready, firstRunAhead, open }: { plan: Plan;
       const now = Date.now()
       const id = pickHint(pageKind(document, location.href), planRef.current, await seeded(await loadHints(now)), now)
       if (!alive || !id) return
-      await saveHints(afterShown(await seeded(await loadHints(now)), id, now))
+      // Not today (the first day is quiet, one capability a day, its shows used up): nothing counted for it.
+      if (mayRef.current && !mayRef.current(id)) return
+      // 2.8.1 (R4): counted once it is on screen (seen(), when the coordinator gives it the slot), not when picked.
       setLine(id)
-      step("shown", id)
       timer = setTimeout(() => setLine((cur) => (cur === id ? null : cur)), LINE_MS)
     }
     timer = setTimeout(() => void look(), FIRST_LOOK_MS)
@@ -123,6 +137,7 @@ export function usePageHints({ plan, ready, firstRunAhead, open }: { plan: Plan;
         void loadHints(Date.now()).then((s) => saveHints(afterUsed(s, id)))
         if (g?.id === id) {
           step("used", id)
+          usedRef.current?.(id)
           setGlow(null)
         }
       }
@@ -134,6 +149,7 @@ export function usePageHints({ plan, ready, firstRunAhead, open }: { plan: Plan;
       const g = glowRef.current
       if (g?.target !== "composer" || !(e.target as Element | null)?.closest?.(".cf-composer")) return
       step("used", g.id)
+      usedRef.current?.(g.id)
       void loadHints(Date.now()).then((s) => saveHints(afterUsed(s, g.id)))
       setGlow(null)
     }
@@ -156,6 +172,26 @@ export function usePageHints({ plan, ready, firstRunAhead, open }: { plan: Plan;
     open()
   }, [open])
 
+  const counted = useRef<HintId | null>(null)
+  const seen = useCallback(() => {
+    const id = lineRef.current
+    if (!id || counted.current === id) return
+    counted.current = id
+    const now = Date.now()
+    void loadHints(now).then((s) => seeded(s)).then((s) => saveHints(afterShown(s, id, now)))
+    step("shown", id)
+  }, [])
+
+  const act = useCallback((): HintId | null => {
+    const id = lineRef.current
+    if (!id) return null
+    step("tap", id)
+    step("used", id)
+    void loadHints(Date.now()).then((s) => saveHints(afterUsed(afterTap(s), id)))
+    setLine(null)
+    return id
+  }, [])
+
   const close = useCallback(() => {
     const id = lineRef.current
     if (!id) return
@@ -174,6 +210,8 @@ export function usePageHints({ plan, ready, firstRunAhead, open }: { plan: Plan;
     glow: glow?.target ?? null,
     has: (id) => hasFeature(id, planRef.current),
     tap,
+    seen,
+    act,
     close,
     doneChat: () => setChat(null)
   }

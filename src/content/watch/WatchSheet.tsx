@@ -158,7 +158,7 @@ function WatchEdit({ watch, close, changed }: { watch: Watch; close(): void; cha
         <NoteWords watch value={note} onInput={setNote} />
         {state === "failed" && <p class="cf-watch-msg">{t("watchFailed")}</p>}
         {(state === "consent" || state === "consent-again") && (
-          <ConsentCard again={state === "consent-again"} onAccept={() => void giveConsent().then(save)} onDecline={() => setState("edit")} />
+          <ConsentCard via="watch" again={state === "consent-again"} onAccept={() => void giveConsent().then(save)} onDecline={() => setState("edit")} />
         )}
         <div class="cf-sheet-actions">
           <button type="button" class="cf-primary" disabled={!dirty || state === "saving"} onClick={() => void save()}>

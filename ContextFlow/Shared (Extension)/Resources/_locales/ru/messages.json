@@ -2729,6 +2729,72 @@
  "phSimilar": {
   "message": "Найти похожее дешевле?"
  },
+ "fabFirstLabel": {
+  "message": "Спросите об этой странице"
+ },
+ "rqProductWorth": {
+  "message": "Стоит ли это своих денег?"
+ },
+ "rqProductCons": {
+  "message": "Какие минусы?"
+ },
+ "rqProductCheck": {
+  "message": "Что проверить перед покупкой?"
+ },
+ "rqArticleMain": {
+  "message": "В чём главная мысль?"
+ },
+ "rqArticleArgue": {
+  "message": "С чем здесь можно поспорить?"
+ },
+ "rqArticleMe": {
+  "message": "Что это значит для меня?"
+ },
+ "rqVideoAbout": {
+  "message": "О чём это видео?"
+ },
+ "rqVideoKey": {
+  "message": "Какие ключевые моменты?"
+ },
+ "rqFormNeed": {
+  "message": "Что нужно, чтобы это заполнить?"
+ },
+ "rqFormWatch": {
+  "message": "На что здесь обратить внимание?"
+ },
+ "rqEventWhen": {
+  "message": "Когда, где и сколько стоит?"
+ },
+ "rqEventWorth": {
+  "message": "Стоит ли идти?"
+ },
+ "rqStayKey": {
+  "message": "Какие главные детали?"
+ },
+ "rqStayWatch": {
+  "message": "Что знать, прежде чем решиться?"
+ },
+ "rqAnyMain": {
+  "message": "Что здесь главное?"
+ },
+ "rqAnyWorth": {
+  "message": "Что здесь стоит знать?"
+ },
+ "rqTitle": {
+  "message": "Спросите об этой странице"
+ },
+ "rqAgree": {
+  "message": "Согласиться и спросить"
+ },
+ "rqAgreeNote": {
+  "message": "Нажимая на вопрос, вы даёте это согласие и задаёте его."
+ },
+ "rqContinue": {
+  "message": "Продолжить «{0}»"
+ },
+ "rqOwnWords": {
+  "message": "Или спросите своими словами…"
+ },
  "phWatch": {
   "message": "Следить за ценой?"
  },
@@ -2749,6 +2815,24 @@
  },
  "phCalendar": {
   "message": "Добавить в календарь?"
+ },
+ "phAgent": {
+  "message": "Заполнить за вас?"
+ },
+ "googleOffer": {
+  "message": "Найти это в Google"
+ },
+ "googleOfferFree": {
+  "message": "Не тратит бесплатные ответы: один из {0} ответов с Google в день."
+ },
+ "googleOfferPro": {
+  "message": "Один из {0} ответов с Google на этой неделе."
+ },
+ "collectTip": {
+  "message": "Храните скопированные ответы в одном месте: добавьте этот в подборку."
+ },
+ "collectTipAdd": {
+  "message": "Добавить в подборку"
  },
  "phClose": {
   "message": "Скрыть подсказку"

@@ -2729,6 +2729,72 @@
  "phSimilar": {
   "message": "找更便宜的？"
  },
+ "fabFirstLabel": {
+  "message": "就這個頁面提問"
+ },
+ "rqProductWorth": {
+  "message": "這個值這個價嗎？"
+ },
+ "rqProductCons": {
+  "message": "有什麼缺點？"
+ },
+ "rqProductCheck": {
+  "message": "購買前要確認什麼？"
+ },
+ "rqArticleMain": {
+  "message": "主要觀點是什麼？"
+ },
+ "rqArticleArgue": {
+  "message": "這裡有什麼值得商榷的？"
+ },
+ "rqArticleMe": {
+  "message": "這對我有什麼意義？"
+ },
+ "rqVideoAbout": {
+  "message": "這部影片在講什麼？"
+ },
+ "rqVideoKey": {
+  "message": "重點有哪些？"
+ },
+ "rqFormNeed": {
+  "message": "填寫這個需要準備什麼？"
+ },
+ "rqFormWatch": {
+  "message": "這裡需要注意什麼？"
+ },
+ "rqEventWhen": {
+  "message": "什麼時間、地點，多少錢？"
+ },
+ "rqEventWorth": {
+  "message": "值得去嗎？"
+ },
+ "rqStayKey": {
+  "message": "關鍵細節有哪些？"
+ },
+ "rqStayWatch": {
+  "message": "決定之前需要知道什麼？"
+ },
+ "rqAnyMain": {
+  "message": "這裡最重要的是什麼？"
+ },
+ "rqAnyWorth": {
+  "message": "這裡有什麼值得了解的？"
+ },
+ "rqTitle": {
+  "message": "就這個頁面提問"
+ },
+ "rqAgree": {
+  "message": "同意並提問"
+ },
+ "rqAgreeNote": {
+  "message": "點一下問題即表示給予此同意並提問。"
+ },
+ "rqContinue": {
+  "message": "繼續「{0}」"
+ },
+ "rqOwnWords": {
+  "message": "或用自己的話提問…"
+ },
  "phWatch": {
   "message": "追蹤價格？"
  },
@@ -2749,6 +2815,24 @@
  },
  "phCalendar": {
   "message": "加入行事曆？"
+ },
+ "phAgent": {
+  "message": "幫你填寫？"
+ },
+ "googleOffer": {
+  "message": "用 Google 搜尋"
+ },
+ "googleOfferFree": {
+  "message": "不占用免費回答：每天可用 {0} 次 Google 回答。"
+ },
+ "googleOfferPro": {
+  "message": "本週 {0} 次 Google 回答中的一次。"
+ },
+ "collectTip": {
+  "message": "把複製的回答放在一處：將這則加入合集。"
+ },
+ "collectTipAdd": {
+  "message": "加入合集"
  },
  "phClose": {
   "message": "隱藏提示"

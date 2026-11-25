@@ -138,7 +138,7 @@ test("the panel keeps its hints and the tour's mark the same as the stored ones,
   assert.match(app, /useEffect\(\(\) => \{\n\s+if \(open\) readMarks\(\)\n\s+\}, \[open\]\)/)
   // A new install: the first run that started by itself ends with «New in 2.7» marked seen, whatever way it ends (the
   // background's mark at install never ran in the simulator's Safari, and a new person got «New in ContextFlow 2.7»).
-  assert.match(app, /const timer = setTimeout\(\(\) => \{\n\s+firstRunRef\.current = true\n\s+if \(firstGuideRef\.current\(\)\) startGuideRef\.current\("first"\)\n\s+else setTouring\(true\)/)
+  assert.match(app, /const timer = setTimeout\(\(\) => \{\n\s+firstRunRef\.current = true\n(\s+\/\/[^\n]*\n)?\s+if \(armRef\.current === "ask" && firstGuideRef\.current\(\)\) endTour\(\)\n\s+else if \(firstGuideRef\.current\(\)\) startGuideRef\.current\("first"\)\n\s+else setTouring\(true\)/)
   assert.match(app, /const firstRunOver = \(\) => \{\n\s+if \(!firstRunRef\.current\) return\n\s+firstRunRef\.current = false\n\s+doneHintRef\.current\("new27"\)/)
   assert.equal(app.split("firstRunOver()").length - 1, 2, "the tour's end and the guide's")
   assert.match(app, /const known = hintsRef\.current \?\? \[\]\n\s+setHints\(\(seen\) => hintsWith\(seen \?\? \[\], add\) \?\? seen \?\? \[\]\)\n\s+void markHintSeen\(add, known\)/)

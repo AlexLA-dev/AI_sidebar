@@ -12,17 +12,15 @@ import { Bell } from "./MessageUx"
 
 const SEEN = "cf:selIconsTip"
 
-/** True the first time only: the tip shows now and is marked seen at once (a second bubble doesn't repeat it). */
-function useFirstTime(): boolean {
-  const [show, setShow] = useState(false)
+/** True while it hasn't been seen on this device (2.8.1: marked seen only once it is on screen, below). */
+function useNotSeen(): boolean {
+  const [unseen, setUnseen] = useState(false)
   useEffect(() => {
     let alive = true
     void (async () => {
       try {
         if ((await chrome.storage.local.get(SEEN))[SEEN]) return
-        if (!alive) return
-        setShow(true)
-        await chrome.storage.local.set({ [SEEN]: true })
+        if (alive) setUnseen(true)
       } catch {
         // No storage (the extension reloaded under the page): no tip.
       }
@@ -31,12 +29,23 @@ function useFirstTime(): boolean {
       alive = false
     }
   }, [])
-  return show
+  return unseen
 }
 
-/** `watching`: the eye exists here (Safari), so its line shows too, even before a price is selected. */
-export function SelIconsTip({ watching }: { watching: boolean }): VNode | null {
-  const show = useFirstTime()
+/**
+ * `watching`: the eye exists here (Safari), so its line shows too, even before a price is selected. 2.8.1, the hint
+ * coordinator: it says it would show (`onWant`) and shows only when let (`allowed`); seen once it was on screen.
+ */
+export function SelIconsTip({ watching, allowed = true, onWant }: { watching: boolean; allowed?: boolean; onWant?: (on: boolean) => void }): VNode | null {
+  const unseen = useNotSeen()
+  const wantRef = useRef(onWant)
+  wantRef.current = onWant
+  useEffect(() => wantRef.current?.(unseen), [unseen])
+  useEffect(() => () => wantRef.current?.(false), [])
+  const show = unseen && allowed
+  useEffect(() => {
+    if (show) void chrome.storage.local.set({ [SEEN]: true }).catch(() => undefined)
+  }, [show])
   const ref = useRef<HTMLDivElement>(null)
   useLayoutEffect(() => {
     const el = ref.current

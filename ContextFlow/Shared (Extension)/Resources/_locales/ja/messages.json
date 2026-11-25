@@ -2729,6 +2729,72 @@
  "phSimilar": {
   "message": "もっと安く探しますか？"
  },
+ "fabFirstLabel": {
+  "message": "このページについて質問"
+ },
+ "rqProductWorth": {
+  "message": "値段に見合う価値はある？"
+ },
+ "rqProductCons": {
+  "message": "デメリットは？"
+ },
+ "rqProductCheck": {
+  "message": "買う前に何を確認すべき？"
+ },
+ "rqArticleMain": {
+  "message": "要点は何？"
+ },
+ "rqArticleArgue": {
+  "message": "ここで反論できる点は？"
+ },
+ "rqArticleMe": {
+  "message": "自分にとってどういう意味？"
+ },
+ "rqVideoAbout": {
+  "message": "この動画は何について？"
+ },
+ "rqVideoKey": {
+  "message": "重要なポイントは？"
+ },
+ "rqFormNeed": {
+  "message": "記入に必要なものは？"
+ },
+ "rqFormWatch": {
+  "message": "ここで気をつける点は？"
+ },
+ "rqEventWhen": {
+  "message": "いつ、どこで、いくら？"
+ },
+ "rqEventWorth": {
+  "message": "行く価値はある？"
+ },
+ "rqStayKey": {
+  "message": "重要な詳細は？"
+ },
+ "rqStayWatch": {
+  "message": "決める前に知っておくべきことは？"
+ },
+ "rqAnyMain": {
+  "message": "ここで一番大事なことは？"
+ },
+ "rqAnyWorth": {
+  "message": "ここで知っておくべきことは？"
+ },
+ "rqTitle": {
+  "message": "このページについて質問"
+ },
+ "rqAgree": {
+  "message": "同意して質問"
+ },
+ "rqAgreeNote": {
+  "message": "質問をタップすると、この同意をしたうえで質問します。"
+ },
+ "rqContinue": {
+  "message": "「{0}」の続き"
+ },
+ "rqOwnWords": {
+  "message": "または自分の言葉で質問…"
+ },
  "phWatch": {
   "message": "価格を見守りますか？"
  },
@@ -2749,6 +2815,24 @@
  },
  "phCalendar": {
   "message": "カレンダーに追加しますか？"
+ },
+ "phAgent": {
+  "message": "代わりに入力しましょうか？"
+ },
+ "googleOffer": {
+  "message": "Googleで調べる"
+ },
+ "googleOfferFree": {
+  "message": "無料の回答は使いません：Google回答は1日{0}回まで。"
+ },
+ "googleOfferPro": {
+  "message": "今週のGoogle回答{0}回のうち1回。"
+ },
+ "collectTip": {
+  "message": "コピーした回答はまとめておけます：この回答をコレクションに追加。"
+ },
+ "collectTipAdd": {
+  "message": "コレクションに追加"
  },
  "phClose": {
   "message": "ヒントを隠す"

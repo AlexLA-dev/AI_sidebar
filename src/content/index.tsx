@@ -33,6 +33,7 @@ import spacesStyles from "./spaces.css"
 import collectionsStyles from "./collections.css"
 import quietStyles from "./quiet/quiet.css"
 import agentStyles from "./agent/agent.css"
+import readyStyles from "./ready/ready.css"
 
 // Runs on every http(s) page (and again if injected on demand). Everything we
 // render lives in a closed-off shadow root so page CSS can't break it and our
@@ -125,7 +126,8 @@ ${pageHintStyles}
 ${inviteStyles}
 ${collectionsStyles}
 ${quietStyles}
-${agentStyles}`
+${agentStyles}
+${readyStyles}`
     root.appendChild(style)
     const container = document.createElement("div")
     root.appendChild(container)

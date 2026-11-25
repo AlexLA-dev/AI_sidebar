@@ -12,7 +12,9 @@ import { STORAGE } from "./types.ts"
 export const FIRST_RUN_KEYS: readonly string[] = [
   STORAGE.tourSeen, STORAGE.consent, STORAGE.noteHint, STORAGE.selHint, "cf:pageHints", INSERT_STORAGE.tipSeen, INSERT_STORAGE.rewriteHintSeen,
   // How many × of the translate offer were told where it went (content/translate/hiddenSites.ts TOLD_KEY).
-  "cf:trHideTold"
+  "cf:trHideTold",
+  // 2.8: the hint coordinator's state (src/content/coach/state.ts COACH_KEY): its day 1 and rungs start over too.
+  "cf:coach"
 ]
 
 /** The last stamp the panel's first run started over for (ms). */

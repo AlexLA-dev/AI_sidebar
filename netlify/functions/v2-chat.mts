@@ -10,7 +10,7 @@ import { answerCost, clientBuild, startAnswer, type Answer } from "../shared/ans
 import { freeMemory, sanitizeMessages, sanitizeOtherPages, sanitizePage, systemPromptParts } from "../shared/llm.mts"
 import { geminiModels } from "../shared/models.mts"
 import { pageForModel } from "../../src/shared/attachments.ts"
-import { hasMarks, MAX_APP_OTHER_PAGES, MAX_OTHER_PAGES, withAgentRule, withItemRule } from "../../src/shared/prompt.ts"
+import { hasMarks, MAX_APP_OTHER_PAGES, MAX_OTHER_PAGES, withAgentRule, withItemRule, withNextRule } from "../../src/shared/prompt.ts"
 import { uiFields, variantFields } from "../../src/shared/usage.ts"
 import { historyPrompt, MAX_HISTORY_CHARS, MAX_HISTORY_CHATS, sanitizeDigests } from "../../src/shared/history.ts"
 import { blockReason, countersFor, googleApart, hasPro, proOffer, resolveAccess, searchCountersFor, visibleUsage, withUse } from "../shared/plan.mts"
@@ -141,7 +141,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   let answer: Answer | null = null
   try {
     if (google) completion = await startGoogle(withItemRule([googlePrompt(page, profile, locale, others, hasMarks(messages)), ""], items)[0], messages, await geminiModels(), req.signal)
-    else answer = await startAnswer(history ? historyPrompt(chats, profile, locale, body.links === true) : (tokens) => withAgentRule(withItemRule(systemPromptParts(page, profile, locale, others, fromApp, hasMarks(messages), tokens), items), agentHint, agentLabel), messages, hasPro(access.plan) ? "pro" : "free", build, req.signal)
+    else answer = await startAnswer(history ? historyPrompt(chats, profile, locale, body.links === true) : (tokens) => withNextRule(withAgentRule(withItemRule(systemPromptParts(page, profile, locale, others, fromApp, hasMarks(messages), tokens), items), agentHint, agentLabel), body.next === true), messages, hasPro(access.plan) ? "pro" : "free", build, req.signal)
   } catch (err) {
     console.error("[cf] upstream failed:", err instanceof Error ? err.message : err)
     context.waitUntil(Promise.all([
