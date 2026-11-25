@@ -358,7 +358,12 @@ export function render(file, language) {
 function sitemap() {
   const today = (file) => read(file).match(/"dateModified": "([\d-]+)"/)?.[1]
   const old = read("sitemap.xml")
-  const lastmod = (file) => old.match(new RegExp(`<loc>${pageUrl(file).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</loc><lastmod>([\\d-]+)</lastmod>`))?.[1] ?? today(file) ?? "2026-11-07"
+  // The later of the date already in the sitemap and the page's dateModified, so an edited page tells crawlers it changed.
+  const lastmod = (file) => {
+    const listed = old.match(new RegExp(`<loc>${pageUrl(file).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</loc><lastmod>([\\d-]+)</lastmod>`))?.[1]
+    const modified = today(file)
+    return [listed, modified].filter(Boolean).sort().at(-1) ?? "2026-11-07"
+  }
   const lines = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">']
   for (const file of PAGES.filter((f) => !UNLISTED.includes(f))) {
     const alternates = LANGUAGES.flatMap((l) => [l.hreflang, ...(l.also ?? [])].map((code) => `<xhtml:link rel="alternate" hreflang="${code}" href="${pageUrl(file, l)}" />`))

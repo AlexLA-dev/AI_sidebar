@@ -407,7 +407,8 @@
   "kind": "html",
   "en": "New in 2.7",
   "pages": [
-   "index.html"
+   "index.html",
+   "features.html"
   ]
  },
  {
@@ -415,7 +416,8 @@
   "kind": "html",
   "en": "Pages translated where they are, help with what you write, and a space for each part of your life.",
   "pages": [
-   "index.html"
+   "index.html",
+   "features.html"
   ]
  },
  {
@@ -423,7 +425,8 @@
   "kind": "html",
   "en": "Translate the page in place",
   "pages": [
-   "index.html"
+   "index.html",
+   "features.html"
   ]
  },
  {
@@ -431,7 +434,8 @@
   "kind": "html",
   "en": "A page in another language? Tap Translate by ✦, and it reads in your language in its own layout. Links still work, and Original brings every word back.",
   "pages": [
-   "index.html"
+   "index.html",
+   "features.html"
   ]
  },
  {
@@ -439,7 +443,8 @@
   "kind": "html",
   "en": "Check and Rewrite",
   "pages": [
-   "index.html"
+   "index.html",
+   "features.html"
   ]
  },
  {
@@ -447,7 +452,8 @@
   "kind": "html",
   "en": "In an email reply or a comment, Check fixes the mistakes and Rewrite makes it shorter, warmer or more formal. Both read the page, so names come out as the page spells them. With Pro, mistakes are underlined as you type.",
   "pages": [
-   "index.html"
+   "index.html",
+   "features.html"
   ]
  },
  {
@@ -455,7 +461,8 @@
   "kind": "html",
   "en": "Spaces",
   "pages": [
-   "index.html"
+   "index.html",
+   "features.html"
   ]
  },
  {
@@ -463,7 +470,8 @@
   "kind": "html",
   "en": "Work, Personal, Shopping: each space has its own chats and its own color, and a site can always open in its space.",
   "pages": [
-   "index.html"
+   "index.html",
+   "features.html"
   ]
  },
  {
@@ -471,7 +479,8 @@
   "kind": "html",
   "en": "Calendar and Reminders",
   "pages": [
-   "index.html"
+   "index.html",
+   "features.html"
   ]
  },
  {
@@ -479,7 +488,8 @@
   "kind": "html",
   "en": "Ask “remind me on Friday to book the hotel”, or take a date from an answer. A card shows the date and time, and Add puts it in Apple Reminders or Calendar.",
   "pages": [
-   "index.html"
+   "index.html",
+   "features.html"
   ]
  },
  {
@@ -487,7 +497,8 @@
   "kind": "html",
   "en": "A snapshot in your note",
   "pages": [
-   "index.html"
+   "index.html",
+   "features.html"
   ]
  },
  {
@@ -495,7 +506,8 @@
   "kind": "html",
   "en": "A note can keep a picture of the page as you saw it: the part on screen, or the whole page with Pro. Crop it if you like.",
   "pages": [
-   "index.html"
+   "index.html",
+   "features.html"
   ]
  },
  {
@@ -503,7 +515,8 @@
   "kind": "html",
   "en": "Find similar on Pro <span class=\"pro-badge\">Pro</span>",
   "pages": [
-   "index.html"
+   "index.html",
+   "features.html"
   ]
  },
  {
@@ -511,7 +524,8 @@
   "kind": "html",
   "en": "A quick search for alternatives, up to 5 a week, on Pro and Own key. Ultra keeps the full search.",
   "pages": [
-   "index.html"
+   "index.html",
+   "features.html"
   ]
  },
  {
@@ -519,7 +533,8 @@
   "kind": "html",
   "en": "Collections",
   "pages": [
-   "index.html"
+   "index.html",
+   "features.html"
   ]
  },
  {
@@ -527,7 +542,8 @@
   "kind": "html",
   "en": "Gather answers and notes from your chats into a collection, like a trip or a purchase. Compare them in a table with Pro, and save the whole collection as a PDF.",
   "pages": [
-   "index.html"
+   "index.html",
+   "features.html"
   ]
  },
  {
@@ -544,7 +560,8 @@
   "kind": "html",
   "en": "Send a friend your code: they get bonus answers for their first week, and you get a discount on Pro or Ultra once they've used it on two different days.",
   "pages": [
-   "index.html"
+   "index.html",
+   "features.html"
   ]
  },
  {
@@ -1438,6 +1455,33 @@
   ]
  },
  {
+  "key": "2b4ffbecf0dd",
+  "kind": "html",
+  "en": "How to turn it on",
+  "pages": [
+   "index.html",
+   "features.html",
+   "cases.html",
+   "cases/replies-and-forms.html",
+   "cases/studying.html",
+   "cases/shopping.html",
+   "cases/planning.html",
+   "safari-ai-extension-iphone.html",
+   "notes-while-reading-safari.html",
+   "safari-summary-vs-chatgpt.html",
+   "support.html",
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
+   "find-cheaper-similar-product-safari-iphone.html",
+   "ask-ai-about-web-page-safari.html",
+   "contextflow-vs-zeki-surfmind.html",
+   "turn-on-safari-extension-iphone.html",
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
   "key": "eea1017b5650",
   "kind": "title",
   "en": "What ContextFlow can do in Safari on iPhone, iPad and Mac — ContextFlow",
@@ -1527,73 +1571,17 @@
   ]
  },
  {
-  "key": "c1c0346ce251",
-  "kind": "html",
-  "en": "New in 2.6",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "27fcc1a670c8",
-  "kind": "html",
-  "en": "What this version adds besides Ultra.",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "0b9fa36a33bb",
-  "kind": "html",
-  "en": "Chats that sort themselves <span class=\"pro-badge\">Pro</span>",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "1a9e1cd9fff7",
-  "kind": "html",
-  "en": "One chat drifting into three topics? With Suggestions on, a bar at the top of the chat offers to move messages to the chat they belong in, merge two chats about the same thing, name a chat by its topic, or put on one of your own tags. One tap does it; Undo puts it back. Turn Suggestions on in Settings.",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "3dc1d3bb0c41",
-  "kind": "html",
-  "en": "A note on a reminder or a watch",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "ed3f38e4def7",
-  "kind": "html",
-  "en": "Want to remember why? Select any text, or take the whole page, tap the bell or the eye, and add a few words of your own, like what to check. The selection shows as a quote in the chat, and the notification says your note.",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "bec01899f36c",
-  "kind": "html",
-  "en": "What's new, in short clips",
-  "pages": [
-   "features.html"
-  ]
- },
- {
-  "key": "9afdc322dfd6",
-  "kind": "html",
-  "en": "Not sure what changed? After an update, the ContextFlow app opens What's new once, with a short clip for each main change. When a new version is out, a notification says so.",
-  "pages": [
-   "features.html"
-  ]
- },
- {
   "key": "23bcbc4b8227",
   "kind": "html",
   "en": "Open it on the page you're reading and ask. No prompts to write.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "5fcfdcea2ac3",
+  "kind": "html",
+  "en": "More: <a href=\"/turn-on-safari-extension-iphone\">Turn on a Safari extension on iPhone and iPad</a>",
   "pages": [
    "features.html"
   ]
@@ -1740,6 +1728,15 @@
   "en": "Need something recent? Turn on Google next to the question field, and the answer comes from Google Search with its sources: news, prices, anything new.",
   "pages": [
    "features.html"
+  ]
+ },
+ {
+  "key": "8ac2905dc591",
+  "kind": "html",
+  "en": "More: <a href=\"/ask-ai-about-web-page-safari\">Ask AI about the page you're reading</a>",
+  "pages": [
+   "features.html",
+   "find-cheaper-similar-product-safari-iphone.html"
   ]
  },
  {
@@ -1900,6 +1897,17 @@
   "en": "Rather listen than read? Tap Listen under an answer, or choose Listen to this page in the … menu. A natural voice reads it at 1×, 1.2×, 1.5× or 2×. On iPhone and iPad it plays in the ContextFlow app and keeps going with the screen locked; on Mac, right in the panel.",
   "pages": [
    "features.html"
+  ]
+ },
+ {
+  "key": "d7e88dcc2cd5",
+  "kind": "html",
+  "en": "More: <a href=\"/find-cheaper-similar-product-safari-iphone\">Find a similar product, cheaper</a>",
+  "pages": [
+   "features.html",
+   "ask-ai-about-web-page-safari.html",
+   "contextflow-vs-zeki-surfmind.html",
+   "turn-on-safari-extension-iphone.html"
   ]
  },
  {
@@ -2359,9 +2367,9 @@
   ]
  },
  {
-  "key": "bf26780454c3",
+  "key": "e0e6fac32c92",
   "kind": "html",
-  "en": "What gets sent? ContextFlow reads a page only when you ask, and sends just its text to get the answer. Your chats stay on your devices and in your iCloud. With suggestions on, the text of new messages also goes to my server to find where they belong; I don't keep it.",
+  "en": "What gets sent? Page text is sent only when you ask something and is not used to train models. Your chats stay on your devices and in your iCloud. With suggestions on, the text of new messages also goes to my server to find where they belong; I don't keep it.",
   "pages": [
    "features.html"
   ]
@@ -4029,14 +4037,6 @@
   ]
  },
  {
-  "key": "2b4ffbecf0dd",
-  "kind": "html",
-  "en": "How to turn it on",
-  "pages": [
-   "safari-ai-extension-iphone.html"
-  ]
- },
- {
   "key": "6b80da1f2288",
   "kind": "html",
   "en": "Install ContextFlow from the App Store and open the app once. It walks you through the next step.",
@@ -4146,9 +4146,9 @@
   ]
  },
  {
-  "key": "075d687b0ef5",
+  "key": "0c561f6de9ce",
   "kind": "html",
-  "en": "A page is read only when you ask about it. Page text isn't stored on my server.",
+  "en": "Page text is sent only when you ask something and is not used to train models.",
   "pages": [
    "safari-ai-extension-iphone.html"
   ]
@@ -6409,14 +6409,6 @@
   ]
  },
  {
-  "key": "8ac2905dc591",
-  "kind": "html",
-  "en": "More: <a href=\"/ask-ai-about-web-page-safari\">Ask AI about the page you're reading</a>",
-  "pages": [
-   "find-cheaper-similar-product-safari-iphone.html"
-  ]
- },
- {
   "key": "f1c8051b9303",
   "kind": "html",
   "en": "ContextFlow, Zeki or SurfMind",
@@ -6782,16 +6774,6 @@
   "en": "Usually Safari is still waiting for you to allow the extension on websites. <a href=\"/turn-on-safari-extension-iphone\">Here is how to turn it on</a>.",
   "pages": [
    "ask-ai-about-web-page-safari.html"
-  ]
- },
- {
-  "key": "d7e88dcc2cd5",
-  "kind": "html",
-  "en": "More: <a href=\"/find-cheaper-similar-product-safari-iphone\">Find a similar product, cheaper</a>",
-  "pages": [
-   "ask-ai-about-web-page-safari.html",
-   "contextflow-vs-zeki-surfmind.html",
-   "turn-on-safari-extension-iphone.html"
   ]
  },
  {
