@@ -165,3 +165,20 @@ test("5, 6: a fill step's line names its field; times and dates in the device's 
   const act = readFileSync(new URL("../netlify/shared/act.mts", import.meta.url), "utf8")
   assert.equal((act.match(/as YYYY-MM-DD and a time as HH:MM \(24 h\)/g) ?? []).length, 2, "the step and the plan prompts ask for one form the device can show")
 })
+
+test("«Remember» starts unticked when the plan types a name the request carries, without the word «name» (127)", async () => {
+  const { DEFAULT_RULES } = await import("../src/shared/agent/rules.ts")
+  const run = async (request: string, risky: unknown[]) => {
+    const RAW = { label: "table", steps: ["Booking"], questions: [], prices: [], fromChat: "", risky,
+      booking: { kind: "table", date: "2026-11-26", dateEnd: "", at: "18:30", personal: false, from: "17:30", until: "19:30", minutes: 90, tz: "", venue: "", match: [], area: [], contacts: ["email"], specialists: [], services: [], specialistNamed: "", serviceNamed: "" } }
+    const x: RunnerIO = {
+      map: async () => FORM, act: async () => ({ ok: true }), waitPage: async () => {},
+      ask: async () => ({ ok: true, plan: RAW, token: "t" }) as never,
+      save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30, planning: true,
+      device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} }
+    }
+    return (await drive(newState("r", request, "en", FORM.url), x)).plan?.questions.find((q) => q.kind === "contact")
+  }
+  assert.equal((await run("Book a table for Maria Kim tomorrow at 18:30 for 2", [{ tool: "type", id: "1", text: "Maria Kim", key: "" }]))?.once, true, "someone else's e-mail: not kept by default")
+  assert.equal((await run("Book a table tomorrow at 18:30 for 2", [{ tool: "type", id: "1", text: "", key: "" }]))?.once, undefined, "the person's own: kept")
+})

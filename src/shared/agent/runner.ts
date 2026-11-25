@@ -494,7 +494,8 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
     const said = `${state.request} ${plan.fromChat ?? ""}`
     // (Someone's details in the request: a contact or a name written in it, typed by the plan — not a site's search box
     // the plan took for a personal field, 126.)
-    const forSomeone = plan.perms.some((p) => p.kind === "personal") && (contactInWords("email", said) || contactInWords("phone", said) || NAME_SAID.test(said))
+    // (127: «for Maria Kim» carries a name without the word «name»: a contact field the plan types from the request's words.)
+    const forSomeone = plan.perms.some((p) => p.kind === "personal") && (requestGives(plan, said).size > 0 || NAME_SAID.test(said))
     for (const key of plan.booking.contacts) {
       if (!have.has(key) && !contactInWords(key, said) && !plan.questions.some((q) => q.key === key)) plan.questions.push({ q: "", kind: "contact", key, options: [], ...(forSomeone ? { once: true } : {}) })
     }

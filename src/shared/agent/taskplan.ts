@@ -664,7 +664,7 @@ export function contactKind(key: string): "name" | "email" | "phone" | null {
 export function requestGives(plan: TaskPlan | null | undefined, said: string): Set<string> {
   const given = new Set<string>()
   for (const f of plan?.perms.find((p) => p.kind === "personal")?.fields ?? []) {
-    const k = contactAsked(f)
+    const k = oneThing(f) ? contactAsked(f) : null
     if (k) given.add(contactKind(k) ?? k)
   }
   if (contactInWords("email", said)) given.add("email")
@@ -679,9 +679,14 @@ export function contactField(item: Pick<MapItem, "type" | "auto" | "label">): "n
   if (item.type === "tel") return "phone"
   if (auto) return contactKind(auto)
   // By its words only a field that asks for one thing: a search box («Nom, spécialité, examens», 126) isn't a name field.
-  if (item.type === "search" || /[,;|/·]/.test(item.label) || item.label.trim().split(/\s+/).length > 4) return null
+  if (item.type === "search" || !oneThing(item.label)) return null
   const k = fieldKind(item, null) ?? contactAsked(item.label)
   return k ? contactKind(k) : null
+}
+
+/** A field's words that ask for one thing (not a list: «Nom, spécialité, examens» is a search). */
+function oneThing(label: string): boolean {
+  return !/[,;|/·]/.test(label) && label.trim().split(/\s+/).length <= 4
 }
 
 const CONTACT_WORDS: [(typeof CONTACT_KEYS)[number], RegExp][] = [
