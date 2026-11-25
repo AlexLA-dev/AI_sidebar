@@ -1455,6 +1455,33 @@
   ]
  },
  {
+  "key": "2b4ffbecf0dd",
+  "kind": "html",
+  "en": "How to turn it on",
+  "pages": [
+   "index.html",
+   "features.html",
+   "cases.html",
+   "cases/replies-and-forms.html",
+   "cases/studying.html",
+   "cases/shopping.html",
+   "cases/planning.html",
+   "safari-ai-extension-iphone.html",
+   "notes-while-reading-safari.html",
+   "safari-summary-vs-chatgpt.html",
+   "support.html",
+   "translate-web-page-safari-iphone.html",
+   "proofread-safari-iphone.html",
+   "find-cheaper-similar-product-safari-iphone.html",
+   "ask-ai-about-web-page-safari.html",
+   "contextflow-vs-zeki-surfmind.html",
+   "turn-on-safari-extension-iphone.html",
+   "youtube-transcript-safari.html",
+   "read-aloud-safari-iphone.html",
+   "summarize-pdf-safari.html"
+  ]
+ },
+ {
   "key": "eea1017b5650",
   "kind": "title",
   "en": "What ContextFlow can do in Safari on iPhone, iPad and Mac — ContextFlow",
@@ -1547,6 +1574,14 @@
   "key": "23bcbc4b8227",
   "kind": "html",
   "en": "Open it on the page you're reading and ask. No prompts to write.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "5fcfdcea2ac3",
+  "kind": "html",
+  "en": "More: <a href=\"/turn-on-safari-extension-iphone\">Turn on a Safari extension on iPhone and iPad</a>",
   "pages": [
    "features.html"
   ]
@@ -1693,6 +1728,15 @@
   "en": "Need something recent? Turn on Google next to the question field, and the answer comes from Google Search with its sources: news, prices, anything new.",
   "pages": [
    "features.html"
+  ]
+ },
+ {
+  "key": "8ac2905dc591",
+  "kind": "html",
+  "en": "More: <a href=\"/ask-ai-about-web-page-safari\">Ask AI about the page you're reading</a>",
+  "pages": [
+   "features.html",
+   "find-cheaper-similar-product-safari-iphone.html"
   ]
  },
  {
@@ -1853,6 +1897,17 @@
   "en": "Rather listen than read? Tap Listen under an answer, or choose Listen to this page in the … menu. A natural voice reads it at 1×, 1.2×, 1.5× or 2×. On iPhone and iPad it plays in the ContextFlow app and keeps going with the screen locked; on Mac, right in the panel.",
   "pages": [
    "features.html"
+  ]
+ },
+ {
+  "key": "d7e88dcc2cd5",
+  "kind": "html",
+  "en": "More: <a href=\"/find-cheaper-similar-product-safari-iphone\">Find a similar product, cheaper</a>",
+  "pages": [
+   "features.html",
+   "ask-ai-about-web-page-safari.html",
+   "contextflow-vs-zeki-surfmind.html",
+   "turn-on-safari-extension-iphone.html"
   ]
  },
  {
@@ -3977,14 +4032,6 @@
   "key": "151b50502f13",
   "kind": "html",
   "en": "What people use it for most, with clips: <a href=\"/cases/replies-and-forms\">replies and forms</a>, <a href=\"/cases/studying\">studying a topic</a>, <a href=\"/cases/shopping\">shopping</a> and <a href=\"/cases/planning\">planning over several days</a>.",
-  "pages": [
-   "safari-ai-extension-iphone.html"
-  ]
- },
- {
-  "key": "2b4ffbecf0dd",
-  "kind": "html",
-  "en": "How to turn it on",
   "pages": [
    "safari-ai-extension-iphone.html"
   ]
@@ -6362,14 +6409,6 @@
   ]
  },
  {
-  "key": "8ac2905dc591",
-  "kind": "html",
-  "en": "More: <a href=\"/ask-ai-about-web-page-safari\">Ask AI about the page you're reading</a>",
-  "pages": [
-   "find-cheaper-similar-product-safari-iphone.html"
-  ]
- },
- {
   "key": "f1c8051b9303",
   "kind": "html",
   "en": "ContextFlow, Zeki or SurfMind",
@@ -6735,16 +6774,6 @@
   "en": "Usually Safari is still waiting for you to allow the extension on websites. <a href=\"/turn-on-safari-extension-iphone\">Here is how to turn it on</a>.",
   "pages": [
    "ask-ai-about-web-page-safari.html"
-  ]
- },
- {
-  "key": "d7e88dcc2cd5",
-  "kind": "html",
-  "en": "More: <a href=\"/find-cheaper-similar-product-safari-iphone\">Find a similar product, cheaper</a>",
-  "pages": [
-   "ask-ai-about-web-page-safari.html",
-   "contextflow-vs-zeki-surfmind.html",
-   "turn-on-safari-extension-iphone.html"
   ]
  },
  {

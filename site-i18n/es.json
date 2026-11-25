@@ -900,5 +900,6 @@
   "f202491f0a07": "Safari muestra el mismo aviso con todas las extensiones, porque no puede saber qué hace cada una. El texto de la página solo se envía cuando preguntas algo y no se usa para entrenar modelos. También puedes permitirlo sitio por sitio; entonces ✦ solo aparece en esos sitios.",
   "f6a68fb273c4": "Elige «Permitir siempre». El texto de la página solo se envía cuando preguntas algo y no se usa para entrenar modelos.",
   "0c561f6de9ce": "El texto de la página solo se envía cuando preguntas algo y no se usa para entrenar modelos.",
-  "e0e6fac32c92": "¿Qué se envía? El texto de la página solo se envía cuando preguntas algo y no se usa para entrenar modelos. Tus chats se quedan en tus dispositivos y en tu iCloud. Con las sugerencias activadas, el texto de los mensajes nuevos también va a mi servidor para ver dónde encaja; no lo guardo."
+  "e0e6fac32c92": "¿Qué se envía? El texto de la página solo se envía cuando preguntas algo y no se usa para entrenar modelos. Tus chats se quedan en tus dispositivos y en tu iCloud. Con las sugerencias activadas, el texto de los mensajes nuevos también va a mi servidor para ver dónde encaja; no lo guardo.",
+  "5fcfdcea2ac3": "Más: <a href=\"/turn-on-safari-extension-iphone\">Activar una extensión de Safari en el iPhone y el iPad</a>"
 }

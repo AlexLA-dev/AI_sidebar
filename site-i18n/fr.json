@@ -900,5 +900,6 @@
   "f202491f0a07": "Safari affiche le même avertissement pour toutes les extensions, car il ne peut pas savoir ce que fait chacune. Le texte de la page n’est envoyé que lorsque vous posez une question, et il ne sert pas à entraîner des modèles. Vous pouvez aussi l’autoriser site par site ; ✦ n’apparaît alors que sur ces sites.",
   "f6a68fb273c4": "Choisissez « Toujours autoriser ». Le texte de la page n’est envoyé que lorsque vous posez une question, et il ne sert pas à entraîner des modèles.",
   "0c561f6de9ce": "Le texte de la page n’est envoyé que lorsque vous posez une question, et il ne sert pas à entraîner des modèles.",
-  "e0e6fac32c92": "Qu’est-ce qui est envoyé&nbsp;? Le texte de la page n’est envoyé que lorsque vous posez une question, et il ne sert pas à entraîner des modèles. Vos discussions restent sur vos appareils et dans votre iCloud. Si les suggestions sont activées, le texte des nouveaux messages passe aussi par mon serveur pour trouver leur place&nbsp;; je ne le conserve pas."
+  "e0e6fac32c92": "Qu’est-ce qui est envoyé&nbsp;? Le texte de la page n’est envoyé que lorsque vous posez une question, et il ne sert pas à entraîner des modèles. Vos discussions restent sur vos appareils et dans votre iCloud. Si les suggestions sont activées, le texte des nouveaux messages passe aussi par mon serveur pour trouver leur place&nbsp;; je ne le conserve pas.",
+  "5fcfdcea2ac3": "Plus : <a href=\"/turn-on-safari-extension-iphone\">Activer une extension Safari sur iPhone et iPad</a>"
 }
