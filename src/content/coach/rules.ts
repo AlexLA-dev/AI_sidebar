@@ -72,7 +72,10 @@ export const HINTS: Record<CoachHint, HintSpec> = {
   organize_mess: hint(40, 11, 2),
   organize_tags: hint(40, 11, 2),
   invite: hint(30, 11, 2),
-  pro_offer: hint(30, 11, 2),
+  // The return discount after the free answers ran out (the limit session's, 2.8.1): the owner's rule is «при
+  // возвращении, если даже нотификации не было» — on return the same day too, so it isn't held to day 2 or to the
+  // session's one thing. It counts its own shows (offerCard, three).
+  pro_offer: { prio: 70, rung: 8, day: 1, kind: "answer" },
   byok_offer: hint(30, 11, 2),
   renewal: hint(30, 11, 2),
   whatsnew: hint(20, 11, 2),
@@ -93,6 +96,8 @@ export interface HintCount {
   dismissed: number
   // Taken (its action used): never again.
   done: boolean
+  // A hint shown until taken (the ✦ pulse): the device day its shown was last reported (once a day, as fab.shown).
+  day?: string
 }
 
 export interface CoachState {
@@ -117,6 +122,9 @@ export interface CoachState {
   capId: CoachHint | null
   // Read once from what 2.7 keeps (seed.ts).
   seeded: boolean
+  // 2.8.1: a new install (nothing of ContextFlow on the device when the coordinator first ran): only such an install is
+  // in the first-open test (В6.2) and labelled with its arm; one updated from 2.7 is in no arm and keeps 2.7's first run.
+  armed?: boolean
 }
 
 export const freshCoach = (now: number): CoachState => ({
@@ -221,7 +229,7 @@ export function afterShown(s: CoachState, id: CoachHint, now: number): CoachStat
   if (spec.kind !== "hint") return next
   return {
     ...next,
-    hints: { ...next.hints, [id]: { ...c, shown: spec.untilDone ? c.shown : c.shown + 1 } },
+    hints: { ...next.hints, [id]: { ...c, ...(spec.untilDone ? { day: dayKey(now) } : { shown: c.shown + 1 }) } },
     session: spec.untilDone ? next.session : { ...next.session, shown: id, settled: false },
     ...(spec.cap ? { capDay: dayKey(now), capId: id } : {})
   }

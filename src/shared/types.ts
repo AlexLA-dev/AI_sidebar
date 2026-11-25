@@ -208,6 +208,8 @@ export type ErrorCode =
 
 export type BackgroundRequest =
   | { type: "status"; refresh?: boolean; fresh?: boolean; platform?: Platform }
+  // 2.8.1: the panel says its platform as it starts, before its first event (the first fab.shown went out as "other").
+  | { type: "platform"; platform: Platform }
   // 2.6 (91): a Tips clip from the app (App Group) for the clip page.
   | { type: "tipClip"; name: string; lang: string }
   // «Снимок страницы в заметке» (2.7): the tab's visible area captured; a note's picture kept, and fetched to open it.

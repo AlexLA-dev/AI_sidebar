@@ -1,4 +1,5 @@
 import { tipClip } from "./tipClips"
+import { COACH_KEY } from "../content/coach/rules"
 import { variantOf } from "../shared/variant"
 import { deviceNow } from "../shared/appleItems"
 import { mediaKinds, type MediaKind } from "../shared/attachments"
@@ -114,11 +115,18 @@ function nativeInfo(): Promise<{ build: string; app: string | null; test: boolea
   return nativeAsk
 }
 
+/** A new install, in the first-open test: the panel's coordinator marked it so on its first run (coach/seed.ts). */
+async function armedInstall(): Promise<boolean> {
+  const coach = (await chrome.storage.local.get(COACH_KEY).catch(() => ({})) as Record<string, unknown>)[COACH_KEY] as { armed?: unknown } | undefined
+  return coach?.armed === true
+}
+
 async function clientInfo() {
-  const [native, os, invite, id] = await Promise.all([nativeInfo(), platform(), inviteMarks().catch(() => ({})), installId().catch(() => "")])
+  const [native, os, invite, id, armed] = await Promise.all([nativeInfo(), platform(), inviteMarks().catch(() => ({})), installId().catch(() => ""), armedInstall()])
   const { build, test } = native
-  // 2.8: the install's test arms (src/shared/variant.ts), on every event and answer.
-  const variant = variantOf(id)
+  // 2.8.1: the install's test arms (src/shared/variant.ts), on every event and answer; only for a new install (one
+  // updated from 2.7 is in no arm: it never sees the first-open screens).
+  const variant = armed ? variantOf(id) : null
   return { version: VERSION, ...(build ? { build } : {}), platform: os, locale: uiLanguage(), ...invite, ...(variant ? { variant } : {}), ...(test ? { audience: "test" } : {}) }
 }
 
@@ -888,8 +896,22 @@ function useStep(message: Extract<BackgroundRequest, { type: "useEvent" }>): Rec
   return fields
 }
 
+/**
+ * The client fields for an event, waiting a little for the app's side when it hasn't answered yet (2.8.1, the director
+ * on the simulator pass: an install's first events went out without the build and the "ours" mark — the native ping
+ * wasn't answered yet — so our own test installs looked like people). At most three more tries a second apart.
+ */
+async function clientForEvent(): Promise<Awaited<ReturnType<typeof clientInfo>>> {
+  let client = await clientInfo()
+  for (let i = 0; i < 3 && TARGET === "safari" && !("build" in client); i++) {
+    await new Promise((done) => setTimeout(done, 1000))
+    client = await clientInfo()
+  }
+  return client
+}
+
 async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" }>): Promise<void> {
-  const [id, client] = await Promise.all([installId(), clientInfo()])
+  const [id, client] = await Promise.all([installId(), clientForEvent()])
   await fetch(`${API_BASE}/api/v2/event`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -938,6 +960,13 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
     case "jobsSeen":
       void markSeen(message.thread).then(() => sendResponse(true), () => sendResponse(false))
       return true
+    case "platform":
+      if (message.platform && message.platform !== platformKept) {
+        platformKept = message.platform
+        void chrome.storage.local.set({ [STORAGE.platform]: message.platform }).catch(() => undefined)
+      }
+      sendResponse(true)
+      return false
     case "status":
       // The panel just opened: pick up settings changed in the ContextFlow app (never delays the status).
       void syncSettings().catch(() => undefined)

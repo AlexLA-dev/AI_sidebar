@@ -93,6 +93,8 @@ export function seedCoach(s: CoachState, stored: Record<string, unknown>, now: n
     askDays: used !== null && used < now - 86_400_000 && answers > 1 && s.askDays.length < 2 ? ["seed-1", "seed-2", ...s.askDays].slice(-8) : s.askDays,
     // The fab pulse is for the first open only.
     ...(opened ? { hints: { ...hints, fab_pulse: { shown: 0, dismissed: 0, done: true } } } : {}),
+    // A new install: nothing used before (no chat, no first run, no answer counted).
+    armed: !opened && answers === 0 && used === null,
     seeded: true
   }
 }

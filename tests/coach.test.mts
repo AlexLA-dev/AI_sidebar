@@ -51,19 +51,20 @@ test("day 1 is quiet: only what leads to the next rung", () => {
   const s = fresh()
   const all = lib.HINT_IDS
   const shown = all.filter((id: string) => lib.allowed(s, id, moment(at(1, 2), 11)))
-  assert.deepEqual(shown.sort(), ["agent_offer", "cookie_line", "fab_pulse", "sel_ask"].sort())
-  for (const id of ["organize_mess", "organize_tags", "organize_consent", "invite", "pro_offer", "whatsnew", "translate_pill", "page_similar"]) {
+  // (The return discount is the limit's own offer: on return the same day too, the owner's rule.)
+  assert.deepEqual(shown.sort(), ["agent_offer", "cookie_line", "fab_pulse", "pro_offer", "sel_ask"].sort())
+  for (const id of ["organize_mess", "organize_tags", "organize_consent", "invite", "whatsnew", "translate_pill", "page_similar"]) {
     assert.equal(lib.allowed(s, id, moment(at(1, 2), 13)), false, `${id} waits for day 2`)
     assert.equal(lib.allowed(s, id, moment(at(2), 11)), true, `${id} on day 2`)
   }
   // Before the first answer, nothing but the pulse and an answer's own offer.
-  assert.deepEqual(all.filter((id: string) => lib.allowed(s, id, moment(at(3), 8))).sort(), ["agent_offer", "fab_pulse"])
+  assert.deepEqual(all.filter((id: string) => lib.allowed(s, id, moment(at(3), 8))).sort(), ["agent_offer", "fab_pulse", "pro_offer"])
 })
 
 test("one at a time, the one up stays, an answer's offer comes first, the flow holds everything", () => {
   const s = fresh()
   const m = moment(at(2))
-  assert.equal(lib.choose(s, ["invite", "organize_mess", "pro_offer"], m), "organize_mess", "highest priority")
+  assert.equal(lib.choose(s, ["invite", "organize_mess", "whatsnew"], m), "organize_mess", "highest priority")
   assert.equal(lib.choose(s, ["invite", "organize_mess"], { ...m, current: "invite" }), "invite", "no flipping to another")
   assert.equal(lib.choose(s, ["invite", "agent_offer"], { ...m, current: "invite" }), "agent_offer")
   assert.equal(lib.choose(s, ["invite", "agent_offer", "fab_pulse"], { ...m, flow: true }), null)
@@ -89,6 +90,7 @@ test("each hint at most twice, gone after two ✕, never again once taken", () =
   // The pulse shows until the panel opens, whatever the count.
   s = fresh()
   for (let i = 0; i < 5; i++) s = lib.afterShown(s, "fab_pulse", at(1, i * 0.1))
+  assert.equal(s.hints.fab_pulse.day, lib.dayKey(at(1)), "its shown is reported once a device day")
   assert.equal(lib.allowed(s, "fab_pulse", moment(at(1, 1), 7)), true)
   assert.equal(lib.allowed(lib.afterDone(s, "fab_pulse", at(1, 1)), "fab_pulse", moment(at(1, 1), 7)), false)
 })
@@ -135,6 +137,10 @@ test("what 2.7 kept is read once: closed, used and seen hints aren't asked again
   const blank = lib.seedCoach(fresh(), {}, DAY1)
   assert.equal(lib.dayNumber(blank.first, DAY1), 1)
   assert.equal(lib.rungOf(blank, false, false), 7)
+  // Only a new install is in the first-open test; one that used ContextFlow before isn't.
+  assert.equal(blank.armed, true)
+  assert.equal(s.armed, false)
+  assert.equal(lib.seedCoach(fresh(), { "cf:tourSeen": true }, DAY1).armed, false)
   assert.equal(lib.seedCoach(s, { "cf:selHint": 0 }, at(1)), s, "once")
 })
 

@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import { sendBackground } from "../insert/store"
 import {
-  afterAnswer, afterCopy, afterDismissed, afterDone, afterLimit, afterPanelOpen, afterShown, allowed, choose, dayNumber, HINTS, rungOf, touch,
+  afterAnswer, afterCopy, afterDismissed, afterDone, afterLimit, afterPanelOpen, afterShown, allowed, choose, dayKey, dayNumber, HINTS, rungOf, touch,
   type CoachHint, type CoachState, type Rung
 } from "./rules"
 import { changeCoach, loadCoach, onCoachChanged } from "./state"
@@ -40,6 +40,8 @@ export interface Coach {
   limited: () => void
   copied: () => void
   copies: number
+  // A new install, in the first-open test (rules.ts CoachState.armed).
+  armed: boolean
 }
 
 const send = (a: string, what: CoachHint, rung: Rung, day: number) =>
@@ -90,8 +92,10 @@ export function useCoach({ consent, paid }: { consent: boolean; paid: boolean })
     const timer = setTimeout(() => {
       if (current.current !== id || here.current.has(id)) return
       here.current.add(id)
+      // A hint shown until taken (the ✦ pulse) is reported once a device day, not on every page (the director).
+      const once = HINTS[id].untilDone ? stateRef.current?.hints[id]?.day !== dayKey(Date.now()) : true
       change((s) => afterShown(s, id, Date.now()))
-      if (HINTS[id].kind !== "notice") send("shown", id, rungRef.current, dayRef.current)
+      if (HINTS[id].kind !== "notice" && once) send("shown", id, rungRef.current, dayRef.current)
     }, SHOWN_MS)
     return () => clearTimeout(timer)
   }, [slot])
@@ -149,6 +153,7 @@ export function useCoach({ consent, paid }: { consent: boolean; paid: boolean })
     answers: state?.answers ?? 0,
     own: state?.own ?? false,
     copies: state?.copies ?? 0,
+    armed: state?.armed === true,
     slot,
     pick: (wanting: Iterable<CoachHint>, flow: boolean) => {
       const id = pick(wanting, flow)

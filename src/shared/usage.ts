@@ -41,17 +41,20 @@ export const COACH_HINTS = [
 export const FEATURES: Record<string, Feature> = {
   // 2.8 (events-2.8 §2, rungs 8 and 9): sent by the panel from 2.8. "open": how ("hint": a hint's tap), its layout, the
   // page's kind, what the first screen showed (the guide, ready questions, an empty chat, a chat, an agent task's card)
-  // and `first` on the first opening ever; "close": seconds open (`open_s`) and what it came to (`did`).
+  // and `first` on the first opening ever; "close": seconds open (`open_s`) and what it came to (`did`). 2.8.1: a close
+  // the page couldn't send (it went away, Safari was put away) is sent from the next page, `cut` 1, its seconds up to
+  // when it was last seen (kept every 15 s): every open has its close.
   panel: {
     since: "2.0", tracked: "2.8.1", on: "ext", actions: ["open", "close"],
     via: ["toolbar", "shortcut", "fab", "bubble", "note_open", "qi", "app", "hint"],
-    fields: { lay: ["side", "sheet", "popup"], page: PAGE_KINDS, screen: ["guide", "tour", "ask", "empty", "chat", "agent", "plans"], first: "int", open_s: "int", did: ["none", "chip", "ask", "tour", "settings", "other"] }
+    fields: { lay: ["side", "sheet", "popup"], page: PAGE_KINDS, screen: ["guide", "tour", "ask", "empty", "chat", "agent", "plans"], first: "int", open_s: "int", did: ["none", "chip", "ask", "tour", "settings", "other"], cut: "int" }
   },
   // Answers are logged by the server (/api/v2/chat with "ui"); the panel sends the rest.
   ask: {
     since: "2.0", tracked: "2.0", actions: ["answer", "error", "stop", "retry", "google_on", "google_off", "whole_on", "whole_off", "source"],
-    // 2.8: "ready", a ready question about the page (src/content/ready); "followup", one under an answer.
-    via: ["composer", "chip", "followup", "newpage", "bubble", "qi_adapt", "retry", "app_chat", "ready"]
+    // 2.8.1: "ready", a ready question about the page (src/content/ready); "followup", one under an answer; "hint", a hint's
+  // tap (the Google answer offered under an answer).
+    via: ["composer", "chip", "followup", "newpage", "bubble", "qi_adapt", "retry", "app_chat", "ready", "hint"]
   },
   ai_search: { since: "2.4", tracked: "2.4", actions: ["on", "answer", "error", "open"], fields: { hits: ["0", "1-5", "6+"] } },
   // Build 94: "link", a chat opened from a link to it in an answer.
@@ -117,8 +120,10 @@ export const FEATURES: Record<string, Feature> = {
       what: ["summarize", "consent", "answer", "select", "pick", "ask", "askSel", "answer2", "swipe", "chats", "chatList", "menu", "pro_media", "pro_chats", "pro_chatList", "pro_sort", "pro_templates", "pro_watch", "ultra_listen", "ultra_similar", "ultra_watch", "declined", "limit", "error", "closed"]
     }
   },
-  // 2.8 (events-2.8 §3): the hint coordinator (src/content/coach) — each hint shown (a second on screen), tapped, closed
-  // with ✕, its feature used; which one, the ladder's rung the person is on and the day since the first (device days).
+  // 2.8.1 (events-2.8 §3): the hint coordinator (src/content/coach) — each hint shown (a second on screen, or tapped
+  // sooner), tapped, closed with ✕, its feature used; which one, the ladder's rung the person is on and the day since the
+  // first (device days). The ✦ pulse (fab_pulse) reports shown once a device day. A page line by the circle is ALSO sent
+  // as page_hint.* (2.7's series, kept so 2.7 and 2.8.1 compare): reports count a page line once, from one of the two.
   hint: {
     since: "2.3", tracked: "2.8.1", actions: ["shown", "done", "tap", "dismiss"],
     fields: {

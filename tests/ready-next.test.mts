@@ -72,7 +72,9 @@ test("the first-open test: arms by the install id's last hex digit, sent as clie
   assert.equal(firstArm(""), null)
   assert.equal(variantOf("3f2504e0-4f89-41d3-9a0c-0305e82c3301"), "first=ask")
   assert.deepEqual(variantFields({ variant: "first=ask" }), { variant: "first=ask" })
-  assert.match(read("src/background/index.ts"), /const variant = variantOf\(id\)/)
+  // Only a new install is in the test (one updated from 2.7 keeps 2.7's first run, unlabelled).
+  assert.match(read("src/background/index.ts"), /const variant = armed \? variantOf\(id\) : null/)
+  assert.match(read("src/content/coach/seed.ts"), /armed: !opened && answers === 0 && used === null/)
   // Both arms: the first three answers free (the guide's mark, and the first answers of every install).
   assert.match(read("src/content/App.tsx"), /\(guideRef\.current && !planTour\.current\) \|\| \(coachRef\.current\?\.ready && coachRef\.current\.answers < 3\) \? \{ tour: true as const \}/)
   // The "ask" arm starts with ready questions: its first run is over as the panel first opens.
@@ -92,7 +94,7 @@ test("one capability a day (В5): a line's tap does its feature here; forms get 
   assert.match(app, /if \(!DO_IT\.has\(id\)\) return pageHints\.tap\(\)\n\s+\/\/[^\n]*\n\s+pageHints\.act\(\)\n\s+coach\.done\(`page_\$\{id\}` as CoachHint\)/)
   assert.match(app, /if \(id === "agent"\) \{\n\s+if \(!hasPro\(plan\)\) return setAgentUpsell\(true\)/)
   assert.match(app, /wantIf\("google_offer", open && view === "chat" && webFor\)/)
-  assert.match(app, /ask\(webFor\.content, \{ mode: "google" \}\)/)
+  assert.match(app, /ask\(webFor\.content, \{ mode: "google", via: "hint" \}\)/)
   assert.match(app, /wantIf\("collect_tip", open && view === "chat" && collectOffer !== null/)
   const rules = read("src/content/pagehints/rules.ts")
   assert.match(rules, /case "form":\n\s+return \["agent", "templates"\]/)

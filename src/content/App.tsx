@@ -173,10 +173,20 @@ export type Bus = EventTarget
 type Turn = Entry
 
 /** How a question came, beyond a chip's label or the field: a ready question (В4.1), a follow-up under an answer (В6.1). */
-type AskVia = "ready" | "followup"
+type AskVia = "ready" | "followup" | "hint"
 
 /** The device day the ✦ was last reported seen (fab.shown, once a day). */
 const FAB_SHOWN_KEY = "cf:fabShownDay"
+/** Panel openings not closed yet, by a random id: { at, last, did } (2.8.1, panel.close when the page went away). */
+const OPENINGS_KEY = "cf:openings"
+type OpeningRecord = { at: number; last: number; did: PanelDid }
+const keepOpening = (id: string, rec: OpeningRecord | null) =>
+  void chrome.storage.local.get(OPENINGS_KEY).then((got) => {
+    const all = { ...((got[OPENINGS_KEY] as Record<string, OpeningRecord> | undefined) ?? {}) }
+    if (rec) all[id] = rec
+    else delete all[id]
+    return chrome.storage.local.set({ [OPENINGS_KEY]: all })
+  }).catch(() => undefined)
 
 /** What one opening of the panel came to (events-2.8 §2, `panel.close` did), and what its first screen showed. */
 type PanelDid = "none" | "chip" | "ask" | "tour" | "settings" | "other"
@@ -332,6 +342,8 @@ function offerUrl(code: string): string {
 
 // A question whose answer was lost while nobody followed it shows these as they were; anything else as "interrupted".
 const RESUMABLE = ["STREAM", "NETWORK", "UPSTREAM", "BUSY", "LIMIT_REACHED", "LINK"]
+/** A question that hasn't reached a connection in this long has lost its link (2.8.1). */
+const STUCK_MS = 25_000
 
 /** The device's region from its language ("ru-RU" → "RU"), for Find similar's "near me" before the server says. */
 function localeCountry(): string | undefined {
@@ -430,6 +442,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [partial, setPartial] = useState<string | null>(null)
   // Before asking: a video's transcript or a PDF being read (shown instead of "Reading the page…").
   const [reading, setReading] = useState<"video" | "pdf" | null>(null)
+  const readingRef = useRef(reading)
+  readingRef.current = reading
   // The question being prepared (page still being read); cleared when it's sent or stopped.
   const askToken = useRef<object | null>(null)
   const sendRef = useRef<(base: Turn[], content: string, opts: { label?: string; action?: string; mode?: "google"; resent?: boolean; via?: AskVia }, full: PageRead, selection: string | null, history?: ChatDigest[]) => void>(() => undefined)
@@ -673,9 +687,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const coach = useCoach({ consent: consent === "ok", paid: (status?.plan ?? keptPlan ?? "free") !== "free" })
   const coachRef = useRef<Coach | null>(null)
   coachRef.current = coach
+  // 2.8.1: the platform said before the first event (the background's events carry it; it learned it only from the
+  // first status, after the first fab.shown).
+  useEffect(() => {
+    if (!popup) void sendBackground({ type: "platform", platform })
+  }, [])
   // 2.8 (В6.2): this install's arm of the first-open test, by its id (src/shared/variant.ts): the guided first request,
   // or ready questions. Null until the id is read.
-  const [arm, setArm] = useState<FirstArm | null>(null)
+  const [armById, setArm] = useState<FirstArm | null>(null)
+  // An install updated from 2.7 is in no arm: its first run stays 2.7's (the guide), and nothing is labelled.
+  const arm: FirstArm | null = armById === null || !coach.ready ? null : coach.armed ? armById : "guide"
   const armRef = useRef(arm)
   armRef.current = arm
   useEffect(() => {
@@ -849,7 +870,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const pageChatRef = useRef(false)
   // 2.8 (events-2.8 §2, rungs 8 and 9): how the panel was opened, and what this opening came to (sent as it closes).
   const openViaRef = useRef<"toolbar" | "fab" | "bubble" | "hint">("toolbar")
-  const openingRef = useRef<{ at: number; did: PanelDid } | null>(null)
+  const openingRef = useRef<{ at: number; did: PanelDid; id: string } | null>(null)
   const screenNowRef = useRef<() => PanelScreen>(() => "empty")
   const show = useCallback((captured?: SelectionInfo, how?: { pageChat?: true }, by?: "fab") => {
     openedAt.current = Date.now()
@@ -864,7 +885,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       const first = (coachRef.current?.panelOpens ?? 1) === 0
       coachRef.current?.panelOpened()
       coachRef.current?.done("fab_pulse")
-      openingRef.current = { at: Date.now(), did: "none" }
+      openingRef.current = { at: Date.now(), did: "none", id: crypto.randomUUID() }
+      keepOpening(openingRef.current.id, { at: openingRef.current.at, last: Date.now(), did: "none" })
       // What the first screen showed, once the panel has settled on it (the guide starts 450 ms after the panel is in
       // view; on a device that was over 0.7 s after the tap).
       setTimeout(() => {
@@ -899,7 +921,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const hide = useCallback(() => {
     const opening = openingRef.current
     openingRef.current = null
-    if (opening) void sendBackground({ type: "useEvent", f: "panel", a: "close", open_s: Math.min(9999, Math.round((Date.now() - opening.at) / 1000)), did: opening.did })
+    if (opening) {
+      void sendBackground({ type: "useEvent", f: "panel", a: "close", open_s: Math.min(9999, Math.round((Date.now() - opening.at) / 1000)), did: opening.did })
+      keepOpening(opening.id, null)
+    }
     if (popup) {
       window.close()
       return
@@ -926,16 +951,31 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const tapped = () => {
       if (openingRef.current?.did === "none") openingRef.current.did = "other"
     }
-    const left = () => {
+    // The page goes away, or Safari is put away, with the panel open: a message from a page going away often never
+    // arrives, so the opening is kept (with when it was last seen) and its close is sent from the next page.
+    const keep = () => {
       const o = openingRef.current
-      openingRef.current = null
-      if (o) void sendBackground({ type: "useEvent", f: "panel", a: "close", open_s: Math.min(9999, Math.round((Date.now() - o.at) / 1000)), did: o.did })
+      if (o) keepOpening(o.id, { at: o.at, last: Date.now(), did: o.did })
     }
+    const hidden = () => document.visibilityState === "hidden" && keep()
+    const beat = setInterval(keep, 15_000)
     root.addEventListener("click", tapped, true)
-    window.addEventListener("pagehide", left)
+    window.addEventListener("pagehide", keep)
+    document.addEventListener("visibilitychange", hidden)
+    // Openings left by pages that went away (not seen for a minute: a panel open in another tab keeps its own fresh).
+    void chrome.storage.local.get(OPENINGS_KEY).then((got) => {
+      const all = (got[OPENINGS_KEY] as Record<string, OpeningRecord> | undefined) ?? {}
+      for (const [id, rec] of Object.entries(all)) {
+        if (Date.now() - rec.last < 60_000) continue
+        void sendBackground({ type: "useEvent", f: "panel", a: "close", open_s: Math.min(9999, Math.max(0, Math.round((rec.last - rec.at) / 1000))), did: rec.did, cut: 1 })
+        keepOpening(id, null)
+      }
+    }).catch(() => undefined)
     return () => {
+      clearInterval(beat)
       root.removeEventListener("click", tapped, true)
-      window.removeEventListener("pagehide", left)
+      window.removeEventListener("pagehide", keep)
+      document.removeEventListener("visibilitychange", hidden)
     }
   }, [])
 
@@ -1492,6 +1532,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     partialRef.current = ""
     const token = {}
     askToken.current = token
+    askedAtRef.current = Date.now()
     // A selection or a Google search doesn't need the transcript or the PDFs.
     const whole = !about && opts.mode !== "google"
     const quick = (): PageRead => ({ ...source.quick(), sources: [] })
@@ -1624,6 +1665,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // page, another chat and back), the one still running, from what came so far. A job that ended while nobody
   // followed it left its answer in the chat; one lost (the connection, the background closed) leaves "interrupted".
   const heardRef = useRef(0)
+  // When the question being prepared was asked (its page read, then its connection): bounded by STUCK_MS.
+  const askedAtRef = useRef(0)
 
   /** Follows a chat answer on `port`: what came so far first when it's a job followed again ("snapshot"). */
   const listenChat = (port: chrome.runtime.Port, history: Turn[], onUndelivered?: () => void) => {
@@ -1788,8 +1831,20 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => {
     if (partial === null) return
     const quiet = (ms: number) => portRef.current !== null && heardRef.current > 0 && Date.now() - heardRef.current > ms
+    // 2.8.1 (the director, a tab left open across an update): a question that never got as far as a connection (the
+    // page's read or the plan's status waits on a link that's gone) ends in the lost-link message with Reload, not in
+    // «Reading the page…» for good.
+    // (Not while a video's transcript or PDFs are read: that can take longer, and says so.)
+    const stuck = () => askToken.current !== null && portRef.current === null && askedAtRef.current > 0 && readingRef.current === null && Date.now() - askedAtRef.current > STUCK_MS
     const timer = setInterval(() => {
       if (quiet(20_000)) quietRef.current()
+      else if (stuck()) {
+        askToken.current = null
+        askedAtRef.current = 0
+        setReading(null)
+        setLinkLost(true)
+        finish(nowRef.current.messages, "", { code: "LINK" })
+      }
     }, 5_000)
     const onVisible = () => {
       if (document.visibilityState === "visible" && quiet(6_000)) quietRef.current()
@@ -5738,7 +5793,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         <button type="button" class="cf-chip cf-google-offer" onClick={() => {
                           coach.tap("google_offer")
                           coach.done("google_offer")
-                          ask(webFor.content, { mode: "google" })
+                          ask(webFor.content, { mode: "google", via: "hint" })
                         }}><Icon.Search size={13} /> {t("googleOffer")}</button>
                       )}
                       {/* What it costs, said before the tap (the director: Free's Google answers are apart from the five). */}
