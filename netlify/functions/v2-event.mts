@@ -2,7 +2,7 @@ import type { Config, Context } from "@netlify/functions"
 
 import { attributionFields, resolveAdToken } from "../shared/adservices.mts"
 import { config as settings } from "../shared/config.mts"
-import { consume, isTestTraffic, logEvent } from "../shared/db.mts"
+import { consume, eventGuard, isOurRequest, isTestTraffic, logEvent } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
 import { sendDueConversions } from "../shared/xconversions.mts"
 import { isRenewalReason } from "../../src/shared/renewal.ts"
@@ -92,11 +92,22 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const busy = funnel ? null : has(INSERT_KINDS) ? "insert" : has(UX_KINDS) ? "ux" : null
   const limit = funnel ? settings.eventDailyLimit : busy ? settings.insert.eventDaily : settings.useEventDailyLimit
   const bucket = funnel ? "event" : busy ? `event:${busy}` : "event:use"
-  const quota = await consume([
-    { subject: `${bucket}:${appId ?? installId}`, period: "day", limit },
-    { subject: `${bucket}:${ipSubject(context.ip)}`, period: "day", limit: limit * 10 }
-  ]).catch(() => null)
+  const address = ipSubject(context.ip)
+  // Our simulator builds that don't mark themselves (2.7 and older branches): an app's first open from an address
+  // that was ours earlier today is marked as a test here; the third new app on one platform from one address today
+  // only gets a hint, for a check by hand (cf_event_guard). An open that sends an AdServices token is left alone:
+  // a simulator has no token, and the app reads and sends it with the first open itself (Setup.swift reportOpen).
+  const firstOpen = has(FIRST_OPEN) && typeof body.adToken !== "string"
+  const [quota, why] = await Promise.all([
+    consume([
+      { subject: `${bucket}:${appId ?? installId}`, period: "day", limit },
+      { subject: `${bucket}:${address}`, period: "day", limit: limit * 10 }
+    ]).catch(() => null),
+    eventGuard(address, appId, installId, shared.platform, firstOpen, steps.some((s) => isOurRequest(s.data)))
+  ])
   if (quota && !quota.allowed) return json({ code: "LIMIT_REACHED" }, 429)
+  const mark = why === "address" ? { audience: "test", audience_set: why } : why === "burst" ? { net_hint: why } : null
+  if (mark) for (const s of steps) s.data = { ...s.data, ...mark }
 
   const logged = Promise.all(steps.map((s) => logEvent(s.kind, installId, s.data)))
   context.waitUntil(logged)
@@ -105,7 +116,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   // X ads: the app's install, first answer, first limit and first subscription that X hasn't had yet, for someone
   // who allowed tracking (shared/xconversions.mts); after this request's own step is logged, so a new install counts.
   if ((body.kind === "app_open" || body.kind === "ads_sync") && appId && body.att === "authorized") {
-    const checkIn = { app: appId, install: installId, att: body.att, idfa: body.idfa, platform: String(shared.platform), test: isTestTraffic(shared) }
+    const checkIn = { app: appId, install: installId, att: body.att, idfa: body.idfa, platform: String(shared.platform), test: isTestTraffic(shared) || why === "address" }
     context.waitUntil(logged.then(() => sendDueConversions(checkIn)))
   }
 
@@ -122,6 +133,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
 }
 
 const MAX_BATCH = 25
+const FIRST_OPEN = new Set(["app_open"])
 
 interface Step {
   kind: string

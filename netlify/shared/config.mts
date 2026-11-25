@@ -72,9 +72,11 @@ export const config = {
   geminiModel: env("GEMINI_MODEL") ?? "auto",
   geminiFallbackModels: (env("GEMINI_FALLBACK_MODELS") ?? "gemini-3.8-flash,gemini-3.6-flash,gemini-2.5-flash").split(",").map((m) => m.trim()).filter(Boolean),
   geminiMaxOutputTokens: int("GEMINI_MAX_TOKENS", 4096),
-  // Google answers also count against the plan's normal allowance; these cap the search share
-  // (each grounded answer is billed per search query on top of tokens).
+  // Google answers count against Pro's weekly answers; these cap the search share (each grounded answer is billed per
+  // search query on top of tokens). Free and Own key (2.8, Б8, the owner on 2026-11-24: «да»): Google answers have only
+  // their own cap a day and don't take from the free answers. SEARCH_FREE_APART=off counts them in the free answers again.
   searchFreeDailyLimit: int("SEARCH_FREE_DAILY_LIMIT", 3),
+  searchFreeApart: (env("SEARCH_FREE_APART") ?? "on").trim() !== "off",
   searchProWeeklyLimit: int("SEARCH_PRO_WEEKLY_LIMIT", 100),
   searchGlobalDailyLimit: int("SEARCH_GLOBAL_DAILY_LIMIT", 1500),
 

@@ -61,8 +61,8 @@ footer a { color: var(--text-2); }
 .doc .table { overflow-x: auto; }
 .doc .table table { min-width: 560px; }
 .doc .get { margin: 30px 0 10px; }
-a.tile { display: block; color: var(--text); text-decoration: none; }
-a.tile:hover h3 { color: var(--blue); }
+a.tile, a.feat { display: block; color: var(--text); text-decoration: none; }
+a.tile:hover h3, a.feat:hover h3 { color: var(--blue); }
 @media (max-width: 760px) { .hero { grid-template-columns: 1fr; padding-top: 10px; } .hero h1 { font-size: 38px; } .grid, .plans { grid-template-columns: 1fr; } nav .links { display: none; } }
 /* Features (/features): the app's Tips, by block, with clips of the real panel. */
 .feat-head { padding: 20px 0 0; }

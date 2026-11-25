@@ -212,7 +212,9 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     return new Response(JSON.stringify({ models: GEMINI_MODELS.map((id) => ({ name: `models/${id}`, supportedGenerationMethods: ["generateContent", "countTokens"] })) }), { headers: { "Content-Type": "application/json" } })
   }
   if (url.startsWith(GEMINI) && url.endsWith(":streamGenerateContent?alt=sse")) {
+    const fail = (gemini as { fail?: boolean }).fail
     gemini = { lastUrl: url, lastBody: body, lastKey: new Headers(init?.headers).get("x-goog-api-key") }
+    if (fail) return new Response("overloaded", { status: 503 })
     return geminiStream()
   }
   throw new Error(`unexpected fetch ${url}`)
@@ -232,6 +234,7 @@ let resetClaudeCooldown: () => void
 let serverConfig: {
   geminiKey: string; adminToken: string; xAppConversionToken: string; ownKeyReportDailyLimit: number; eventDailyLimit: number; useEventDailyLimit: number; proOfferCode: string
   anthropicKey: string; claudeEnabled: boolean; claudeFirstTokenMs: number; claudeMinBuild: number; freeDailyLimit: number
+  searchFreeApart: boolean
   ultra: { speakWeeklySeconds: number; similarWeekly: number }
 }
 
@@ -270,6 +273,7 @@ beforeEach(() => {
   serverConfig.eventDailyLimit = 30
   serverConfig.useEventDailyLimit = 1000
   serverConfig.proOfferCode = "CONTEXTFLOW50"
+  serverConfig.searchFreeApart = true
   resetModelList()
 })
 
@@ -484,9 +488,11 @@ test("Google mode streams a grounded answer with citations, sources and Search S
   assert.deepEqual(g.grounding.sources.map((s: { title: string }) => s.title), ["wikipedia.org", "britannica.com"])
   assert.match(g.grounding.suggestions, /google\.com\/search/)
   assert.deepEqual(g.grounding.queries, ["capital of France"])
-  // Counts as a normal answer too.
-  assert.equal(ev[0].usage.used, 1)
+  // 2.8 (Б8): a free Google answer has its own allowance and leaves the free answers alone.
+  assert.equal(ev[0].usage.used, 0)
+  assert.equal(ev[0].usage.limit, 5)
   assert.equal(counters.get(`search:install:${INSTALL}`), 1)
+  assert.equal(counters.get(`install:${INSTALL}`) ?? 0, 0)
   assert.ok(events.some((e) => e.kind === "chat" && e.data.mode === "google" && e.data.search_queries === 1))
 })
 
@@ -502,6 +508,51 @@ test("Google answers have their own, smaller allowance", async () => {
   assert.deepEqual([limit?.data.reason, limit?.data.mode, limit?.data.platform, limit?.data.version], ["search", "google", "ios", "2.0.0"])
   // Regular answers still work.
   assert.equal((await chat(ask(), ctx())).status, 200)
+})
+
+test("2.8 (Б8): free Google answers don't take from the free five, and still work when the five are used", async () => {
+  for (let i = 0; i < 5; i++) await (await chat(ask(), ctx())).text()
+  const out = await chat(ask(), ctx())
+  assert.equal(out.status, 402)
+  assert.equal((await out.json()).code, "LIMIT_REACHED")
+  // Three Google answers a day on top of the five; the counter the person sees stays at 5 of 5.
+  for (let i = 0; i < 3; i++) {
+    const res = await chat(ask({ mode: "google" }), ctx())
+    assert.equal(res.status, 200)
+    const ev = await events$(res)
+    assert.deepEqual([ev[0].usage.used, ev[0].usage.limit, ev.at(-1).type], [5, 5, "done"])
+  }
+  const fourth = await chat(ask({ mode: "google" }), ctx())
+  assert.equal(fourth.status, 402)
+  const body = await fourth.json()
+  assert.equal(body.code, "SEARCH_LIMIT")
+  assert.deepEqual([body.usage.used, body.usage.limit], [5, 5])
+  // The status says so, and its breakdown of the five has no Google answers in it.
+  const st = await (await status(post("/api/v2/status", { installId: INSTALL }), ctx())).json()
+  assert.equal(st.limits.searchFreeApart, true)
+  assert.deepEqual([st.usage.used, st.usage.limit], [5, 5])
+  assert.equal(st.usage.by.google, undefined)
+})
+
+test("2.8 (Б8): a failed free Google answer gives back only its own allowance", async () => {
+  gemini = { fail: true } as typeof gemini
+  const c = ctx()
+  const res = await chat(ask({ mode: "google" }), c)
+  await res.text()
+  await Promise.all(c.pending)
+  assert.equal(res.status, 502)
+  assert.equal(counters.get(`search:install:${INSTALL}`) ?? 0, 0)
+  assert.equal(counters.get(`install:${INSTALL}`) ?? 0, 0)
+})
+
+test("2.8 (Б8): SEARCH_FREE_APART=off counts free Google answers in the five again; Pro's always count", async () => {
+  serverConfig.searchFreeApart = false
+  const res = await chat(ask({ mode: "google" }), ctx())
+  const ev = await events$(res)
+  assert.equal(ev[0].usage.used, 1)
+  const st = await (await status(post("/api/v2/status", { installId: INSTALL }), ctx())).json()
+  assert.equal(st.limits.searchFreeApart, false)
+  assert.equal(st.usage.by.google, 1)
 })
 
 test("Google mode without a Gemini key is unavailable and charges nothing", async () => {

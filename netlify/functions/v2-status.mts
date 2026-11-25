@@ -72,6 +72,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
     ultra: isUltra(access.plan) ? { speak: ultraUsage(ultraState, "speak:"), similar: ultraUsage(ultraState, "similar:") } : null,
     limits: {
       freeDaily: settings.freeDailyLimit, proWeekly: settings.proWeeklyLimit, searchFreeDaily: settings.searchFreeDailyLimit, searchProWeekly: settings.searchProWeeklyLimit,
+      // 2.8 (Б8): free Google answers don't take from the free answers.
+      searchFreeApart: settings.searchFreeApart,
       ultraWeekly: settings.ultra.weeklyLimit, speakWeeklySeconds: settings.ultra.speakWeeklySeconds, similarWeekly: settings.ultra.similarWeekly, similarLightWeekly: settings.similar.lightWeekly, similarProAnswers: settings.similar.proAnswers, watch: WATCH_LIMITS
     },
     organize: { on: settings.organize.enabled, space: vectorSpace(), config: settings.organize.thresholds },
