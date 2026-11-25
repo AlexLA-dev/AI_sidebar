@@ -56,11 +56,11 @@ test("ready questions: every kind has two or three, each in all 15 locales and n
   const en = JSON.parse(read("src/locales/en.json"))
   for (const file of readdirSync(root + "src/locales")) {
     const msgs = JSON.parse(read(`src/locales/${file}`))
-    for (const key of [...keys, "rqTitle", "rqAgree", "rqAgreeNote", "rqContinue", "rqOwnWords", "fabFirstLabel"]) {
+    for (const key of [...keys, "rqTitle", "rqAgree", "rqAgreeNote", "rqContinue", "rqOwnWords", "fabFirstLabel", "phAgent", "googleOffer", "googleOfferFree", "googleOfferPro", "collectTip", "collectTipAdd"]) {
       assert.ok(typeof msgs[key] === "string" && msgs[key].length > 1, `${file} ${key}`)
       if (file !== "en.json") assert.notEqual(msgs[key], en[key], `${file} ${key} left in English`)
     }
-    assert.ok(msgs.rqContinue.includes("{0}"), `${file} rqContinue`)
+    for (const key of ["rqContinue", "googleOfferFree", "googleOfferPro"]) assert.ok(msgs[key].includes("{0}"), `${file} ${key}`)
   }
 })
 
