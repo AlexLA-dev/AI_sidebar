@@ -2816,6 +2816,18 @@
  "phCalendar": {
   "message": "加入行事曆？"
  },
+ "phAgent": {
+  "message": "幫你填寫？"
+ },
+ "googleOffer": {
+  "message": "用 Google 搜尋"
+ },
+ "collectTip": {
+  "message": "把複製的回答放在一處：將這則加入合集。"
+ },
+ "collectTipAdd": {
+  "message": "加入合集"
+ },
  "phClose": {
   "message": "隱藏提示"
  },

@@ -374,10 +374,10 @@ function answerOf(job: Live, event: AnyEvent): Entry | null {
     // 2.7: the chat's marker for a reminder or an event comes out of the text and stays as a mark on the answer.
     const { text: whole, marked } = withoutItemMarker(grounded?.text ?? job.snapshot.text)
     // 2.8: the follow-up questions come off the text and stay on the answer (nextQuestions.ts).
-    const { text, next } = splitNext(whole)
+    const { text, next, web } = splitNext(whole)
     if (!text) return null
     const answer: Entry = grounded ? { role: "assistant", content: text, grounding: grounded.grounding } : { role: "assistant", content: text }
-    return stamped({ ...answer, ...(marked ? { addable: true as const } : {}), ...(next.length ? { next } : {}) })
+    return stamped({ ...answer, ...(marked ? { addable: true as const } : {}), ...(next.length ? { next } : {}), ...(web ? { web: true as const } : {}) })
   }
   const items = job.snapshot.items
   const answer = failed ? (items.length ? { intro: "", items, note: "", condition: "" } : null) : job.answer ?? { intro: "", items, note: "", condition: "" }

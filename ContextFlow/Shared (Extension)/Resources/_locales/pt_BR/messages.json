@@ -2816,6 +2816,18 @@
  "phCalendar": {
   "message": "Adicionar ao calendário?"
  },
+ "phAgent": {
+  "message": "Preencho para você?"
+ },
+ "googleOffer": {
+  "message": "Pesquisar isso no Google"
+ },
+ "collectTip": {
+  "message": "Guarde num só lugar as respostas que você copia: adicione esta a uma coleção."
+ },
+ "collectTipAdd": {
+  "message": "Adicionar a uma coleção"
+ },
  "phClose": {
   "message": "Ocultar dica"
  },

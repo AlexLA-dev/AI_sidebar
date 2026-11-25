@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import { sendBackground } from "../insert/store"
 import {
-  afterAnswer, afterDismissed, afterDone, afterLimit, afterPanelOpen, afterShown, allowed, choose, dayNumber, HINTS, rungOf, touch,
+  afterAnswer, afterCopy, afterDismissed, afterDone, afterLimit, afterPanelOpen, afterShown, allowed, choose, dayNumber, HINTS, rungOf, touch,
   type CoachHint, type CoachState, type Rung
 } from "./rules"
 import { changeCoach, loadCoach, onCoachChanged } from "./state"
@@ -38,6 +38,8 @@ export interface Coach {
   panelOpened: () => void
   answered: (own: boolean) => void
   limited: () => void
+  copied: () => void
+  copies: number
 }
 
 const send = (a: string, what: CoachHint, rung: Rung, day: number) =>
@@ -130,6 +132,7 @@ export function useCoach({ consent, paid }: { consent: boolean; paid: boolean })
   const panelOpened = useCallback(() => change((s) => afterPanelOpen(s, Date.now())), [change])
   const answered = useCallback((own: boolean) => change((s) => afterAnswer(s, Date.now(), own)), [change])
   const limited = useCallback(() => change((s) => afterLimit(s, Date.now())), [change])
+  const copied = useCallback(() => change((s) => afterCopy(s, Date.now())), [change])
 
   return useMemo(() => ({
     ready: state !== null,
@@ -138,6 +141,7 @@ export function useCoach({ consent, paid }: { consent: boolean; paid: boolean })
     panelOpens: state?.panelOpens ?? 0,
     answers: state?.answers ?? 0,
     own: state?.own ?? false,
+    copies: state?.copies ?? 0,
     slot,
     pick: (wanting: Iterable<CoachHint>, flow: boolean) => {
       const id = pick(wanting, flow)
@@ -145,6 +149,6 @@ export function useCoach({ consent, paid }: { consent: boolean; paid: boolean })
       queueMicrotask(() => commit(id))
       return id
     },
-    may, want, tap, dismiss, done, panelOpened, answered, limited
-  }), [state, rung, day, slot, pick, commit, may, want, tap, dismiss, done, panelOpened, answered, limited])
+    may, want, tap, dismiss, done, panelOpened, answered, limited, copied
+  }), [state, rung, day, slot, pick, commit, may, want, tap, dismiss, done, panelOpened, answered, limited, copied])
 }

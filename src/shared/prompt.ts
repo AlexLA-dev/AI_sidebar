@@ -3,7 +3,7 @@
 
 import type { Attachment, MediaKind } from "./attachments.ts"
 import { ITEM_MARKER } from "./appleItems.ts"
-import { NEXT_MARKER } from "./nextQuestions.ts"
+import { NEXT_MARKER, WEB_MARKER } from "./nextQuestions.ts"
 import { fitTokens, GAP, PAGE_TOKENS } from "./pagefit.ts"
 
 export interface PageContext {
@@ -82,7 +82,7 @@ export function withItemRule(parts: [string, string], items: boolean): [string, 
  * (`next: true`). They come last, after any other marker line, and the panel shows them as buttons.
  */
 export const NEXT_RULE =
-  `- After everything else in your answer (after any other marker line too), write a line that is exactly ${NEXT_MARKER}, then exactly two short follow-up questions the user might want to ask next about this page, one per line: in the language of your answer, written as the user would ask them, under 70 characters each, no numbering, no quotes. Make them go deeper into what the user asked, answerable from the page. Write nothing after them, and never mention them or the marker.`
+  `- After everything else in your answer (after any other marker line too), write a line that is exactly ${NEXT_MARKER}, then exactly two short follow-up questions the user might want to ask next about this page, one per line: in the language of your answer, written as the user would ask them, under 70 characters each, no numbering, no quotes. Make them go deeper into what the user asked, answerable from the page. If a good answer needs information that isn't on this page (something recent, or facts from elsewhere), add one more line after them that is exactly ${WEB_MARKER}. Write nothing else after them, and never mention them or the markers.`
 
 /** The rules with NEXT_RULE when the panel asks for follow-up questions (the first, cached part of systemPromptParts). */
 export function withNextRule(parts: [string, string], next: boolean): [string, string] {

@@ -100,6 +100,8 @@ export interface Entry extends ChatTurn {
   // 2.8 (В6.1): two follow-up questions the model wrote with the answer (nextQuestions.ts), shown as buttons under the
   // chat's latest answer.
   next?: string[]
+  // …and the answer needs what isn't on the page: a Google answer is offered under it (В5.6).
+  web?: true
 }
 
 /** A new message's id: 12 random letters and digits. */

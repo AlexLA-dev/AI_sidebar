@@ -44,6 +44,8 @@ export interface PageHints {
   // Has the person's plan the feature (the how-to), or is it offered to them.
   has: (id: HintId) => boolean
   tap: () => void
+  // 2.8 (В5): the line's tap does its feature on this page (the panel runs it): counted as tapped and used, no how-to.
+  act: () => HintId | null
   close: () => void
   doneChat: () => void
 }
@@ -169,6 +171,16 @@ export function usePageHints({ plan, ready, firstRunAhead, open, may, onUsed }: 
     open()
   }, [open])
 
+  const act = useCallback((): HintId | null => {
+    const id = lineRef.current
+    if (!id) return null
+    step("tap", id)
+    step("used", id)
+    void loadHints(Date.now()).then((s) => saveHints(afterUsed(afterTap(s), id)))
+    setLine(null)
+    return id
+  }, [])
+
   const close = useCallback(() => {
     const id = lineRef.current
     if (!id) return
@@ -187,6 +199,7 @@ export function usePageHints({ plan, ready, firstRunAhead, open, may, onUsed }: 
     glow: glow?.target ?? null,
     has: (id) => hasFeature(id, planRef.current),
     tap,
+    act,
     close,
     doneChat: () => setChat(null)
   }

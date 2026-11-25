@@ -2816,6 +2816,18 @@
  "phCalendar": {
   "message": "Takvime eklensin mi?"
  },
+ "phAgent": {
+  "message": "Sizin için doldurayım mı?"
+ },
+ "googleOffer": {
+  "message": "Bunu Google'da ara"
+ },
+ "collectTip": {
+  "message": "Kopyaladığınız yanıtları tek yerde tutun: bunu bir koleksiyona ekleyin."
+ },
+ "collectTipAdd": {
+  "message": "Koleksiyona ekle"
+ },
  "phClose": {
   "message": "Bu ipucunu gizle"
  },

@@ -2816,6 +2816,18 @@
  "phCalendar": {
   "message": "Добавить в календарь?"
  },
+ "phAgent": {
+  "message": "Заполнить за вас?"
+ },
+ "googleOffer": {
+  "message": "Найти это в Google"
+ },
+ "collectTip": {
+  "message": "Храните скопированные ответы в одном месте: добавьте этот в подборку."
+ },
+ "collectTipAdd": {
+  "message": "Добавить в подборку"
+ },
  "phClose": {
   "message": "Скрыть подсказку"
  },

@@ -34,7 +34,8 @@ export const COACH_HINTS = [
   "fab_pulse", "sel_ask", "agent_offer", "translate_pill", "cookie_line", "sel_icons", "write_tip", "note_tip",
   "organize_consent", "organize_mess", "organize_tags", "byok_offer", "renewal", "pro_offer", "media_tip", "chats_tip",
   "whatsnew", "invite",
-  "page_similar", "page_watch", "page_summary", "page_listen", "page_video", "page_templates", "page_remind", "page_calendar"
+  "page_similar", "page_watch", "page_summary", "page_listen", "page_video", "page_templates", "page_remind", "page_calendar",
+  "page_agent", "google_offer", "collect_tip"
 ] as const
 
 export const FEATURES: Record<string, Feature> = {
@@ -129,7 +130,7 @@ export const FEATURES: Record<string, Feature> = {
   // turning them off), the feature used after it; the Settings switch. what: which hint (src/content/pagehints).
   page_hint: {
     since: "2.7", tracked: "2.7", on: "ext", actions: ["shown", "tap", "dismiss", "off", "used", "switch_on", "switch_off"],
-    fields: { what: ["similar", "watch", "summary", "listen", "video", "templates", "remind", "calendar"] }
+    fields: { what: ["similar", "watch", "summary", "listen", "video", "templates", "remind", "calendar", "agent"] }
   },
   // 2.7 (plan section 9): the circle dragged to the other edge, the panel dragged by its header (iPad, Mac), the side
   // picked in Settings; what: the side it went to.

@@ -2816,6 +2816,18 @@
  "phCalendar": {
   "message": "캘린더에 추가할까요?"
  },
+ "phAgent": {
+  "message": "대신 작성해 드릴까요?"
+ },
+ "googleOffer": {
+  "message": "Google에서 찾아보기"
+ },
+ "collectTip": {
+  "message": "복사한 답변을 한곳에 모아 두세요: 이 답변을 컬렉션에 추가하기."
+ },
+ "collectTipAdd": {
+  "message": "컬렉션에 추가"
+ },
  "phClose": {
   "message": "팁 숨기기"
  },

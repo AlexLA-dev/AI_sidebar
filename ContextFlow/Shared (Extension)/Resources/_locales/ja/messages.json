@@ -2816,6 +2816,18 @@
  "phCalendar": {
   "message": "カレンダーに追加しますか？"
  },
+ "phAgent": {
+  "message": "代わりに入力しましょうか？"
+ },
+ "googleOffer": {
+  "message": "Googleで調べる"
+ },
+ "collectTip": {
+  "message": "コピーした回答はまとめておけます：この回答をコレクションに追加。"
+ },
+ "collectTipAdd": {
+  "message": "コレクションに追加"
+ },
  "phClose": {
   "message": "ヒントを隠す"
  },

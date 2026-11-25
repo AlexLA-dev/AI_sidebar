@@ -2816,6 +2816,18 @@
  "phCalendar": {
   "message": "添加到日历？"
  },
+ "phAgent": {
+  "message": "帮你填写？"
+ },
+ "googleOffer": {
+  "message": "用 Google 搜索"
+ },
+ "collectTip": {
+  "message": "把复制的回答放在一处：将这条加入合集。"
+ },
+ "collectTipAdd": {
+  "message": "加入合集"
+ },
  "phClose": {
   "message": "隐藏提示"
  },

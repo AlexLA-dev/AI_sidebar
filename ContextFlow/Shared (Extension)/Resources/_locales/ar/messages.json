@@ -2816,6 +2816,18 @@
  "phCalendar": {
   "message": "إضافة إلى التقويم؟"
  },
+ "phAgent": {
+  "message": "أملؤه نيابة عنك؟"
+ },
+ "googleOffer": {
+  "message": "ابحث عن هذا في Google"
+ },
+ "collectTip": {
+  "message": "احتفظ بالإجابات التي تنسخها في مكان واحد: أضف هذه إلى مجموعة."
+ },
+ "collectTipAdd": {
+  "message": "أضف إلى مجموعة"
+ },
  "phClose": {
   "message": "إخفاء التلميح"
  },

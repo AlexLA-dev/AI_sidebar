@@ -1406,7 +1406,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       // 2.8 (В6.1): the follow-up questions come off the text and stay on the answer.
       const split = splitNext(shown.text)
       const answer: Turn = grounding ? { role: "assistant", content: split.text, grounding } : { role: "assistant", content: split.text }
-      const next: Turn[] = [...history, entry ?? stamped({ ...answer, ...(shown.marked ? { addable: true as const } : {}), ...(split.next.length ? { next: split.next } : {}) })]
+      const next: Turn[] = [...history, entry ?? stamped({ ...answer, ...(shown.marked ? { addable: true as const } : {}), ...(split.next.length ? { next: split.next } : {}), ...(split.web ? { web: true as const } : {}) })]
       setMessages(next)
       const skipped = skippedFor(next, next.length - 1)
       if (skipped) void sendBackground({ type: "mediaNotice", action: "shown", media: skipped })
@@ -2461,6 +2461,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           // An answer with highlights goes as rich text too (bold), then as plain text.
           if ((await ux.copyAnswer(idx, text)) || (await copyText(text))) {
             setCopied(idx)
+            // 2.8 (В5.8): from the second answer copied, keeping them in a collection is offered under it.
+            if (!m.note && dropped.has("collect") && !historyMode && (coachRef.current?.copies ?? 0) >= 1) setCollectOffer(idx)
+            coachRef.current?.copied()
             setTimeout(() => setCopied(null), 1500)
             // ContextFlow's own Copy goes to Copied too.
             void keepCopied(text, "", "contextflow")
@@ -3834,6 +3837,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // Подборки (2.7, Collections.tsx): the space's collections, «В подборку» on a message (its index), the line after.
   const cols = useCollections(spaces.list, spaces.current.id, settings.spaces !== false)
   const [collecting, setCollecting] = useState<number | null>(null)
+  // 2.8 (В5.8): the answer under which keeping copied answers in a collection is offered.
+  const [collectOffer, setCollectOffer] = useState<number | null>(null)
   // The collection the window opens on (from "In «…»" under an answer); null: the first one.
   const [colOpen, setColOpen] = useState<string | null>(null)
   const [colToast, setColToast] = useState<string | null>(null)
@@ -4917,6 +4922,38 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     })
   }
 
+  // ------------------------------------------------------------ one capability a day (2.8, В5)
+  // A page line's tap does its feature on this page once the panel is open: Find similar's card, Listen, a watch on the
+  // page, the summary, the agent's Do (Pro; its offer otherwise). Paid ones lead to their plans or taste by their own way.
+  const DO_IT: ReadonlySet<string> = new Set(["similar", "listen", "watch", "summary", "agent"])
+  const doHint = (id: string) => {
+    if (id === "similar") return openSimilar("chip")
+    if (id === "listen") return void listenPage()
+    if (id === "watch") {
+      const watcher = listsKind("watch") ? pageWatcher() : null
+      if (watcher) watcher({ url: source.href(), title: source.title() })
+      return
+    }
+    if (id === "summary") {
+      const summarize = actions.find((a) => a.id === "summarize")
+      if (summarize) runAction(summarize)
+      return
+    }
+    if (id === "agent") {
+      if (!hasPro(plan)) return setAgentUpsell(true)
+      setNoteMode(false)
+      setAgentMode(true)
+      setTimeout(() => inputRef.current?.focus(), 60)
+    }
+  }
+  const doHintRef = useRef(doHint)
+  doHintRef.current = doHint
+  // The question an answer offering Google was for (В5.6): the latest answer's, when it says the page lacks it.
+  const lastAnswer = messages[messages.length - 1]
+  const webFor = lastAnswer?.role === "assistant" && lastAnswer.web && !lastAnswer.grounding && partial === null && !historyMode
+    ? messages.slice(0, -1).reverse().find((e) => e.role === "user" && !e.note) ?? null
+    : null
+
   // ------------------------------------------------------------ the hint coordinator (2.8, В3.1)
   // Every prompt says here whether it fits now; the coordinator gives one of them the slot (coach/rules.ts). Prompts on
   // the page need the panel closed; prompts in the panel need it open on the chat.
@@ -4942,6 +4979,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   wantIf("chats_tip", open && view === "threads" && hintDue("chats") && threadList.length > 0 && guide !== "chatList" && !(guide && PLAN_VIEW[guide] === "threads"))
   wantIf("note_tip", open && noteHint && draft.trim() && !noteMode && !sendMenu)
   wantIf("agent_offer", open && offerAt >= 0)
+  wantIf("google_offer", open && view === "chat" && webFor)
+  wantIf("collect_tip", open && view === "chat" && collectOffer !== null && collectOffer < messages.length && !picked)
   // What the person is in the middle of holds every hint: the consent, the guide or the tour, the plans, the limit.
   const coachFlow = guide !== null || touring || (open && (pending !== null || findConsent !== null || plansOpen !== null || memoryOffer !== null || error?.code === "LIMIT_REACHED"))
   const slot = coach.pick(coachWants, coachFlow)
@@ -5029,9 +5068,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       {/* 2.7 (plan section 6): the page's hint by the circle, on its side (never with the translate pill). */}
       {pageHints.line && slot === `page_${pageHints.line}` && (
         <HintLine id={pageHints.line} side={side} top={fabTop} onTap={() => {
+          const id = pageHints.line
+          if (!id) return
           openViaRef.current = "hint"
-          coach.tap(`page_${pageHints.line}` as CoachHint)
-          pageHints.tap()
+          coach.tap(`page_${id}` as CoachHint)
+          if (!DO_IT.has(id)) return pageHints.tap()
+          // 2.8 (В5): the line does its feature, here, once the panel is open.
+          pageHints.act()
+          coach.done(`page_${id}` as CoachHint)
+          openFromHint()
+          setTimeout(() => doHintRef.current(id), 400)
         }} onClose={() => {
           coach.dismiss(`page_${pageHints.line}` as CoachHint)
           pageHints.close()
@@ -5681,6 +5727,32 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       {!picked && idx === messages.length - 1 && m.next && m.next.length > 0 && partial === null && !historyMode && (
                         <div class="cf-next" role="group" aria-label={t("rqTitle")}>
                           {m.next.map((q) => <button type="button" key={q} class="cf-next-q" dir="auto" onClick={() => ask(q, { via: "followup" })}>{q}</button>)}
+                        </div>
+                      )}
+                      {/* 2.8 (В5.6): the answer needs what isn't on the page: a Google answer, one tap. */}
+                      {!picked && idx === messages.length - 1 && slot === "google_offer" && webFor && (
+                        <button type="button" class="cf-chip cf-google-offer" onClick={() => {
+                          coach.tap("google_offer")
+                          coach.done("google_offer")
+                          ask(webFor.content, { mode: "google" })
+                        }}><Icon.Search size={13} /> {t("googleOffer")}</button>
+                      )}
+                      {/* 2.8 (В5.8): the second answer copied: keeping them in a collection, one tap. */}
+                      {!picked && idx === collectOffer && slot === "collect_tip" && (
+                        <div class="cf-collect-tip" role="note">
+                          <p>{t("collectTip")}</p>
+                          <div class="cf-card-actions">
+                            <button type="button" class="cf-primary" onClick={() => {
+                              coach.tap("collect_tip")
+                              coach.done("collect_tip")
+                              setCollectOffer(null)
+                              setCollecting(idx)
+                            }}>{t("collectTipAdd")}</button>
+                            <button type="button" class="cf-link" onClick={() => {
+                              coach.dismiss("collect_tip")
+                              setCollectOffer(null)
+                            }}>{t("offerLater")}</button>
+                          </div>
                         </div>
                       )}
                       {!picked && ux.addCard(m, idx)}

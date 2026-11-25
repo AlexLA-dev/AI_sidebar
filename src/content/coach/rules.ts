@@ -13,7 +13,8 @@ export const HINT_IDS = [
   "fab_pulse", "sel_ask", "agent_offer", "translate_pill", "cookie_line", "sel_icons", "write_tip", "note_tip",
   "organize_consent", "organize_mess", "organize_tags", "byok_offer", "renewal", "pro_offer", "media_tip", "chats_tip",
   "side", "whatsnew", "invite",
-  "page_similar", "page_watch", "page_summary", "page_listen", "page_video", "page_templates", "page_remind", "page_calendar"
+  "page_similar", "page_watch", "page_summary", "page_listen", "page_video", "page_templates", "page_remind", "page_calendar",
+  "page_agent", "google_offer", "collect_tip"
 ] as const
 export type CoachHint = (typeof HINT_IDS)[number]
 
@@ -55,6 +56,10 @@ export const HINTS: Record<CoachHint, HintSpec> = {
   page_templates: hint(60, 11, 2, { cap: true }),
   page_remind: hint(60, 11, 2, { cap: true }),
   page_calendar: hint(60, 11, 2, { cap: true }),
+  page_agent: hint(60, 11, 2, { cap: true }),
+  // Under an answer that needs what isn't on the page (В5.6); after the second copy of an answer (В5.8).
+  google_offer: hint(65, 11, 2, { cap: true }),
+  collect_tip: hint(58, 11, 2, { cap: true }),
   write_tip: hint(55, 11, 2, { cap: true }),
   // How-tos once the first answer is in.
   note_tip: hint(50, 11, 1),
@@ -102,6 +107,8 @@ export interface CoachState {
   own: boolean
   // The free answers ran out once (ms; 0: never).
   limitAt: number
+  // Answers copied or shared (В5.8: after the second, keeping them in a collection is offered).
+  copies: number
   hints: Partial<Record<CoachHint, HintCount>>
   // This session: when it started, its last step, the hint shown in it and whether that one is settled (✕ or taken).
   session: { start: number; last: number; shown: CoachHint | null; settled: boolean }
@@ -113,7 +120,7 @@ export interface CoachState {
 }
 
 export const freshCoach = (now: number): CoachState => ({
-  v: 1, first: now, panelOpens: 0, answers: 0, askDays: [], own: false, limitAt: 0, hints: {},
+  v: 1, first: now, panelOpens: 0, answers: 0, askDays: [], own: false, limitAt: 0, copies: 0, hints: {},
   session: { start: now, last: now, shown: null, settled: true }, capDay: "", capId: null, seeded: false
 })
 
@@ -253,3 +260,5 @@ export function afterAnswer(s: CoachState, now: number, own: boolean): CoachStat
 }
 
 export const afterLimit = (s: CoachState, now: number): CoachState => (s.limitAt ? s : { ...s, limitAt: now })
+
+export const afterCopy = (s: CoachState, now: number): CoachState => ({ ...touch(s, now), copies: (s.copies ?? 0) + 1 })

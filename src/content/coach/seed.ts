@@ -11,7 +11,7 @@ export const SEED_KEYS = [
 
 const PAGE_IDS: Record<string, CoachHint> = {
   similar: "page_similar", watch: "page_watch", summary: "page_summary", listen: "page_listen",
-  video: "page_video", templates: "page_templates", remind: "page_remind", calendar: "page_calendar"
+  video: "page_video", templates: "page_templates", remind: "page_remind", calendar: "page_calendar", agent: "page_agent"
 }
 
 const num = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) ? v : null)

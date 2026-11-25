@@ -4,25 +4,29 @@
 // them (`next: true`), so older clients never see the marker.
 
 export const NEXT_MARKER = "[[cf:next]]"
+/** 2.8 (В5.6): written among the follow-ups when a good answer needs what isn't on the page (something recent, facts
+ *  from elsewhere): the panel offers a Google answer under it. */
+export const WEB_MARKER = "[[cf:web]]"
 /** At most this many, each at most this long. */
 export const NEXT_MAX = 2
 export const NEXT_CHARS = 90
 
 /** The answer as shown and kept, and its follow-up questions. While it streams, the marker's start at the end is
  *  hidden too, and nothing after a marker shows. */
-export function splitNext(text: string): { text: string; next: string[] } {
+export function splitNext(text: string): { text: string; next: string[]; web: boolean } {
   const at = text.indexOf(NEXT_MARKER)
   if (at < 0) {
     for (let k = Math.min(NEXT_MARKER.length - 1, text.length); k >= 2; k--) {
-      if (text.endsWith(NEXT_MARKER.slice(0, k))) return { text: text.slice(0, -k).replace(/\s+$/, ""), next: [] }
+      if (text.endsWith(NEXT_MARKER.slice(0, k))) return { text: text.slice(0, -k).replace(/\s+$/, ""), next: [], web: false }
     }
-    return { text, next: [] }
+    return { text, next: [], web: false }
   }
-  const next = text
-    .slice(at + NEXT_MARKER.length)
+  const tail = text.slice(at + NEXT_MARKER.length)
+  const web = tail.includes(WEB_MARKER)
+  const next = tail
     .split("\n")
     .map((line) => line.replace(/^\s*(?:[-*•]|\d+[.)])\s*/, "").replace(/^["«“„]+|["»”“]+$/g, "").replace(/\[\[cf:[a-z]+\]\]/g, "").trim())
     .filter((line) => line.length >= 3 && line.length <= NEXT_CHARS)
     .slice(0, NEXT_MAX)
-  return { text: text.slice(0, at).replace(/\s+$/, ""), next }
+  return { text: text.slice(0, at).replace(/\s+$/, ""), next, web }
 }
