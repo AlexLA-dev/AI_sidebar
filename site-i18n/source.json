@@ -1694,6 +1694,22 @@
   ]
  },
  {
+  "key": "87ecec147ad9",
+  "kind": "html",
+  "en": "It books for you, right on the page <span class=\"pro-badge\">Pro</span>",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "49e74a3072f4",
+  "kind": "html",
+  "en": "Need a table or a stay booked, or a visit to a doctor or a stylist? On the booking site, open the panel, tap + by the field (click on a Mac), choose Do and say what you need: “a table for two tomorrow at 7 pm”. ContextFlow picks the time, fills in your name and contacts from My details and books. You can close the panel: a question or the result shows up by ✦. Paying and signing in stay yours, and Stop is always there.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
   "key": "6ba198cbff63",
   "kind": "html",
   "en": "Notes of your own",
@@ -2257,6 +2273,22 @@
   "key": "eead011c5123",
   "kind": "html",
   "en": "Don't need the ✦ button on a site? Hide it there, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "92470c1789c3",
+  "kind": "html",
+  "en": "Cookie windows close themselves",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "69c3bdff6c19",
+  "kind": "html",
+  "en": "Tired of cookie windows? ContextFlow answers them for you with “only necessary”, and the first few times a short line by ✦ says so. Want them back on a site? Turn it off for that site in the extension settings, under Cookie windows.",
   "pages": [
    "features.html"
   ]

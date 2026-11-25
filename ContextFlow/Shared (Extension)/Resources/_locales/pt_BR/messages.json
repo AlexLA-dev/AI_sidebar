@@ -3890,6 +3890,15 @@
  "tip_da5f7b74b1": {
   "message": "Ir mais a fundo"
  },
+ "tip_8f191972e8": {
+  "message": "Ele reserva por você, direto na página"
+ },
+ "tip_363625547a": {
+  "message": "Precisa reservar uma mesa ou uma hospedagem, ou marcar horário com um médico ou um cabeleireiro? No site de reservas, abra o painel, toque em + ao lado do campo, escolha “Fazer” e diga o que precisa: “mesa para dois amanhã às 19h”. O ContextFlow escolhe o horário, preenche seu nome e seus contatos a partir de “Meus dados” e faz a reserva. Você pode fechar o painel: uma pergunta ou o resultado aparece ao lado do ✦. Pagar e entrar na conta continuam com você, e “Parar” está sempre à mão. Com o Pro ou o Ultra."
+ },
+ "tip_232e049197": {
+  "message": "Precisa reservar uma mesa ou uma hospedagem, ou marcar horário com um médico ou um cabeleireiro? No site de reservas, abra o painel, clique em + ao lado do campo, escolha “Fazer” e diga o que precisa: “mesa para dois amanhã às 19h”. O ContextFlow escolhe o horário, preenche seu nome e seus contatos a partir de “Meus dados” e faz a reserva. Você pode fechar o painel: uma pergunta ou o resultado aparece ao lado do ✦. Pagar e entrar na conta continuam com você, e “Parar” está sempre à mão. Com o Pro ou o Ultra."
+ },
  "tip_6ba198cbff": {
   "message": "Suas próprias notas"
  },
@@ -4132,6 +4141,15 @@
  },
  "tip_6cc366173d": {
   "message": "Não precisa do ✦ em um site? Oculte-o nesse site ou desative-o em todos nos ajustes da extensão. O ContextFlow continua abrindo pelo menu de extensões do Safari."
+ },
+ "tip_92470c1789": {
+  "message": "As janelas de cookies se fecham sozinhas"
+ },
+ "tip_8534da4bd8": {
+  "message": "Cansou de tocar em janela de cookies? O ContextFlow responde por você com “somente necessários”, e nas primeiras vezes uma linha curta ao lado do ✦ avisa. Quer vê-las de volta em um site? Desative para esse site nos ajustes da extensão, em “Janelas de cookies”."
+ },
+ "tip_fc1a61bcfa": {
+  "message": "Cansou de clicar em janela de cookies? O ContextFlow responde por você com “somente necessários”, e nas primeiras vezes uma linha curta ao lado do ✦ avisa. Quer vê-las de volta em um site? Desative para esse site nos ajustes da extensão, em “Janelas de cookies”."
  },
  "tip_cc54dd5946": {
   "message": "Dicas no botão ✦"

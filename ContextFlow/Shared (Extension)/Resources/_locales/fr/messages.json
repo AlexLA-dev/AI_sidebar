@@ -3890,6 +3890,15 @@
  "tip_da5f7b74b1": {
   "message": "Aller plus loin"
  },
+ "tip_8f191972e8": {
+  "message": "Il réserve pour vous, directement sur la page"
+ },
+ "tip_363625547a": {
+  "message": "Besoin de réserver une table ou un logement, ou de prendre rendez-vous chez le médecin ou le coiffeur ? Sur le site de réservation, ouvrez le panneau, touchez + à côté du champ, choisissez « Faire » et écrivez ce qu’il vous faut : « une table pour deux demain à 19 h ». ContextFlow choisit l’heure, remplit votre nom et vos coordonnées depuis « Mes infos » et réserve. Vous pouvez fermer le panneau : une question ou le résultat s’affiche près de ✦. Le paiement et la connexion restent entre vos mains, et « Arrêter » est toujours là. Avec Pro ou Ultra."
+ },
+ "tip_232e049197": {
+  "message": "Besoin de réserver une table ou un logement, ou de prendre rendez-vous chez le médecin ou le coiffeur ? Sur le site de réservation, ouvrez le panneau, cliquez sur + à côté du champ, choisissez « Faire » et écrivez ce qu’il vous faut : « une table pour deux demain à 19 h ». ContextFlow choisit l’heure, remplit votre nom et vos coordonnées depuis « Mes infos » et réserve. Vous pouvez fermer le panneau : une question ou le résultat s’affiche près de ✦. Le paiement et la connexion restent entre vos mains, et « Arrêter » est toujours là. Avec Pro ou Ultra."
+ },
  "tip_6ba198cbff": {
   "message": "Vos propres notes"
  },
@@ -4132,6 +4141,15 @@
  },
  "tip_6cc366173d": {
   "message": "Pas besoin de ✦ sur un site ? Masquez-le sur ce site ou désactivez-le partout dans les réglages de l’extension. ContextFlow s’ouvre toujours depuis le menu des extensions de Safari."
+ },
+ "tip_92470c1789": {
+  "message": "Les fenêtres de cookies se ferment toutes seules"
+ },
+ "tip_8534da4bd8": {
+  "message": "Vous en avez assez de toucher les fenêtres de cookies une à une ? ContextFlow y répond pour vous avec « uniquement nécessaires », et les premières fois, une courte ligne près de ✦ vous le signale. Vous voulez les revoir sur un site ? Désactivez cette fonction pour ce site dans les réglages de l’extension, sous « Fenêtres de cookies »."
+ },
+ "tip_fc1a61bcfa": {
+  "message": "Vous en avez assez de cliquer dans les fenêtres de cookies une à une ? ContextFlow y répond pour vous avec « uniquement nécessaires », et les premières fois, une courte ligne près de ✦ vous le signale. Vous voulez les revoir sur un site ? Désactivez cette fonction pour ce site dans les réglages de l’extension, sous « Fenêtres de cookies »."
  },
  "tip_cc54dd5946": {
   "message": "Astuces près du bouton ✦"

@@ -3890,6 +3890,15 @@
  "tip_da5f7b74b1": {
   "message": "Ir más a fondo"
  },
+ "tip_8f191972e8": {
+  "message": "Reserva por ti, en la misma página"
+ },
+ "tip_363625547a": {
+  "message": "¿Necesitas reservar una mesa o un alojamiento, o pedir cita con un médico o un estilista? En la web de reservas, abre el panel, toca + junto al campo, elige «Hacer» y di lo que necesitas: «mesa para dos mañana a las 19:00». ContextFlow elige la hora, rellena tu nombre y tus datos de contacto desde «Mis datos» y reserva. Puedes cerrar el panel: una pregunta o el resultado aparece junto a ✦. El pago y el inicio de sesión quedan en tus manos, y «Detener» siempre está a mano. Con Pro o Ultra."
+ },
+ "tip_232e049197": {
+  "message": "¿Necesitas reservar una mesa o un alojamiento, o pedir cita con un médico o un estilista? En la web de reservas, abre el panel, haz clic en + junto al campo, elige «Hacer» y di lo que necesitas: «mesa para dos mañana a las 19:00». ContextFlow elige la hora, rellena tu nombre y tus datos de contacto desde «Mis datos» y reserva. Puedes cerrar el panel: una pregunta o el resultado aparece junto a ✦. El pago y el inicio de sesión quedan en tus manos, y «Detener» siempre está a mano. Con Pro o Ultra."
+ },
  "tip_6ba198cbff": {
   "message": "Tus propias notas"
  },
@@ -4132,6 +4141,15 @@
  },
  "tip_6cc366173d": {
   "message": "¿No necesitas ✦ en un sitio? Ocúltalo en ese sitio o desactívalo en todas partes en los ajustes de la extensión. ContextFlow seguirá abriéndose desde el menú de extensiones de Safari."
+ },
+ "tip_92470c1789": {
+  "message": "Las ventanas de cookies se cierran solas"
+ },
+ "tip_8534da4bd8": {
+  "message": "¿Te cansa ir tocando ventanas de cookies? ContextFlow las responde por ti con «solo necesarias», y las primeras veces te lo dice una línea corta junto a ✦. ¿Quieres volver a verlas en un sitio? Desactívalo para ese sitio en los ajustes de la extensión, en «Ventanas de cookies»."
+ },
+ "tip_fc1a61bcfa": {
+  "message": "¿Te cansa ir haciendo clic en ventanas de cookies? ContextFlow las responde por ti con «solo necesarias», y las primeras veces te lo dice una línea corta junto a ✦. ¿Quieres volver a verlas en un sitio? Desactívalo para ese sitio en los ajustes de la extensión, en «Ventanas de cookies»."
  },
  "tip_cc54dd5946": {
   "message": "Consejos junto al botón ✦"
