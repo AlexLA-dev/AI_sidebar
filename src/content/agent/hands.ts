@@ -93,6 +93,15 @@ function reveal(el: Element): void {
   if (!inView(el)) (el as HTMLElement).scrollIntoView?.({ block: "center", inline: "nearest" })
 }
 
+/** A control that sends its form (a submit button or input, a button with no type inside a form). */
+function submitsForm(el: Element): boolean {
+  const form = (el as HTMLButtonElement).form ?? el.closest?.("form")
+  if (!form) return false
+  const t = tag(el)
+  const type = (el.getAttribute("type") ?? (t === "button" ? "submit" : "")).toLowerCase()
+  return (t === "button" || t === "input") && (type === "submit" || type === "image")
+}
+
 /** A change that is only the agent's own: its watching script added or removed, or one of its data-cf- attributes. */
 export function ownMark(r: MutationRecord): boolean {
   if (r.type === "attributes") return !!r.attributeName?.startsWith("data-cf-")
@@ -326,6 +335,12 @@ async function actOnly(call: ToolCall, doc: Document): Promise<StepResult> {
         settled = await stepSettle()
       } finally {
         tab = win?.done() ?? null
+      }
+      // A form's submit that seems to change nothing may still be loading its next page (129, the iPad: the stays list's
+      // Search went on after the quiet wait and read «nothing changed», the line without its ✓): a little longer for it.
+      if (!settled.changed && !settled.navigated && submitsForm(el!)) {
+        const more = await watch(el!.ownerDocument).settle(SETTLE_QUIET_MS, 2500)
+        if (more.navigated || more.changed) settled = more
       }
       const result: StepResult = { ok: true, note: settled.navigated ? "the page went on" : settled.changed ? "the page changed" : "nothing changed on the page", changed: settled.changed, navigated: settled.navigated }
       if (tab?.url && !settled.navigated) {

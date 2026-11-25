@@ -1,6 +1,7 @@
 // The director's pass on 21c29c5a (iPad, the stand's stays): a saved name offered into a stay's «Destination» box, a
 // place taken from the chat's own suggestion, and the last «Do it?» without the place.
 import assert from "node:assert/strict"
+import { readFileSync } from "node:fs"
 import { test } from "node:test"
 
 import { fieldLock } from "../src/shared/agent/fields.ts"
@@ -74,4 +75,9 @@ test("N3: the last «Do it?» names the place whatever way it was opened", () =>
   // The page's own name when it is one place's page.
   s.placeOpened = undefined
   assert.equal(recapOf(s, { ...page, title: "Harbour View Suites — rooms and rates", text: "Harbour View Suites\n8.9 · 412 reviews\n2026-12-04 – 2026-12-06", items: [{ id: "r", role: "button", label: "Reserve" }] } as unknown as PageMap, true)?.place, "Harbour View Suites")
+})
+
+test("a form's submit that seems to change nothing waits a little longer for its next page (the Search line kept its ✓)", () => {
+  const hands = readFileSync(new URL("../src/content/agent/hands.ts", import.meta.url), "utf8")
+  assert.match(hands, /if \(!settled\.changed && !settled\.navigated && submitsForm\(el!\)\) \{\n\s+const more = await watch\(el!\.ownerDocument\)\.settle\(SETTLE_QUIET_MS, 2500\)/)
 })
