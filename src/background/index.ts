@@ -391,7 +391,7 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
 async function reportSwitchedOn(): Promise<void> {
   const stored = await chrome.storage.local.get(STORAGE.extOnPending)
   if (stored[STORAGE.extOnPending] !== false) return
-  const [id, client] = await Promise.all([installId(), clientInfo()])
+  const [id, client] = await Promise.all([installId(), clientForEvent()])
   const res = await fetch(`${API_BASE}/api/v2/event`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -421,7 +421,7 @@ function reportLinked(): Promise<boolean> {
 
 /** The skipped-video/PDF line: how often free answers meet one, and how often it leads to Pro. */
 async function reportMediaNotice(action: "shown" | "pro", media: MediaKind[]): Promise<void> {
-  const [id, client] = await Promise.all([installId(), clientInfo()])
+  const [id, client] = await Promise.all([installId(), clientForEvent()])
   await fetch(`${API_BASE}/api/v2/event`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -470,7 +470,7 @@ async function reportUpsell(action: "refused" | "shown" | "tap", where: UpsellWh
     await callNative("byokOfferShown", { period })
     statusCache = null
   }
-  const [id, client, key] = await Promise.all([installId(), clientInfo(), ownKey()])
+  const [id, client, key] = await Promise.all([installId(), clientForEvent(), ownKey()])
   await fetch(`${API_BASE}/api/v2/event`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -491,7 +491,7 @@ async function reportRenewal(reason: RenewalReason, period: string, productId: s
   await callNative("renewalAsked", { period })
   entitlementCache = null
   statusCache = null
-  const [id, client] = await Promise.all([installId(), clientInfo()])
+  const [id, client] = await Promise.all([installId(), clientForEvent()])
   const days = daysLeft(expiresAt)
   await fetch(`${API_BASE}/api/v2/event`, {
     method: "POST",
@@ -881,7 +881,7 @@ async function itemsRead(message: Extract<BackgroundRequest, { type: "itemsRead"
 
 /** A chat UX count (2.5): kind, action and a few words from fixed lists; never text or sites. */
 async function reportUx(message: Extract<BackgroundRequest, { type: "uxEvent" }>): Promise<void> {
-  const [id, client] = await Promise.all([installId(), clientInfo()])
+  const [id, client] = await Promise.all([installId(), clientForEvent()])
   await fetch(`${API_BASE}/api/v2/event`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -897,7 +897,8 @@ function useStep(message: Extract<BackgroundRequest, { type: "useEvent" }>): Rec
 }
 
 /**
- * The client fields for an event, waiting a little for the app's side when it hasn't answered yet (2.8.1, the director
+ * The client fields for an event (every event the background sends: use steps, ext_on, media notices, the renewal
+ * answer, upsell, chat UX, organizing), waiting a little for the app's side when it hasn't answered yet (2.8.1, the director
  * on the simulator pass: an install's first events went out without the build and the "ours" mark — the native ping
  * wasn't answered yet — so our own test installs looked like people). At most three more tries a second apart.
  */
@@ -1107,7 +1108,7 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       sendResponse({ ok: true })
       return false
     case "organizeEvent":
-      Promise.all([installId(), clientInfo()]).then(([id, client]) => reportOrganize(message.event, id, client)).catch(() => undefined)
+      Promise.all([installId(), clientForEvent()]).then(([id, client]) => reportOrganize(message.event, id, client)).catch(() => undefined)
       sendResponse({ ok: true })
       return false
     case "pdfText":
