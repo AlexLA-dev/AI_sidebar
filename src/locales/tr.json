@@ -1332,5 +1332,6 @@
   "answersBackOfferBody": "{0} ücretsiz yanıtınız geri geldi. Daha fazlasını isterseniz Pro'nun ilk ayı %{1} indirimli.",
   "setOfferNotify": "Hatırlatmalarda Pro indirimleri",
   "setOfferNotifyHint": "Yalnızca ücretsiz yanıtlarınız bittiğinde kurduğunuz tek hatırlatmada. Siz açana kadar kapalı.",
-  "limitCardBackNow": "Ücretsiz yanıtlarınız geri geldi."
+  "limitCardBackNow": "Ücretsiz yanıtlarınız geri geldi.",
+  "limitCardTitleBack": "Ücretsiz yanıtlarınız geri geldi"
 }

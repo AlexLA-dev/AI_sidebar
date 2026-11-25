@@ -20,9 +20,12 @@ import { savingOf, useAnswersBack, usePrices, type OfferChoice } from "./PlanOff
 export const LIMIT_BUY: OfferChoice = { plan: "pro", period: "monthly" }
 export type LimitEvent = "shown" | "choose" | "discount" | "retry" | "more" | "note" | "own_key"
 
-export function LimitCard({ status, title, body, offer, remind, retryAt, ownKey, onRetry, onChoose, onRedeem, onNote, onOwnKey, onEvent }: {
+export function LimitCard({ status, title, backTitle, body, offer, remind, retryAt, ownKey, onRetry, onChoose, onRedeem, onNote, onOwnKey, onEvent }: {
   status: StatusInfo | null
   title: string
+  // Once the answers are back (the card kept, Retry there): this title, and no line under it (the director on #263:
+  // «закончились» over «снова доступны»). Switched by the card itself at the moment they're back.
+  backTitle?: string
   body?: ComponentChildren
   // The −50 % code for this person, when they have it (the first month, through the App Store's code page).
   offer: { code: string; discount: number } | null
@@ -80,13 +83,15 @@ export function LimitCard({ status, title, body, offer, remind, retryAt, ownKey,
   }
   const period = (p: Period) => ({ plan: "pro", period: p }) as OfferChoice
 
+  const backNow = back && Boolean(backTitle)
+  const heading = backNow ? backTitle! : title
   return (
-    <div ref={ref} class="cf-card cf-offer cf-limit-card limit" role="group" aria-label={title}>
+    <div ref={ref} class="cf-card cf-offer cf-limit-card limit" role="group" aria-label={heading}>
       <div class="cf-upsell-head">
         <span class="cf-upsell-icon"><Icon.Sparkle size={18} /></span>
-        <strong>{title}</strong>
+        <strong>{heading}</strong>
       </div>
-      {body && <p class="cf-offer-body">{body}</p>}
+      {body && !backNow && <p class="cf-offer-body">{body}</p>}
       <div class="cf-offer-plan-card">
         <div class="cf-plan-top">
           <strong>{t("planPro")}</strong>

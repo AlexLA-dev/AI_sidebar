@@ -5657,6 +5657,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       <LimitCard
                         status={status}
                         title={long ? t("limitLongTitle") : t("limitCardTitle")}
+                        backTitle={long ? undefined : t("limitCardTitleBack")}
                         body={<>
                           {long && `${t("limitLongBody", error.weight!, left)} `}
                           {/* Past the reset (the card kept, Retry there): they're back, not «in 1 min». */}

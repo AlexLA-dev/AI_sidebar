@@ -1332,5 +1332,6 @@
   "answersBackOfferBody": "Ya tienes de nuevo tus {0} respuestas gratis. Y si quieres más, el primer mes de Pro tiene un {1} % de descuento.",
   "setOfferNotify": "Descuentos de Pro en recordatorios",
   "setOfferNotifyHint": "Solo en el recordatorio que pones cuando se acaban tus respuestas gratis. Desactivado hasta que lo actives.",
-  "limitCardBackNow": "Tus respuestas gratis ya están de vuelta."
+  "limitCardBackNow": "Tus respuestas gratis ya están de vuelta.",
+  "limitCardTitleBack": "Tus respuestas gratis han vuelto"
 }

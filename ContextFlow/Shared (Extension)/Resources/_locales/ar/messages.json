@@ -3905,6 +3905,9 @@
  "limitCardBackNow": {
   "message": "عادت إجاباتك المجانية."
  },
+ "limitCardTitleBack": {
+  "message": "عادت إجاباتك المجانية"
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

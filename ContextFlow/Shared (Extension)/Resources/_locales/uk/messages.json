@@ -3905,6 +3905,9 @@
  "limitCardBackNow": {
   "message": "Безкоштовні відповіді знову доступні."
  },
+ "limitCardTitleBack": {
+  "message": "Безкоштовні відповіді знову доступні"
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },
