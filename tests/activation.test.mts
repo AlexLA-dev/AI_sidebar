@@ -29,9 +29,9 @@ test("the app sends each step where it happens, in order", () => {
   // 2.8: "card" from the switch-it-on step, "allow" from the «Open Safari» step's way to All Websites: Allow.
   assert.match(setup, /private func openExtensionSettings\(\) \{ openExtensionSettings\(via: "card"\) \}/)
   assert.match(setup, /private func openExtensionSettings\(via: String\) \{\s*activation\.wentToSettings\(via\)/)
-  assert.match(setup, /pictureInPictureControllerDidStartPictureInPicture[\s\S]{0,120}?Activation\.shared\.guideStarted\(\)\s*self\.openPending\(\)/)
+  assert.match(setup, /pictureInPictureControllerDidStartPictureInPicture[\s\S]{0,300}?Activation\.shared\.guideStarted\(\)\s*self\.openPending\(\)/)
   // A failed start opens Settings without a "video" (2.8: and the frames stop playing in the card first).
-  assert.match(setup, /failedToStartPictureInPictureWithError error: Error\) \{[\s\S]{0,300}?Task \{ @MainActor in self\.openPending\(\) \}/)
+  assert.match(setup, /failedToStartPictureInPictureWithError error: Error\) \{[\s\S]{0,500}?Task \{ @MainActor in self\.openPending\(\) \}/)
   assert.doesNotMatch(setup, /failedToStartPictureInPictureWithError[\s\S]{0,300}?guideStarted/)
   // Back counts once a trip, and only after the app really left the front.
   assert.match(setup, /func wentToSettings\(_ via: String\) \{\s*trip = \.going\s*settingsHow = nil\s*UserDefaults\.standard\.set\(Date\(\)\.timeIntervalSince1970, forKey: Self\.tripKey\)\s*UserDefaults\.standard\.removeObject\(forKey: Self\.howKey\)\s*step\("settings", \["via": via\]\)/)

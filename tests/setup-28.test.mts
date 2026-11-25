@@ -72,10 +72,11 @@ test("В3.2: one way in for the panel's moments of value, from a fixed list", ()
 
 test("В2.1: the card, its footnote and the guide over Settings show the whole way, and promise no page Settings may not open on", () => {
   assert.match(setup, /if UIDevice\.current\.userInterfaceIdiom == \.pad \{ return \.fromApps \}\s*if #available\(iOS 26\.2, \*\) \{ return \.maybeDirect \}\s*return \.appPage/)
-  assert.match(setup, /var phases: \[Int\] \{ Array\(0\.\.<6\) \}/)
-  // No «Settings opens on ContextFlow» anywhere: the iPhone's footnote reads right whichever page opens.
-  assert.doesNotMatch(setup, /"Settings opens on ContextFlow: switch it on/)
-  assert.match(setup, /case \.maybeDirect:[\s\S]{0,120}?Text\("If Settings opens on ContextFlow's page, start at step 2\. If not, start from Apps\."\)/)
+  // Acceptance 3: the owner's real iPhone lands on ContextFlow's own page (with its switch), as 2.7 assumed on 26.2+:
+  // 2.7's text and 2.7's guide frames first, the «opened somewhere else» case (simulators, other devices) second.
+  assert.match(setup, /var phases: \[Int\] \{ self == \.maybeDirect \? \[3, 4, 5\] : Array\(0\.\.<6\) \}/)
+  assert.match(setup, /case \.maybeDirect:[\s\S]{0,400}?Text\("Settings opens on ContextFlow: switch it on, then set All Websites to Allow\."\)[\s\S]{0,200}?Text\("If it opens somewhere else, start from Apps → Safari \(not ContextFlow\) → Extensions\."\)/)
+  assert.match(setup, /case \.maybeDirect: return "Tap Open Settings: it opens on ContextFlow\. If not, go to Apps → Safari \(not ContextFlow\) → Extensions → ContextFlow\."/)
   assert.match(setup, /case \.fromApps:[\s\S]{0,120}?Text\("On iPad, Settings doesn't open on ContextFlow's page: start from Apps on the left and follow the steps above\."\)/)
   // The walkthrough's first step and the floating frames say where to start on iPad.
   assert.match(setup, /Step\(number: 1, text: path\.firstStep\)/)
@@ -89,10 +90,10 @@ test("В2.1: the card, its footnote and the guide over Settings show the whole w
 test("В2.2: back from Settings, nothing of the guide stays over the steps", () => {
   assert.match(setup, /private func clear\(\) \{\s*layer\.stopRequestingMediaData\(\)\s*layer\.flushAndRemoveImage\(\)\s*queued = 0\s*\}/)
   assert.match(setup, /func stop\(\) \{[\s\S]{0,900}?if controller\?\.isPictureInPictureActive == true \{\s*controller\?\.stopPictureInPicture\(\)[\s\S]{0,300}?if UIApplication\.shared\.applicationState != \.active \{\s*controller\?\.contentSource = nil\s*controller = nil\s*clear\(\)\s*\}\s*\} else \{\s*clear\(\)\s*\}/)
-  assert.match(setup, /pictureInPictureControllerDidStopPictureInPicture[\s\S]{0,200}?self\.clear\(\)/)
+  assert.match(setup, /pictureInPictureControllerDidStopPictureInPicture[\s\S]{0,500}?self\.clear\(\)/)
   // Auto-start from the background only for the trip to Settings: off again when the app is back.
   assert.match(setup, /func stop\(\) \{[\s\S]{0,400}?canStartPictureInPictureAutomaticallyFromInline = false/)
-  assert.match(setup, /func start\(phases: \[Int\], path: SetupPath, then open: @escaping \(\) -> Void\) \{[\s\S]{0,400}?canStartPictureInPictureAutomaticallyFromInline = true/)
+  assert.match(setup, /func start\(phases: \[Int\], path: SetupPath, then open: @escaping \(\) -> Void\) \{[\s\S]{0,1200}?canStartPictureInPictureAutomaticallyFromInline = true/)
   assert.match(setup, /guide\.onAppear \{\s*activation\.instructionShown\(\)\s*SettingsPiP\.shared\.prepare\(phases: path\.phases, path: path\)/)
   assert.match(content, /SettingsPiP\.shared\.stop\(\)/)
   // And from the system's own "back to the front", which arrives where SwiftUI's scene phase didn't.
@@ -105,17 +106,15 @@ test("В2.4: switched on and never used, the app's next step is Safari, with one
   const step = /private var safariStep: some View \{([\s\S]*?)\n {4}\}/.exec(setup)?.[1] ?? ""
   assert.match(step, /Card\(title: "Next: open Safari", systemImage: "safari"\)/)
   assert.match(step, /Step\(number: 1, text: "Tap ✦ on the page\."\)/)
-  // No ✦ while All Websites is still Ask. 2.8 (acceptance 2): the fix is Settings, the way seen working every time;
-  // Safari's own question is only a side note (not yet seen to grant anything).
-  assert.match(step, /Step\(number: 2, text: "No ✦\? In Settings, set All Websites to Allow for ContextFlow \(Apps → Safari → Extensions → ContextFlow\)\."\)/)
-  assert.match(step, /Text\("If Safari asks about a website, choose Always Allow\."\)\s*\.font\(\.footnote\)/)
-  // Safari's question isn't the fix anywhere; the puzzle-piece only as the way to open the panel once allowed (readyText).
-  assert.doesNotMatch(step, /puzzle-piece|Always Allow on Every Website/)
-  assert.doesNotMatch(setup, /"[^"\n]*Always Allow on Every Website[^"\n]*"|safariMenu/)
+  // Acceptance 3 (the owner's real iPad): Safari's own question grants at once; it leads, with Safari's button names,
+  // and «Allow for One Day» (Safari's prominent button, ✦ gone the next day) is steered away from.
+  assert.match(step, /Step\(number: 2, text: path\.noSparkleStep\)\s*oneDayNote/)
+  assert.match(setup, /Text\("Not “Allow for One Day”: with it, ✦ is gone again tomorrow\."\)/)
+  assert.doesNotMatch(setup, /"If Safari asks about a website, choose Always Allow\."/)
   assert.ok(step.indexOf("safariButton") < step.indexOf("TipClipView"), "the button before the clip")
-  // Back from Safari with the panel unused: Settings first, with its own button and the guide over Settings.
-  assert.match(step, /if activation\.backFromSafariUnused \{\s*Text\("No ✦ on the page\? ContextFlow isn't allowed on websites yet\."\)[\s\S]{0,200}?Step\(number: 1, text: SetupPath\.allowFirstStep\)\s*Step\(number: 2, text: "Under Permissions, set All Websites to Allow\."\)\s*Step\(number: 3, text: "Back in Safari, reload the page and tap ✦\."\)\s*Button \{\s*SettingsPiP\.shared\.start\(phases: path\.phases, path: path\) \{ openExtensionSettings\(via: "allow"\) \}/)
-  assert.match(setup, /static var allowFirstStep: LocalizedStringKey \{\s*UIDevice\.current\.userInterfaceIdiom == \.pad\s*\? "Tap Open Settings, then Apps on the left → Safari \(not ContextFlow\) → Extensions → ContextFlow\."\s*: "Tap Open Settings and go to Apps → Safari \(not ContextFlow\) → Extensions → ContextFlow\."/)
+  // Back from Safari with the panel unused: Safari's own question first, then «Or in Settings:» with its own button.
+  assert.match(step, /if activation\.backFromSafariUnused \{\s*Text\("No ✦ on the page\? ContextFlow isn't allowed on websites yet\."\)[\s\S]{0,400}?Text\(path\.safariAsksStep\)[\s\S]{0,200}?oneDayNote\s*Text\("Or in Settings:"\)[\s\S]{0,120}?Step\(number: 1, text: path\.allowFirstStep\)\s*(?:\/\/[^\n]*\n\s*)*Step\(number: 2, text: "Under Permissions, set All Websites to Allow\. If you see a list of websites there instead, set every row in it to Allow\."\)\s*(?:\/\/[^\n]*\n\s*)*Step\(number: 3, text: "Tap ◀ ContextFlow at the top left, then Open Safari, and tap ✦ on the page\."\)/)
+  assert.match(setup, /var allowFirstStep: LocalizedStringKey \{\s*switch self \{\s*case \.fromApps: return "Tap Open Settings, then Apps on the left → Safari \(not ContextFlow\) → Extensions → ContextFlow\."/)
   assert.deepEqual(useFields({ f: "activation", a: "settings", via: "allow" }), { f: "activation", a: "settings", via: "allow" })
   assert.match(setup, /func openedSafari\(_ via: String\) \{[\s\S]{0,120}?UserDefaults\.standard\.set\(Date\(\)\.timeIntervalSince1970, forKey: Self\.safariTripKey\)/)
   assert.match(setup, /guard state == \.on, !backFromSafariUnused else \{ return \}\s*backFromSafariUnused = true/)
@@ -201,13 +200,19 @@ test("every new text is translated into the app's 14 other languages; on iPad in
     "Next: open Safari",
     "So the reminder you just set reaches you.", "So you hear when the page you watch changes.", "So you know when your free answers are back.",
     "Tap ✦ on the page.",
-    "If Settings opens on ContextFlow's page, start at step 2. If not, start from Apps.",
+    "If it opens somewhere else, start from Apps → Safari (not ContextFlow) → Extensions.",
+    "Tap Open Settings: it opens on ContextFlow. If not, go to Apps → Safari (not ContextFlow) → Extensions → ContextFlow.",
+    "Or in Settings:",
+    "Not “Allow for One Day”: with it, ✦ is gone again tomorrow.",
     "No ✦ on the page? ContextFlow isn't allowed on websites yet.",
     "Tap Open Settings, then Apps on the left → Safari (not ContextFlow) → Extensions → ContextFlow.",
     "Tap Open Settings and go to Apps → Safari (not ContextFlow) → Extensions → ContextFlow.",
-    "Back in Safari, reload the page and tap ✦.",
-    "No ✦? In Settings, set All Websites to Allow for ContextFlow (Apps → Safari → Extensions → ContextFlow).",
-    "If Safari asks about a website, choose Always Allow."
+    "Under Permissions, set All Websites to Allow. If you see a list of websites there instead, set every row in it to Allow.",
+    "Tap ◀ ContextFlow at the top left, then Open Safari, and tap ✦ on the page.",
+    "Tap the puzzle-piece button next to the address → ContextFlow → “Always Allow…” → “Always Allow on Every Website”.",
+    "Open the page menu in the address bar → ContextFlow → “Always Allow…” → “Always Allow on Every Website”.",
+    "No ✦? Tap the puzzle-piece button next to the address → ContextFlow → “Always Allow…” → “Always Allow on Every Website”.",
+    "No ✦? Open the page menu in the address bar → ContextFlow → “Always Allow…” → “Always Allow on Every Website”."
   ]
   for (const key of keys) {
     assert.match(setup, new RegExp(key.replace(/[.?()]/g, "\\$&")), key)
@@ -234,7 +239,7 @@ test("the Apps list has ContextFlow itself in view: the first step says Safari, 
 
 test("the floating guide starts once picture in picture is possible, within the second before Settings opens", () => {
   assert.match(setup, /startWhenPossible\(controller, tries: 9\)\s*\/\/[^\n]*\n\s*DispatchQueue\.main\.asyncAfter\(deadline: \.now\(\) \+ 1\.0\) \{ \[weak self\] in self\?\.openPending\(\) \}/)
-  assert.match(setup, /private func startWhenPossible\(_ controller: AVPictureInPictureController, tries: Int\) \{\s*guard pendingOpen != nil else \{ return \}\s*if controller\.isPictureInPicturePossible \|\| tries == 0 \{\s*controller\.startPictureInPicture\(\)/)
+  assert.match(setup, /private func startWhenPossible\(_ controller: AVPictureInPictureController, tries: Int\) \{\s*guard pendingOpen != nil else \{ return \}\s*if controller\.isPictureInPicturePossible \|\| tries == 0 \{\s*(?:#if DEBUG[\s\S]*?#endif\s*)?controller\.startPictureInPicture\(\)/)
 })
 
 test("В3.3 (app side): a new install never gets 2.5's What's new sheet or the What's new tab, and no promo sheet on its first day or during a purchase", () => {
@@ -258,7 +263,12 @@ test("a page goes to Safari itself through x-safari- only when it's https (iOS h
 
 test("back from Settings, the setup card's new step is brought into view", () => {
   assert.match(content, /SetupCard\(activation: activation, openSafari: openSafari\)\s*\.id\("setup"\)/)
-  assert.match(content, /\.onChange\(of: activation\.state\) \{ _ in\s*#if os\(iOS\)\s*withAnimation\(\.easeInOut\(duration: 0\.3\)\) \{ scroller\.scrollTo\("setup", anchor: \.top\) \}/)
+  assert.match(content, /\.onChange\(of: activation\.state\) \{ _ in bringSetupIntoView\(scroller\) \}/)
+  assert.match(content, /\.onChange\(of: activation\.backFromSafariUnused\) \{ _ in bringSetupIntoView\(scroller\) \}/)
+  // Acceptance 3: only when its heading is off screen or low on it; on iPad (the card near the top) scrolling up put
+  // the app's heading under the floating tab bar.
+  assert.match(content, /private func bringSetupIntoView\(_ scroller: ScrollViewProxy\) \{\s*DispatchQueue\.main\.async \{\s*(?:#if DEBUG[\s\S]*?#endif\s*)?guard setupTop < 0 \|\| setupTop > visibleHeight \* 0\.5 else \{ return \}\s*withAnimation\(\.easeInOut\(duration: 0\.3\)\) \{ scroller\.scrollTo\("setup", anchor: \.top\) \}/)
+  assert.match(content, /\.preference\(key: SetupTopKey\.self, value: place\.frame\(in: \.named\("home"\)\)\.minY\)/)
 })
 
 test("no rating ask on a new install's first day (ReviewGate's firstDay, from QuietDay)", () => {
@@ -267,7 +277,7 @@ test("no rating ask on a new install's first day (ReviewGate's firstDay, from Qu
 })
 
 test("on iPad the guide over Settings is a short strip with the whole path, not a tall picture over the rows", () => {
-  assert.match(setup, /if path == \.fromApps \{[\s\S]{0,700}?view = AnyView\(pathStrip\(phase: phase\)[\s\S]{0,120}?\.frame\(width: 560, height: 92\)/)
+  assert.match(setup, /if path == \.fromApps \{[\s\S]{0,1600}?view = AnyView\(pathStrip\(phase: phase\)[\s\S]{0,120}?\.frame\(width: 560, height: 92\)/)
   assert.match(setup, /let names = \[String\(localized: "Apps"\), "Safari", String\(localized: "Extensions"\), "ContextFlow",\s*String\(localized: "Allow Extension"\), String\(localized: "All Websites"\), String\(localized: "Allow"\)\]/)
   for (const key of ["Apps", "Extensions", "Allow Extension", "All Websites", "Allow"]) {
     assert.equal(Object.keys(catalog[key]?.localizations ?? {}).length, 14, key)
@@ -291,4 +301,22 @@ test("on iPad, the ways to open the panel name the puzzle-piece button (the page
   for (const key of ["Open any page and tap ✦ — or tap the puzzle-piece button next to the address and choose ContextFlow.", "Tap the ✦ button on the page — or tap the puzzle-piece button next to the address and choose ContextFlow."]) {
     assert.deepEqual(Object.keys(catalog[key]?.localizations ?? {}).sort(), [...LANGS].sort(), key)
   }
+})
+
+test("Safari's own question is named with Safari's own button labels in every language (iOS 26.5 runtime's MobileSafari strings)", () => {
+  const labels = JSON.parse(read("tests/fixtures/safari-permission-labels.json")) as Record<string, Record<string, string>>
+  assert.deepEqual(Object.keys(labels).sort(), [...LANGS].sort())
+  assert.match(setup, /self == \.fromApps\s*\? "Tap the puzzle-piece button next to the address → ContextFlow → “Always Allow…” → “Always Allow on Every Website”\."\s*: "Open the page menu in the address bar/)
+  const steps = Object.keys(catalog).filter((k) => k.includes("→ “Always Allow…” → “Always Allow on Every Website”"))
+  assert.equal(steps.length, 4)
+  for (const key of steps) for (const lang of LANGS) {
+    const value = catalog[key].localizations![lang].stringUnit.value
+    assert.ok(value.includes(labels[lang]["Always Allow…"]) && value.includes(labels[lang]["Always Allow on Every Website"]), `${lang}: ${key}`)
+    assert.ok(value.indexOf(labels[lang]["Always Allow…"]) < value.indexOf(labels[lang]["Always Allow on Every Website"]), `${lang}: order`)
+  }
+  for (const lang of LANGS) {
+    assert.ok(catalog["Not “Allow for One Day”: with it, ✦ is gone again tomorrow."].localizations![lang].stringUnit.value.includes(labels[lang]["Allow for One Day"]), lang)
+  }
+  // The iPad's «No ✦» trip goes without the floating strip (it covers Back, needed once per website in the list).
+  assert.match(setup, /if path == \.fromApps \{\s*openExtensionSettings\(via: "allow"\)\s*\} else \{/)
 })
