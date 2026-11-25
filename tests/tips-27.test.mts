@@ -110,9 +110,10 @@ test("the panel: what 2.7 brought, once, for people who had ContextFlow before; 
   assert.match(bg, /if \(!list\.includes\("new27"\)\) await chrome\.storage\.local\.set\(\{ \[STORAGE\.hintsSeen\]: \[\.\.\.list, "new27"\] \}\)/)
   // One hint at a time: not with a page hint's how-to or the video's or PDF's; it says the side too, so the side's own
   // hint isn't shown after it.
-  assert.match(app, /!pageHints\.chat && !inviteNew && hintDue\("new27"\) && !\(contextKind === "page" && source\.kind\(\) !== "page" && hintDue\(source\.kind\(\) as HintKey\)\)/)
+  // (2.8: through the coordinator, src/content/coach: chatFree has no page hint's how-to; mediaDue is the video's or PDF's.)
+  assert.match(app, /wantIf\("whatsnew", chatFree && !inviteNew && hintDue\("new27"\) && !mediaDue\)/)
   assert.match(app, /list=\{\[t\("hintNewTranslate"\), t\("hintNewWrite"\), t\("hintNewSpaces"\), t\("hintNewApple"\), t\("hintNewShot"\), t\("hintNewSide"\)\]\}/)
-  assert.match(app, /onDone=\{\(\) => doneHint\(\["new27", "side"\]\)\}/)
+  assert.match(app, /coach\.done\("whatsnew"\)\n\s+doneHint\(\["new27", "side"\]\)/)
   assert.match(app, /hintDue\("side"\) && !hintDue\("new27"\)/)
   // All tips opens the Tips sheet, from this card and from a page hint's how-to.
   assert.match(app, /const allTips = tipsLabel\(\) \? \{ label: t\("hintAllTips"\), run: \(\) => setTipsOpen\(true\) \} : undefined/)

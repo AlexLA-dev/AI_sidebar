@@ -2738,6 +2738,9 @@
  "phSimilar": {
   "message": "Trovarlo a meno?"
  },
+ "fabFirstLabel": {
+  "message": "Chiedi di questa pagina"
+ },
  "phWatch": {
   "message": "Seguire il prezzo?"
  },

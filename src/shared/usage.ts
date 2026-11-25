@@ -26,11 +26,25 @@ interface Feature {
 
 const ENTRIES = ["list", "search", "ai_search", "move_bar", "reminder", "deeplink"] as const
 
+/** A page's kind, decided on the device (src/content/pagehints/detect.ts); "other" for none of them. */
+const PAGE_KINDS = ["product", "article", "video", "form", "event", "stay", "other"] as const
+
+/** The hints of the 2.8 coordinator (src/content/coach/rules.ts HINT_IDS; tests/coach.test.mts keeps them the same). */
+export const COACH_HINTS = [
+  "fab_pulse", "sel_ask", "agent_offer", "translate_pill", "cookie_line", "sel_icons", "write_tip", "note_tip",
+  "organize_consent", "organize_mess", "organize_tags", "byok_offer", "renewal", "pro_offer", "media_tip", "chats_tip",
+  "whatsnew", "invite",
+  "page_similar", "page_watch", "page_summary", "page_listen", "page_video", "page_templates", "page_remind", "page_calendar"
+] as const
+
 export const FEATURES: Record<string, Feature> = {
+  // 2.8 (events-2.8 §2, rungs 8 and 9): sent by the panel from 2.8. "open": how ("hint": a hint's tap), its layout, the
+  // page's kind, what the first screen showed (the guide, ready questions, an empty chat, a chat, an agent task's card)
+  // and `first` on the first opening ever; "close": seconds open (`open_s`) and what it came to (`did`).
   panel: {
-    since: "2.0", on: "ext", actions: ["open", "close"],
-    via: ["toolbar", "shortcut", "fab", "bubble", "note_open", "qi", "app"],
-    fields: { lay: ["side", "sheet", "popup"] }
+    since: "2.0", tracked: "2.8", on: "ext", actions: ["open", "close"],
+    via: ["toolbar", "shortcut", "fab", "bubble", "note_open", "qi", "app", "hint"],
+    fields: { lay: ["side", "sheet", "popup"], page: PAGE_KINDS, screen: ["guide", "tour", "ask", "empty", "chat", "agent", "plans"], first: "int", open_s: "int", did: ["none", "chip", "ask", "tour", "settings", "other"] }
   },
   // Answers are logged by the server (/api/v2/chat with "ui"); the panel sends the rest.
   ask: {
@@ -40,9 +54,11 @@ export const FEATURES: Record<string, Feature> = {
   ai_search: { since: "2.4", tracked: "2.4", actions: ["on", "answer", "error", "open"], fields: { hits: ["0", "1-5", "6+"] } },
   // Build 94: "link", a chat opened from a link to it in an answer.
   ask_chats: { since: "2.4", tracked: "2.4", actions: ["open", "chip", "answer", "error", "link"] },
+  // 2.8: sent by the extension's consent card (src/content/Consent.tsx), where it was asked; step 2: asked again for a
+  // newer text.
   consent: {
-    since: "2.0", actions: ["shown", "accepted", "declined"],
-    via: ["ask", "find", "ask_chats", "qi", "organize", "translate"], fields: { step: "int" }
+    since: "2.0", tracked: "2.8", actions: ["shown", "accepted", "declined"],
+    via: ["ask", "find", "ask_chats", "qi", "organize", "translate", "write", "watch"], fields: { step: "int" }
   },
   note: { since: "2.3", actions: ["saved"], via: ["composer", "limit", "selection", "app"] },
   // 2.6: "action" by a chip in the field (via "chip", what: the action) on iPhone and iPad.
@@ -50,7 +66,9 @@ export const FEATURES: Record<string, Feature> = {
     since: "2.0", on: "ext", actions: ["shown", "ask", "action", "question", "note", "template", "remind"], via: ["chip", "button"],
     fields: { what: ["sel_summarize", "sel_translate", "sel_explain", "sel_improve", "sel_reply", "sel_similar"] }
   },
-  fab: { since: "2.0", on: "ext", actions: ["tap", "drag", "hide_site"] },
+  // 2.8 (events-2.8 §2, rung 7): "shown" once a device day when the circle first shows on a page, with the page's kind
+  // (and `first` the first time ever); "tap" when it opens the panel.
+  fab: { since: "2.0", tracked: "2.8", on: "ext", actions: ["tap", "drag", "hide_site", "shown"], fields: { page: PAGE_KINDS, first: "int" } },
   msg: { since: "2.0", actions: ["copy", "share"], fields: { what: ["answer", "note", "ask_chats"] } },
   share_chat: { since: "2.3", actions: ["open", "copy", "share"], fields: { picked: "int" } },
   page_open: { since: "2.3", actions: ["tap"], via: ["divider", "chat_pages", "note_link", "source", "reminder", "watch"] },
@@ -90,7 +108,15 @@ export const FEATURES: Record<string, Feature> = {
       what: ["summarize", "consent", "answer", "select", "pick", "ask", "askSel", "answer2", "swipe", "chats", "chatList", "menu", "pro_media", "pro_chats", "pro_chatList", "pro_sort", "pro_templates", "pro_watch", "ultra_listen", "ultra_similar", "ultra_watch", "declined", "limit", "error", "closed"]
     }
   },
-  hint: { since: "2.3", actions: ["shown", "done"], fields: { what: ["chats", "video", "pdf", "note", "bubble", "qi", "app_chats", "side"] } },
+  // 2.8 (events-2.8 §3): the hint coordinator (src/content/coach) — each hint shown (a second on screen), tapped, closed
+  // with ✕, its feature used; which one, the ladder's rung the person is on and the day since the first (device days).
+  hint: {
+    since: "2.3", tracked: "2.8", actions: ["shown", "done", "tap", "dismiss"],
+    fields: {
+      what: ["chats", "video", "pdf", "note", "bubble", "qi", "app_chats", "side", ...COACH_HINTS],
+      rung: "int", day: "int"
+    }
+  },
   // 2.7 (plan section 6): page hints in the first days — the line by the circle shown, tapped, ✕ (and two in a row
   // turning them off), the feature used after it; the Settings switch. what: which hint (src/content/pagehints).
   page_hint: {
@@ -151,7 +177,7 @@ export const FEATURES: Record<string, Feature> = {
   // Build 95: a text whose audio played out but isn't marked ("unvoiced"), and why: skipped ahead here, skipped in Safari
   // before it was carried on ("before"), or the end not reached by `gap_s` seconds ("short").
   listen: {
-    since: "2.6", tracked: "2.6", actions: ["start", "app", "ultra", "limit", "error", "apple", "interrupted", "retry", "heard", "notify", "notify_on", "notify_later", "carried_on", "back_safari", "back_play", "go", "voiced", "unvoiced"],
+    since: "2.6", tracked: "2.6", actions: ["start", "app", "ultra", "limit", "error", "apple", "interrupted", "retry", "heard", "notify", "notify_on", "notify_later", "carried_on", "back_safari", "back_play", "go", "voiced", "unvoiced", "notify_was_on"],
     fields: { what: ["answer", "page"], heard_s: "int", cache_s: "int", icloud_s: "int", server_s: "int", charged_s: "int", why: ["skipped", "before", "short"], gap_s: "int" }
   },
   // 2.6: the plans sheet (Own key, Pro, Ultra): opened from where, and the plan and period chosen (to the app).
@@ -255,7 +281,8 @@ export const FEATURES: Record<string, Feature> = {
   // the count opened to what the answers went on ("spent", via where).
   quiet: {
     since: "2.7", tracked: "2.7", on: "ext",
-    actions: ["chip", "plus", "plus_pick", "more_pick", "moved", "move_undone", "spent"],
+    // 2.8: "swipe_do" (Pro's swipe on the send button to the agent's Do), sent since 2.7.1 but not listed until now.
+    actions: ["chip", "plus", "plus_pick", "more_pick", "moved", "move_undone", "spent", "swipe_do"],
     fields: {
       what: ["check", "rewrite", "templates", "translate_page", "watch", "similar", "summarize", "key_points", "explain", "translate", "google", "note", "shot", "whole", "tag", "collect", "move"],
       lay: ["compact", "roomy"],

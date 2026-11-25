@@ -1072,7 +1072,7 @@ function InsertList(p: ListProps): VNode {
               </div>
             )}
             {askConsent && (
-              <ConsentCard again={p.consent === "old"} onAccept={() => {
+              <ConsentCard via="qi" again={p.consent === "old"} onAccept={() => {
                 setAskConsent(false)
                 void p.onConsent().then(askAi)
               }} onDecline={() => setAskConsent(false)} />

@@ -64,7 +64,7 @@ test("4. the offer gives way only to a page's control in an overlay (a consent d
   assert.equal(inOverlay((fake.elementsFromPoint(0, 0) as Element[])[1]), true)
   // The pill: the entry instead while it would cover one, until it's tapped (then the pill, asked for).
   const pillSrc = src("translate/TranslatePill.tsx")
-  assert.match(pillSrc, /opened \|\| \(byItself && !hidden && !overPage\)/)
+  assert.match(pillSrc, /opened \|\| \(byItself && !hidden && !overPage && offerOk\)/)
   assert.match(pillSrc, /<div ref=\{offerRef\} class=\{cls\} style=\{style\}>/)
   // The small entry over such a control (the iPhone pass: by the circle on «İzin ver») steps aside while it's there,
   // not on a translated page (the way back to the original).
@@ -98,7 +98,7 @@ test("3 and 6. quick insert's tip: goes after a few seconds or at the first touc
   assert.match(qi, /if \(tip && selectionShown && tipWasShown\.current\) dropTipRef\.current\(\)/)
   assert.match(qi, /const bottom = vp\.dy \+ vp\.height - TIP_FOOT/)
   // One hint at a time: the tip waits while the page's hint line («Reply with a template?») is up.
-  assert.match(src("App.tsx"), /hintUp=\{Boolean\(pageHints\.line && fabVisible\)\}/)
+  assert.match(src("App.tsx"), /hintUp=\{\(slot !== null && slot !== "write_tip"\) \|\| !coach\.may\("write_tip"\)\}/)
 })
 
 test("5. the hints that show at the chat's end after the tour are scrolled into sight", () => {

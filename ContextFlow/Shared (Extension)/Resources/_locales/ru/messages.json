@@ -2738,6 +2738,9 @@
  "phSimilar": {
   "message": "Найти похожее дешевле?"
  },
+ "fabFirstLabel": {
+  "message": "Спросите об этой странице"
+ },
  "phWatch": {
   "message": "Следить за ценой?"
  },

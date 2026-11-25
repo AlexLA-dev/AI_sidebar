@@ -3,6 +3,7 @@
 // which the app may ask for an App Store rating; and the chats (threads), kept in the user's
 // iCloud so they continue on their other devices.
 
+import { COACH_KEY, dayNumber } from "../content/coach/rules"
 import { firstRunAgain } from "../shared/firstRun"
 import { sortedJson } from "../shared/stored"
 import { spacesChange, SPACES_RECORD, takeSpaces, type StoredSpaces } from "../shared/spaces"
@@ -66,13 +67,27 @@ export const REVIEW_MOMENTS = new Set([3, 10, 30, 100, 300])
  * the app it's a good moment to ask for a rating (the App Group, read when the app next comes to the front) and returns
  * the milestone, to be counted as due ("rate" "due", 2.6 (100)).
  */
-export async function countValueMoment(): Promise<number | null> {
+export async function countValueMoment(now = Date.now()): Promise<number | null> {
   const count = Number((await chrome.storage.local.get(STORAGE.valueMoments))[STORAGE.valueMoments] ?? 0) + 1
   await chrome.storage.local.set({ [STORAGE.valueMoments]: count })
-  if (!REVIEW_MOMENTS.has(count)) return null
-  await callNative("reviewMoment", { count })
-  return count
+  // 2.8 (В3.3): never on the first day (the hint coordinator's day, src/content/coach): a milestone reached then waits
+  // for the first good answer on a later day.
+  const first = ((await chrome.storage.local.get(COACH_KEY))[COACH_KEY] as { first?: unknown } | undefined)?.first
+  const firstDay = typeof first === "number" && dayNumber(first, now) === 1
+  const waiting = Number((await chrome.storage.local.get(REVIEW_WAITING))[REVIEW_WAITING] ?? 0)
+  const moment = REVIEW_MOMENTS.has(count) ? count : !firstDay && waiting > 0 ? waiting : null
+  if (moment === null) return null
+  if (firstDay) {
+    await chrome.storage.local.set({ [REVIEW_WAITING]: moment })
+    return null
+  }
+  if (waiting) await chrome.storage.local.set({ [REVIEW_WAITING]: 0 })
+  await callNative("reviewMoment", { count: moment })
+  return moment
 }
+
+/** A rating milestone reached on the first day, waiting for a later one (0: none). */
+export const REVIEW_WAITING = "cf:reviewWaiting"
 
 // ------------------------------------------------------------ threads in iCloud
 

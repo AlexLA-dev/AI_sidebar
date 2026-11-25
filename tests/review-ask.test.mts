@@ -305,3 +305,32 @@ test("/analytics shows due, ask and link per platform (cf_rate_report), and ever
   const action = page.slice(page.indexOf("const ACTION_RU"), page.indexOf("}", page.indexOf("const ACTION_RU")))
   for (const a of FEATURES.rate.actions) assert.match(action, new RegExp(`\\b${a}: "`), a)
 })
+
+test("2.8: a rating milestone reached on the first day waits for a good answer on a later day", async () => {
+  const H = 3_600_000
+  const day1 = new Date(2026, 10, 24, 12).getTime()
+  const store: Record<string, unknown> = { "cf:coach": { v: 1, first: day1 } }
+  const native: Array<Record<string, unknown>> = []
+  const g = globalThis as any
+  const before = { chrome: g.chrome, browser: g.browser }
+  g.chrome = {
+    storage: { local: { get: async (key: string) => ({ [key]: store[key] }), set: async (items: Record<string, unknown>) => Object.assign(store, items) } },
+    runtime: {}
+  }
+  g.browser = { runtime: { sendNativeMessage: async (_id: string, message: Record<string, unknown>) => { native.push(message); return { success: true } } } }
+  try {
+    const out = join(mkdtempSync(join(tmpdir(), "cf-review-day1-")), "sync.mjs")
+    await build({ entryPoints: [join(root, "src/background/sync.ts")], bundle: true, format: "esm", platform: "neutral", outfile: out, logLevel: "silent" })
+    const { countValueMoment } = await import(pathToFileURL(out).href)
+    const due: Array<number | null> = []
+    for (let i = 0; i < 4; i++) due.push(await countValueMoment(day1 + i * H))
+    assert.deepEqual(due, [null, null, null, null], "three good answers on day 1: nothing asked")
+    assert.equal(native.length, 0)
+    assert.equal(await countValueMoment(day1 + 24 * H), 3, "the next day's first good answer asks")
+    assert.deepEqual(native, [{ command: "reviewMoment", count: 3 }])
+    assert.equal(await countValueMoment(day1 + 25 * H), null, "once")
+  } finally {
+    g.chrome = before.chrome
+    g.browser = before.browser
+  }
+})

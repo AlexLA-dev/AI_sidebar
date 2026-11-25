@@ -2738,6 +2738,9 @@
  "phSimilar": {
   "message": "더 싸게 찾을까요?"
  },
+ "fabFirstLabel": {
+  "message": "이 페이지에 대해 질문하기"
+ },
  "phWatch": {
   "message": "가격을 지켜볼까요?"
  },

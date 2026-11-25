@@ -227,7 +227,7 @@ export function FillForm(p: Props): VNode {
         )}
 
         {askConsent ? (
-          <ConsentCard again={p.consent === "old"} onAccept={() => {
+          <ConsentCard via="qi" again={p.consent === "old"} onAccept={() => {
             const then = askConsent
             setAskConsent(null)
             void p.onConsent().then(() => (then === "fill" ? fill() : rewrite()))

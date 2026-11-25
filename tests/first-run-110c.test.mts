@@ -10,7 +10,7 @@ const read = (path: string) => readFileSync(new URL(`../${path}`, import.meta.ur
 
 test("the page's line isn't looked for while the first run is to come, and nothing is counted for it", () => {
   const hook = read("src/content/pagehints/PageHints.tsx")
-  assert.match(hook, /export function usePageHints\(\{ plan, ready, firstRunAhead, open \}: \{ plan: Plan; ready: boolean; firstRunAhead: boolean; open: \(\) => void \}\)/)
+  assert.match(hook, /export function usePageHints\(\{ plan, ready, firstRunAhead, open, may, onUsed \}: \{\n\s+plan: Plan; ready: boolean; firstRunAhead: boolean; open: \(\) => void\n/)
   // Read through a ref: the look runs from a timer set when the page loaded, and must see the mark as it is then.
   assert.match(hook, /const aheadRef = useRef\(firstRunAhead\)\n\s+aheadRef\.current = firstRunAhead/)
   const look = hook.slice(hook.indexOf("const look = async () => {"), hook.indexOf("timer = setTimeout(() => void look(), FIRST_LOOK_MS)"))
@@ -27,7 +27,7 @@ test("the page's line isn't looked for while the first run is to come, and nothi
 
 test("the panel says so by the same mark that puts Summarize first: the tour not seen yet", () => {
   const app = read("src/content/App.tsx")
-  assert.match(app, /usePageHints\(\{ plan: status\?\.plan \?\? keptPlan \?\? "free", ready: [^}]*, firstRunAhead: !tourSeen, open: openFromHint \}\)/)
+  assert.match(app, /usePageHints\(\{ plan: status\?\.plan \?\? keptPlan \?\? "free", ready: [^}]*, firstRunAhead: !tourSeen, open: openFromHint,\n/)
   assert.match(app, /setChipOrder\(!tourSeenRef\.current \|\| guideRef\.current === "summarize" \? chipFirst\(order, "summarize"\) : order\)/)
   // Unknown until the stored marks are read (a moment after the page loads, long before the line's first look):
   // "seen" until then, so a page whose marks can't be read keeps its lines as in 109.

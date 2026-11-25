@@ -167,7 +167,7 @@ export function TemplateEditor(p: Props): VNode {
         {marking ? (
           <div class="cf-qi-note"><Icon.Sparkle size={12} /> {t("qiMarking")}</div>
         ) : askConsent ? (
-          <ConsentCard again={p.consent === "old"} onAccept={() => {
+          <ConsentCard via="qi" again={p.consent === "old"} onAccept={() => {
             setAskConsent(false)
             void p.onConsent().then(() => mark(text.trim()))
           }} onDecline={() => setAskConsent(false)} />

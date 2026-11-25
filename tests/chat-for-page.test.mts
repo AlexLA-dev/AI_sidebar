@@ -48,7 +48,7 @@ test("only the circle and Safari's toolbar button pick it; Ask AI on a selection
   // The circle's tap (a press without a drag, src/content/side/drag.ts since 2.7's sides).
   // (2.7.1: a question the agent's bubble was closed for comes back first; another tab's task with no bubble shows its
   // card; otherwise the chat.)
-  assert.match(app, /if \(b && b\.kind !== "end" && bubbleGoneRef\.current === b\.key\) return setBubbleGone\(""\)\n\s+if \(agentNoticeRef\.current && !b\) return setNoticeOpen\(true\)\n\s+show\(undefined, \{ pageChat: true \}\)/)
+  assert.match(app, /if \(b && b\.kind !== "end" && bubbleGoneRef\.current === b\.key\) return setBubbleGone\(""\)\n\s+if \(agentNoticeRef\.current && !b\) return setNoticeOpen\(true\)\n\s+show\(undefined, \{ pageChat: true \}, "fab"\)/)
   assert.match(app, /pageChatRef\.current = Boolean\(how\?\.pageChat && !captured\)/)
   // 2.7: inside the space the panel is in, or the site's bound space, by the rules of «Подходящий чат» (match.ts,
   // tests/match.test.mts): this page's chat first, as here.

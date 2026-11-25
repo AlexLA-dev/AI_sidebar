@@ -2738,6 +2738,9 @@
  "phSimilar": {
   "message": "Daha ucuzu aransın mı?"
  },
+ "fabFirstLabel": {
+  "message": "Bu sayfa hakkında sorun"
+ },
  "phWatch": {
   "message": "Fiyat takip edilsin mi?"
  },

@@ -139,6 +139,8 @@ import { wheelSwitch, wheelSwitchStep } from "./ux/wheelSwitch"
 import { markPointerHintSeen, pointerHintSeen, SendMenu } from "./ux/SendMenu"
 import { EdgeGlow } from "./side/EdgeGlow"
 import { HintLine, hintText, revealOnce, usePageHints } from "./pagehints/PageHints"
+import { pageKind } from "./pagehints/detect"
+import { panelRoot } from "./root"
 import { CookieLine, useCookieLine } from "./cookies/CookieLine"
 import { InviteRewardCard, markActiveSeen, seenActive } from "./invite/Invite"
 import { resolveSide, type Side } from "./side/snap"
@@ -152,10 +154,26 @@ import { moveRange } from "./ux/moveAnswer"
 import { placesOf, type Card } from "../shared/collections"
 import type { ChatDigest } from "../shared/history"
 import type { ConsentStatus } from "../shared/consent"
+import { useCoach, type Coach } from "./coach/useCoach"
+import { dayKey, type CoachHint } from "./coach/rules"
 
 export type Bus = EventTarget
 
 type Turn = Entry
+
+/** The device day the ✦ was last reported seen (fab.shown, once a day). */
+const FAB_SHOWN_KEY = "cf:fabShownDay"
+
+/** What one opening of the panel came to (events-2.8 §2, `panel.close` did), and what its first screen showed. */
+type PanelDid = "none" | "chip" | "ask" | "tour" | "settings" | "other"
+type PanelScreen = "guide" | "tour" | "ask" | "empty" | "chat" | "agent" | "plans"
+
+/** The page's kind for events, decided on the device (pagehints/detect.ts); "other" for none. Once per address. */
+let kindKept: { url: string; kind: string } | null = null
+function pageKindNow(): string {
+  if (kindKept?.url !== location.href) kindKept = { url: location.href, kind: pageKind(document, location.href) ?? "other" }
+  return kindKept.kind
+}
 
 // Pro's weekly allowance (PRO_WEEKLY_LIMIT on the server), quoted by the offers.
 const PRO_WEEKLY = 375
@@ -637,6 +655,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The messages of the chat shown as last stored (2.6 (98)): while the shown ones are others, a change here isn't stored yet.
   const savedRef = useRef<{ id: string; m: Entry[] } | null>(null)
   const openedAt = useRef(0)
+  // The hint coordinator (2.8, В3.1, coach/): every prompt asks it; one shows at a time. The ref for callbacks.
+  const coach = useCoach({ consent: consent === "ok", paid: (status?.plan ?? keptPlan ?? "free") !== "free" })
+  const coachRef = useRef<Coach | null>(null)
+  coachRef.current = coach
   // The chat being loaded as the panel opens: a question typed by the selection waits for it.
   const loadingRef = useRef<Promise<void>>(Promise.resolve())
   const settingsRef = useRef(settings)
@@ -795,8 +817,30 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // Opened with the circle or Safari's toolbar button (2.6 (98)): the panel opens on this page's latest chat
   // (chatForPage), not on a selection's Ask AI, a link or a notification, which bring their own chat.
   const pageChatRef = useRef(false)
-  const show = useCallback((captured?: SelectionInfo, how?: { pageChat?: true }) => {
+  // 2.8 (events-2.8 §2, rungs 8 and 9): how the panel was opened, and what this opening came to (sent as it closes).
+  const openViaRef = useRef<"toolbar" | "fab" | "bubble" | "hint">("toolbar")
+  const openingRef = useRef<{ at: number; did: PanelDid } | null>(null)
+  const screenNowRef = useRef<() => PanelScreen>(() => "empty")
+  const show = useCallback((captured?: SelectionInfo, how?: { pageChat?: true }, by?: "fab") => {
     openedAt.current = Date.now()
+    {
+      // The circle's tap (fab.tap), and how the panel came (panel.open via).
+      if (by === "fab") {
+        openViaRef.current = "fab"
+        void sendBackground({ type: "useEvent", f: "fab", a: "tap" })
+      }
+      const via = captured ? "bubble" : openViaRef.current
+      openViaRef.current = "toolbar"
+      const first = (coachRef.current?.panelOpens ?? 1) === 0
+      coachRef.current?.panelOpened()
+      coachRef.current?.done("fab_pulse")
+      openingRef.current = { at: Date.now(), did: "none" }
+      // What the first screen showed, once the panel has settled on it (the guide starts 450 ms in).
+      setTimeout(() => {
+        if (!openingRef.current) return
+        void sendBackground({ type: "useEvent", f: "panel", a: "open", via, lay: layoutRef.current, page: pageKindNow(), screen: screenNowRef.current(), ...(first ? { first: 1 } : {}) })
+      }, 700)
+    }
     pageChatRef.current = Boolean(how?.pageChat && !captured)
     if (captured) {
       rememberSelection(captured)
@@ -822,6 +866,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [touch])
 
   const hide = useCallback(() => {
+    const opening = openingRef.current
+    openingRef.current = null
+    if (opening) void sendBackground({ type: "useEvent", f: "panel", a: "close", open_s: Math.min(9999, Math.round((Date.now() - opening.at) / 1000)), did: opening.did })
     if (popup) {
       window.close()
       return
@@ -829,6 +876,37 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setVisible(false)
     setTimeout(() => setOpen(false), 220)
   }, [popup])
+
+  // What an opening of the panel came to (panel.close did): any tap in it, Settings, the guide taken a step on; left
+  // with the page, it's said then.
+  const guideWas = useRef<GuideStep | null>(null)
+  useEffect(() => {
+    const o = openingRef.current
+    if (o && guide !== null && guideWas.current !== null && guide !== guideWas.current && (o.did === "none" || o.did === "other")) o.did = "tour"
+    guideWas.current = guide
+  }, [guide])
+  useEffect(() => {
+    const o = openingRef.current
+    if (o && view === "settings" && (o.did === "none" || o.did === "other")) o.did = "settings"
+  }, [view])
+  useEffect(() => {
+    const root = panelRoot()
+    if (!root) return
+    const tapped = () => {
+      if (openingRef.current?.did === "none") openingRef.current.did = "other"
+    }
+    const left = () => {
+      const o = openingRef.current
+      openingRef.current = null
+      if (o) void sendBackground({ type: "useEvent", f: "panel", a: "close", open_s: Math.min(9999, Math.round((Date.now() - o.at) / 1000)), did: o.did })
+    }
+    root.addEventListener("click", tapped, true)
+    window.addEventListener("pagehide", left)
+    return () => {
+      root.removeEventListener("click", tapped, true)
+      window.removeEventListener("pagehide", left)
+    }
+  }, [])
 
   // ------------------------------------------------------------ quick insert
   // "Template" by a selection: the selected text becomes a template (the AI marks its blanks).
@@ -1253,7 +1331,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       // Right away, not on the debounced save: the user may go to another page as soon as the answer is in.
       void saveThread(threadRef.current, next, historyRef.current ? "history" : undefined)
       memoryNudgeRef.current(next)
+      // The ladder (2.8): an answer, and whether its question was the person's own words (not a chip's).
+      if (!err) {
+        const asked = history[history.length - 1]
+        coachRef.current?.answered(asked?.role === "user" && !asked.label && asked.similarAsk === undefined)
+      }
     }
+    if (err?.code === "LIMIT_REACHED") coachRef.current?.limited()
     if (err) setError(err)
   }, [])
 
@@ -1277,6 +1361,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const ask = useCallback((text: string, opts: { label?: string; action?: string; retry?: boolean; mode?: "google"; cite?: string; resent?: boolean } = {}) => {
     const content = text.trim()
     if (!content || portRef.current || askToken.current) return
+    if (openingRef.current) openingRef.current.did = opts.label ? "chip" : "ask"
     setUndoBar(null)
     setFirstWin(null)
     setMemoryOffer(null)
@@ -2022,6 +2107,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
     if (selHintAsked.current) return
     selHintAsked.current = true
+    // 2.8 (В5.7): after the second answer, at the moment of a selection (the coordinator's sel_ask), not before.
+    if ((coachRef.current?.answers ?? 0) < 2 || !coachRef.current?.may("sel_ask")) return
     void selHintCount().then((count) => {
       if (count < 0 || count >= 3) return
       setSelHint(true)
@@ -2030,6 +2117,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [bubble])
 
   const selFeatureUsed = () => {
+    if (selHint) coachRef.current?.done("sel_ask")
     setSelHint(false)
     void setSelHintCount(-1)
   }
@@ -2481,6 +2569,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const flipMode = useCallback(() => {
     setNoteMode((on) => !on)
     setAgentMode(false)
+    coachRef.current?.done("note_tip")
     setNoteHint(false)
     void setNoteHintCount(-1)
   }, [])
@@ -2573,13 +2662,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => {
     if (TARGET !== "safari" || !open || offerCardAsked.current || !status) return
     if (!status.limitedBefore || !status.offer || status.plan !== "free" || status.hasOwnKey) return
+    // 2.8 (В3.3): not on the first day; the coordinator counts its shows from here on.
+    if (!coachRef.current?.ready || !coachRef.current.may("pro_offer")) return
     offerCardAsked.current = true
     void offerCardCount().then((count) => {
       if (count < 0 || count >= 3) return
       setOfferCard(true)
       void setOfferCardCount(count + 1)
     })
-  }, [open, status])
+  }, [open, status, coach.ready])
   // It comes after the chat: bring it into view.
   useEffect(() => {
     if (offerCard) requestAnimationFrame(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }))
@@ -2600,6 +2691,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const store = statusRef.current?.store
     if (!store?.period) return
     void sendBackground({ type: "renewalAnswer", reason, period: store.period, productId: store.productId, expiresAt: store.expiresAt })
+    if (reason === "later") coachRef.current?.dismiss("renewal")
+    else coachRef.current?.done("renewal")
     setRenewal(reason === "later" ? null : "thanks")
     if (reason !== "later") setTimeout(() => setRenewal(null), 4000)
   }, [])
@@ -3033,9 +3126,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const offerFor = lastUserIndex >= 0 && !historyMode && !agentBusy && messages[lastUserIndex].similarAsk === undefined && asksForAction(messages[lastUserIndex].content) ? lastUserIndex : -1
   // Under the answer once it's there (where the answer says it is), under the question while it's written.
   const offerAt = offerFor < 0 ? -1 : messages[offerFor + 1]?.role === "assistant" ? offerFor + 1 : offerFor
+  const offerTap = () => {
+    coach.tap("agent_offer")
+    coach.done("agent_offer")
+    void startAgent(messages[offerFor].content, undefined, threadFor(offerFor))
+  }
   const offerChip = (at: number) =>
-    at === offerAt && (
-      <button type="button" class="cf-chip cf-agent-hint" onClick={() => void startAgent(messages[offerFor].content, undefined, threadFor(offerFor))}>
+    at === offerAt && slot === "agent_offer" && (
+      <button type="button" class="cf-chip cf-agent-hint" onClick={offerTap}>
         <Icon.Sparkle size={13} /> {t("agentHint")}{!hasPro(plan) && <span class="cf-pro-badge">Pro</span>}
       </button>
     )
@@ -3118,6 +3216,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // The offer card was answered: it isn't shown again.
   const closeOfferCard = useCallback((code: string | null) => {
+    if (code) {
+      coachRef.current?.tap("pro_offer")
+      coachRef.current?.done("pro_offer")
+    } else coachRef.current?.dismiss("pro_offer")
     setOfferCard(false)
     void setOfferCardCount(-1)
     if (code) redeemOffer(code)
@@ -3316,7 +3418,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       const b = agentBubbleRef.current
       if (b && b.kind !== "end" && bubbleGoneRef.current === b.key) return setBubbleGone("")
       if (agentNoticeRef.current && !b) return setNoticeOpen(true)
-      show(undefined, { pageChat: true })
+      show(undefined, { pageChat: true }, "fab")
     },
     // Held down: the page's translation by hand (the pill by the circle), on any page.
     onHold: () => setFabHeld((n) => n + 1)
@@ -3325,7 +3427,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const openFromHint = useCallback(() => show(undefined, { pageChat: true }), [show])
   // 2.7.1: the cookie closer's confirmation by the circle, the first few times a banner is answered.
   const cookieLine = useCookieLine(fabVisible && !open && !bubble?.rect)
-  const pageHints = usePageHints({ plan: status?.plan ?? keptPlan ?? "free", ready: fabVisible && !fabDrag.state.dragging && !bubble?.rect && !open, firstRunAhead: !tourSeen, open: openFromHint })
+  const pageHints = usePageHints({ plan: status?.plan ?? keptPlan ?? "free", ready: fabVisible && !fabDrag.state.dragging && !bubble?.rect && !open, firstRunAhead: !tourSeen, open: openFromHint,
+    may: (id) => coachRef.current?.may(`page_${id}` as CoachHint) ?? false, onUsed: (id) => coachRef.current?.done(`page_${id}` as CoachHint) })
   const panelDrag = usePanelDrag({
     panel: panelRef,
     side,
@@ -4546,31 +4649,46 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (byok) upgrade("pro_only")
     else void openApp("subscribe", "organize")
   }
-  const organizeCardsView = (
+  const organizeCardsView = () => (
     <>
-      {consentCard && (
+      {consentCard && slot === "organize_consent" && (
         <OrganizeCard
           kind="consent"
-          onPrimary={() => turnOnOrganize("card")}
+          onPrimary={() => {
+            coach.tap("organize_consent")
+            coach.done("organize_consent")
+            turnOnOrganize("card")
+          }}
           onClose={() => {
+            coach.dismiss("organize_consent")
             void setOrganizeCards({ consent: "declined" }).then(setCards)
             orgEvent({ kind: "organize_optin", action: "declined", from: "card" })
           }}
         />
       )}
-      {messCard && (
+      {messCard && slot === "organize_mess" && (
         <OrganizeCard
           kind="mess"
           pro={byok ? (byokDiscount !== null ? t("upgradeProOff", byokDiscount) : t("upgradePro")) : undefined}
-          onPrimary={() => tryOrganizePro("inchat_mess")}
+          onPrimary={() => {
+            coach.tap("organize_mess")
+            tryOrganizePro("inchat_mess")
+          }}
           onClose={() => {
+            coach.dismiss("organize_mess")
             setMessFor(null)
             void setOrganizeCards({ mess: { chats: cards?.mess?.chats ?? [], at: cards?.mess?.at ?? Date.now(), closed: true } }).then(setCards)
           }}
         />
       )}
-      {tagsCard && !messCard && promoOk && (
-        <OrganizeCard kind="tags" pro={byok ? t("upgradePro") : undefined} onPrimary={() => tryOrganizePro("third_tag")} onClose={() => setTagsCard(false)} />
+      {slot === "organize_tags" && (
+        <OrganizeCard kind="tags" pro={byok ? t("upgradePro") : undefined} onPrimary={() => {
+          coach.tap("organize_tags")
+          tryOrganizePro("third_tag")
+        }} onClose={() => {
+          coach.dismiss("organize_tags")
+          setTagsCard(false)
+        }} />
       )}
     </>
   )
@@ -4609,6 +4727,51 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const bubbleUp = !!agentBubble && fabVisible && !fabDrag.state.dragging && !bubble?.rect && !pageTyping && bubbleGone !== agentBubble.key
   const fabRing = agentBubble ? (agentBubble.kind === "end" && agentBubble.ok ? "done" : "needs") : agentNotice ? (agentNotice.status === "done" ? "done" : "needs") : null
 
+  // ✦ seen (events-2.8 rung 7): once a device day, with the page's kind (and `first` the first time ever).
+  useEffect(() => {
+    if (!fabVisible || popup) return
+    const today = dayKey(Date.now())
+    void chrome.storage.local.get(FAB_SHOWN_KEY).then((got) => {
+      const last = got[FAB_SHOWN_KEY] as string | undefined
+      if (last === today) return
+      void chrome.storage.local.set({ [FAB_SHOWN_KEY]: today })
+      void sendBackground({ type: "useEvent", f: "fab", a: "shown", page: pageKindNow(), ...(last ? {} : { first: 1 }) })
+    }).catch(() => undefined)
+  }, [fabVisible])
+
+  // ------------------------------------------------------------ the hint coordinator (2.8, В3.1)
+  // Every prompt says here whether it fits now; the coordinator gives one of them the slot (coach/rules.ts). Prompts on
+  // the page need the panel closed; prompts in the panel need it open on the chat.
+  const coachWants: CoachHint[] = []
+  const wantIf = (id: CoachHint, on: unknown) => void (on && coachWants.push(id))
+  const pageFree = fabVisible && !fabDrag.state.dragging && !bubble?.rect && !bubbleUp
+  const mediaDue = contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)
+  const chatFree = open && view === "chat" && !historyMode && partial === null && !pending && !pageHints.chat
+  wantIf("fab_pulse", fabVisible && coach.ready && coach.panelOpens === 0)
+  if (pageHints.line) wantIf(`page_${pageHints.line}` as CoachHint, pageFree)
+  wantIf("cookie_line", cookieLine.line && !fabDrag.state.dragging && !bubbleUp)
+  wantIf("sel_ask", selHint && bubble?.rect && !open)
+  wantIf("organize_consent", open && consentCard)
+  wantIf("organize_mess", open && messCard)
+  wantIf("organize_tags", open && tagsCard && !messCard && promoOk)
+  wantIf("byok_offer", open && byokCard && byokDiscount !== null && !error && partial === null)
+  wantIf("renewal", open && renewal === "ask" && !error && partial === null)
+  wantIf("pro_offer", open && offerCard && offer && !error && partial === null)
+  wantIf("media_tip", chatFree && mediaDue)
+  wantIf("invite", chatFree && inviteNew)
+  wantIf("whatsnew", chatFree && !inviteNew && hintDue("new27") && !mediaDue)
+  wantIf("side", chatFree && !inviteNew && hintDue("side") && !hintDue("new27") && !mediaDue)
+  wantIf("chats_tip", open && view === "threads" && hintDue("chats") && threadList.length > 0 && guide !== "chatList" && !(guide && PLAN_VIEW[guide] === "threads"))
+  wantIf("note_tip", open && noteHint && draft.trim() && !noteMode && !sendMenu)
+  wantIf("agent_offer", open && offerAt >= 0)
+  // What the person is in the middle of holds every hint: the consent, the guide or the tour, the plans, the limit.
+  const coachFlow = guide !== null || touring || (open && (pending !== null || findConsent !== null || plansOpen !== null || memoryOffer !== null || error?.code === "LIMIT_REACHED"))
+  const slot = coach.pick(coachWants, coachFlow)
+  const pulse = slot === "fab_pulse"
+  // What the first screen of an opening shows (panel.open's screen).
+  screenNowRef.current = () =>
+    guide !== null ? "guide" : touring ? "tour" : agentCardShown ? "agent" : plansOpen !== null ? "plans" : messages.length > 0 ? "chat" : "empty"
+
   // ------------------------------------------------------------ render
   return (
     <div class="cf" data-theme={theme} data-size={settings.textSize} data-layout={layout} data-side={side} data-glow={pageHints.glow ?? undefined} data-touch={touch ? "1" : undefined} data-density={density}
@@ -4620,7 +4783,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         <button
           type="button"
           ref={fabRef}
-          class={`cf-fab ${side} ${fabDrag.state.dragging ? "dragged" : "glide"}${haloFlash ? " flash" : ""}${fabRing ? ` agent-ring ${fabRing}` : ""}`}
+          class={`cf-fab ${side} ${fabDrag.state.dragging ? "dragged" : "glide"}${haloFlash ? " flash" : ""}${fabRing ? ` agent-ring ${fabRing}` : ""}${pulse ? " first-pulse" : ""}`}
           data-halo={halo ? spaces.fabSpace?.color : undefined}
           style={{ top: fabTop, ...(halo && spaces.fabSpace ? spaceVars(spaces.fabSpace.color) : {}) }}
           aria-label={t("fabLabel")}
@@ -4634,6 +4797,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         </button>
       )}
 
+      {/* 2.8 (В2.5): until the panel is opened for the first time, the circle pulses softly with a short label by it. */}
+      {pulse && fabVisible && !fabDrag.state.dragging && (
+        <button type="button" class={`cf-fab-label ${side}`} style={{ top: fabTop }} onClick={() => {
+          openViaRef.current = "fab"
+          openFromHint()
+        }}>{t("fabFirstLabel")}</button>
+      )}
+
       {/* A page in another language (2.7): the pill to translate it in place, beside the circle on its side. */}
       {!popup && fabEnabled && !settings.fabHiddenSites.includes(source.site()) && (
         <TranslatePill
@@ -4642,6 +4813,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           show={fabVisible && !fabDrag.state.dragging && !bubble?.rect && !bubbleUp}
           free={!hasPro(plan)}
           held={fabHeld}
+          offerOk={slot === "translate_pill"}
+          onWant={(on) => coach.want("translate_pill", on)}
+          onHint={(what) => {
+            // Only for the pill that offered itself (asked for by hand it's no hint).
+            if (what === "done") coach.done("translate_pill")
+            else if (slot === "translate_pill") (what === "tap" ? coach.tap : coach.dismiss)("translate_pill")
+          }}
           onPlans={() => {
             show()
             openPlans("pro", "translate")
@@ -4671,11 +4849,21 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       )}
 
       {/* 2.7 (plan section 6): the page's hint by the circle, on its side (never with the translate pill). */}
-      {pageHints.line && fabVisible && !fabDrag.state.dragging && !bubble?.rect && !bubbleUp && (
-        <HintLine id={pageHints.line} side={side} top={fabTop} onTap={pageHints.tap} onClose={pageHints.close} />
+      {pageHints.line && slot === `page_${pageHints.line}` && (
+        <HintLine id={pageHints.line} side={side} top={fabTop} onTap={() => {
+          openViaRef.current = "hint"
+          coach.tap(`page_${pageHints.line}` as CoachHint)
+          pageHints.tap()
+        }} onClose={() => {
+          coach.dismiss(`page_${pageHints.line}` as CoachHint)
+          pageHints.close()
+        }} />
       )}
-      {cookieLine.line && !pageHints.line && !fabDrag.state.dragging && !bubbleUp && (
-        <CookieLine line={cookieLine.line} side={side} top={fabTop} onClose={cookieLine.close} />
+      {cookieLine.line && slot === "cookie_line" && (
+        <CookieLine line={cookieLine.line} side={side} top={fabTop} onClose={() => {
+          coach.dismiss("cookie_line")
+          cookieLine.close()
+        }} />
       )}
 
       {/* The page reminder is set: said here too (on iPhone the selection, and its buttons, are gone by now). */}
@@ -4800,8 +4988,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 <div class="cf-bubble-hint guide">{t(touch ? "guideTapAskTouch" : "guideTapAskMouse", t("selAsk"))}</div>
               ) : (
                 <>
-                  {selHint && <div class="cf-bubble-hint">{t("selHint")}</div>}
-                  {!selHint && <SelIconsTip watching={listsKind("watch")} />}
+                  {selHint && slot === "sel_ask" && <div class="cf-bubble-hint">{t("selHint")}</div>}
+                  {!selHint && slot === null && coach.may("sel_icons") && <SelIconsTip watching={listsKind("watch")} />}
                 </>
               )}
             </>
@@ -5025,14 +5213,17 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
           {view === "threads" ? (
             <>
-              {hintDue("chats") && threadList.length > 0 && guide !== "chatList" && !(guide && PLAN_VIEW[guide] === "threads") && (
+              {slot === "chats_tip" && (
                 <div class="cf-upsell-wrap">
-                  <Hint line={compact} icon={<Icon.Chats />} title={t("hintChatsTitle")} onDone={() => doneHint("chats")}>{t("hintChatsBody")}</Hint>
+                  <Hint line={compact} icon={<Icon.Chats />} title={t("hintChatsTitle")} onDone={() => {
+                    coach.done("chats_tip")
+                    doneHint("chats")
+                  }}>{t("hintChatsBody")}</Hint>
                 </div>
               )}
               {findConsent && (
                 <div class="cf-upsell-wrap">
-                  <ConsentCard again={consent === "old"} onAccept={() => findConsent.resolve(true)} onDecline={() => findConsent.resolve(false)} />
+                  <ConsentCard via="find" again={consent === "old"} onAccept={() => findConsent.resolve(true)} onDecline={() => findConsent.resolve(false)} />
                 </div>
               )}
               {upsell && (
@@ -5111,7 +5302,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             <>
               {findConsent && (
                 <div class="cf-upsell-wrap">
-                  <ConsentCard again={consent === "old"} onAccept={() => findConsent.resolve(true)} onDecline={() => findConsent.resolve(false)} />
+                  <ConsentCard via="find" again={consent === "old"} onAccept={() => findConsent.resolve(true)} onDecline={() => findConsent.resolve(false)} />
                 </div>
               )}
               <CollectionsWindow
@@ -5459,20 +5650,20 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {jobs.running.has(threadRef.current) && partial === null && (
                   <div class="cf-busy-row" role="status"><span class="cf-busy-spin" aria-hidden="true" /> {t("busyWorking")}</div>
                 )}
-                {organizeCardsView}
+                {organizeCardsView()}
 
-                {byokCard && byokDiscount !== null && !error && partial === null && (
+                {slot === "byok_offer" && byokDiscount !== null && (
                   <div class="cf-card offer">
                     <strong>{t("byokOfferTitle", byokDiscount)}</strong>
                     <p>{t("byokOfferBody", PRO_WEEKLY, search.proWeekly)}</p>
                     <div class="cf-card-actions">
-                      <button type="button" class="cf-primary" onClick={() => { setByokCard(false); upgrade("offer") }}><Icon.Sparkle size={14} /> {t("upgradeProOff", byokDiscount)}</button>
-                      <button type="button" class="cf-secondary" onClick={() => setByokCard(false)}>{t("offerLater")}</button>
+                      <button type="button" class="cf-primary" onClick={() => { coach.tap("byok_offer"); coach.done("byok_offer"); setByokCard(false); upgrade("offer") }}><Icon.Sparkle size={14} /> {t("upgradeProOff", byokDiscount)}</button>
+                      <button type="button" class="cf-secondary" onClick={() => { coach.dismiss("byok_offer"); setByokCard(false) }}>{t("offerLater")}</button>
                     </div>
                   </div>
                 )}
 
-                {renewal && !error && partial === null && (
+                {renewal && (renewal === "thanks" || slot === "renewal") && !error && partial === null && (
                   <div class={`cf-card renewal ${renewal === "thanks" ? "done" : ""}`} role="group" aria-label={t("renewalBody")}>
                     {renewal === "thanks" ? (
                       <p>{t("renewalThanks")}</p>
@@ -5493,7 +5684,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   </div>
                 )}
 
-                {offerCard && offer && !error && partial === null && (
+                {slot === "pro_offer" && offer && (
                   <div class="cf-card offer">
                     <strong>{t("offerCardTitle")}</strong>
                     <p>{t("offerCardBody", offer.discount, PRO_WEEKLY)}</p>
@@ -5668,12 +5859,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 )}
 
                 {/* Not with a page hint's how-to (2.7): one hint at a time, the video's or the PDF's comes next time. */}
-                {!historyMode && partial === null && !pageHints.chat && contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey) && (
+                {slot === "media_tip" && (
                   <Hint reveal
                     line={compact}
                     icon={source.kind() === "video" ? <Icon.Play /> : <Icon.Doc />}
                     title={t(source.kind() === "video" ? "hintVideoTitle" : mediaOn ? "hintPdfTitle" : "hintPdfTitleFree")}
-                    onDone={() => doneHint(source.kind() as HintKey)}
+                    onDone={() => {
+                      coach.done("media_tip")
+                      doneHint(source.kind() as HintKey)
+                    }}
                   >
                     {/* Free answers don't read them: the hint says Pro does. */}
                     {t(source.kind() === "video" ? (mediaOn ? "hintVideoBody" : "hintVideoBodyFree") : mediaOn ? "hintPdfBody" : "hintPdfBodyFree")}
@@ -5687,8 +5881,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   return <div ref={revealOnce}><Hint icon={<Icon.Sparkle size={16} />} title={how.title} action={allTips} onDone={pageHints.doneChat}>{how.body}</Hint></div>
                 })()}
                 {/* 2.7 (plan section 5): a friend who came with this install's code became active: the reward, once. */}
-                {!historyMode && partial === null && !pending && !pageHints.chat && inviteNew && (
+                {slot === "invite" && (
                   <InviteRewardCard onRedeem={redeemOffer} onDone={() => {
+                    coach.done("invite")
                     setInviteNew(false)
                     void markActiveSeen(status?.invite?.active ?? 0)
                   }} />
@@ -5697,22 +5892,28 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     the side too, so the side's own hint isn't shown after it). */}
                 {/* 2.7 (after 107): on the compact chat it's one line («New in ContextFlow 2.7 · Show · ×»), shown in one
                     opening of the panel and gone with it (newLineShown), never a card over the answer. */}
-                {!historyMode && partial === null && !pending && !pageHints.chat && !inviteNew && hintDue("new27") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
+                {slot === "whatsnew" && (
                   <Hint reveal
                     line={compact && (newLineShown.current = true)}
                     icon={<Icon.Sparkle size={16} />}
                     title={t("hintNewTitle")}
                     list={[t("hintNewTranslate"), t("hintNewWrite"), t("hintNewSpaces"), t("hintNewApple"), t("hintNewShot"), t("hintNewSide")]}
                     action={allTips}
-                    onDone={() => doneHint(["new27", "side"])}
+                    onDone={() => {
+                      coach.done("whatsnew")
+                      doneHint(["new27", "side"])
+                    }}
                   />
                 )}
-                {!historyMode && partial === null && !pending && !pageHints.chat && !inviteNew && hintDue("side") && !hintDue("new27") && !(contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey)) && (
+                {slot === "side" && (
                   <Hint reveal
                     line={compact}
                     icon={<Icon.Sparkle size={16} />}
                     title={t(layout === "side" ? "hintSideTitle" : "hintSideTitleSheet")}
-                    onDone={() => doneHint("side")}
+                    onDone={() => {
+                      coach.done("side")
+                      doneHint("side")
+                    }}
                   >
                     {t(layout === "side" ? "hintSideBody" : "hintSideBodySheet")}
                   </Hint>
@@ -5722,7 +5923,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {/* Listen to this page or Find similar from the chat (build 92): the consent they wait for shows here too (it
                     showed only in the chat list, so from a chat they did nothing without consent). */}
                 {findConsent && !pending && (
-                  <ConsentCard again={consent === "old"} onAccept={() => findConsent.resolve(true)} onDecline={() => findConsent.resolve(false)} />
+                  <ConsentCard via="find" again={consent === "old"} onAccept={() => findConsent.resolve(true)} onDecline={() => findConsent.resolve(false)} />
                 )}
               </div>
 
@@ -5746,7 +5947,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 <footer class="cf-composer">
                   {listenBar}
                   {undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}
-                  {noteHint && draft.trim() && !noteMode && !sendMenu && <div class="cf-note-hint" role="status">{t(sendHintKey)}</div>}
+                  {slot === "note_tip" && <div class="cf-note-hint" role="status">{t(sendHintKey)}</div>}
                   {sendMenu && !streaming && (
                     <SendMenu note={noteMode} doing={doMode} canDo={swipeDo} onNote={flipMode} onDo={flipDo} onClose={() => setSendMenu(false)} />
                   )}
@@ -6003,7 +6204,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             setView("templates")
           }}
           onAdapt={adaptTemplate}
-          hintUp={Boolean(pageHints.line && fabVisible)}
+          hintUp={(slot !== null && slot !== "write_tip") || !coach.may("write_tip")}
         />
       )}
     </div>

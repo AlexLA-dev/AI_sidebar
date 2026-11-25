@@ -2738,6 +2738,9 @@
  "phSimilar": {
   "message": "إيجاده بسعر أقل؟"
  },
+ "fabFirstLabel": {
+  "message": "اسأل عن هذه الصفحة"
+ },
  "phWatch": {
   "message": "مراقبة السعر؟"
  },

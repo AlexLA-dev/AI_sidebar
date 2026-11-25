@@ -2738,6 +2738,9 @@
  "phSimilar": {
   "message": "Günstiger finden?"
  },
+ "fabFirstLabel": {
+  "message": "Fragen zu dieser Seite"
+ },
  "phWatch": {
   "message": "Preis beobachten?"
  },
