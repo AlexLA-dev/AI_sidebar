@@ -171,7 +171,7 @@ test("5, 6: a fill step's line names its field; times and dates in the device's 
   const panel = readFileSync(new URL("../src/content/agent/AgentPanel.tsx", import.meta.url), "utf8")
   const bubble = readFileSync(new URL("../src/content/agent/Bubble.tsx", import.meta.url), "utf8")
   assert.match(panel, /l\.text \? localWhen\(l\.text\) : l\.tool === "fill" && l\.target \? t\("agentLineFilled", nameOf\(l\.target\)\)/)
-  for (const spot of [/<p dir="auto">\{localWhen\(state\.summary \?\? ""\)\}<\/p>/, /<Markdown text=\{localWhen\(state\.summary\)\} \/>/, /if \(!own\) return localWhen\(line\)/, /\{localWhen\(c\)\}<\/button>/]) assert.match(panel, spot)
+  for (const spot of [/: localWhen\(o\)\n/, /<p dir="auto">\{localWhen\(q\.q\) \|\|/, /<p dir="auto">\{localWhen\(state\.summary \?\? ""\)\}<\/p>/, /<Markdown text=\{localWhen\(state\.summary\)\} \/>/, /if \(!own\) return localWhen\(line\)/, /\{localWhen\(c\)\}<\/button>/]) assert.match(panel, spot)
   assert.match(bubble, /<p dir="auto">\{localWhen\(data\.text\)\}<\/p>/)
   assert.match(bubble, /label: localWhen\(o\), on: \(\) => act\.reply\(o\)/)
   const act = readFileSync(new URL("../netlify/shared/act.mts", import.meta.url), "utf8")
