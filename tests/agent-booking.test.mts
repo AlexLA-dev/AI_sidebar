@@ -304,7 +304,8 @@ test("the place's time zone: Paris 19:00 is Nicosia 20:00; free time is said in 
 
 test("a slot in another zone is checked in the device's clock", async () => {
   const seen: string[] = []
-  const raw = { ...RAW, booking: { ...BOOKING, tz: "Europe/Paris" } }
+  // (The request names 17:45: with no time named, the earliest free one — 17:00 — would be the one, 127.)
+  const raw = { ...RAW, booking: { ...BOOKING, tz: "Europe/Paris", at: "17:45" } }
   const x = io([{ ok: true, plan: raw, token: "t" }, step({ tool: "click", id: "3", date: "2026-11-24", time: "17:45" }, "free", "click", 'button "17:45"'), step({ tool: "done", summary: "x" }, "free", "read")], { entries: [fact("Gender", "Man"), fact("example.com · Specialist", "Y")], playbook: ["a"] })
   x.slotFree = async (date, time) => (seen.push(`${date} ${time}`), true)
   process.env.TZ = process.env.TZ ?? ""

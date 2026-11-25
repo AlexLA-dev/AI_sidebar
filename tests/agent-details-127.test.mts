@@ -194,3 +194,23 @@ test("«Remember» starts unticked when the plan types a name the request carrie
   assert.equal((await run("Book a table for Maria Kim tomorrow at 18:30 for 2", [{ tool: "type", id: "1", text: "Maria Kim", key: "" }]))?.once, true, "someone else's e-mail: not kept by default")
   assert.equal((await run("Book a table tomorrow at 18:30 for 2", [{ tool: "type", id: "1", text: "", key: "" }]))?.once, undefined, "the person's own: kept")
 })
+
+test("3: with no time named, the earliest free one in the asked part of the day; said once, then the model's choice stands", async () => {
+  const map = { ...FORM, items: FORM.items.map((i) => (i.id === "5" ? { ...i, options: ["09:00 [unavailable]", "09:30", "10:00", "10:30"] } : i)) } as PageMap
+  const morning = () => running("Book a dentist on Monday morning", { booking: { kind: "appointment", date: "2026-11-30", at: "", from: "08:00", until: "12:00", minutes: 30 } as never })
+  const x = io([
+    step({ tool: "select", id: "5", option: "10:00", date: "2026-11-30", time: "10:00" }, "free", "select"),
+    step({ tool: "select", id: "5", option: "09:30", date: "2026-11-30", time: "09:30" }, "free", "select"),
+    step({ tool: "done", summary: "ok" }, "free", "read")
+  ], SAVED, map)
+  await drive(morning(), x)
+  assert.match(x.asked[1].log.at(-1).result, /refused: 09:30 is free on the page and earlier in the asked time \(08:00–12:00\) than 10:00/)
+  assert.deepEqual(x.acted.map((c) => c.option), ["09:30"])
+  const y = io([
+    step({ tool: "select", id: "5", option: "10:00", date: "2026-11-30", time: "10:00" }, "free", "select"),
+    step({ tool: "select", id: "5", option: "10:00", date: "2026-11-30", time: "10:00" }, "free", "select"),
+    step({ tool: "done", summary: "ok" }, "free", "read")
+  ], SAVED, map)
+  await drive(morning(), y)
+  assert.deepEqual(y.acted.map((c) => c.option), ["10:00"], "the second time it stands: never a loop")
+})

@@ -157,6 +157,8 @@ export interface AgentState {
   // calendar ever opened; the page had 26 Dec free and 5 Dec greyed).
   // Contact details answered on the plan card and not kept in «Мои данные»: filled by key in this task only.
   oneTime?: Array<{ key: string; value: string }>
+  // Slots the device already pointed a nearer or earlier free time for (said once each: 127).
+  nearSaid?: string[]
   sawDate?: boolean
   dateNudged?: boolean
   // A question sent back once because the page named its next free day.
@@ -809,8 +811,13 @@ async function slotWhy(state: AgentState, io: RunnerIO, b: PlanBooking, date: st
   if (b.from && b.until && (time < b.from || time > b.until)) return `${time} is outside the time the request and the rules allow (${b.from}–${b.until}): choose a slot inside it, or ask with the page's nearest real slots`
   // The nearest free time to the one the request names is the device's sum, not the model's (127: 19:30 booked for
   // «19:10» with 19:00 free, 19:30 for «20:10» with 20:00 free): a nearer one the page offers is chosen instead.
-  if (b.at && map) {
-    let nearer = nearerTimes(b.at, time, freeTimes(map, call!, item), b.from, b.until)
+  // With no time named, the earliest free one in the part of the day asked (127 stand: «Monday morning», 09:30 free,
+  // 10:00 chosen). Said once per slot: a model that keeps its choice after hearing it (a grid of several days whose
+  // times aren't this day's) goes on.
+  const target = b.at || (b.from && b.until ? b.from : "")
+  const once = `${date} ${time}`
+  if (target && map && !state.nearSaid?.includes(once)) {
+    let nearer = nearerTimes(target, time, freeTimes(map, call!, item), b.from, b.until)
     if (nearer.length && state.calendar && io.slotFree) {
       const fits: string[] = []
       for (const t of nearer.slice(0, 3)) {
@@ -819,7 +826,12 @@ async function slotWhy(state: AgentState, io: RunnerIO, b: PlanBooking, date: st
       }
       nearer = fits
     }
-    if (nearer.length) return `${nearer[0]} is free on the page and nearer to the asked ${b.at} than ${time}: choose ${nearer[0]}`
+    if (nearer.length) {
+      state.nearSaid = [...(state.nearSaid ?? []), once].slice(-12)
+      return b.at
+        ? `${nearer[0]} is free on the page and nearer to the asked ${b.at} than ${time}: choose ${nearer[0]}`
+        : `${nearer[0]} is free on the page and earlier in the asked time (${b.from}–${b.until}) than ${time}: with no time named, the earliest free one — choose ${nearer[0]}`
+    }
   }
   if (!state.calendar || !io.slotFree) return null
   // The page's time is the place's; the Calendar is asked in the device's.
