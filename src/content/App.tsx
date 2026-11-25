@@ -1574,10 +1574,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   lostRef.current = lost
   // The question just sent, until anything comes back for it (then it reached the background).
   const pendingAskRef = useRef<{ history: Turn[]; content: string; opts: { label?: string; action?: string; mode?: "google"; resent?: boolean } } | null>(null)
-  /** A quiet or closed answer: a question that never got there is undelivered; one that did is followed again. */
-  const quietRef = useRef(() => {
+  /**
+   * A quiet or closed answer: a question that never got there is undelivered; one that did is followed again.
+   * `silent`: the connection said nothing at all for the whole wait. Then it isn't sent again on a fresh one: the tab's
+   * link to the extension is gone (a tab left open across an update), and the resend only doubled the wait before the
+   * «lost its link» message with Reload (about 75 s on the simulator; now 20–25 s). A connection that closed, or one
+   * found quiet on coming back from the background, is still asked again once.
+   */
+  const quietRef = useRef((silent = false) => {
     const p = pendingAskRef.current
-    if (p) undeliveredRef.current(p.history, p.content, p.opts)
+    if (p) undeliveredRef.current(p.history, p.content, silent ? { ...p.opts, resent: true } : p.opts)
     else lostRef.current()
   })
 
@@ -1612,7 +1618,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (partial === null) return
     const quiet = (ms: number) => portRef.current !== null && heardRef.current > 0 && Date.now() - heardRef.current > ms
     const timer = setInterval(() => {
-      if (quiet(20_000)) quietRef.current()
+      if (quiet(20_000)) quietRef.current(true)
     }, 5_000)
     const onVisible = () => {
       if (document.visibilityState === "visible" && quiet(6_000)) quietRef.current()
