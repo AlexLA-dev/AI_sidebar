@@ -13,7 +13,7 @@ import { pageForModel } from "../../src/shared/attachments.ts"
 import { hasMarks, MAX_APP_OTHER_PAGES, MAX_OTHER_PAGES, withItemRule } from "../../src/shared/prompt.ts"
 import { uiFields } from "../../src/shared/usage.ts"
 import { historyPrompt, MAX_HISTORY_CHARS, MAX_HISTORY_CHATS, sanitizeDigests } from "../../src/shared/history.ts"
-import { blockReason, countersFor, googleApart, hasPro, proOffer, resolveAccess, searchCountersFor, visibleUsage, withUse } from "../shared/plan.mts"
+import { blockReason, countersFor, googleApart, hasPro, offerOnReturn, resolveAccess, searchCountersFor, visibleUsage, withUse } from "../shared/plan.mts"
 import { chatSize, digestCut, limitsHit } from "../shared/limits.mts"
 import { pageBucket, pageChars, requestWeight } from "../shared/weight.mts"
 
@@ -123,8 +123,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
     const reason = blockReason(quota.blocked)
     context.waitUntil(logEvent("limit", installId, { plan: access.plan, reason, platform, version, mode: google ? "google" : "chat", ...(weight > 1 ? { weight } : {}), ...step }))
     const code = reason === "busy" ? "BUSY" : reason === "search" ? "SEARCH_LIMIT" : "LIMIT_REACHED"
-    // Out of free answers: the App Store offer code for Pro.
-    const offer = code === "LIMIT_REACHED" ? proOffer(access) : null
+    // Out of free answers: the App Store offer code for Pro, only on return (an earlier day's limit; 2.8, the owner).
+    const offer = code === "LIMIT_REACHED" ? await offerOnReturn(access, installId) : null
     // weight: the page is long and the answers left don't cover it (the panel says so).
     return json({ code, plan: access.plan, usage, offer, ...(weight > 1 ? { weight } : {}) }, reason === "busy" ? 503 : 402)
   }

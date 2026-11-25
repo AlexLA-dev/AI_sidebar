@@ -4,7 +4,7 @@ import { clientBuild } from "../shared/answer.mts"
 import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, refund, touchInstall, type ConsumeResult, type Counter } from "../shared/db.mts"
 import { clip, corsHeaders, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
-import { blockReason, hasPro, proOffer, resolveAccess, visibleUsage, type Usage } from "../shared/plan.mts"
+import { blockReason, hasPro, offerOnReturn, resolveAccess, visibleUsage, type Usage } from "../shared/plan.mts"
 import { inviteExtra } from "../shared/invite.mts"
 import { controlsCounters, controlsReason, haikuCall, runTranslation, type Effort, safetyReason, translateCost, translateCounters, type TranslateStats } from "../shared/translate.mts"
 import { sessionFields } from "../../src/shared/usage.ts"
@@ -111,7 +111,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
         const reason = blockReason(answer.blocked)
         context.waitUntil(logEvent("limit", installId, { plan: access.plan, reason, mode: "translate", platform, version, ...test }))
         if (reason === "busy") return json({ code: "BUSY" }, 503)
-        return json({ code: "LIMIT_REACHED", plan: access.plan, usage: visibleUsage(access, answer.counters), offer: proOffer(access) }, 402)
+        return json({ code: "LIMIT_REACHED", plan: access.plan, usage: visibleUsage(access, answer.counters), offer: await offerOnReturn(access, installId) }, 402)
       }
       charged = [counters.page, ...counters.answer]
       usage = visibleUsage(access, answer.counters)

@@ -133,13 +133,20 @@ test("a rewrite needs its tone, which goes in the prompt; a page (not a conversa
   assert.ok(prompt.includes("The page: Senior Product Designer · Lumen Health\nhttps://jobs.example/1\n<page>"))
 })
 
-test("free answers used up: LIMIT_REACHED with the Pro offer, the model never asked", async () => {
+test("free answers used up: LIMIT_REACHED, the model never asked; the Pro code only on return (an earlier day's limit)", async () => {
   counters.set(`install:${INSTALL}`, 5)
   const { res, body } = await call()
   assert.equal(res.status, 402)
   assert.equal(body.code, "LIMIT_REACHED")
   assert.equal(body.usage.used, 5)
-  assert.equal(body.offer.code, "CONTEXTFLOW50")
+  // The first time at the limit: full price, no code (2.8, the owner).
+  assert.equal(body.offer, null)
+  rpc.cf_limited_before = () => true
+  try {
+    assert.equal((await call()).body.offer.code, "CONTEXTFLOW50")
+  } finally {
+    delete rpc.cf_limited_before
+  }
   assert.equal(claude.calls, 0)
   assert.ok(events.some((e) => e.kind === "limit" && e.data.mode === "write"))
 })
