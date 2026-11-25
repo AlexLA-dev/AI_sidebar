@@ -120,23 +120,29 @@
 
   <p class="lede">Bir Safari uzantısı yüklediniz ve sayfada hiçbir şey görünmüyor. Neredeyse her zaman uzantıya web sitelerinde henüz izin verilmemiştir. Adımlar her uzantı için aynı; örnek olarak kendi geliştirdiğim ContextFlow'u kullanıyorum.</p>
 
+  <!-- Safari's own question first (seen granting at once on the owner's iPad), Settings second (seen working every time
+       in the simulators): the app's own card (2.8 setup, Setup.swift safariStep) word for word, with Safari's button
+       names in each language from tests/fixtures/safari-permission-labels.json. -->
   <h2>iPhone'da</h2>
+  <p>Adres çubuğundaki sayfa menüsünü açın → ContextFlow → “Her Zaman İzin Ver…” → “Her Web Sitesinde Her Zaman İzin Ver”.</p>
+  <p class="note">“Bir Gün İzin Ver” değil: onunla ✦ yarın yine kaybolur.</p>
+  <p style="font-weight: 600">Ya da Ayarlar’da:</p>
   <ol>
     <li>Ayarlar uygulamasını açın ve Uygulamalar → Safari (ContextFlow değil) → Uzantılar → ContextFlow bölümüne gidin.</li>
-    <li>İzinler bölümünde “Tüm Web Siteleri” seçeneğini “İzin Ver” yapın.</li>
+    <li>İzinler bölümünde “Tüm Web Siteleri” seçeneğini “İzin Ver” yapın. Bunun yerine bir web sitesi listesi görürseniz listedeki her satırı “İzin Ver” yapın.</li>
     <li>Safari’ye dönün, sayfayı yeniden yükleyin ve ✦ düğmesine dokunun.</li>
   </ol>
 
   <h2>iPad'de</h2>
+  <p>Adresin yanındaki yapboz parçası düğmesine dokunun → ContextFlow → “Her Zaman İzin Ver…” → “Her Web Sitesinde Her Zaman İzin Ver”.</p>
+  <p class="note">“Bir Gün İzin Ver” değil: onunla ✦ yarın yine kaybolur.</p>
+  <p style="font-weight: 600">Ya da Ayarlar’da:</p>
   <ol>
     <li>Ayarlar’ı açın, ardından soldaki Uygulamalar → Safari (ContextFlow değil) → Uzantılar → ContextFlow’a gidin.</li>
-    <li>İzinler bölümünde “Tüm Web Siteleri” seçeneğini “İzin Ver” yapın.</li>
+    <li>İzinler bölümünde “Tüm Web Siteleri” seçeneğini “İzin Ver” yapın. Bunun yerine bir web sitesi listesi görürseniz listedeki her satırı “İzin Ver” yapın.</li>
     <li>Safari’ye dönün, sayfayı yeniden yükleyin ve ✦ düğmesine dokunun.</li>
   </ol>
   <p>Uygulamalar listesinde ContextFlow'u değil, Safari'yi seçin: ContextFlow da orada listelenir, ancak kendi sayfasında uzantı anahtarı yoktur.</p>
-
-  <h2>Safari bir web sitesi için sorarsa</h2>
-  <p>Safari bir sayfada da sorabilir: bu durumda ContextFlow, iPhone'da sayfa menüsünde, iPad'de adresin yanındaki yapboz parçası düğmesinin arkasında ⚠ ile işaretlenir. “Her Zaman İzin Ver”i seçin. ✦ hâlâ görünmüyorsa yukarıdaki Ayarlar adımlarını izleyin.</p>
 
   <h2>Açtınız ama düğme yok mu?</h2>
   <ul>

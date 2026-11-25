@@ -120,23 +120,29 @@
 
   <p class="lede">Bạn đã cài một tiện ích mở rộng Safari mà trên trang không hiện gì. Gần như lúc nào cũng là do tiện ích chưa được cho phép trên các trang web. Các bước giống nhau với mọi tiện ích; tôi lấy ContextFlow, ứng dụng do tôi làm ra, làm ví dụ.</p>
 
+  <!-- Safari's own question first (seen granting at once on the owner's iPad), Settings second (seen working every time
+       in the simulators): the app's own card (2.8 setup, Setup.swift safariStep) word for word, with Safari's button
+       names in each language from tests/fixtures/safari-permission-labels.json. -->
   <h2>Trên iPhone</h2>
+  <p>Mở menu trang trên thanh địa chỉ → ContextFlow → “Luôn Cho phép…” → “Luôn luôn cho phép trên mọi trang web”.</p>
+  <p class="note">Đừng chọn “Cho phép trong một ngày”: như vậy ✦ sẽ biến mất vào ngày mai.</p>
+  <p style="font-weight: 600">Hoặc trong Cài đặt:</p>
   <ol>
     <li>Mở ứng dụng Cài đặt và đi tới Ứng dụng → Safari (không phải ContextFlow) → Tiện ích mở rộng → ContextFlow.</li>
-    <li>Trong Quyền, đặt Tất cả trang web thành Cho phép.</li>
+    <li>Trong Quyền, đặt Tất cả trang web thành Cho phép. Nếu thay vào đó bạn thấy danh sách trang web, hãy đặt từng dòng trong danh sách thành Cho phép.</li>
     <li>Quay lại Safari, tải lại trang và chạm vào ✦.</li>
   </ol>
 
   <h2>Trên iPad</h2>
+  <p>Chạm vào nút mảnh ghép cạnh địa chỉ → ContextFlow → “Luôn Cho phép…” → “Luôn luôn cho phép trên mọi trang web”.</p>
+  <p class="note">Đừng chọn “Cho phép trong một ngày”: như vậy ✦ sẽ biến mất vào ngày mai.</p>
+  <p style="font-weight: 600">Hoặc trong Cài đặt:</p>
   <ol>
     <li>Mở Cài đặt, rồi Ứng dụng ở bên trái → Safari (không phải ContextFlow) → Tiện ích mở rộng → ContextFlow.</li>
-    <li>Trong Quyền, đặt Tất cả trang web thành Cho phép.</li>
+    <li>Trong Quyền, đặt Tất cả trang web thành Cho phép. Nếu thay vào đó bạn thấy danh sách trang web, hãy đặt từng dòng trong danh sách thành Cho phép.</li>
     <li>Quay lại Safari, tải lại trang và chạm vào ✦.</li>
   </ol>
   <p>Trong danh sách Ứng dụng, hãy chọn Safari, không phải ContextFlow: ContextFlow cũng có trong danh sách đó, nhưng trang riêng của nó không có công tắc tiện ích.</p>
-
-  <h2>Nếu Safari hỏi về một trang web</h2>
-  <p>Safari cũng có thể hỏi ngay trên trang: khi đó ContextFlow có dấu ⚠ trong menu trang trên iPhone, hoặc sau nút mảnh ghép cạnh địa chỉ trên iPad. Chọn “Luôn cho phép”. Nếu ✦ vẫn không hiện, hãy làm theo các bước trong Cài đặt ở trên.</p>
 
   <h2>Đã bật mà không thấy nút?</h2>
   <ul>

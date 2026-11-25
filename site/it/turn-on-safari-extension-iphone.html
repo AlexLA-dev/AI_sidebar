@@ -120,23 +120,29 @@
 
   <p class="lede">Hai installato un’estensione di Safari e sulla pagina non compare niente. Quasi sempre non è ancora consentita sui siti web. I passaggi sono gli stessi per qualsiasi estensione; come esempio uso ContextFlow, che sviluppo io.</p>
 
+  <!-- Safari's own question first (seen granting at once on the owner's iPad), Settings second (seen working every time
+       in the simulators): the app's own card (2.8 setup, Setup.swift safariStep) word for word, with Safari's button
+       names in each language from tests/fixtures/safari-permission-labels.json. -->
   <h2>Su iPhone</h2>
+  <p>Apri il menu della pagina nella barra degli indirizzi → ContextFlow → “Consenti sempre…” → “Consenti sempre su tutti i siti web”.</p>
+  <p class="note">Non “Consenti per un giorno”: così ✦ sparisce già domani.</p>
+  <p style="font-weight: 600">Oppure in Impostazioni:</p>
   <ol>
     <li>Apri l’app Impostazioni e vai su App → Safari (non ContextFlow) → Estensioni → ContextFlow.</li>
-    <li>In Permessi, imposta “Tutti i siti web” su “Consenti”.</li>
+    <li>In Permessi, imposta “Tutti i siti web” su “Consenti”. Se invece vedi un elenco di siti web, imposta ogni riga su “Consenti”.</li>
     <li>Torna in Safari, ricarica la pagina e tocca ✦.</li>
   </ol>
 
   <h2>Su iPad</h2>
+  <p>Tocca il pulsante con il pezzo di puzzle accanto all’indirizzo → ContextFlow → “Consenti sempre…” → “Consenti sempre su tutti i siti web”.</p>
+  <p class="note">Non “Consenti per un giorno”: così ✦ sparisce già domani.</p>
+  <p style="font-weight: 600">Oppure in Impostazioni:</p>
   <ol>
     <li>Apri Impostazioni, poi App a sinistra → Safari (non ContextFlow) → Estensioni → ContextFlow.</li>
-    <li>In Permessi, imposta “Tutti i siti web” su “Consenti”.</li>
+    <li>In Permessi, imposta “Tutti i siti web” su “Consenti”. Se invece vedi un elenco di siti web, imposta ogni riga su “Consenti”.</li>
     <li>Torna in Safari, ricarica la pagina e tocca ✦.</li>
   </ol>
   <p>Nell’elenco App scegli Safari, non ContextFlow: anche ContextFlow compare lì, ma la sua pagina non ha l’interruttore dell’estensione.</p>
-
-  <h2>Se Safari chiede il permesso per un sito</h2>
-  <p>Safari può anche chiedere su una pagina: in quel caso ContextFlow è segnato con ⚠ nel menu della pagina su iPhone, o dietro il pulsante con il pezzo di puzzle accanto all’indirizzo su iPad. Scegli «Consenti sempre». Se ✦ ancora non compare, segui i passaggi nelle Impostazioni qui sopra.</p>
 
   <h2>Attivata, ma nessun pulsante?</h2>
   <ul>

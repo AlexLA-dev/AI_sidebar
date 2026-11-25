@@ -120,23 +120,29 @@
 
   <p class="lede">Du hast eine Safari-Erweiterung installiert, und auf der Seite erscheint nichts. Fast immer ist sie auf Websites noch nicht erlaubt. Die Schritte sind für jede Erweiterung gleich; als Beispiel nehme ich ContextFlow, das ich selbst entwickle.</p>
 
+  <!-- Safari's own question first (seen granting at once on the owner's iPad), Settings second (seen working every time
+       in the simulators): the app's own card (2.8 setup, Setup.swift safariStep) word for word, with Safari's button
+       names in each language from tests/fixtures/safari-permission-labels.json. -->
   <h2>Auf dem iPhone</h2>
+  <p>Öffne in der Adressleiste das Seitenmenü → „ContextFlow“ → „Immer erlauben&#160;…“ → „Auf jeder Website immer erlauben“.</p>
+  <p class="note">Nicht „Einen Tag lang erlauben“: Damit ist ✦ morgen wieder weg.</p>
+  <p style="font-weight: 600">Oder in den Einstellungen:</p>
   <ol>
     <li>Öffne die App „Einstellungen“ und wähle „Apps“ → „Safari“ (nicht „ContextFlow“) → „Erweiterungen“ → „ContextFlow“.</li>
-    <li>Setze unter „Berechtigungen“ die Option „Alle Websites“ auf „Erlauben“.</li>
+    <li>Setze unter „Berechtigungen“ die Option „Alle Websites“ auf „Erlauben“. Siehst du dort stattdessen eine Liste von Websites, setze jede Zeile darin auf „Erlauben“.</li>
     <li>Zurück in Safari: Lade die Seite neu und tippe auf ✦.</li>
   </ol>
 
   <h2>Auf dem iPad</h2>
+  <p>Tippe neben der Adresse auf die Taste mit dem Puzzleteil → „ContextFlow“ → „Immer erlauben&#160;…“ → „Auf jeder Website immer erlauben“.</p>
+  <p class="note">Nicht „Einen Tag lang erlauben“: Damit ist ✦ morgen wieder weg.</p>
+  <p style="font-weight: 600">Oder in den Einstellungen:</p>
   <ol>
     <li>Öffne „Einstellungen“, dann links „Apps“ → „Safari“ (nicht „ContextFlow“) → „Erweiterungen“ → „ContextFlow“.</li>
-    <li>Setze unter „Berechtigungen“ die Option „Alle Websites“ auf „Erlauben“.</li>
+    <li>Setze unter „Berechtigungen“ die Option „Alle Websites“ auf „Erlauben“. Siehst du dort stattdessen eine Liste von Websites, setze jede Zeile darin auf „Erlauben“.</li>
     <li>Zurück in Safari: Lade die Seite neu und tippe auf ✦.</li>
   </ol>
   <p>Wähle in der Liste „Apps“ den Eintrag „Safari“, nicht „ContextFlow“: ContextFlow steht dort auch, aber auf seiner eigenen Seite gibt es keinen Schalter für die Erweiterung.</p>
-
-  <h2>Wenn Safari bei einer Website fragt</h2>
-  <p>Safari kann auch direkt auf einer Seite fragen: ContextFlow ist dann auf dem iPhone im Seitenmenü mit ⚠ markiert, auf dem iPad hinter der Taste mit dem Puzzleteil neben der Adresse. Wähle „Immer erlauben“. Erscheint ✦ immer noch nicht, nimm die Schritte in den Einstellungen oben.</p>
 
   <h2>Eingeschaltet, aber keine Taste?</h2>
   <ul>

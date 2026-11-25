@@ -876,8 +876,6 @@
   "da24259f939c": "Sur iPhone",
   "9d0a81e966b7": "Sur iPad",
   "6fa21dbedd8b": "Choisissez Safari dans la liste Apps, pas ContextFlow : ContextFlow y figure aussi, et sa propre page n’a pas d’interrupteur pour l’extension.",
-  "dcbf54a42129": "Si Safari pose la question pour un site",
-  "f1d6ee0e623d": "Safari peut aussi poser la question sur une page : ContextFlow est alors marqué ⚠ dans le menu de la page sur iPhone, ou derrière le bouton en forme de pièce de puzzle à côté de l’adresse sur iPad. Choisissez « Toujours autoriser ». Si ✦ n’apparaît toujours pas, suivez les étapes dans Réglages ci-dessus.",
   "eab4486f7e00": "<strong>« Tous les sites web » est encore sur « Demander ».</strong> Réglez-le sur « Autoriser » dans Réglages, comme ci-dessus, et rechargez la page.",
   "b816d048ded2": "Est-il sûr de l’autoriser sur tous les sites web ?",
   "b805da32b11a": "Ouvrez l’app Réglages et accédez à Apps → Safari (pas ContextFlow) → Extensions → ContextFlow.",
@@ -909,5 +907,12 @@
   "270760321fc9": "Sélectionnez « Sa courbe a un hic » et demandez : « C’est vrai ? »",
   "896f51d1cdab": "« Qu’ont découvert les recherches plus récentes à ce sujet ? »",
   "4ec1ebf7c590": "Pas de ✦ sur la page ? ContextFlow n’est pas encore autorisé sur les sites web.",
-  "6c05410141f9": "Choisissez « Toujours autoriser ». ContextFlow ne lit une page que lorsque vous lui posez une question."
+  "6c05410141f9": "Choisissez « Toujours autoriser ». ContextFlow ne lit une page que lorsque vous lui posez une question.",
+  "6d90d5d0fc5c": "<strong>iPhone.</strong> Ouvrez le menu de la page dans la barre d’adresse → ContextFlow → « Toujours autoriser… » → « Toujours autoriser sur chaque site web ».",
+  "94ed35173be3": "<strong>iPad.</strong> Touchez le bouton en forme de pièce de puzzle à côté de l’adresse → ContextFlow → « Toujours autoriser… » → « Toujours autoriser sur chaque site web ».",
+  "ca4ea310de90": "Pas « Autoriser pendant un jour » : avec ce choix, ✦ disparaît dès demain.",
+  "393d79f8b457": "Ouvrez le menu de la page dans la barre d’adresse → ContextFlow → « Toujours autoriser… » → « Toujours autoriser sur chaque site web ».",
+  "0b43319f282d": "Ou dans Réglages :",
+  "2c91c2a977f2": "Sous Autorisations, réglez « Tous les sites web » sur « Autoriser ». Si vous y voyez plutôt une liste de sites web, réglez chaque ligne sur « Autoriser ».",
+  "661d6fcb9cf1": "Touchez le bouton en forme de pièce de puzzle à côté de l’adresse → ContextFlow → « Toujours autoriser… » → « Toujours autoriser sur chaque site web »."
 }

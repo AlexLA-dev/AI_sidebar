@@ -876,8 +876,6 @@
   "da24259f939c": "No iPhone",
   "9d0a81e966b7": "No iPad",
   "6fa21dbedd8b": "Na lista de Apps, escolha o Safari, não o ContextFlow: o ContextFlow também aparece ali, e a página dele não tem a chave da extensão.",
-  "dcbf54a42129": "Se o Safari perguntar sobre um site",
-  "f1d6ee0e623d": "O Safari também pode perguntar em uma página: o ContextFlow fica marcado com ⚠ no menu da página no iPhone, ou no botão de peça de quebra-cabeça ao lado do endereço no iPad. Escolha “Sempre Permitir”. Se o ✦ ainda não aparecer, siga os passos nos Ajustes acima.",
   "eab4486f7e00": "<strong>“Todos os Sites” ainda está em “Perguntar”.</strong> Mude para “Permitir” nos Ajustes, como acima, e recarregue a página.",
   "b816d048ded2": "Permitir em todos os sites é seguro?",
   "b805da32b11a": "Abra o app Ajustes e acesse Apps → Safari (não o ContextFlow) → Extensões → ContextFlow.",
@@ -909,5 +907,12 @@
   "270760321fc9": "Selecione “A curva dele tem um porém” e pergunte: “Isso é verdade?”",
   "896f51d1cdab": "“O que pesquisas posteriores descobriram sobre isso?”",
   "4ec1ebf7c590": "Não aparece o ✦ na página? O ContextFlow ainda não tem permissão nos sites.",
-  "6c05410141f9": "Escolha “Sempre Permitir”. O ContextFlow só lê uma página quando você pergunta algo."
+  "6c05410141f9": "Escolha “Sempre Permitir”. O ContextFlow só lê uma página quando você pergunta algo.",
+  "6d90d5d0fc5c": "<strong>iPhone.</strong> Abra o menu da página na barra de endereço → ContextFlow → “Sempre Permitir…” → “Sempre Permitir em Todos os Sites”.",
+  "94ed35173be3": "<strong>iPad.</strong> Toque no botão de peça de quebra-cabeça ao lado do endereço → ContextFlow → “Sempre Permitir…” → “Sempre Permitir em Todos os Sites”.",
+  "ca4ea310de90": "Não “Permitir por Um Dia”: com ele, ✦ some de novo amanhã.",
+  "393d79f8b457": "Abra o menu da página na barra de endereço → ContextFlow → “Sempre Permitir…” → “Sempre Permitir em Todos os Sites”.",
+  "0b43319f282d": "Ou nos Ajustes:",
+  "2c91c2a977f2": "Em Permissões, ajuste “Todos os Sites” para “Permitir”. Se, em vez disso, aparecer uma lista de sites, ajuste cada linha para “Permitir”.",
+  "661d6fcb9cf1": "Toque no botão de peça de quebra-cabeça ao lado do endereço → ContextFlow → “Sempre Permitir…” → “Sempre Permitir em Todos os Sites”."
 }

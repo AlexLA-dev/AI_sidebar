@@ -5005,6 +5005,31 @@
   ]
  },
  {
+  "key": "6d90d5d0fc5c",
+  "kind": "html",
+  "en": "<strong>iPhone.</strong> Open the page menu in the address bar → ContextFlow → “Always Allow…” → “Always Allow on Every Website”.",
+  "pages": [
+   "support.html"
+  ]
+ },
+ {
+  "key": "94ed35173be3",
+  "kind": "html",
+  "en": "<strong>iPad.</strong> Tap the puzzle-piece button next to the address → ContextFlow → “Always Allow…” → “Always Allow on Every Website”.",
+  "pages": [
+   "support.html"
+  ]
+ },
+ {
+  "key": "ca4ea310de90",
+  "kind": "html",
+  "en": "Not “Allow for One Day”: with it, ✦ is gone again tomorrow.",
+  "pages": [
+   "support.html",
+   "turn-on-safari-extension-iphone.html"
+  ]
+ },
+ {
   "key": "0b2ae80e259d",
   "kind": "html",
   "en": "Make sure ContextFlow is allowed on websites: Settings → Apps → Safari (not ContextFlow) → Extensions → ContextFlow, All Websites set to Allow. Some pages can't be read by extensions (Safari's start page, App Store pages); open a regular website instead. Reloading the page after enabling the extension also helps.",
@@ -7377,6 +7402,22 @@
   ]
  },
  {
+  "key": "393d79f8b457",
+  "kind": "html",
+  "en": "Open the page menu in the address bar → ContextFlow → “Always Allow…” → “Always Allow on Every Website”.",
+  "pages": [
+   "turn-on-safari-extension-iphone.html"
+  ]
+ },
+ {
+  "key": "0b43319f282d",
+  "kind": "html",
+  "en": "Or in Settings:",
+  "pages": [
+   "turn-on-safari-extension-iphone.html"
+  ]
+ },
+ {
   "key": "b805da32b11a",
   "kind": "html",
   "en": "Open Settings and go to Apps → Safari (not ContextFlow) → Extensions → ContextFlow.",
@@ -7386,12 +7427,11 @@
   ]
  },
  {
-  "key": "abbe3a8e83ad",
+  "key": "2c91c2a977f2",
   "kind": "html",
-  "en": "Under Permissions, set All Websites to Allow.",
+  "en": "Under Permissions, set All Websites to Allow. If you see a list of websites there instead, set every row in it to Allow.",
   "pages": [
-   "turn-on-safari-extension-iphone.html",
-   "start.html"
+   "turn-on-safari-extension-iphone.html"
   ]
  },
  {
@@ -7412,6 +7452,14 @@
   ]
  },
  {
+  "key": "661d6fcb9cf1",
+  "kind": "html",
+  "en": "Tap the puzzle-piece button next to the address → ContextFlow → “Always Allow…” → “Always Allow on Every Website”.",
+  "pages": [
+   "turn-on-safari-extension-iphone.html"
+  ]
+ },
+ {
   "key": "9cf76ea2ed86",
   "kind": "html",
   "en": "Open Settings, then Apps on the left → Safari (not ContextFlow) → Extensions → ContextFlow.",
@@ -7424,22 +7472,6 @@
   "key": "6fa21dbedd8b",
   "kind": "html",
   "en": "Pick Safari in the Apps list, not ContextFlow: ContextFlow is listed there too, and its own page has no extension switch.",
-  "pages": [
-   "turn-on-safari-extension-iphone.html"
-  ]
- },
- {
-  "key": "dcbf54a42129",
-  "kind": "html",
-  "en": "If Safari asks about a website",
-  "pages": [
-   "turn-on-safari-extension-iphone.html"
-  ]
- },
- {
-  "key": "f1d6ee0e623d",
-  "kind": "html",
-  "en": "Safari can also ask on a page: ContextFlow is then marked ⚠ in the page menu on iPhone, or behind the puzzle-piece button next to the address on iPad. Choose Always Allow. If ✦ still doesn't show, use the Settings steps above.",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
@@ -7616,6 +7648,14 @@
   "key": "4ec1ebf7c590",
   "kind": "html",
   "en": "No ✦ on the page? ContextFlow isn't allowed on websites yet.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "abbe3a8e83ad",
+  "kind": "html",
+  "en": "Under Permissions, set All Websites to Allow.",
   "pages": [
    "start.html"
   ]

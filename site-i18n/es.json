@@ -876,8 +876,6 @@
   "da24259f939c": "En el iPhone",
   "9d0a81e966b7": "En el iPad",
   "6fa21dbedd8b": "Elige Safari en la lista de Apps, no ContextFlow: ContextFlow también aparece ahí, y su propia página no tiene el interruptor de la extensión.",
-  "dcbf54a42129": "Si Safari pregunta por un sitio web",
-  "f1d6ee0e623d": "Safari también puede preguntar en una página: entonces ContextFlow aparece marcado con ⚠ en el menú de la página en el iPhone, o tras el botón de la pieza de puzle junto a la dirección en el iPad. Elige «Permitir siempre». Si ✦ sigue sin aparecer, sigue los pasos de Ajustes de arriba.",
   "eab4486f7e00": "<strong>«Todos los sitios web» sigue en «Preguntar».</strong> Cámbialo a «Permitir» en Ajustes, como arriba, y vuelve a cargar la página.",
   "b816d048ded2": "¿Es seguro permitirlo en todos los sitios web?",
   "b805da32b11a": "Abre la app Ajustes y ve a Apps → Safari (no ContextFlow) → Extensiones → ContextFlow.",
@@ -909,5 +907,12 @@
   "270760321fc9": "Selecciona «Su curva tiene un pero» y pregunta: «¿Es cierto?»",
   "896f51d1cdab": "«¿Qué descubrieron investigaciones posteriores sobre esto?»",
   "4ec1ebf7c590": "¿No aparece ✦ en la página? ContextFlow aún no tiene permiso en los sitios web.",
-  "6c05410141f9": "Elige «Permitir siempre». ContextFlow solo lee una página cuando le preguntas algo."
+  "6c05410141f9": "Elige «Permitir siempre». ContextFlow solo lee una página cuando le preguntas algo.",
+  "6d90d5d0fc5c": "<strong>iPhone.</strong> Abre el menú de la página en la barra de direcciones → ContextFlow → “Permitir siempre…” → “Permitir siempre en todos los sitios web”.",
+  "94ed35173be3": "<strong>iPad.</strong> Toca el botón de la pieza de puzle junto a la dirección → ContextFlow → “Permitir siempre…” → “Permitir siempre en todos los sitios web”.",
+  "ca4ea310de90": "No “Permitir durante un día”: con eso, ✦ desaparece mañana.",
+  "393d79f8b457": "Abre el menú de la página en la barra de direcciones → ContextFlow → “Permitir siempre…” → “Permitir siempre en todos los sitios web”.",
+  "0b43319f282d": "O en Ajustes:",
+  "2c91c2a977f2": "En Permisos, ajusta “Todos los sitios web” en “Permitir”. Si en su lugar ves una lista de sitios web, ajusta cada fila en “Permitir”.",
+  "661d6fcb9cf1": "Toca el botón de la pieza de puzle junto a la dirección → ContextFlow → “Permitir siempre…” → “Permitir siempre en todos los sitios web”."
 }

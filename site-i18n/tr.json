@@ -876,8 +876,6 @@
   "da24259f939c": "iPhone'da",
   "9d0a81e966b7": "iPad'de",
   "6fa21dbedd8b": "Uygulamalar listesinde ContextFlow'u değil, Safari'yi seçin: ContextFlow da orada listelenir, ancak kendi sayfasında uzantı anahtarı yoktur.",
-  "dcbf54a42129": "Safari bir web sitesi için sorarsa",
-  "f1d6ee0e623d": "Safari bir sayfada da sorabilir: bu durumda ContextFlow, iPhone'da sayfa menüsünde, iPad'de adresin yanındaki yapboz parçası düğmesinin arkasında ⚠ ile işaretlenir. “Her Zaman İzin Ver”i seçin. ✦ hâlâ görünmüyorsa yukarıdaki Ayarlar adımlarını izleyin.",
   "eab4486f7e00": "<strong>“Tüm Web Siteleri” hâlâ “Sor” durumunda.</strong> Yukarıdaki gibi Ayarlar'da “İzin Ver” yapın ve sayfayı yeniden yükleyin.",
   "b816d048ded2": "Her web sitesinde izin vermek güvenli mi?",
   "b805da32b11a": "Ayarlar uygulamasını açın ve Uygulamalar → Safari (ContextFlow değil) → Uzantılar → ContextFlow bölümüne gidin.",
@@ -909,5 +907,12 @@
   "270760321fc9": "“Eğrisinin bir kusuru var” cümlesini seçin ve sorun: “Bu doğru mu?”",
   "896f51d1cdab": "“Sonraki araştırmalar bu konuda ne buldu?”",
   "4ec1ebf7c590": "Sayfada ✦ yok mu? ContextFlow’a web sitelerinde henüz izin verilmedi.",
-  "6c05410141f9": "“Her Zaman İzin Ver”i seçin. ContextFlow bir sayfayı yalnızca ona bir şey sorduğunuzda okur."
+  "6c05410141f9": "“Her Zaman İzin Ver”i seçin. ContextFlow bir sayfayı yalnızca ona bir şey sorduğunuzda okur.",
+  "6d90d5d0fc5c": "<strong>iPhone.</strong> Adres çubuğundaki sayfa menüsünü açın → ContextFlow → “Her Zaman İzin Ver…” → “Her Web Sitesinde Her Zaman İzin Ver”.",
+  "94ed35173be3": "<strong>iPad.</strong> Adresin yanındaki yapboz parçası düğmesine dokunun → ContextFlow → “Her Zaman İzin Ver…” → “Her Web Sitesinde Her Zaman İzin Ver”.",
+  "ca4ea310de90": "“Bir Gün İzin Ver” değil: onunla ✦ yarın yine kaybolur.",
+  "393d79f8b457": "Adres çubuğundaki sayfa menüsünü açın → ContextFlow → “Her Zaman İzin Ver…” → “Her Web Sitesinde Her Zaman İzin Ver”.",
+  "0b43319f282d": "Ya da Ayarlar’da:",
+  "2c91c2a977f2": "İzinler bölümünde “Tüm Web Siteleri” seçeneğini “İzin Ver” yapın. Bunun yerine bir web sitesi listesi görürseniz listedeki her satırı “İzin Ver” yapın.",
+  "661d6fcb9cf1": "Adresin yanındaki yapboz parçası düğmesine dokunun → ContextFlow → “Her Zaman İzin Ver…” → “Her Web Sitesinde Her Zaman İzin Ver”."
 }

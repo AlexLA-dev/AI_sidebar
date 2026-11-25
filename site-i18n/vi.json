@@ -876,8 +876,6 @@
   "da24259f939c": "Trên iPhone",
   "9d0a81e966b7": "Trên iPad",
   "6fa21dbedd8b": "Trong danh sách Ứng dụng, hãy chọn Safari, không phải ContextFlow: ContextFlow cũng có trong danh sách đó, nhưng trang riêng của nó không có công tắc tiện ích.",
-  "dcbf54a42129": "Nếu Safari hỏi về một trang web",
-  "f1d6ee0e623d": "Safari cũng có thể hỏi ngay trên trang: khi đó ContextFlow có dấu ⚠ trong menu trang trên iPhone, hoặc sau nút mảnh ghép cạnh địa chỉ trên iPad. Chọn “Luôn cho phép”. Nếu ✦ vẫn không hiện, hãy làm theo các bước trong Cài đặt ở trên.",
   "eab4486f7e00": "<strong>Tất cả trang web vẫn để ở Hỏi.</strong> Đặt thành Cho phép trong Cài đặt như ở trên, rồi tải lại trang.",
   "b816d048ded2": "Cho phép nó trên mọi trang web có an toàn không?",
   "b805da32b11a": "Mở ứng dụng Cài đặt và đi tới Ứng dụng → Safari (không phải ContextFlow) → Tiện ích mở rộng → ContextFlow.",
@@ -909,5 +907,12 @@
   "270760321fc9": "Bôi đen câu “Đường cong của ông có một điểm yếu” rồi hỏi: “Điều này có đúng không?”",
   "896f51d1cdab": "“Các nghiên cứu sau này phát hiện gì về chuyện này?”",
   "4ec1ebf7c590": "Không thấy ✦ trên trang? ContextFlow chưa được cho phép trên các trang web.",
-  "6c05410141f9": "Chọn “Luôn cho phép”. ContextFlow chỉ đọc một trang khi bạn hỏi nó điều gì đó."
+  "6c05410141f9": "Chọn “Luôn cho phép”. ContextFlow chỉ đọc một trang khi bạn hỏi nó điều gì đó.",
+  "6d90d5d0fc5c": "<strong>iPhone.</strong> Mở menu trang trên thanh địa chỉ → ContextFlow → “Luôn Cho phép…” → “Luôn luôn cho phép trên mọi trang web”.",
+  "94ed35173be3": "<strong>iPad.</strong> Chạm vào nút mảnh ghép cạnh địa chỉ → ContextFlow → “Luôn Cho phép…” → “Luôn luôn cho phép trên mọi trang web”.",
+  "ca4ea310de90": "Đừng chọn “Cho phép trong một ngày”: như vậy ✦ sẽ biến mất vào ngày mai.",
+  "393d79f8b457": "Mở menu trang trên thanh địa chỉ → ContextFlow → “Luôn Cho phép…” → “Luôn luôn cho phép trên mọi trang web”.",
+  "0b43319f282d": "Hoặc trong Cài đặt:",
+  "2c91c2a977f2": "Trong Quyền, đặt Tất cả trang web thành Cho phép. Nếu thay vào đó bạn thấy danh sách trang web, hãy đặt từng dòng trong danh sách thành Cho phép.",
+  "661d6fcb9cf1": "Chạm vào nút mảnh ghép cạnh địa chỉ → ContextFlow → “Luôn Cho phép…” → “Luôn luôn cho phép trên mọi trang web”."
 }

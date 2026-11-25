@@ -120,23 +120,29 @@
 
   <p class="lede">你安裝了一個 Safari 延伸功能，頁面上卻什麼都沒出現。幾乎都是因為它還沒有獲准在網站上執行。任何延伸功能的步驟都一樣；這裡用我做的 ContextFlow 當例子。</p>
 
+  <!-- Safari's own question first (seen granting at once on the owner's iPad), Settings second (seen working every time
+       in the simulators): the app's own card (2.8 setup, Setup.swift safariStep) word for word, with Safari's button
+       names in each language from tests/fixtures/safari-permission-labels.json. -->
   <h2>在 iPhone 上</h2>
+  <p>打開網址列中的頁面選單 →「ContextFlow」→「永遠允許⋯」→「一律在每個網站允許」。</p>
+  <p class="note">不要選「允許一天」：這樣明天 ✦ 又會消失。</p>
+  <p style="font-weight: 600">或在「設定」中：</p>
   <ol>
     <li>打開「設定」App，然後前往「App」→「Safari」（不是 ContextFlow）→「延伸功能」→「ContextFlow」。</li>
-    <li>在「權限」下方，將「所有網站」設為「允許」。</li>
+    <li>在「權限」下方，將「所有網站」設為「允許」。如果那裡顯示的是網站列表，請將列表中的每一列都設為「允許」。</li>
     <li>回到 Safari，重新載入頁面，然後點一下 ✦。</li>
   </ol>
 
   <h2>在 iPad 上</h2>
+  <p>點一下網址旁的拼圖按鈕 →「ContextFlow」→「永遠允許⋯」→「一律在每個網站允許」。</p>
+  <p class="note">不要選「允許一天」：這樣明天 ✦ 又會消失。</p>
+  <p style="font-weight: 600">或在「設定」中：</p>
   <ol>
     <li>打開「設定」，然後前往左側的「App」→「Safari」（不是 ContextFlow）→「延伸功能」→「ContextFlow」。</li>
-    <li>在「權限」下方，將「所有網站」設為「允許」。</li>
+    <li>在「權限」下方，將「所有網站」設為「允許」。如果那裡顯示的是網站列表，請將列表中的每一列都設為「允許」。</li>
     <li>回到 Safari，重新載入頁面，然後點一下 ✦。</li>
   </ol>
   <p>在「App」列表中選擇「Safari」，不要選 ContextFlow：ContextFlow 也在這個列表裡，但它自己的頁面上沒有延伸功能開關。</p>
-
-  <h2>如果 Safari 詢問某個網站</h2>
-  <p>Safari 也可能在頁面上詢問：這時 ContextFlow 會帶有 ⚠ 標記，在 iPhone 上在頁面選單裡，在 iPad 上在網址旁的拼圖按鈕裡。選擇「永遠允許」。如果 ✦ 還是沒出現，請依照上面的「設定」步驟操作。</p>
 
   <h2>已開啟，卻沒有按鈕？</h2>
   <ul>

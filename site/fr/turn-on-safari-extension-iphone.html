@@ -120,23 +120,29 @@
 
   <p class="lede">Vous avez installé une extension Safari et rien n’apparaît sur la page. Presque toujours, elle n’est pas encore autorisée sur les sites web. Les étapes sont les mêmes pour toutes les extensions&#160;; je prends pour exemple ContextFlow, que je développe.</p>
 
+  <!-- Safari's own question first (seen granting at once on the owner's iPad), Settings second (seen working every time
+       in the simulators): the app's own card (2.8 setup, Setup.swift safariStep) word for word, with Safari's button
+       names in each language from tests/fixtures/safari-permission-labels.json. -->
   <h2>Sur iPhone</h2>
+  <p>Ouvrez le menu de la page dans la barre d’adresse → ContextFlow → « Toujours autoriser… » → « Toujours autoriser sur chaque site web ».</p>
+  <p class="note">Pas « Autoriser pendant un jour » : avec ce choix, ✦ disparaît dès demain.</p>
+  <p style="font-weight: 600">Ou dans Réglages :</p>
   <ol>
     <li>Ouvrez l’app Réglages et accédez à Apps → Safari (pas ContextFlow) → Extensions → ContextFlow.</li>
-    <li>Sous Autorisations, réglez «&#160;Tous les sites web&#160;» sur «&#160;Autoriser&#160;».</li>
+    <li>Sous Autorisations, réglez «&#160;Tous les sites web&#160;» sur «&#160;Autoriser&#160;». Si vous y voyez plutôt une liste de sites web, réglez chaque ligne sur « Autoriser ».</li>
     <li>De retour dans Safari, rechargez la page et touchez ✦.</li>
   </ol>
 
   <h2>Sur iPad</h2>
+  <p>Touchez le bouton en forme de pièce de puzzle à côté de l’adresse → ContextFlow → « Toujours autoriser… » → « Toujours autoriser sur chaque site web ».</p>
+  <p class="note">Pas « Autoriser pendant un jour » : avec ce choix, ✦ disparaît dès demain.</p>
+  <p style="font-weight: 600">Ou dans Réglages :</p>
   <ol>
     <li>Ouvrez Réglages, puis Apps à gauche → Safari (pas ContextFlow) → Extensions → ContextFlow.</li>
-    <li>Sous Autorisations, réglez «&#160;Tous les sites web&#160;» sur «&#160;Autoriser&#160;».</li>
+    <li>Sous Autorisations, réglez «&#160;Tous les sites web&#160;» sur «&#160;Autoriser&#160;». Si vous y voyez plutôt une liste de sites web, réglez chaque ligne sur « Autoriser ».</li>
     <li>De retour dans Safari, rechargez la page et touchez ✦.</li>
   </ol>
   <p>Choisissez Safari dans la liste Apps, pas ContextFlow&#160;: ContextFlow y figure aussi, et sa propre page n’a pas d’interrupteur pour l’extension.</p>
-
-  <h2>Si Safari pose la question pour un site</h2>
-  <p>Safari peut aussi poser la question sur une page&#160;: ContextFlow est alors marqué ⚠ dans le menu de la page sur iPhone, ou derrière le bouton en forme de pièce de puzzle à côté de l’adresse sur iPad. Choisissez «&#160;Toujours autoriser&#160;». Si ✦ n’apparaît toujours pas, suivez les étapes dans Réglages ci-dessus.</p>
 
   <h2>Activée, mais pas de bouton&#160;?</h2>
   <ul>

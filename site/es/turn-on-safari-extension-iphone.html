@@ -120,23 +120,29 @@
 
   <p class="lede">Instalaste una extensión de Safari y no aparece nada en la página. Casi siempre es porque aún no tiene permiso en los sitios web. Los pasos son los mismos para cualquier extensión; uso como ejemplo ContextFlow, que hago yo.</p>
 
+  <!-- Safari's own question first (seen granting at once on the owner's iPad), Settings second (seen working every time
+       in the simulators): the app's own card (2.8 setup, Setup.swift safariStep) word for word, with Safari's button
+       names in each language from tests/fixtures/safari-permission-labels.json. -->
   <h2>En el iPhone</h2>
+  <p>Abre el menú de la página en la barra de direcciones → ContextFlow → “Permitir siempre…” → “Permitir siempre en todos los sitios web”.</p>
+  <p class="note">No “Permitir durante un día”: con eso, ✦ desaparece mañana.</p>
+  <p style="font-weight: 600">O en Ajustes:</p>
   <ol>
     <li>Abre la app Ajustes y ve a Apps → Safari (no ContextFlow) → Extensiones → ContextFlow.</li>
-    <li>En Permisos, ajusta “Todos los sitios web” en “Permitir”.</li>
+    <li>En Permisos, ajusta “Todos los sitios web” en “Permitir”. Si en su lugar ves una lista de sitios web, ajusta cada fila en “Permitir”.</li>
     <li>Vuelve a Safari, recarga la página y toca ✦.</li>
   </ol>
 
   <h2>En el iPad</h2>
+  <p>Toca el botón de la pieza de puzle junto a la dirección → ContextFlow → “Permitir siempre…” → “Permitir siempre en todos los sitios web”.</p>
+  <p class="note">No “Permitir durante un día”: con eso, ✦ desaparece mañana.</p>
+  <p style="font-weight: 600">O en Ajustes:</p>
   <ol>
     <li>Abre Ajustes y luego Apps a la izquierda → Safari (no ContextFlow) → Extensiones → ContextFlow.</li>
-    <li>En Permisos, ajusta “Todos los sitios web” en “Permitir”.</li>
+    <li>En Permisos, ajusta “Todos los sitios web” en “Permitir”. Si en su lugar ves una lista de sitios web, ajusta cada fila en “Permitir”.</li>
     <li>Vuelve a Safari, recarga la página y toca ✦.</li>
   </ol>
   <p>Elige Safari en la lista de Apps, no ContextFlow: ContextFlow también aparece ahí, y su propia página no tiene el interruptor de la extensión.</p>
-
-  <h2>Si Safari pregunta por un sitio web</h2>
-  <p>Safari también puede preguntar en una página: entonces ContextFlow aparece marcado con ⚠ en el menú de la página en el iPhone, o tras el botón de la pieza de puzle junto a la dirección en el iPad. Elige «Permitir siempre». Si ✦ sigue sin aparecer, sigue los pasos de Ajustes de arriba.</p>
 
   <h2>¿Activada, pero sin botón?</h2>
   <ul>

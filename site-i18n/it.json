@@ -876,8 +876,6 @@
   "da24259f939c": "Su iPhone",
   "9d0a81e966b7": "Su iPad",
   "6fa21dbedd8b": "Nell’elenco App scegli Safari, non ContextFlow: anche ContextFlow compare lì, ma la sua pagina non ha l’interruttore dell’estensione.",
-  "dcbf54a42129": "Se Safari chiede il permesso per un sito",
-  "f1d6ee0e623d": "Safari può anche chiedere su una pagina: in quel caso ContextFlow è segnato con ⚠ nel menu della pagina su iPhone, o dietro il pulsante con il pezzo di puzzle accanto all’indirizzo su iPad. Scegli «Consenti sempre». Se ✦ ancora non compare, segui i passaggi nelle Impostazioni qui sopra.",
   "eab4486f7e00": "<strong>«Tutti i siti web» è ancora su «Chiedi».</strong> Impostalo su «Consenti» nelle Impostazioni, come sopra, e ricarica la pagina.",
   "b816d048ded2": "Consentirlo su tutti i siti web è sicuro?",
   "b805da32b11a": "Apri l’app Impostazioni e vai su App → Safari (non ContextFlow) → Estensioni → ContextFlow.",
@@ -909,5 +907,12 @@
   "270760321fc9": "Seleziona «La sua curva ha un punto debole» e chiedi: «È vero?»",
   "896f51d1cdab": "«Cosa hanno scoperto le ricerche successive su questo?»",
   "4ec1ebf7c590": "Nessun ✦ sulla pagina? ContextFlow non è ancora consentito sui siti web.",
-  "6c05410141f9": "Scegli «Consenti sempre». ContextFlow legge una pagina solo quando gli chiedi qualcosa."
+  "6c05410141f9": "Scegli «Consenti sempre». ContextFlow legge una pagina solo quando gli chiedi qualcosa.",
+  "6d90d5d0fc5c": "<strong>iPhone.</strong> Apri il menu della pagina nella barra degli indirizzi → ContextFlow → “Consenti sempre…” → “Consenti sempre su tutti i siti web”.",
+  "94ed35173be3": "<strong>iPad.</strong> Tocca il pulsante con il pezzo di puzzle accanto all’indirizzo → ContextFlow → “Consenti sempre…” → “Consenti sempre su tutti i siti web”.",
+  "ca4ea310de90": "Non “Consenti per un giorno”: così ✦ sparisce già domani.",
+  "393d79f8b457": "Apri il menu della pagina nella barra degli indirizzi → ContextFlow → “Consenti sempre…” → “Consenti sempre su tutti i siti web”.",
+  "0b43319f282d": "Oppure in Impostazioni:",
+  "2c91c2a977f2": "In Permessi, imposta “Tutti i siti web” su “Consenti”. Se invece vedi un elenco di siti web, imposta ogni riga su “Consenti”.",
+  "661d6fcb9cf1": "Tocca il pulsante con il pezzo di puzzle accanto all’indirizzo → ContextFlow → “Consenti sempre…” → “Consenti sempre su tutti i siti web”."
 }

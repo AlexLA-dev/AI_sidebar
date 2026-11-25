@@ -120,23 +120,29 @@
 
   <p class="lede">Safariの機能拡張をインストールしたのに、ページに何も表示されない。ほとんどの場合、まだWebサイトで許可されていないのが原因です。手順はどの機能拡張でも同じです。ここでは私が作っているContextFlowを例にします。</p>
 
+  <!-- Safari's own question first (seen granting at once on the owner's iPad), Settings second (seen working every time
+       in the simulators): the app's own card (2.8 setup, Setup.swift safariStep) word for word, with Safari's button
+       names in each language from tests/fixtures/safari-permission-labels.json. -->
   <h2>iPhoneの場合</h2>
+  <p>アドレスバーのページメニュー →「ContextFlow」→「常に許可…」→「すべてのWebサイトで常に許可」の順にタップします。</p>
+  <p class="note">「1日だけ許可」は選ばないでください。翌日には✦が消えてしまいます。</p>
+  <p style="font-weight: 600">または「設定」で：</p>
   <ol>
     <li>「設定」アプリを開き、「アプリ」→「Safari」（ContextFlowではなく）→「機能拡張」→「ContextFlow」と進みます。</li>
-    <li>「アクセス権」で「すべてのWebサイト」を「許可」に設定します。</li>
+    <li>「アクセス権」で「すべてのWebサイト」を「許可」に設定します。代わりにWebサイトの一覧が表示されている場合は、一覧のすべての行を「許可」に設定します。</li>
     <li>Safariに戻り、ページを再読み込みして✦をタップします。</li>
   </ol>
 
   <h2>iPadの場合</h2>
+  <p>アドレスの横にあるパズルピースのボタン →「ContextFlow」→「常に許可…」→「すべてのWebサイトで常に許可」の順にタップします。</p>
+  <p class="note">「1日だけ許可」は選ばないでください。翌日には✦が消えてしまいます。</p>
+  <p style="font-weight: 600">または「設定」で：</p>
   <ol>
     <li>「設定」を開き、左側の「アプリ」→「Safari」（ContextFlowではなく）→「機能拡張」→「ContextFlow」と進みます。</li>
-    <li>「アクセス権」で「すべてのWebサイト」を「許可」に設定します。</li>
+    <li>「アクセス権」で「すべてのWebサイト」を「許可」に設定します。代わりにWebサイトの一覧が表示されている場合は、一覧のすべての行を「許可」に設定します。</li>
     <li>Safariに戻り、ページを再読み込みして✦をタップします。</li>
   </ol>
   <p>「アプリ」の一覧では、ContextFlowではなく「Safari」を選んでください。ContextFlowも一覧にありますが、そのページには機能拡張のスイッチがありません。</p>
-
-  <h2>SafariにWebサイトについて確認されたら</h2>
-  <p>Safariがページ上で確認してくることもあります。その場合、iPhoneではページメニュー、iPadではアドレスの横にあるパズルピースのボタンの中で、ContextFlowに⚠が付いています。「常に許可」を選んでください。それでも✦が表示されない場合は、上の「設定」の手順に従ってください。</p>
 
   <h2>オンにしたのにボタンがない？</h2>
   <ul>

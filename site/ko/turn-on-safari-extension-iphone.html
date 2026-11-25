@@ -120,23 +120,29 @@
 
   <p class="lede">Safari 확장 프로그램을 설치했는데 페이지에 아무것도 안 보여요. 거의 항상 아직 웹 사이트에서 허용되지 않았기 때문이에요. 단계는 어떤 확장 프로그램이든 같아요. 제가 만드는 ContextFlow를 예로 들게요.</p>
 
+  <!-- Safari's own question first (seen granting at once on the owner's iPad), Settings second (seen working every time
+       in the simulators): the app's own card (2.8 setup, Setup.swift safariStep) word for word, with Safari's button
+       names in each language from tests/fixtures/safari-permission-labels.json. -->
   <h2>iPhone에서</h2>
+  <p>주소 막대의 페이지 메뉴 → ContextFlow → '항상 허용…' → '모든 웹사이트에서 항상 허용' 순서로 탭하세요.</p>
+  <p class="note">'1일 동안 허용'은 고르지 마세요. 내일이면 ✦가 다시 사라져요.</p>
+  <p style="font-weight: 600">또는 설정에서:</p>
   <ol>
     <li>설정 앱을 열고 앱 → Safari(ContextFlow 아님) → 확장 프로그램 → ContextFlow로 이동하세요.</li>
-    <li>권한에서 '모든 웹 사이트'를 '허용'으로 설정하세요.</li>
+    <li>권한에서 '모든 웹 사이트'를 '허용'으로 설정하세요. 대신 웹 사이트 목록이 보이면 목록의 모든 항목을 '허용'으로 설정하세요.</li>
     <li>Safari로 돌아가 페이지를 새로고침하고 ✦를 탭하세요.</li>
   </ol>
 
   <h2>iPad에서</h2>
+  <p>주소 옆의 퍼즐 조각 버튼 → ContextFlow → '항상 허용…' → '모든 웹사이트에서 항상 허용' 순서로 탭하세요.</p>
+  <p class="note">'1일 동안 허용'은 고르지 마세요. 내일이면 ✦가 다시 사라져요.</p>
+  <p style="font-weight: 600">또는 설정에서:</p>
   <ol>
     <li>설정을 열고 왼쪽의 앱 → Safari(ContextFlow 아님) → 확장 프로그램 → ContextFlow로 이동하세요.</li>
-    <li>권한에서 '모든 웹 사이트'를 '허용'으로 설정하세요.</li>
+    <li>권한에서 '모든 웹 사이트'를 '허용'으로 설정하세요. 대신 웹 사이트 목록이 보이면 목록의 모든 항목을 '허용'으로 설정하세요.</li>
     <li>Safari로 돌아가 페이지를 새로고침하고 ✦를 탭하세요.</li>
   </ol>
   <p>앱 목록에서 ContextFlow가 아니라 Safari를 선택하세요. ContextFlow도 목록에 있지만, 그 페이지에는 확장 프로그램 스위치가 없어요.</p>
-
-  <h2>Safari가 웹 사이트에 대해 물을 때</h2>
-  <p>Safari가 페이지에서 직접 물을 수도 있어요. 이때 ContextFlow에는 iPhone에서는 페이지 메뉴에서, iPad에서는 주소 옆의 퍼즐 조각 버튼 안에서 ⚠ 표시가 붙어 있어요. ‘항상 허용’을 선택하세요. 그래도 ✦가 안 보이면 위의 설정 단계를 따르세요.</p>
 
   <h2>켰는데 버튼이 없나요?</h2>
   <ul>

@@ -120,23 +120,29 @@
 
   <p class="lede">You installed a Safari extension and nothing shows on the page. Almost always it isn't allowed on websites yet. The steps are the same for any extension; I use ContextFlow, which I make, as the example.</p>
 
+  <!-- Safari's own question first (seen granting at once on the owner's iPad), Settings second (seen working every time
+       in the simulators): the app's own card (2.8 setup, Setup.swift safariStep) word for word, with Safari's button
+       names in each language from tests/fixtures/safari-permission-labels.json. -->
   <h2>On iPhone</h2>
+  <p>Open the page menu in the address bar → ContextFlow → “Always Allow…” → “Always Allow on Every Website”.</p>
+  <p class="note">Not “Allow for One Day”: with it, ✦ is gone again tomorrow.</p>
+  <p style="font-weight: 600">Or in Settings:</p>
   <ol>
     <li>Open Settings and go to Apps → Safari (not ContextFlow) → Extensions → ContextFlow.</li>
-    <li>Under Permissions, set All Websites to Allow.</li>
+    <li>Under Permissions, set All Websites to Allow. If you see a list of websites there instead, set every row in it to Allow.</li>
     <li>Back in Safari, reload the page and tap ✦.</li>
   </ol>
 
   <h2>On iPad</h2>
+  <p>Tap the puzzle-piece button next to the address → ContextFlow → “Always Allow…” → “Always Allow on Every Website”.</p>
+  <p class="note">Not “Allow for One Day”: with it, ✦ is gone again tomorrow.</p>
+  <p style="font-weight: 600">Or in Settings:</p>
   <ol>
     <li>Open Settings, then Apps on the left → Safari (not ContextFlow) → Extensions → ContextFlow.</li>
-    <li>Under Permissions, set All Websites to Allow.</li>
+    <li>Under Permissions, set All Websites to Allow. If you see a list of websites there instead, set every row in it to Allow.</li>
     <li>Back in Safari, reload the page and tap ✦.</li>
   </ol>
   <p>Pick Safari in the Apps list, not ContextFlow: ContextFlow is listed there too, and its own page has no extension switch.</p>
-
-  <h2>If Safari asks about a website</h2>
-  <p>Safari can also ask on a page: ContextFlow is then marked ⚠ in the page menu on iPhone, or behind the puzzle-piece button next to the address on iPad. Choose Always Allow. If ✦ still doesn't show, use the Settings steps above.</p>
 
   <h2>Turned on, but no button?</h2>
   <ul>
