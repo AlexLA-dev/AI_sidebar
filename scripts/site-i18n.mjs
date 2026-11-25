@@ -52,7 +52,9 @@ export const TRANSLATED = LANGUAGES.slice(1)
 export const PAGES = [
   "index.html", "features.html", "cases.html", "cases/replies-and-forms.html", "cases/studying.html", "cases/shopping.html",
   "cases/planning.html", "safari-ai-extension-iphone.html", "notes-while-reading-safari.html", "safari-summary-vs-chatgpt.html",
-  "support.html", "translate-web-page-safari-iphone.html", "proofread-safari-iphone.html", "start.html"
+  "support.html", "translate-web-page-safari-iphone.html", "proofread-safari-iphone.html",
+  "find-cheaper-similar-product-safari-iphone.html", "ask-ai-about-web-page-safari.html", "contextflow-vs-zeki-surfmind.html",
+  "turn-on-safari-extension-iphone.html", "start.html"
 ]
 /** In every language but never in the sitemap (noindex): the first page the app's «Open Safari» button opens (2.8). */
 export const UNLISTED = ["start.html"]
