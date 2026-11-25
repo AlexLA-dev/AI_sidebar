@@ -144,6 +144,7 @@ test("the panel: the code only on return everywhere it shows; full price noted; 
   assert.match(app, /offerOn=\{settings\.offerNotify\}/)
   // The tap's mark opens the panel on the discount, counted.
   assert.match(app, /if \(!takeOfferMark\(\)\) return\s*void sendBackground\(\{ type: "useEvent", f: "notif", a: "panel", what: "offer" \}\)/)
+  assert.match(app, /what: "offer" \}\)[\s\S]{0,300}setView\("chat"\)[\s\S]{0,120}if \(limitUpRef\.current\) return/)
   // The limit card says which state it was shown in.
   assert.match(read("src/content/ux/LimitCard.tsx"), /onEvent\("shown", LIMIT_BUY, undefined, offer \? "discount" : "full"\)/)
   // Off by default; the opt-out in Settings, for free people.

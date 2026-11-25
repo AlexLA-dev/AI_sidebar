@@ -1331,5 +1331,6 @@
   "answersBackOfferAsk": "M’informer aussi d’une réduction sur Pro dans ce rappel",
   "answersBackOfferBody": "Vos {0} réponses gratuites sont de retour. Et si vous en voulez plus, le premier mois de Pro est à −{1} %.",
   "setOfferNotify": "Réductions Pro dans les rappels",
-  "setOfferNotifyHint": "Seulement dans le rappel que vous programmez quand vos réponses gratuites sont épuisées. Désactivé tant que vous ne l’activez pas."
+  "setOfferNotifyHint": "Seulement dans le rappel que vous programmez quand vos réponses gratuites sont épuisées. Désactivé tant que vous ne l’activez pas.",
+  "limitCardBackNow": "Vos réponses gratuites sont de retour."
 }

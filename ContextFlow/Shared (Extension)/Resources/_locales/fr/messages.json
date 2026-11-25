@@ -3902,6 +3902,9 @@
  "setOfferNotifyHint": {
   "message": "Seulement dans le rappel que vous programmez quand vos réponses gratuites sont épuisées. Désactivé tant que vous ne l’activez pas."
  },
+ "limitCardBackNow": {
+  "message": "Vos réponses gratuites sont de retour."
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

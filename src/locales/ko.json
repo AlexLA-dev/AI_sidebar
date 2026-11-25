@@ -1331,5 +1331,6 @@
   "answersBackOfferAsk": "이 알림에서 Pro 할인도 알려 주기",
   "answersBackOfferBody": "무료 답변 {0}개가 돌아왔어요. 더 필요하다면 Pro 첫 달이 {1}% 할인이에요.",
   "setOfferNotify": "알림에서 Pro 할인 알려 주기",
-  "setOfferNotifyHint": "무료 답변을 다 썼을 때 설정하는 알림 하나에만 해당돼요. 켜기 전까지는 꺼져 있어요."
+  "setOfferNotifyHint": "무료 답변을 다 썼을 때 설정하는 알림 하나에만 해당돼요. 켜기 전까지는 꺼져 있어요.",
+  "limitCardBackNow": "무료 답변이 돌아왔어요."
 }

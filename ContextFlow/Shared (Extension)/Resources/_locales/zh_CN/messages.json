@@ -3902,6 +3902,9 @@
  "setOfferNotifyHint": {
   "message": "仅限免费回答用完时你设置的那一条提醒。在你开启之前保持关闭。"
  },
+ "limitCardBackNow": {
+  "message": "免费回答已恢复。"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

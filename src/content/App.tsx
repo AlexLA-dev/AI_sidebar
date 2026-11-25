@@ -2642,6 +2642,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [fullAt, setFullAt] = useState<number | null | undefined>(undefined)
   useEffect(() => void loadFullAt().then(setFullAt), [])
   const offerCardAsked = useRef(false)
+  // Whether the limit card is up (the discount notification's tap then needs no «once more»).
+  const limitUpRef = useRef(false)
+  limitUpRef.current = error?.code === "LIMIT_REACHED"
   useEffect(() => {
     if (TARGET !== "safari" || !open || offerCardAsked.current || !status || fullAt === undefined) return
     if (!isReturn(status.limitedBefore, fullAt) || !status.offer || status.plan !== "free" || status.hasOwnKey) return
@@ -3274,10 +3277,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const take = () => {
       if (!takeOfferMark()) return
       void sendBackground({ type: "useEvent", f: "notif", a: "panel", what: "offer" })
+      // The chat, wherever the panel was left (Settings, the list): the discount is there. The limit card still up is
+      // itself in its discount state now; else «once more» shows it.
+      setView("chat")
+      if (!openNowRef.current) show()
+      if (limitUpRef.current) return
       offerCardAsked.current = true
       setOfferCard(true)
       void sendBackground({ type: "useEvent", f: "chat_plans", a: "shown", via: "return", state: "discount" })
-      if (!openNowRef.current) show()
     }
     take()
     window.addEventListener("hashchange", take)
@@ -5650,7 +5657,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         title={long ? t("limitLongTitle") : t("limitCardTitle")}
                         body={<>
                           {long && `${t("limitLongBody", error.weight!, left)} `}
-                          {resetsAt ? answersBackShort(clockTime(resetsAt), timeUntil(resetsAt)) : ""}
+                          {/* Past the reset (the card kept, Retry there): they're back, not «in 1 min». */}
+                          {resetsAt ? (Date.parse(resetsAt) > Date.now() ? answersBackShort(clockTime(resetsAt), timeUntil(resetsAt)) : t("limitCardBackNow")) : ""}
                         </>}
                         offer={offer ? { code: offer.code, discount: offer.discount } : null}
                         remind={TARGET === "safari" && resetsAt

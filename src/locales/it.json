@@ -1331,5 +1331,6 @@
   "answersBackOfferAsk": "Avvisami in questo promemoria anche di uno sconto su Pro",
   "answersBackOfferBody": "Le tue {0} risposte gratuite sono tornate. E se ne vuoi di più, il primo mese di Pro è scontato del {1}%.",
   "setOfferNotify": "Sconti su Pro nei promemoria",
-  "setOfferNotifyHint": "Solo nel promemoria che imposti quando finiscono le risposte gratuite. Disattivato finché non lo attivi."
+  "setOfferNotifyHint": "Solo nel promemoria che imposti quando finiscono le risposte gratuite. Disattivato finché non lo attivi.",
+  "limitCardBackNow": "Le risposte gratuite sono tornate."
 }

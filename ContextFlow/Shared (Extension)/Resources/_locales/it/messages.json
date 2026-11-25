@@ -3902,6 +3902,9 @@
  "setOfferNotifyHint": {
   "message": "Solo nel promemoria che imposti quando finiscono le risposte gratuite. Disattivato finché non lo attivi."
  },
+ "limitCardBackNow": {
+  "message": "Le risposte gratuite sono tornate."
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },

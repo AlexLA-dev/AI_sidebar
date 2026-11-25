@@ -3902,6 +3902,9 @@
  "setOfferNotifyHint": {
   "message": "Chỉ trong lời nhắc bạn đặt khi hết câu trả lời miễn phí. Tắt cho đến khi bạn bật."
  },
+ "limitCardBackNow": {
+  "message": "Câu trả lời miễn phí đã quay lại."
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

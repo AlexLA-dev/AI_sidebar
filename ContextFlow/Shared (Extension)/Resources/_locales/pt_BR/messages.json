@@ -3902,6 +3902,9 @@
  "setOfferNotifyHint": {
   "message": "Só no lembrete que você define quando as respostas grátis acabam. Desligado até você ligar."
  },
+ "limitCardBackNow": {
+  "message": "Suas respostas grátis voltaram."
+ },
  "tip_4cf1b54b00": {
   "message": "Dicas"
  },

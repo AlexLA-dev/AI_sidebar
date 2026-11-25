@@ -1331,5 +1331,6 @@
   "answersBackOfferAsk": "Trong lời nhắc này, báo cả ưu đãi giảm giá Pro",
   "answersBackOfferBody": "{0} câu trả lời miễn phí đã quay lại. Nếu bạn cần nhiều hơn, tháng đầu Pro được giảm {1}%.",
   "setOfferNotify": "Giảm giá Pro trong lời nhắc",
-  "setOfferNotifyHint": "Chỉ trong lời nhắc bạn đặt khi hết câu trả lời miễn phí. Tắt cho đến khi bạn bật."
+  "setOfferNotifyHint": "Chỉ trong lời nhắc bạn đặt khi hết câu trả lời miễn phí. Tắt cho đến khi bạn bật.",
+  "limitCardBackNow": "Câu trả lời miễn phí đã quay lại."
 }

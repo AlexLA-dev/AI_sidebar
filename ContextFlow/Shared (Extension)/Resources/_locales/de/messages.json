@@ -3902,6 +3902,9 @@
  "setOfferNotifyHint": {
   "message": "Nur in der einen Erinnerung, die du stellst, wenn deine Gratis-Antworten aufgebraucht sind. Aus, bis du es einschaltest."
  },
+ "limitCardBackNow": {
+  "message": "Deine Gratis-Antworten sind wieder da."
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },
