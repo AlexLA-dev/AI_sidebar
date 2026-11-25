@@ -1325,5 +1325,7 @@
   "moreOwnKey": "API 키가 있으신가요?",
   "moreOwnKeyLink": "내 키 사용",
   "limitProLine": "주당 최대 {0}개 답변",
-  "limitCancel": "App Store에서 언제든 해지할 수 있어요."
+  "limitCancel": "App Store에서 언제든 해지할 수 있어요.",
+  "limitCardTitle": "무료 답변을 모두 사용했어요",
+  "limitCardBack": "{0}({1} 후)에 다시 제공돼요."
 }

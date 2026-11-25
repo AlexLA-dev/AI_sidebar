@@ -3842,20 +3842,11 @@
  "offerByCode": {
   "message": "İndirim App Store'da bir kodla uygulanır."
  },
- "limitOfferLine": {
-  "message": "İlk ay %{0} indirimli"
- },
  "limitBuyOffer": {
   "message": "Pro'ya geç: ilk ay %{0} indirimli"
  },
  "limitBuyPrice": {
   "message": "Pro'ya geç: aylık {0}"
- },
- "limitThen": {
-  "message": "Sonrasında aylık {0}."
- },
- "limitRenews": {
-  "message": "Her ay yenilenir. İstediğiniz zaman App Store'dan iptal edebilirsiniz."
  },
  "answersBackAt": {
   "message": "Yanıtlar dönünce hatırlat ({0})"
@@ -3886,6 +3877,18 @@
  },
  "moreOwnKeyLink": {
   "message": "Kendi anahtarımı kullan"
+ },
+ "limitProLine": {
+  "message": "Haftada en fazla {0} yanıt"
+ },
+ "limitCancel": {
+  "message": "İstediğiniz zaman App Store'dan iptal edebilirsiniz."
+ },
+ "limitCardTitle": {
+  "message": "Ücretsiz yanıtlarınız bitti"
+ },
+ "limitCardBack": {
+  "message": "{1} sonra yenilenir (saat {0})."
  },
  "tip_4cf1b54b00": {
   "message": "İpuçları"

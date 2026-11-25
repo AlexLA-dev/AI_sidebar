@@ -1312,7 +1312,7 @@
   "answersBackInApp": "Impostalo nell’app ContextFlow",
   "hoursMinutes": "{0} h {1} min",
   "offerByCode": "Si applica con un codice nell’App Store.",
-  "limitBuyOffer": "Passa a Pro: primo mese scontato del {0}%",
+  "limitBuyOffer": "Passa a Pro: primo mese −{0}%",
   "limitBuyPrice": "Passa a Pro a {0} al mese",
   "answersBackAt": "Avvisami quando tornano ({0})",
   "limitMore": "Altro",
@@ -1325,5 +1325,7 @@
   "moreOwnKey": "Hai una chiave API?",
   "moreOwnKeyLink": "Usa la mia",
   "limitProLine": "Fino a {0} risposte a settimana",
-  "limitCancel": "Puoi annullare quando vuoi nell’App Store."
+  "limitCancel": "Puoi annullare quando vuoi nell’App Store.",
+  "limitCardTitle": "Risposte gratuite esaurite",
+  "limitCardBack": "Tornano tra {1} ({0})."
 }

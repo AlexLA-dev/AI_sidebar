@@ -3842,20 +3842,11 @@
  "offerByCode": {
   "message": "يُطبَّق الخصم برمز في App Store."
  },
- "limitOfferLine": {
-  "message": "الشهر الأول بخصم {0}%"
- },
  "limitBuyOffer": {
   "message": "اشترك في Pro: الشهر الأول بخصم {0}%"
  },
  "limitBuyPrice": {
   "message": "اشترك في Pro مقابل {0} شهريًا"
- },
- "limitThen": {
-  "message": "ثم {0} شهريًا."
- },
- "limitRenews": {
-  "message": "يتجدد شهريًا. يمكنك الإلغاء في أي وقت من App Store."
  },
  "answersBackAt": {
   "message": "ذكّرني الساعة {0}"
@@ -3886,6 +3877,18 @@
  },
  "moreOwnKeyLink": {
   "message": "استخدم مفتاحي"
+ },
+ "limitProLine": {
+  "message": "حتى {0} إجابة أسبوعيًا"
+ },
+ "limitCancel": {
+  "message": "يمكنك الإلغاء في أي وقت من App Store."
+ },
+ "limitCardTitle": {
+  "message": "انتهت إجاباتك المجانية"
+ },
+ "limitCardBack": {
+  "message": "تعود عند {0}، بعد {1}."
  },
  "tip_4cf1b54b00": {
   "message": "تلميحات"

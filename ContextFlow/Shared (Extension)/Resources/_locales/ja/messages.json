@@ -3842,20 +3842,11 @@
  "offerByCode": {
   "message": "App Store でコードを使って適用されます。"
  },
- "limitOfferLine": {
-  "message": "最初の1か月が {0}% オフ"
- },
  "limitBuyOffer": {
   "message": "Proを始める — 最初の1か月 {0}% オフ"
  },
  "limitBuyPrice": {
   "message": "Proを始める — 月額 {0}"
- },
- "limitThen": {
-  "message": "その後は月額 {0}。"
- },
- "limitRenews": {
-  "message": "毎月自動更新されます。App Store でいつでも解約できます。"
  },
  "answersBackAt": {
   "message": "{0} に知らせる"
@@ -3886,6 +3877,18 @@
  },
  "moreOwnKeyLink": {
   "message": "自分のキーを使う"
+ },
+ "limitProLine": {
+  "message": "週に最大{0}回の回答"
+ },
+ "limitCancel": {
+  "message": "App Store でいつでも解約できます。"
+ },
+ "limitCardTitle": {
+  "message": "無料回答を使い切りました"
+ },
+ "limitCardBack": {
+  "message": "{0}（{1}後）に戻ります。"
  },
  "tip_4cf1b54b00": {
   "message": "ヒント"

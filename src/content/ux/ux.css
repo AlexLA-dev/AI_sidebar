@@ -311,12 +311,19 @@ mark.cf-mark-last { border-start-end-radius: 2px; border-end-end-radius: 2px; }
 .cf-whole .cf-pro-badge { margin-inline-start: 4px; }
 
 /* 2.8 (Р19): the free answers' limit card, simpler (LimitCard): one plan, one buy button, «Remind me» and «More». */
-.cf-limit-card .cf-offer-plan-card { padding: 9px 12px; }
+/* Tighter than the other plan cards (the closed card fits the panel as it opens on a 375 × 667 iPhone); type and
+   tap targets as everywhere. */
+.cf-card.cf-limit-card { padding: 12px 14px 6px; margin-bottom: 6px; }
+.cf-limit-card .cf-upsell-head { margin-bottom: 4px; }
+.cf-limit-card .cf-offer-body { margin-bottom: 8px; }
+.cf-limit-card .cf-offer-plan-card { padding: 8px 12px; margin: 0 0 8px; }
 .cf-limit-card p.cf-limit-pro-line { margin: 2px 0 0; font-size: 13px; line-height: 1.4; color: var(--text-2); }
 .cf-limit-card .cf-limit-buy { flex: 1 1 auto; display: block; text-align: center; text-wrap: balance; line-height: 1.3; }
 .cf-limit-card .cf-limit-buy svg { display: inline-block; vertical-align: -2px; margin-inline-end: 6px; }
-.cf-limit-card p.cf-limit-terms { margin: 6px 0 0; font-size: 12px; line-height: 1.4; color: var(--text-3); text-align: center; text-wrap: balance; }
-.cf-limit-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-top: 8px; font-size: 13px; }
+.cf-limit-card p.cf-limit-terms { margin: 5px 0 0; font-size: 12px; line-height: 1.4; color: var(--text-3); text-align: center; text-wrap: balance; }
+.cf-limit-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; margin-top: 2px; font-size: 13px; min-height: 36px; }
+/* The row's links keep the panel's touch target (36 px, as «Remind me» has on touch); the room comes from the gaps. */
+.cf[data-touch] .cf-limit-more-toggle { min-height: 36px; }
 .cf-limit-row .cf-answers-back { margin: 0; flex: 1 1 auto; min-width: 0; }
 .cf-limit-row .cf-link { padding: 0; font-size: 13px; }
 .cf-limit-more-toggle { margin-inline-start: auto; color: var(--text-2) !important; white-space: nowrap; }

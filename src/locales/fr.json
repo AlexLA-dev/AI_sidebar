@@ -1325,5 +1325,7 @@
   "moreOwnKey": "Vous avez une clé d’API ?",
   "moreOwnKeyLink": "Utiliser la mienne",
   "limitProLine": "Jusqu’à {0} réponses par semaine",
-  "limitCancel": "Résiliable à tout moment dans l’App Store."
+  "limitCancel": "Résiliable à tout moment dans l’App Store.",
+  "limitCardTitle": "Réponses gratuites épuisées",
+  "limitCardBack": "De retour à {0}, dans {1}."
 }

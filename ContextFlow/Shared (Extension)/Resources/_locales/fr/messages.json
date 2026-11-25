@@ -3842,20 +3842,11 @@
  "offerByCode": {
   "message": "Appliquée avec un code dans l’App Store."
  },
- "limitOfferLine": {
-  "message": "Premier mois à −{0} %"
- },
  "limitBuyOffer": {
   "message": "Passer à Pro : premier mois à −{0} %"
  },
  "limitBuyPrice": {
   "message": "Passer à Pro pour {0} par mois"
- },
- "limitThen": {
-  "message": "Ensuite {0} par mois."
- },
- "limitRenews": {
-  "message": "Renouvellement mensuel. Résiliable à tout moment dans l’App Store."
  },
  "answersBackAt": {
   "message": "Me le rappeler à {0}"
@@ -3886,6 +3877,18 @@
  },
  "moreOwnKeyLink": {
   "message": "Utiliser la mienne"
+ },
+ "limitProLine": {
+  "message": "Jusqu’à {0} réponses par semaine"
+ },
+ "limitCancel": {
+  "message": "Résiliable à tout moment dans l’App Store."
+ },
+ "limitCardTitle": {
+  "message": "Réponses gratuites épuisées"
+ },
+ "limitCardBack": {
+  "message": "De retour à {0}, dans {1}."
  },
  "tip_4cf1b54b00": {
   "message": "Astuces"

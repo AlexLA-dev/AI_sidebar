@@ -1325,5 +1325,7 @@
   "moreOwnKey": "Have an API key?",
   "moreOwnKeyLink": "Use my own",
   "limitProLine": "Up to {0} answers a week",
-  "limitCancel": "Cancel anytime in the App Store."
+  "limitCancel": "Cancel anytime in the App Store.",
+  "limitCardTitle": "You've used today's free answers",
+  "limitCardBack": "They're back at {0}, in {1}."
 }

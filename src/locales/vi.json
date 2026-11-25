@@ -1325,5 +1325,7 @@
   "moreOwnKey": "Bạn có khóa API?",
   "moreOwnKeyLink": "Dùng khóa của tôi",
   "limitProLine": "Tối đa {0} câu trả lời mỗi tuần",
-  "limitCancel": "Hủy bất cứ lúc nào trong App Store."
+  "limitCancel": "Hủy bất cứ lúc nào trong App Store.",
+  "limitCardTitle": "Đã hết câu trả lời miễn phí",
+  "limitCardBack": "Có lại lúc {0}, sau {1} nữa."
 }

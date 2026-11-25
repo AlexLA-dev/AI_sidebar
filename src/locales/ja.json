@@ -1325,5 +1325,7 @@
   "moreOwnKey": "API キーをお持ちですか？",
   "moreOwnKeyLink": "自分のキーを使う",
   "limitProLine": "週に最大{0}回の回答",
-  "limitCancel": "App Store でいつでも解約できます。"
+  "limitCancel": "App Store でいつでも解約できます。",
+  "limitCardTitle": "無料回答を使い切りました",
+  "limitCardBack": "{0}（{1}後）に戻ります。"
 }

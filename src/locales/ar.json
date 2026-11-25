@@ -1325,5 +1325,7 @@
   "moreOwnKey": "لديك مفتاح API؟",
   "moreOwnKeyLink": "استخدم مفتاحي",
   "limitProLine": "حتى {0} إجابة أسبوعيًا",
-  "limitCancel": "يمكنك الإلغاء في أي وقت من App Store."
+  "limitCancel": "يمكنك الإلغاء في أي وقت من App Store.",
+  "limitCardTitle": "انتهت إجاباتك المجانية",
+  "limitCardBack": "تعود عند {0}، بعد {1}."
 }

@@ -1312,7 +1312,7 @@
   "answersBackInApp": "Definir no app ContextFlow",
   "hoursMinutes": "{0} h {1} min",
   "offerByCode": "Aplicado com um código na App Store.",
-  "limitBuyOffer": "Assinar o Pro: 1º mês com {0}% de desconto",
+  "limitBuyOffer": "Assinar o Pro: 1º mês −{0}%",
   "limitBuyPrice": "Assinar o Pro por {0} por mês",
   "answersBackAt": "Me avise quando voltarem ({0})",
   "limitMore": "Mais",
@@ -1325,5 +1325,7 @@
   "moreOwnKey": "Tem uma chave de API?",
   "moreOwnKeyLink": "Usar a minha",
   "limitProLine": "Até {0} respostas por semana",
-  "limitCancel": "Cancele quando quiser na App Store."
+  "limitCancel": "Cancele quando quiser na App Store.",
+  "limitCardTitle": "Suas respostas grátis acabaram",
+  "limitCardBack": "Voltam em {1} ({0})."
 }

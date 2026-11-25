@@ -3842,20 +3842,11 @@
  "offerByCode": {
   "message": "Wird mit einem Code im App Store eingelöst."
  },
- "limitOfferLine": {
-  "message": "Erster Monat mit {0} % Rabatt"
- },
  "limitBuyOffer": {
-  "message": "Pro holen – erster Monat mit {0} % Rabatt"
+  "message": "Pro holen – erster Monat −{0} %"
  },
  "limitBuyPrice": {
   "message": "Pro holen – {0} pro Monat"
- },
- "limitThen": {
-  "message": "Danach {0} pro Monat."
- },
- "limitRenews": {
-  "message": "Verlängert sich monatlich. Jederzeit im App Store kündbar."
  },
  "answersBackAt": {
   "message": "Um {0} erinnern"
@@ -3886,6 +3877,18 @@
  },
  "moreOwnKeyLink": {
   "message": "Verwenden"
+ },
+ "limitProLine": {
+  "message": "Bis zu {0} Antworten pro Woche"
+ },
+ "limitCancel": {
+  "message": "Jederzeit im App Store kündbar."
+ },
+ "limitCardTitle": {
+  "message": "Gratis-Antworten aufgebraucht"
+ },
+ "limitCardBack": {
+  "message": "Wieder da um {0}, in {1}."
  },
  "tip_4cf1b54b00": {
   "message": "Tipps"

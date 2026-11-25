@@ -1325,5 +1325,7 @@
   "moreOwnKey": "API anahtarınız var mı?",
   "moreOwnKeyLink": "Kendi anahtarımı kullan",
   "limitProLine": "Haftada en fazla {0} yanıt",
-  "limitCancel": "İstediğiniz zaman App Store'dan iptal edebilirsiniz."
+  "limitCancel": "İstediğiniz zaman App Store'dan iptal edebilirsiniz.",
+  "limitCardTitle": "Ücretsiz yanıtlarınız bitti",
+  "limitCardBack": "{1} sonra yenilenir (saat {0})."
 }

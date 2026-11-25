@@ -79,3 +79,16 @@ test("a number stays on one line with its unit (the director on #263: «чере
   const line = i18n.freeAnswersBack(5, "2:00 AM", i18n.timeLeft(16 * 60 * MIN)) as string
   assert.equal(line, "5 new free answers at 2:00\u00a0AM, in 16\u00a0h.")
 })
+
+test("the simpler card's line: when they're back, the time kept whole, one point after an abbreviation", () => {
+  assert.equal(i18n.answersBackShort("2:00 AM", i18n.timeLeft(16 * 60 * MIN)), "They're back at 2:00 AM, in 16 h.")
+  const de = JSON.parse(readFileSync(join(root, "src/locales/de.json"), "utf8")) as Record<string, string>
+  const g = globalThis as { chrome?: unknown }
+  const was = g.chrome
+  g.chrome = { i18n: { getMessage: (key: string) => de[key] ?? "", getUILanguage: () => "de" } }
+  try {
+    assert.equal(i18n.answersBackShort("11:47", i18n.timeLeft(100 * MIN)), "Wieder da um 11:47, in 1 Std. 40 Min.")
+  } finally {
+    g.chrome = was
+  }
+})

@@ -3842,20 +3842,11 @@
  "offerByCode": {
   "message": "Áp dụng bằng mã trong App Store."
  },
- "limitOfferLine": {
-  "message": "Tháng đầu giảm {0}%"
- },
  "limitBuyOffer": {
   "message": "Dùng Pro — tháng đầu giảm {0}%"
  },
  "limitBuyPrice": {
   "message": "Dùng Pro — {0} mỗi tháng"
- },
- "limitThen": {
-  "message": "Sau đó {0} mỗi tháng."
- },
- "limitRenews": {
-  "message": "Tự gia hạn hằng tháng. Hủy bất cứ lúc nào trong App Store."
  },
  "answersBackAt": {
   "message": "Nhắc tôi lúc {0}"
@@ -3886,6 +3877,18 @@
  },
  "moreOwnKeyLink": {
   "message": "Dùng khóa của tôi"
+ },
+ "limitProLine": {
+  "message": "Tối đa {0} câu trả lời mỗi tuần"
+ },
+ "limitCancel": {
+  "message": "Hủy bất cứ lúc nào trong App Store."
+ },
+ "limitCardTitle": {
+  "message": "Đã hết câu trả lời miễn phí"
+ },
+ "limitCardBack": {
+  "message": "Có lại lúc {0}, sau {1} nữa."
  },
  "tip_4cf1b54b00": {
   "message": "Mẹo"

@@ -3842,20 +3842,11 @@
  "offerByCode": {
   "message": "Applied with a code in the App Store."
  },
- "limitOfferLine": {
-  "message": "First month {0}% off"
- },
  "limitBuyOffer": {
   "message": "Get Pro — first month {0}% off"
  },
  "limitBuyPrice": {
   "message": "Get Pro — {0} a month"
- },
- "limitThen": {
-  "message": "Then {0} a month."
- },
- "limitRenews": {
-  "message": "Renews monthly. Cancel anytime in the App Store."
  },
  "answersBackAt": {
   "message": "Remind me at {0}"
@@ -3886,6 +3877,18 @@
  },
  "moreOwnKeyLink": {
   "message": "Use my own"
+ },
+ "limitProLine": {
+  "message": "Up to {0} answers a week"
+ },
+ "limitCancel": {
+  "message": "Cancel anytime in the App Store."
+ },
+ "limitCardTitle": {
+  "message": "You've used today's free answers"
+ },
+ "limitCardBack": {
+  "message": "They're back at {0}, in {1}."
  },
  "tip_4cf1b54b00": {
   "message": "Tips"

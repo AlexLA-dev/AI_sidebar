@@ -7,7 +7,7 @@
 // Free people only: a subscriber at their limit keeps PlanOffer (Ultra, their own period).
 
 import type { ComponentChildren, VNode } from "preact"
-import { useEffect, useState } from "preact/hooks"
+import { useEffect, useRef, useState } from "preact/hooks"
 
 import { t } from "../../shared/i18n"
 import { productOf, type Period } from "../../shared/plan"
@@ -44,6 +44,11 @@ export function LimitCard({ status, title, body, offer, remind, retryAt, ownKey,
   const facts = status?.plans
   const [more, setMore] = useState(false)
   useEffect(() => onEvent("shown", LIMIT_BUY), [])
+  // The whole closed card in view as it comes (the director on #263, SE in German: the panel scrolled to the chat's end
+  // when it opened, before the card was back from storage and its prices in, and its last row was cut off). Only while
+  // it settles, never once the person scrolls on their own.
+  const ref = useRef<HTMLDivElement>(null)
+  const since = useRef(Date.now())
   const back = useAnswersBack(retryAt)
   const canRetry = Boolean(onRetry) && back
 
@@ -52,6 +57,12 @@ export function LimitCard({ status, title, body, offer, remind, retryAt, ownKey,
   const ultra = prices[productOf("ultra", "monthly")]
   const saving = savingOf(prices, "pro")
   const currency = currencyCode(prices)
+
+  useEffect(() => {
+    if (Date.now() - since.current > 2_000) return
+    const timer = setTimeout(() => ref.current?.scrollIntoView?.({ block: "nearest" }), 30)
+    return () => clearTimeout(timer)
+  }, [monthly, Boolean(facts), Boolean(offer)])
 
   const buy = () => {
     if (offer) {
@@ -69,7 +80,7 @@ export function LimitCard({ status, title, body, offer, remind, retryAt, ownKey,
   const period = (p: Period) => ({ plan: "pro", period: p }) as OfferChoice
 
   return (
-    <div class="cf-card cf-offer cf-limit-card limit" role="group" aria-label={title}>
+    <div ref={ref} class="cf-card cf-offer cf-limit-card limit" role="group" aria-label={title}>
       <div class="cf-upsell-head">
         <span class="cf-upsell-icon"><Icon.Sparkle size={18} /></span>
         <strong>{title}</strong>

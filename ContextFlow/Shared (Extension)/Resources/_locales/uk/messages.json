@@ -3842,20 +3842,11 @@
  "offerByCode": {
   "message": "Знижка діє за кодом в App Store."
  },
- "limitOfferLine": {
-  "message": "Перший місяць зі знижкою {0}%"
- },
  "limitBuyOffer": {
   "message": "Оформити Pro: перший місяць −{0}%"
  },
  "limitBuyPrice": {
   "message": "Оформити Pro — {0} на місяць"
- },
- "limitThen": {
-  "message": "Далі {0} на місяць."
- },
- "limitRenews": {
-  "message": "Поновлюється щомісяця. Скасувати можна будь-коли в App Store."
  },
  "answersBackAt": {
   "message": "Нагадати о {0}"
@@ -3886,6 +3877,18 @@
  },
  "moreOwnKeyLink": {
   "message": "Підключити"
+ },
+ "limitProLine": {
+  "message": "До {0} відповідей на тиждень"
+ },
+ "limitCancel": {
+  "message": "Скасувати можна будь-коли в App Store."
+ },
+ "limitCardTitle": {
+  "message": "Безкоштовні відповіді закінчилися"
+ },
+ "limitCardBack": {
+  "message": "Знову будуть о {0}, через {1}."
  },
  "tip_4cf1b54b00": {
   "message": "Поради"

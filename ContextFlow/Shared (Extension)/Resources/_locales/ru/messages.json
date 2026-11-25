@@ -3842,20 +3842,11 @@
  "offerByCode": {
   "message": "Скидка применяется по коду в App Store."
  },
- "limitOfferLine": {
-  "message": "Первый месяц со скидкой {0}%"
- },
  "limitBuyOffer": {
   "message": "Оформить Pro: первый месяц −{0}%"
  },
  "limitBuyPrice": {
   "message": "Оформить Pro — {0} в месяц"
- },
- "limitThen": {
-  "message": "Дальше {0} в месяц."
- },
- "limitRenews": {
-  "message": "Продлевается каждый месяц. Отменить можно в любой момент в App Store."
  },
  "answersBackAt": {
   "message": "Напомнить в {0}"
@@ -3886,6 +3877,18 @@
  },
  "moreOwnKeyLink": {
   "message": "Подключить"
+ },
+ "limitProLine": {
+  "message": "До {0} ответов в неделю"
+ },
+ "limitCancel": {
+  "message": "Отменить можно в любой момент в App Store."
+ },
+ "limitCardTitle": {
+  "message": "Бесплатные ответы закончились"
+ },
+ "limitCardBack": {
+  "message": "Снова будут в {0}, через {1}."
  },
  "tip_4cf1b54b00": {
   "message": "Советы"

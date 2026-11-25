@@ -163,13 +163,15 @@ test("the panel: free people get this card, a Pro subscriber keeps Ultra in thei
   assert.match(app, /if \(!byok && !hasPro\(plan\)\) \{\s*const event = offerEvent\("limit"\)\s*return \(\s*<LimitCard/)
   assert.match(app, /A Pro subscriber: Ultra[\s\S]{0,400}if \(!byok && !isUltra\(plan\)\) \{[\s\S]{0,800}plans=\{\["ultra"\]\}/)
   assert.match(app, /\.\.\.\(from \? \{ from \} : \{\}\)/)
+  // Its title and when-line, each one line on the smallest iPhone (the director on #263).
+  assert.match(app, /<LimitCard[\s\S]{0,200}title=\{long \? t\("limitLongTitle"\) : t\("limitCardTitle"\)\}[\s\S]{0,200}answersBackShort\(clockTime\(resetsAt\), timeUntil\(resetsAt\)\)/)
   const usage = read("src/shared/usage.ts")
   assert.match(usage, /chat_plans: \{[\s\S]*?"remind_app", "more"\][\s\S]*?from: \["more"\]/)
   assert.match(read("src/content/ux/LimitCard.tsx"), /export const LIMIT_BUY: OfferChoice = \{ plan: "pro", period: "monthly" \}/)
 })
 
 test("15 languages: every string translated, placeholders kept, no «two taps» anywhere", () => {
-  const keys = ["limitProLine", "limitCancel", "limitBuyOffer", "limitBuyPrice", "answersBackAt", "limitMore", "moreYearly", "moreYearlySave", "moreUltra", "moreUltraNoPrice", "moreChoose", "moreNotes", "moreOwnKey", "moreOwnKeyLink"]
+  const keys = ["limitCardTitle", "limitCardBack", "limitProLine", "limitCancel", "limitBuyOffer", "limitBuyPrice", "answersBackAt", "limitMore", "moreYearly", "moreYearlySave", "moreUltra", "moreUltraNoPrice", "moreChoose", "moreNotes", "moreOwnKey", "moreOwnKeyLink"]
   const en = JSON.parse(read("src/locales/en.json"))
   const langs = readdirSync(join(root, "src/locales")).filter((f) => f.endsWith(".json"))
   assert.equal(langs.length, 15)

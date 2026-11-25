@@ -1325,5 +1325,7 @@
   "moreOwnKey": "有自己的 API 金鑰？",
   "moreOwnKeyLink": "使用我的金鑰",
   "limitProLine": "每週最多 {0} 個回答",
-  "limitCancel": "可隨時在 App Store 中取消。"
+  "limitCancel": "可隨時在 App Store 中取消。",
+  "limitCardTitle": "免費回答已用完",
+  "limitCardBack": "{0}（{1}後）恢復。"
 }

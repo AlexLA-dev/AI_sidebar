@@ -3842,20 +3842,11 @@
  "offerByCode": {
   "message": "在 App Store 中以優惠代碼套用。"
  },
- "limitOfferLine": {
-  "message": "首月省 {0}%"
- },
  "limitBuyOffer": {
   "message": "升級 Pro — 首月省 {0}%"
  },
  "limitBuyPrice": {
   "message": "升級 Pro — 每月 {0}"
- },
- "limitThen": {
-  "message": "之後每月 {0}。"
- },
- "limitRenews": {
-  "message": "按月自動續訂，可隨時在 App Store 中取消。"
  },
  "answersBackAt": {
   "message": "{0} 提醒我"
@@ -3886,6 +3877,18 @@
  },
  "moreOwnKeyLink": {
   "message": "使用我的金鑰"
+ },
+ "limitProLine": {
+  "message": "每週最多 {0} 個回答"
+ },
+ "limitCancel": {
+  "message": "可隨時在 App Store 中取消。"
+ },
+ "limitCardTitle": {
+  "message": "免費回答已用完"
+ },
+ "limitCardBack": {
+  "message": "{0}（{1}後）恢復。"
  },
  "tip_4cf1b54b00": {
   "message": "提示"

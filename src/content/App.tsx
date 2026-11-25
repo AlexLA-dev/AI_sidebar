@@ -4,7 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { composePage, readsMedia, type MediaKind } from "../shared/attachments"
 import { LINKS, PRODUCTS, SHADOW_MODE, TARGET, TEST_PLAN } from "../shared/config"
 import { RENEWAL_REASONS, type RenewalReason } from "../shared/renewal"
-import { freeAnswersBack, t, timeLeft, uiDirection, uiLang, uiLanguage, type MessageKey } from "../shared/i18n"
+import { answersBackShort, freeAnswersBack, t, timeLeft, uiDirection, uiLang, uiLanguage, type MessageKey } from "../shared/i18n"
 import {
   DEFAULT_SETTINGS,
   type AskPayload,
@@ -5609,10 +5609,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     return (
                       <LimitCard
                         status={status}
-                        title={long ? t("limitLongTitle") : t("limitFreeTitle")}
+                        title={long ? t("limitLongTitle") : t("limitCardTitle")}
                         body={<>
                           {long && `${t("limitLongBody", error.weight!, left)} `}
-                          {backFree}
+                          {resetsAt ? answersBackShort(clockTime(resetsAt), timeUntil(resetsAt)) : ""}
                         </>}
                         offer={offer ? { code: offer.code, discount: offer.discount } : null}
                         remind={TARGET === "safari" && resetsAt
