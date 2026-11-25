@@ -342,6 +342,10 @@ function offerUrl(code: string): string {
 
 // A question whose answer was lost while nobody followed it shows these as they were; anything else as "interrupted".
 const RESUMABLE = ["STREAM", "NETWORK", "UPSTREAM", "BUSY", "LIMIT_REACHED", "LINK"]
+/** The consent saved, or false when the storage doesn't answer in a few seconds (a tab whose link is gone). */
+const consentSaved = (): Promise<boolean> =>
+  Promise.race([giveConsent().then(() => true, () => false), new Promise<boolean>((done) => setTimeout(() => done(false), 6_000))])
+
 /** A question that hasn't reached a connection in this long has lost its link (2.8.1). */
 const STUCK_MS = 25_000
 
@@ -2241,7 +2245,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }
 
   const acceptConsent = useCallback(async () => {
-    await giveConsent()
+    // A tab whose link to the extension is gone (left open across an update) never finishes saving it: the lost-link
+    // card with Reload after a few seconds, not a consent card that does nothing (2.8.1, the simulator).
+    if (!(await consentSaved())) {
+      setPending(null)
+      setLinkLost(true)
+      return
+    }
     setConsent("ok")
     const p = pending
     setPending(null)
@@ -2894,6 +2904,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setRenewal(reason === "later" ? null : "thanks")
     if (reason !== "later") setTimeout(() => setRenewal(null), 4000)
   }, [])
+  // The lost-link card comes after the chat: brought into view (on an iPhone's sheet it was below the fold).
+  useEffect(() => {
+    if (linkLost) requestAnimationFrame(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }))
+  }, [linkLost])
   useEffect(() => {
     if (renewal === "ask") requestAnimationFrame(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }))
   }, [renewal])
@@ -5004,7 +5018,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const askReady = (text: string) => {
     if (!consentInTap) return ask(text, { via: "ready" })
     // The question's own button said «Agree and ask» over the consent's text: given by this tap.
-    void giveConsent().then(() => {
+    void consentSaved().then((saved) => {
+      if (!saved) return setLinkLost(true)
       setConsent("ok")
       setTimeout(() => askRef.current(text, { via: "ready" }), 0)
     })
