@@ -101,12 +101,6 @@ export function LimitCard({ status, title, body, offer, remind, retryAt, ownKey,
         <button type="button" class="cf-primary cf-limit-buy" onClick={buy}>
           <Icon.Sparkle size={14} /> {offer ? t("limitBuyOffer", offer.discount) : monthly ? t("limitBuyPrice", monthly) : t("getPro")}
         </button>
-        {/* Only once the answers are back (acceptance 3). */}
-        {canRetry && (
-          <button type="button" class="cf-secondary" onClick={() => { onEvent("retry"); onRetry!() }}>
-            <Icon.Retry /> {t("retry")}
-          </button>
-        )}
       </div>
       {/* One line: where the code is applied, or where it's cancelled. No promise we can't stand behind (the director:
           «Cancel anytime in two taps» isn't true). The price it renews at is the box's, right above. */}
@@ -114,7 +108,13 @@ export function LimitCard({ status, title, body, offer, remind, retryAt, ownKey,
         {(offer ? t("offerByCode") : t("limitCancel")).replace(/App Store/g, "App\u00a0Store")}
       </p>
       <div class="cf-limit-row">
-        {remind}
+        {/* Once the answers are back (acceptance 3) «Remind me» has no job: Retry takes its place, beside «More», so
+            the card stays as short as before (the director on #263, SE). */}
+        {canRetry ? (
+          <button type="button" class="cf-link cf-limit-retry" onClick={() => { onEvent("retry"); onRetry!() }}>
+            <Icon.Retry /> {t("retry")}
+          </button>
+        ) : remind}
         <button type="button" class="cf-link cf-limit-more-toggle" aria-expanded={more} onClick={() => {
           if (!more) onEvent("more")
           setMore(!more)

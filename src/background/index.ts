@@ -1084,6 +1084,10 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
     case "remind":
       remind(message).then(sendResponse, () => sendResponse({ outcome: "unavailable" }))
       return true
+    case "offerTapTake":
+      (TARGET === "safari" ? callNative<{ age?: number }>("offer_tap_take", {}, 5000) : Promise.resolve(null))
+        .then((r) => sendResponse({ age: typeof r?.age === "number" ? r.age : null }), () => sendResponse({ age: null }))
+      return true
     case "remindPending":
       // 2.8: a reminder waiting on the device (the app may have set it for the panel); its time, or none.
       (TARGET === "safari" ? callNative<{ at?: number }>("remind_pending", { chat: message.chat, message: message.message }, 5000) : Promise.resolve(null))

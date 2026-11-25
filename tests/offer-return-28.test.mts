@@ -134,6 +134,34 @@ test("the reminder says the discount only for someone who opted in; the opt-in s
   delete stored["cf:answersBack"]
 })
 
+test("the mark alone does nothing: (a) never at the limit, (b) a subscriber, (c) a page setting its hash; a stale note neither", async () => {
+  const asks: unknown[] = []
+  const ask = (note: { age?: number | null } | null) => async (m: unknown) => { asks.push(m); return note }
+  const marked = () => true
+  // (a) and (b): no tap was ever recorded (no reminder said a discount: never at the limit, or a subscriber), so the
+  // app's note is empty; (c) a page or a shared link sets #cf-offer=1 itself, any time after load: the same.
+  for (const _case of ["never at the limit", "subscriber", "page sets its hash"]) {
+    assert.equal(await lib.offerTapNow(ask({ age: null }), marked), false)
+    assert.equal(await lib.offerTapNow(ask(null), marked), false)
+  }
+  // A note left long ago (a tap whose page never opened, then a page with the mark later): stale, nothing.
+  assert.equal(await lib.offerTapNow(ask({ age: 600 }), marked), false)
+  assert.equal(await lib.offerTapNow(ask({ age: lib.TAP_FRESH_S + 1 }), marked), false)
+  // Our app's tap moments before: yes.
+  assert.equal(await lib.offerTapNow(ask({ age: 3 }), marked), true)
+  // No mark: the note isn't even asked for (it stays for the page the tap opens).
+  asks.length = 0
+  assert.equal(await lib.offerTapNow(ask({ age: 3 }), () => false), false)
+  assert.equal(asks.length, 0)
+  // The note is the app's, set only by the tap of the reminder that said a discount, and taken once.
+  for (const p of ["ContextFlow/iOS (App)/AppDelegate.swift", "ContextFlow/macOS (App)/AppDelegate.swift"]) {
+    assert.match(read(p), /open\.contains\("cf-offer=1"\) \{[\s\S]{0,200}OfferTap\.record\(\)/)
+  }
+  const reminders = read("ContextFlow/Shared (Extension)/MessageReminders.swift")
+  assert.match(reminders, /static func take\(\) -> Double\? \{[\s\S]{0,200}defaults\.removeObject\(forKey: key\)/)
+  assert.match(read("ContextFlow/Shared (Extension)/SafariWebExtensionHandler.swift"), /case "offer_tap_take":[\s\S]{0,200}OfferTap\.take\(\)/)
+})
+
 test("the panel: the code only on return everywhere it shows; full price noted; the reminder goes once bought", () => {
   const app = read("src/content/App.tsx")
   assert.match(app, /const offer = offerGiven && fullAt !== undefined && isReturn\(status\?\.limitedBefore, fullAt\) \? offerGiven : null/)
@@ -143,7 +171,9 @@ test("the panel: the code only on return everywhere it shows; full price noted; 
   assert.match(app, /offer=\{returnDiscount && fullAt !== undefined && returnBy\(Date\.parse\(resetsAt\), fullAt\) \? returnDiscount : null\}/)
   assert.match(app, /offerOn=\{settings\.offerNotify\}/)
   // The tap's mark opens the panel on the discount, counted.
-  assert.match(app, /if \(!takeOfferMark\(\)\) return\s*void sendBackground\(\{ type: "useEvent", f: "notif", a: "panel", what: "offer" \}\)/)
+  // Only with our app's note of the tap: awaited before anything else (no panel, no card, no event from the mark alone).
+  assert.match(app, /const take = async \(\) => \{\s*\/\/[^\n]*\n\s*if \(!\(await offerTapNow\(\(message\) => sendBackground\(message, \{ timeoutMs: 6_000, tries: 1 \}\)\)\)\) return\s*void sendBackground\(\{ type: "useEvent", f: "notif", a: "panel", what: "offer" \}\)/)
+  assert.doesNotMatch(app, /takeOfferMark/)
   assert.match(app, /what: "offer" \}\)[\s\S]{0,300}setView\("chat"\)[\s\S]{0,120}if \(limitUpRef\.current\) return/)
   // The limit card says which state it was shown in.
   assert.match(read("src/content/ux/LimitCard.tsx"), /onEvent\("shown", LIMIT_BUY, undefined, offer \? "discount" : "full"\)/)

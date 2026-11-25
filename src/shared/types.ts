@@ -284,6 +284,8 @@ export type BackgroundRequest =
   // { outcome: "scheduled" | "denied" | "not-asked" | "failed" | "unavailable" }. `at` null: cancel it.
   | { type: "remind"; chat: string; message: string; at: number | null; title?: string; body?: string; url?: string; ask?: boolean }
   | { type: "remindPending"; chat: string; message: string }
+  // 2.8: the discount reminder's tap, as the app noted it (seconds ago), taken once; none: the mark isn't ours.
+  | { type: "offerTapTake" }
   // 2.7, Calendar and Reminders (appleItems.ts): whether this device can add them and with what access ("appleStatus");
   // a reminder or an event written on the device, or handed to the app with `handoff` (its id, the link the page already
   // followed) when the extension can't write it ("appleAdd" → { outcome: "saved" | "app" | "denied" | "failed" |

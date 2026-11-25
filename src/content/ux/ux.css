@@ -323,7 +323,9 @@ mark.cf-mark-last { border-start-end-radius: 2px; border-end-end-radius: 2px; }
 .cf-limit-card p.cf-limit-terms { margin: 5px 0 0; font-size: 12px; line-height: 1.4; color: var(--text-3); text-align: center; text-wrap: balance; }
 .cf-limit-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; margin-top: 2px; font-size: 13px; min-height: 36px; }
 /* The row's links keep the panel's touch target (36 px, as «Remind me» has on touch); the room comes from the gaps. */
-.cf[data-touch] .cf-limit-more-toggle { min-height: 36px; }
+.cf[data-touch] .cf-limit-more-toggle, .cf[data-touch] .cf-limit-retry { min-height: 36px; }
+.cf-limit-row .cf-limit-retry { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+.cf-limit-retry svg { width: 15px; height: 15px; }
 .cf-limit-row .cf-answers-back { margin: 0; flex: 1 1 auto; min-width: 0; }
 .cf-limit-row .cf-link { padding: 0; font-size: 13px; }
 .cf-limit-more-toggle { margin-inline-start: auto; color: var(--text-2) !important; white-space: nowrap; }

@@ -241,6 +241,9 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 let at = await MessageReminders.isPending(chat: chat, message: key)
                 Self.reply(context, ["success": true, "data": at.map { ["at": $0.timeIntervalSince1970 * 1000] } ?? [:]])
             }
+        case "offer_tap_take":
+            // 2.8: the discount reminder's tap, noted by the app moments before (OfferTap); taken once.
+            Self.reply(context, ["success": true, "data": OfferTap.take().map { ["age": $0] } ?? [:]])
         case "unremind":
             if let chat = message["chat"] as? String, let key = message["message"] as? String {
                 MessageReminders.cancel(chat: chat, message: key)

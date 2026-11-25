@@ -154,6 +154,9 @@ test("Retry only once the answers are back", async () => {
   await tick()
   const retry = back.buttons().find((b) => /Retry/.test(b.textContent))
   assert.ok(retry)
+  // Beside «More», where «Remind me» was (no job once they're back); the buy button alone above.
+  assert.ok(retry.closest(".cf-limit-row"))
+  assert.equal(back.el.querySelectorAll(".cf-card-actions button").length, 1)
   await click(retry)
   assert.deepEqual(back.calls, [["retry"]])
   ui.clear(back.el)

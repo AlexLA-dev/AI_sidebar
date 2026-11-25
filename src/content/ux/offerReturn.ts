@@ -58,3 +58,20 @@ export function takeOfferMark(where: { location: { hash: string; pathname: strin
   where.history.replaceState(where.history.state, "", `${where.location.pathname}${where.location.search}${rest ? `#${rest}` : ""}`)
   return true
 }
+
+/** How fresh the app's note of the tap must be (seconds): the page opens from the tap right away. */
+export const TAP_FRESH_S = 120
+
+type Ask = (message: { type: "offerTapTake" }) => Promise<{ age?: number | null } | null>
+
+/**
+ * The address's mark taken (always, so it never stays), then the app's note of the tap asked for (taken once): true
+ * only when our own app recorded the discount reminder's tap moments before. The mark alone (a page setting its hash,
+ * a shared link) does nothing: no panel opening, no discount (the director on #263).
+ */
+export async function offerTapNow(ask: Ask, take: () => boolean = takeOfferMark): Promise<boolean> {
+  if (!take()) return false
+  const reply = await ask({ type: "offerTapTake" }).catch(() => null)
+  const age = reply?.age
+  return typeof age === "number" && age >= -5 && age <= TAP_FRESH_S
+}

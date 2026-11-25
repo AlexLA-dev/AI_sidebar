@@ -81,7 +81,7 @@ import { openWatchSheet } from "./watch/WatchSheet"
 import { PlansSheet, type PlansFeature } from "./Plans"
 import { TasteLine, tasteOf, tasteUsedLead, ultraLine } from "./Taste"
 import { LimitCard } from "./ux/LimitCard"
-import { clearFullAt, isReturn, loadFullAt, noteFullAt, returnBy, takeOfferMark } from "./ux/offerReturn"
+import { clearFullAt, isReturn, loadFullAt, noteFullAt, offerTapNow, returnBy } from "./ux/offerReturn"
 import { PlanOffer, type OfferChoice, type OfferPlace } from "./ux/PlanOffer"
 import { ListenBar, SpeakerIcon, useListen, VoicedIcon } from "./listen/useListen"
 import { listenMark, markClock, voicedId, type MadeList } from "../shared/voiced"
@@ -3274,8 +3274,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // address at once.
   useEffect(() => {
     if (popup || TARGET !== "safari") return
-    const take = () => {
-      if (!takeOfferMark()) return
+    const take = async () => {
+      // Only with our app's note of the tap, moments old (offerTapNow); the mark alone does nothing.
+      if (!(await offerTapNow((message) => sendBackground(message, { timeoutMs: 6_000, tries: 1 })))) return
       void sendBackground({ type: "useEvent", f: "notif", a: "panel", what: "offer" })
       // The chat, wherever the panel was left (Settings, the list): the discount is there. The limit card still up is
       // itself in its discount state now; else «once more» shows it.
@@ -3286,9 +3287,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       setOfferCard(true)
       void sendBackground({ type: "useEvent", f: "chat_plans", a: "shown", via: "return", state: "discount" })
     }
-    take()
-    window.addEventListener("hashchange", take)
-    return () => window.removeEventListener("hashchange", take)
+    const onHash = () => void take()
+    onHash()
+    window.addEventListener("hashchange", onHash)
+    return () => window.removeEventListener("hashchange", onHash)
   }, [popup, show])
   const openThreadRef = useRef(openThread)
   openThreadRef.current = openThread
