@@ -1190,6 +1190,7 @@
   "agentPlanNow": "Ora",
   "agentPermPersonal": "Inserire i suoi dati dalla richiesta: {0}",
   "agentPermFill": "Compilare con «I miei dati»: {0}",
+  "agentLineFilled": "Compilato con «I miei dati»: {0}",
   "agentPermConsent": "Spuntare l'accettazione dei termini di {0}",
   "agentPermReminder": "Aggiungere a Promemoria: «{0}»",
   "agentPermReminderDone": "Segnare come fatto in Promemoria: «{0}»",

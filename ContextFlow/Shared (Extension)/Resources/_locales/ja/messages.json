@@ -3479,6 +3479,9 @@
  "agentPermFill": {
   "message": "「自分の情報」から入力：{0}"
  },
+ "agentLineFilled": {
+  "message": "「自分の情報」から入力しました：{0}"
+ },
  "agentPermConsent": {
   "message": "{0} の利用規約への同意にチェック"
  },

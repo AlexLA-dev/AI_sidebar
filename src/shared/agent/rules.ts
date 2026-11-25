@@ -163,6 +163,20 @@ export function timesIn(text: string): string[] {
   return out
 }
 
+/**
+ * The page's free times nearer to the asked one than the chosen one, inside the window, nearest first (127: «19:10» booked
+ * at 19:30 with 19:00 free). A tie isn't nearer: either is the nearest.
+ */
+export function nearerTimes(at: string, chosen: string, free: string[], from?: string, until?: string): string[] {
+  const min = (t: string) => {
+    const m = /^(\d{1,2}):(\d{2})$/.exec(t)
+    return m ? Number(m[1]) * 60 + Number(m[2]) : NaN
+  }
+  const d = (t: string) => Math.abs(min(t) - min(at))
+  if (Number.isNaN(d(chosen))) return []
+  return [...new Set(free)].filter((t) => !Number.isNaN(d(t)) && (!from || !until || (t >= from && t <= until)) && d(t) < d(chosen)).sort((a, b) => d(a) - d(b))
+}
+
 /** The question's choices that name times the page doesn't show (taken from the Calendar alone) are dropped. */
 export function pageChoices(choices: string[], pageTimes: Set<string>): string[] {
   return choices.filter((c) => timesIn(c).every((t) => pageTimes.has(t)))

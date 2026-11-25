@@ -217,7 +217,9 @@ test("a saved detail the request itself gives goes as the plan's typing; a field
   y.entries = async () => [{ id: "e1", key: "phone", label: "", value: "+44 20 0000 1111", updatedAt: 1 }] as never
   let s2 = await drive(newState("t6", ctx.request, "en", BOOK.url), y)
   s2 = await approvePlan(s2, y, { answers: ["19:30"], off: [] })
-  assert.equal(s2.status, "fill", "another number than the request's: asks")
+  // (127: the request wins — a saved number other than the request's isn't offered.)
+  assert.notEqual(s2.status, "fill", "another number than the request's isn't offered")
+  assert.ok(s2.log.some((l) => /^refused: the request gives the phone itself/.test(l.result)))
 })
 
 test("with the whole page's amounts: changed only when one is new; they never go to the server", async () => {

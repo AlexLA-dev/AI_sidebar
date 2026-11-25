@@ -3479,6 +3479,9 @@
  "agentPermFill": {
   "message": "Preencher com “Meus dados”: {0}"
  },
+ "agentLineFilled": {
+  "message": "Preenchido com “Meus dados”: {0}"
+ },
  "agentPermConsent": {
   "message": "Marcar a concordância com os termos de {0}"
  },

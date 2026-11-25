@@ -1190,6 +1190,7 @@
   "agentPlanNow": "Сейчас",
   "agentPermPersonal": "Вписать ваши данные из просьбы: {0}",
   "agentPermFill": "Заполнить из «Моих данных»: {0}",
+  "agentLineFilled": "Заполнено из «Моих данных»: {0}",
   "agentPermConsent": "Отметить согласие с условиями сайта {0}",
   "agentPermReminder": "Добавить в Напоминания: «{0}»",
   "agentPermReminderDone": "Отметить выполненным в Напоминаниях: «{0}»",

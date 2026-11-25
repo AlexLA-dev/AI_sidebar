@@ -17,9 +17,9 @@ import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, withNameParts, ty
 import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
 import { pageSubject, subjectLine } from "./subject.ts"
 import { cardsOf, onVenue, rankVenues, venueNote, venueOf, venuesOn, type Venue } from "./venues.ts"
-import { freeLineIn, looksLikeSlot, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
+import { freeLineIn, looksLikeSlot, nearerTimes, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
 import { pageKind } from "./events.ts"
-import { addContactFill, buildPlan, pathOf, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, contactInWords, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan, DAY_KINDS, sameTaskPage } from "./taskplan.ts"
+import { addContactFill, buildPlan, contactField, contactKind, requestGives, pathOf, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, contactInWords, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan, DAY_KINDS, sameTaskPage } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
 
 export type AgentStatus = "plan" | "running" | "confirm" | "fill" | "self" | "done" | "asked" | "stopped" | "error" | "blocked"
@@ -156,7 +156,7 @@ export interface AgentState {
   // question before that was sent back once (a salon booking site, 124: «26 декабря нет, ближайшая суббота — 5 декабря» without the
   // calendar ever opened; the page had 26 Dec free and 5 Dec greyed).
   // Contact details answered on the plan card and not kept in «Мои данные»: filled by key in this task only.
-  oneTime?: Array<{ key: "email" | "phone"; value: string }>
+  oneTime?: Array<{ key: string; value: string }>
   sawDate?: boolean
   dateNudged?: boolean
   // A question sent back once because the page named its next free day.
@@ -778,12 +778,18 @@ export function playbookOf(log: LogEntry[]): string[] {
   return out.slice(0, 12)
 }
 
+/** The times a page offers as free for the slot being chosen: a time list's options, or its slot buttons (not greyed). */
+function freeTimes(map: PageMap, call: ToolCall, item?: MapItem): string[] {
+  if (call.tool === "select" && item?.options?.length) return item.options.filter((o) => !/\[unavailable\]$/.test(o)).flatMap((o) => timesIn(o).slice(0, 1))
+  return map.items.filter((i) => (i.role === "button" || i.role === "link" || i.role === "radio" || i.role === "option") && looksLikeSlot(i.label) && !i.state?.some((x) => x === "unavailable" || x === "disabled")).flatMap((i) => timesIn(i.label).slice(0, 1))
+}
+
 /**
  * A time slot pressed in a booking that looks at the Calendar: the model says its date and time, and the device checks
  * them against the person's events (with the buffers). A busy one is refused, whatever the model thought; a refusal's
  * reason goes back to it. (null: the step goes on.)
  */
-async function slotRefusal(state: AgentState, io: RunnerIO, call: ToolCall, label: string): Promise<string | null> {
+async function slotRefusal(state: AgentState, io: RunnerIO, call: ToolCall, label: string, map?: PageMap, item?: MapItem): Promise<string | null> {
   const b = state.plan?.booking
   if (!b || (call.tool !== "click" && call.tool !== "select")) return null
   if (!looksLikeSlot(label)) return null
@@ -794,6 +800,20 @@ async function slotRefusal(state: AgentState, io: RunnerIO, call: ToolCall, labe
   // The request's window (its time widened by the rules), checked with or without the Calendar (a restaurant, 121 sweep:
   // 13:15 pressed for «17:30»).
   if (b.from && b.until && (time < b.from || time > b.until)) return `${time} is outside the time the request and the rules allow (${b.from}–${b.until}): choose a slot inside it, or ask with the page's nearest real slots`
+  // The nearest free time to the one the request names is the device's sum, not the model's (127: 19:30 booked for
+  // «19:10» with 19:00 free, 19:30 for «20:10» with 20:00 free): a nearer one the page offers is chosen instead.
+  if (b.at && map) {
+    let nearer = nearerTimes(b.at, time, freeTimes(map, call, item), b.from, b.until)
+    if (nearer.length && state.calendar && io.slotFree) {
+      const fits: string[] = []
+      for (const t of nearer.slice(0, 3)) {
+        const h = shiftZone(date, t, b.tz)
+        if ((await io.slotFree(h.date, h.time, b.minutes).catch(() => null)) !== false) fits.push(t)
+      }
+      nearer = fits
+    }
+    if (nearer.length) return `${nearer[0]} is free on the page and nearer to the asked ${b.at} than ${time}: choose ${nearer[0]}`
+  }
   if (!state.calendar || !io.slotFree) return null
   // The page's time is the place's; the Calendar is asked in the device's.
   const here = shiftZone(date, time, b.tz)
@@ -1058,6 +1078,19 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       state.refused = why
       continue
     }
+    // A detail the request gives isn't filled from «Мои данные» (127: «for Maria Kim, maria@example.com» — the card offered
+    // the saved Alex Test's name and e-mail, ticked): the request's own words go in.
+    const said = words(state)
+    const given = requestGives(state.plan, said)
+    // (One the person gave: a saved value that is the request's own goes in as it.)
+    const own = (key: string, value?: string) => !given.has(contactKind(key) ?? "") || (!!value && saidInWords(said, value))
+    const givenKind = call.tool === "fill" && call.key ? contactKind(call.key) : null
+    if (givenKind && !own(call.key!, liveEntries(entries).find((e) => modelKey(e) === call.key)?.value)) {
+      const why = `the request gives the ${givenKind} itself: type the request's own words into that field (type), never a saved ${givenKind}`
+      state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
+      state.refused = why
+      continue
+    }
     // A place that doesn't fit the request or the rules (a French restaurant for «Italian») isn't opened.
     // Dates (124, the owner on a salon booking site: 11 steps re-pressing «Sat, Dec 26» that the page showed greyed): a day or a
     // slot the page shows as unavailable is never pressed (when the whole strip is greyed, one may be tapped once to
@@ -1110,6 +1143,16 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     const device = classify(call, { map, startHost: state.startHost, request: words(state), confirmedHere: confirmedOn(state, hostOf(map.url)), policy: io.policy })
     let verdict = stricter(reply.verdict, device)
     if (state.readDevice && call.tool === "type" && verdict.cls === "free" && !saidInWords(words(state), call.text ?? "")) verdict = { cls: "confirm", reason: "device_data" }
+    // A contact field takes only what the person said, answered or saved — never a value made up or derived (127: «Alex»
+    // typed into Name, taken from the e-mail just given).
+    const typedKind = verdict.cls !== "blocked" && call.tool === "type" && seenItem && (call.text ?? "").trim() ? contactField(seenItem) : null
+    if (typedKind && !saidInWords(words(state), call.text ?? "") && !liveEntries(entries).some((e) => normalizeValue(e.value) === normalizeValue(call.text ?? ""))) {
+      const has = liveEntries(entries).some((e) => contactKind(modelKey(e)) === typedKind)
+      const why = `«${(call.text ?? "").slice(0, 40)}» isn't in the person's words, their answers or <saved>: never make up or derive a ${typedKind}; ${has ? `fill the saved ${typedKind} (fill with its key)` : `ask_user for their ${typedKind} once`}`
+      state.log.push({ call: { ...call, text: "" }, target: target ?? undefined, result: `refused: ${why}` })
+      state.refused = why
+      continue
+    }
     // A step the approved plan allows goes without a question (a price changed since the plan, or a step the check
     // found off the request, is never covered: those ask as before).
     let perm: Perm | null = verdict.cls === "confirm" || verdict.cls === "self" ? covered(state.plan, call, verdict, map, words(state), reply.offRequest) : null
@@ -1128,7 +1171,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     // A time slot that clashes with the person's Calendar is never pressed (checked on the device).
     if (verdict.cls !== "blocked") {
-      const busy = await slotRefusal(state, io, call, call.tool === "select" ? call.option ?? "" : seenItem?.label ?? "")
+      const busy = await slotRefusal(state, io, call, call.tool === "select" ? call.option ?? "" : seenItem?.label ?? "", map, seenItem)
       if (busy) {
         state.log.push({ call, target: target ?? undefined, result: `refused: ${busy}` })
         state.refused = busy
@@ -1204,7 +1247,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       if (call.tool === "fill") {
         const item = map.items.find((i) => i.id === call.id) ?? null
         // Only the details the plan named (the same form's others, with their own keys, when they're named too).
-        const fill = fillLines(call, item, entries, map.lang || state.lang, map).filter((l) => perm.keys?.includes(l.key) && (!perm.ids || perm.ids.includes(l.id)))
+        const fill = fillLines(call, item, entries, map.lang || state.lang, map).filter((l) => perm.keys?.includes(l.key) && (!perm.ids || perm.ids.includes(l.id)) && own(l.key, l.value))
         if (!fill.length) {
           state.log.push({ call: { tool: "fill", id: call.id, key: call.key, why: call.why }, target: target ?? undefined, result: "failed: that detail doesn't fit this field" })
           continue
@@ -1227,7 +1270,8 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       const item = map.items.find((i) => i.id === call.id) ?? null
       const price = state.plan?.approved && (verdict.reason === "cart" || verdict.reason === "submit") ? priceChanged(state.plan, map, item?.label ?? "") : null
       if (call.tool === "fill") {
-        const fill = fillLines(call, item, entries, map.lang || state.lang, map)
+        // (The same form's other fields: never one the request gives.)
+        const fill = fillLines(call, item, entries, map.lang || state.lang, map).filter((l) => own(l.key, l.value))
         if (!fill.length) {
           state.log.push({ call: { tool: "fill", id: call.id, key: call.key, why: call.why }, target: target ?? undefined, result: "failed: that detail doesn't fit this field" })
           continue
@@ -1440,6 +1484,16 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
     if (!text) return state
     state.log.push({ call: { tool: "ask_user", question: state.summary ?? "" }, result: `the person answered: "${text}"` })
     state.replies = [...(state.replies ?? []), text]
+    // A contact detail the person just gave (their name, asked mid-task) goes in by the plan's contact fill, like the
+    // card's: no second question for it (127: «Fill in from My details?» warned the plan didn't cover the name given
+    // seconds before).
+    const asked = state.askKey
+    if (asked && state.plan) {
+      state.oneTime = [...(state.oneTime ?? []).filter((o) => o.key !== asked), { key: asked, value: text.slice(0, 120) }]
+      const fill = state.plan.perms.find((p) => p.reason === "contact")
+      if (fill) fill.keys = [...new Set([...(fill.keys ?? []), asked])]
+      else state.plan.perms.push({ id: "pcontact", kind: "fill", reason: "contact", label: "", keys: [asked], host: state.plan.perms[0]?.host ?? state.host ?? "", on: true })
+    }
     state.summary = undefined
     state.choices = undefined
     state.askKey = undefined

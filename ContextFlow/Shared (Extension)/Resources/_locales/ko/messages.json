@@ -3479,6 +3479,9 @@
  "agentPermFill": {
   "message": "‘내 정보’로 채우기: {0}"
  },
+ "agentLineFilled": {
+  "message": "‘내 정보’로 채웠습니다: {0}"
+ },
  "agentPermConsent": {
   "message": "{0} 약관 동의에 체크"
  },

@@ -8,6 +8,7 @@
 
 import { classify, itemById, type StepContext } from "./classify.ts"
 import { normalize, wordKind } from "./match.ts"
+import { keyOfAutocomplete } from "./formdata.ts"
 import { amountOf, amounts } from "./money.ts"
 import { hostOf, sameSite, siteOfHost } from "./sites.ts"
 import type { MapItem, PageMap, StepVerdict, ToolCall } from "./types.ts"
@@ -351,8 +352,12 @@ export function buildPlan(raw: RawPlan, ctx: StepContext): TaskPlan {
     if (!v) continue
     const label = (item?.label || r.text).slice(0, 80)
     if (v.cls === "confirm") {
-      if (v.reason === "personal") personal.push(label)
-      else if (v.reason === "fill") {
+      if (v.reason === "personal") {
+        // A contact field (name, e-mail, phone) is typed only with what the request says (127: «Type in your details from
+        // the request: Name» for a request with no name, then «Alex» typed): else the card asks it or «Мои данные» fill it.
+        if (item && contactField(item) && !(r.text && saidInWords(ctx.request, r.text))) continue
+        personal.push(label)
+      } else if (v.reason === "fill") {
         if (r.key && !fillKeys.includes(r.key)) fillKeys.push(r.key)
         fillFields.push(label)
         if (item) fillIds.push(item.id)
@@ -420,9 +425,12 @@ export function pathOf(url: string): string {
 export function saidInWords(words: string, value: string): boolean {
   const v = normalize(value)
   if (!v) return false
-  if (` ${normalize(words)} `.includes(` ${v} `)) return true
+  // An e-mail address counts as a whole, never by its parts (127: «Alex» typed into Name passed as the person's words
+  // because they had just given alex.test@example.com).
+  const said = EMAIL_IN.test(value) ? words : words.replace(EMAIL_ALL, " ")
+  if (` ${normalize(said)} `.includes(` ${v} `)) return true
   const sv = squash(value)
-  return sv.length >= 7 && squash(words).includes(sv)
+  return sv.length >= 7 && squash(said).includes(sv)
 }
 
 // ------------------------------------------------------------ prices
@@ -585,6 +593,7 @@ export function optionFor(options: string[], value: string): string {
 const CANCEL_CHOICE = /^(cancel|stop|abort|never ?mind|отмена|отменить|отмените|стоп|не надо|скасувати|відміна|відмінити|стоп|abbrechen|stopp|annuler|arrêter|cancelar|parar|detener|annulla|annullare|interrompi|iptal|vazgeç|durdur|キャンセル|中止|やめる|취소|중지|取消|停止|إلغاء|توقف|hủy|dừng)$/iu
 
 const EMAIL_IN = /[^\s@<>()]+@[^\s@<>()]+\.[\p{L}]{2,}/u
+const EMAIL_ALL = new RegExp(EMAIL_IN.source, "gu")
 // (Seven digits or more in one run of digits, spaces, dots and dashes: «+357 99 123456», never «20 декабря в 19:00».)
 const PHONE_IN = /(?:\+|(?<![\d:]))\d(?:[\s().-]?\d){6,}(?![\d:])/
 
@@ -618,14 +627,61 @@ export function addContactFill(plan: TaskPlan, saved: string[], host: string, sa
   // A detail the request itself gives (its e-mail, or a field the plan types from the request's words) comes from the
   // request, not from «Мои данные» too: one source per field, the request wins (the director on 126: the card named the
   // e-mail twice, «from the request» and «from My details»).
-  const given = new Set<string>((plan.perms.find((p) => p.kind === "personal")?.fields ?? []).map((f) => contactAsked(f) ?? "").filter(Boolean))
+  const given = requestGives(plan, said)
+  const fromRequest = (k: string) => given.has(contactKind(k) ?? "")
+  const has = (k: string) => saved.includes(k) || ((k === "name.given" || k === "name.family") && saved.includes("name.full"))
+  // The model's own «fill from My details» (127): only details that are saved and that the request doesn't give (the card
+  // claimed a phone nobody saved); a booking's contact details on one line with the rest (it named them twice, «Phone,
+  // E-mail» and «E-mail, Phone»).
+  let moved: string[] = []
+  plan.perms = plan.perms.filter((p) => {
+    if (p.kind !== "fill" || p.reason !== "fill") return true
+    const keys = p.keys ?? []
+    const keep = keys.filter((k) => has(k) && !fromRequest(k) && !(plan.booking && contactKind(k)))
+    moved = [...moved, ...keys.filter((k) => plan.booking && contactKind(k) && has(k) && !fromRequest(k))]
+    if (keep.length === keys.length) return true
+    p.keys = keep
+    p.label = ""
+    return keep.length > 0
+  })
+  // A full name covers its first and last name (they're split from it on the device): the card names it once.
+  const keys = CONTACT_KEYS.filter((k) => (saved.includes(k) || moved.includes(k)) && !fromRequest(k) && !((k === "name.given" || k === "name.family") && saved.includes("name.full")))
+  if (!plan.booking || !keys.length) return
+  const contact = plan.perms.find((p) => p.reason === "contact")
+  if (contact) contact.keys = [...new Set([...(contact.keys ?? []), ...keys])]
+  else plan.perms.push({ id: "pcontact", kind: "fill", reason: "contact", label: "", keys: [...keys], host, on: true })
+}
+
+/** A contact key's kind: "name" (any part of it), "email" or "phone"; null for the rest. */
+export function contactKind(key: string): "name" | "email" | "phone" | null {
+  return key.startsWith("name") ? "name" : key === "email" || key === "phone" ? key : null
+}
+
+/**
+ * The contact details the request itself gives (127: «Book a table for Maria Kim, maria@example.com» — the card offered
+ * the saved Alex Test over them): an e-mail or a phone written in it, and the ones the approved plan types from its words.
+ */
+export function requestGives(plan: TaskPlan | null | undefined, said: string): Set<string> {
+  const given = new Set<string>()
+  for (const f of plan?.perms.find((p) => p.kind === "personal")?.fields ?? []) {
+    const k = contactAsked(f)
+    if (k) given.add(contactKind(k) ?? k)
+  }
   if (contactInWords("email", said)) given.add("email")
   if (contactInWords("phone", said)) given.add("phone")
-  const fromRequest = (k: string) => given.has(k) || ((k === "name.given" || k === "name.family") && given.has("name.full"))
-  // A full name covers its first and last name (they're split from it on the device): the card names it once.
-  const keys = CONTACT_KEYS.filter((k) => saved.includes(k) && !fromRequest(k) && !((k === "name.given" || k === "name.family") && saved.includes("name.full")))
-  if (!plan.booking || !keys.length || plan.perms.some((p) => p.reason === "contact")) return
-  plan.perms.push({ id: "pcontact", kind: "fill", reason: "contact", label: "", keys: [...keys], host, on: true })
+  return given
+}
+
+/** The contact detail a form field asks for (by its autocomplete, type or label): name, email, phone; else null. */
+export function contactField(item: Pick<MapItem, "type" | "auto" | "label">): "name" | "email" | "phone" | null {
+  const auto = keyOfAutocomplete(item.auto)?.key ?? null
+  if (item.type === "email") return "email"
+  if (item.type === "tel") return "phone"
+  if (auto) return contactKind(auto)
+  // By its words only a field that asks for one thing: a search box («Nom, spécialité, examens», 126) isn't a name field.
+  if (item.type === "search" || /[,;|/·]/.test(item.label) || item.label.trim().split(/\s+/).length > 4) return null
+  const k = fieldKind(item, null) ?? contactAsked(item.label)
+  return k ? contactKind(k) : null
 }
 
 const CONTACT_WORDS: [(typeof CONTACT_KEYS)[number], RegExp][] = [

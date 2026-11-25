@@ -76,6 +76,17 @@ export function clock(time: string): string {
   }
 }
 
+/**
+ * The model's words with their times and dates in the device's own format (the director on 127: steps «19:00», the
+ * recap «07:30 PM», the done bubble «19:30»; «2026-11-26» beside «Thu, Nov 26»): a 24-hour «19:30» and an ISO day.
+ */
+export function localWhen(text: string): string {
+  if (!text) return text
+  return text
+    .replace(/(?<![\d:./-])(\d{4})-(\d{2})-(\d{2})(?![\d:])/g, (m, y: string, mo: string, d: string) => (Number(mo) >= 1 && Number(mo) <= 12 && Number(d) >= 1 && Number(d) <= 31 ? when(`${y}-${mo}-${d}`) : m))
+    .replace(/(?<![\d:.,])([01]?\d|2[0-3]):([0-5]\d)(?![\d:])(?!\s?[aApP]\.?[mM])/g, (m, h: string, mi: string) => clock(`${h}:${mi}`))
+}
+
 /** The recap's booking in a line: «Cutter, Sun 27 Dec, 09:00». */
 export function recapWhat(r: Recap): string {
   return [r.place, r.date ? when(r.date, r.time) : ""].filter(Boolean).join(", ")
@@ -173,7 +184,7 @@ function permText(p: Perm, host: string): string {
 /** A line of the plan: the model's words, or, for a step the person does, theirs («Купить сейчас» — нажмёте вы). */
 function planStepText(plan: TaskPlan, i: number, line: string): VNode | string {
   const own = plan.self.find((x) => x.step === i)
-  if (!own) return line
+  if (!own) return localWhen(line)
   return <><span class="cf-agent-you">{t("agentYouMark")}</span> {t("agentPlanStepYours", own.label)}</>
 }
 
@@ -433,7 +444,7 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
           <span class="cf-agent-row-text" dir="auto">{state.request}</span>
           <span class="cf-agent-row-more" aria-hidden="true">›</span>
         </button>
-        {answerOnly && <div class="cf-agent-row-answer"><Markdown text={state.summary ?? ""} /></div>}
+        {answerOnly && <div class="cf-agent-row-answer"><Markdown text={localWhen(state.summary ?? "")} /></div>}
       </div>
     )
   }
@@ -476,7 +487,7 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
               {/* (A box the plan let the agent tick is the agent's step.) */}
               {l.cls === "self" && !l.byPlan
                 ? <span class="cf-agent-you">{t("agentYouMark")}</span>
-                : <span class="cf-agent-mark" aria-hidden="true">{l.ok ? "✓" : "·"}</span>} {l.tool === "event_add" && l.ok ? t("agentLineCalendar", l.text) : l.popup ? t("agentLinePopup", nameOf(l.target)) : l.text || nameOf(l.target)}
+                : <span class="cf-agent-mark" aria-hidden="true">{l.ok ? "✓" : "·"}</span>} {l.tool === "event_add" && l.ok ? t("agentLineCalendar", l.text) : l.popup ? t("agentLinePopup", nameOf(l.target)) : l.text ? localWhen(l.text) : l.tool === "fill" && l.target ? t("agentLineFilled", nameOf(l.target)) : nameOf(l.target)}
             </li>
           ))}
         </ol>
@@ -530,10 +541,10 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
       {state.status === "asked" && (
         <div class="cf-agent-ask">
           <strong>{t("agentAskedTitle")}</strong>
-          <p dir="auto">{state.summary}</p>
+          <p dir="auto">{localWhen(state.summary ?? "")}</p>
           {choices.length > 0 && (
             <div class="cf-agent-options">
-              {choices.map((c) => <button type="button" key={c} class="cf-chip" dir="auto" disabled={sent} onClick={() => reply("reply", [c])}>{c}</button>)}
+              {choices.map((c) => <button type="button" key={c} class="cf-chip" dir="auto" disabled={sent} onClick={() => reply("reply", [c])}>{localWhen(c)}</button>)}
             </div>
           )}
           <div class="cf-agent-reply">
@@ -571,7 +582,7 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
             <>
               <strong>{t(state.error === "steps" || state.error === "stuck" || state.error === "unbooked" ? "agentMarkUnfinished" : "agentDoneTitle")}</strong>
               {(state.error === "steps" || state.error === "stuck") && <p>{t(state.error === "stuck" ? "agentStuck" : "agentSteps")}</p>}
-              {state.summary ? <Markdown text={state.summary} /> : null}
+              {state.summary ? <Markdown text={localWhen(state.summary)} /> : null}
               {state.calSkipped && <p class="cf-agent-meta">{t("agentCalNotChecked")}</p>}
             </>
           )}
@@ -731,7 +742,7 @@ export function AgentNoticeCard({ notice, side, top, onGo, onClose }: { notice: 
         <button type="button" class="cf-ph-x" aria-label={t("close")} title={t("close")} onClick={onClose}><Icon.Close /></button>
       </div>
       <p class="cf-agent-notice-req" dir="auto">{notice.request}</p>
-      {!waiting && notice.summary && <p class="cf-agent-notice-sum" dir="auto">{notice.summary}</p>}
+      {!waiting && notice.summary && <p class="cf-agent-notice-sum" dir="auto">{localWhen(notice.summary)}</p>}
       <button type="button" class="cf-primary" onClick={onGo}>{t("agentGoToTab")}</button>
     </div>
   )

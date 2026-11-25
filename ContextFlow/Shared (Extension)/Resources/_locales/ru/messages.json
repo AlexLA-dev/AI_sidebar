@@ -3479,6 +3479,9 @@
  "agentPermFill": {
   "message": "Заполнить из «Моих данных»: {0}"
  },
+ "agentLineFilled": {
+  "message": "Заполнено из «Моих данных»: {0}"
+ },
  "agentPermConsent": {
   "message": "Отметить согласие с условиями сайта {0}"
  },

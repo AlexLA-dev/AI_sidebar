@@ -3479,6 +3479,9 @@
  "agentPermFill": {
   "message": "الملء من «بياناتي»: {0}"
  },
+ "agentLineFilled": {
+  "message": "تمت التعبئة من «بياناتي»: {0}"
+ },
  "agentPermConsent": {
   "message": "وضع علامة الموافقة على شروط موقع {0}"
  },

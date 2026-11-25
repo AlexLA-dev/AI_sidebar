@@ -268,7 +268,7 @@ test("a wordless button over the page (a banner's ×) closes it freely; elsewher
   assert.equal(classify({ tool: "click", id: "3" }, ctx([{ id: "3", role: "button", label: "", where: "dialog", form: 0, type: "submit" }])).cls, "confirm")
 })
 
-test("typing what an approved fill would put in (the request's words or the saved value) is the plan's; another value asks", async () => {
+test("typing what an approved fill would put in (the request's words or the saved value) is the plan's; another value is refused", async () => {
   const FORM: PageMap = { ...SALON, forms: [{ n: 0, fillable: true }], items: [{ id: "1", role: "textbox", label: "Name", lock: "personal", form: 0, state: ["empty"] }, { id: "2", role: "textbox", label: "Phone", lock: "personal", form: 0, state: ["empty"] }, { id: "9", role: "button", label: "Book", type: "submit", form: 0 }] }
   const raw = { label: "", steps: ["Booking"], questions: [], risky: [{ tool: "fill", id: "1", text: "", key: "name.full" }, { tool: "fill", id: "2", text: "", key: "phone" }], prices: [] }
   const entries: FormEntry[] = [{ id: "n", key: "name.full", label: "", value: "Анна Петрова", updatedAt: 1 }, { id: "p", key: "phone", label: "", value: "+357 99 123456", updatedAt: 1 }]
@@ -287,7 +287,9 @@ test("typing what an approved fill would put in (the request's words or the save
   const b = await run([{ tool: "type", id: "2", text: "+357 99 123 456" }], "забронируй")
   assert.equal(b.s.status, "done", "the saved phone's own value")
   const c = await run([{ tool: "type", id: "2", text: "+44 20 7946 0000" }], "забронируй")
-  assert.equal(c.s.status, "confirm", "another number asks")
+  // (127: never a value nobody gave — refused, not offered on a card.)
+  assert.equal(c.x.acted.length, 0, "another number isn't typed")
+  assert.ok(c.s.log.some((l) => /^refused: «\+44 20 7946 0000» isn't in the person's words/.test(l.result)))
 })
 
 test("the place's time zone: Paris 19:00 is Nicosia 20:00; free time is said in the place's clock", async () => {

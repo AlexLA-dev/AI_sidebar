@@ -1190,6 +1190,7 @@
   "agentPlanNow": "今すぐ",
   "agentPermPersonal": "依頼文にある情報を入力：{0}",
   "agentPermFill": "「自分の情報」から入力：{0}",
+  "agentLineFilled": "「自分の情報」から入力しました：{0}",
   "agentPermConsent": "{0} の利用規約への同意にチェック",
   "agentPermReminder": "リマインダーに追加：「{0}」",
   "agentPermReminderDone": "リマインダーで完了にする：「{0}」",
