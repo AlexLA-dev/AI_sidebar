@@ -78,7 +78,7 @@ test("no offer: one box (Pro, monthly price), one buy button with the price, the
   assert.match(card.el.querySelector(".cf-plan-price").textContent, /\$6\.99 \/ month/)
   assert.equal(card.el.querySelectorAll(".cf-plan-lines li").length, 2)
   assert.equal(card.el.querySelector(".cf-limit-buy").textContent.trim(), "Get Pro — $6.99 a month")
-  assert.equal(card.el.querySelector(".cf-limit-terms").textContent, "Renews monthly. Cancel anytime in the App Store.")
+  assert.equal(card.el.querySelector(".cf-limit-terms").textContent.replace(/\u00a0/g, " "), "Renews monthly. Cancel anytime in the App Store.")
   assert.equal(card.el.querySelector(".cf-limit-offer"), null)
   assert.equal(card.el.querySelector(".cf-limit-more"), null)
   assert.doesNotMatch(card.text(), /\$59\.99|\$12\.99/)
@@ -93,7 +93,7 @@ test("with the offer: the box says the first month, the button goes to the code 
   await tick()
   assert.equal(card.el.querySelector(".cf-limit-offer").textContent, "First month 50% off")
   assert.equal(card.el.querySelector(".cf-limit-buy").textContent.trim(), "Get Pro — first month 50% off")
-  assert.equal(card.el.querySelector(".cf-limit-terms").textContent, "Then $6.99 a month. Applied with a code in the App Store.")
+  assert.equal(card.el.querySelector(".cf-limit-terms").textContent.replace(/\u00a0/g, " "), "Then $6.99 a month. Applied with a code in the App Store.")
   // One price in the box: no second, discounted price.
   assert.equal((card.el.querySelector(".cf-offer-plan-card").textContent.match(/\$/g) ?? []).length, 1)
   await click(card.el.querySelector(".cf-limit-buy"))

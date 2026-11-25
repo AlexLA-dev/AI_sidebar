@@ -3846,7 +3846,7 @@
   "message": "Primer mes con un {0} % de descuento"
  },
  "limitBuyOffer": {
-  "message": "Obtener Pro: primer mes con un {0} % de descuento"
+  "message": "Obtener Pro: primer mes al {0} %"
  },
  "limitBuyPrice": {
   "message": "Obtener Pro por {0} al mes"

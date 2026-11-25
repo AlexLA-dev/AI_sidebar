@@ -1313,7 +1313,7 @@
   "hoursMinutes": "{0} h {1} min",
   "offerByCode": "Se aplica con un código en el App Store.",
   "limitOfferLine": "Primer mes con un {0} % de descuento",
-  "limitBuyOffer": "Obtener Pro: primer mes con un {0} % de descuento",
+  "limitBuyOffer": "Obtener Pro: primer mes al {0} %",
   "limitBuyPrice": "Obtener Pro por {0} al mes",
   "limitThen": "Después, {0} al mes.",
   "limitRenews": "Se renueva cada mes. Cancela cuando quieras en el App Store.",

@@ -40,7 +40,8 @@ export function pluralForm(count: number, lang?: string): "one" | "two" | "few" 
 
 /** "5 new free answers at 2:00, in 17 h", in the form the number takes (2.6: Russian said «1 бесплатных ответов»). */
 export function freeAnswersBack(count: number, at: string, until: string, lang?: string): string {
-  return t(`limitFreeBack_${pluralForm(count, lang)}`, count, at, until)
+  // A time ending in an abbreviation's point («1 Std. 40 Min.») before the sentence's own: one point (2.8, Р19).
+  return t(`limitFreeBack_${pluralForm(count, lang)}`, count, at, until).replace(/\.\.(?=\s|$)/g, ".")
 }
 
 /**

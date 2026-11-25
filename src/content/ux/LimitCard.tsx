@@ -98,7 +98,9 @@ export function LimitCard({ status, title, body, offer, remind, retryAt, ownKey,
       {/* What happens after: the price it renews at, and where the code is applied / where it's cancelled. No promise we
           can't stand behind (the director: «Cancel anytime in two taps» isn't true). */}
       <p class="cf-limit-terms">
-        {offer ? `${monthly ? `${t("limitThen", monthly)} ` : ""}${t("offerByCode")}` : t("limitRenews")}
+        {(offer ? [monthly ? t("limitThen", monthly) : "", t("offerByCode")].filter(Boolean).join(" ") : t("limitRenews"))
+          // No space after a full-width stop (ja, zh); «App Store» kept on one line.
+          .replace(/([。．]) /g, "$1").replace(/App Store/g, "App\u00a0Store")}
       </p>
       <div class="cf-limit-row">
         {remind}

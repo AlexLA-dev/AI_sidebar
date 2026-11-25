@@ -56,3 +56,17 @@ test("the limit card's «in …» goes through it", () => {
   const app = readFileSync(join(root, "src/content/App.tsx"), "utf8")
   assert.match(app, /function timeUntil[\s\S]{0,120}return timeLeft\(/)
 })
+
+test("a time ending in an abbreviation's point gets one point at the sentence's end (de «40 Min.», 2.8 Р19)", () => {
+  const de = JSON.parse(readFileSync(join(root, "src/locales/de.json"), "utf8")) as Record<string, string>
+  const g = globalThis as { chrome?: unknown }
+  const was = g.chrome
+  g.chrome = { i18n: { getMessage: (key: string) => de[key] ?? "", getUILanguage: () => "de" } }
+  try {
+    const line = i18n.freeAnswersBack(5, "11:47", i18n.timeLeft(100 * MIN), "de") as string
+    assert.match(line, /40 Min\.$/)
+    assert.doesNotMatch(line, /\.\./)
+  } finally {
+    g.chrome = was
+  }
+})
