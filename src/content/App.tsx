@@ -1763,6 +1763,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         grounded = { text: event.text, grounding: event.grounding }
       } else if (event.type === "done") {
         settled = true
+        standTrace(`chat done after ${Date.now() - connected} ms`)
         if (event.usage) setUsage(event.usage)
         finish(history, grounded?.text ?? partialRef.current, null, grounded?.grounding, event.entry)
       } else if (event.type === "error") {
