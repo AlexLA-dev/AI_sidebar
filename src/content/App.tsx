@@ -700,14 +700,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const armRef = useRef(arm)
   armRef.current = arm
   useEffect(() => {
-    let tries = 0
-    const read = () => void chrome.storage.local.get(STORAGE.installId).then((got) => {
+    // Stored, else the background's own (it makes it if it has to): the arm is always the one the events report (R10).
+    const fromBackground = () => void sendBackground<string>({ type: "installId" }).then((id) => setArm(typeof id === "string" ? firstArm(id) ?? "guide" : "guide"))
+    void chrome.storage.local.get(STORAGE.installId).then((got) => {
       const id = got[STORAGE.installId]
       if (typeof id === "string") setArm(firstArm(id) ?? "guide")
-      else if (++tries < 5) setTimeout(read, 600)
-      else setArm("guide")
-    }).catch(() => setArm("guide"))
-    read()
+      else fromBackground()
+    }).catch(fromBackground)
   }, [])
   // The chat being loaded as the panel opens: a question typed by the selection waits for it.
   const loadingRef = useRef<Promise<void>>(Promise.resolve())
@@ -870,11 +869,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const pageChatRef = useRef(false)
   // 2.8 (events-2.8 §2, rungs 8 and 9): how the panel was opened, and what this opening came to (sent as it closes).
   const openViaRef = useRef<"toolbar" | "fab" | "bubble" | "hint">("toolbar")
-  const openingRef = useRef<{ at: number; did: PanelDid; id: string } | null>(null)
+  const openingRef = useRef<{ at: number; did: PanelDid; id: string; sendOpen: (() => void) | null } | null>(null)
   const screenNowRef = useRef<() => PanelScreen>(() => "empty")
   const show = useCallback((captured?: SelectionInfo, how?: { pageChat?: true }, by?: "fab") => {
     openedAt.current = Date.now()
-    {
+    // One opening per time the panel is on screen (R11): show() while it's open already (Ask AI by a selection, a
+    // link) is the same opening.
+    if (!openingRef.current) {
       // The circle's tap (fab.tap), and how the panel came (panel.open via).
       if (by === "fab") {
         openViaRef.current = "fab"
@@ -882,17 +883,19 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       }
       const via = captured ? "bubble" : openViaRef.current
       openViaRef.current = "toolbar"
-      const first = (coachRef.current?.panelOpens ?? 1) === 0
+      const first = (coachRef.current?.panelOpens ?? 1) === 0 && coachRef.current?.armed === true
       coachRef.current?.panelOpened()
       coachRef.current?.done("fab_pulse")
-      openingRef.current = { at: Date.now(), did: "none", id: crypto.randomUUID() }
-      keepOpening(openingRef.current.id, { at: openingRef.current.at, last: Date.now(), did: "none" })
+      const opening = { at: Date.now(), did: "none" as PanelDid, id: crypto.randomUUID(), sendOpen: null as (() => void) | null }
       // What the first screen showed, once the panel has settled on it (the guide starts 450 ms after the panel is in
-      // view; on a device that was over 0.7 s after the tap).
-      setTimeout(() => {
-        if (!openingRef.current) return
+      // view; on a device that was over 0.7 s after the tap); a panel closed sooner sends its open as it closes.
+      opening.sendOpen = () => {
+        opening.sendOpen = null
         void sendBackground({ type: "useEvent", f: "panel", a: "open", via, lay: layoutRef.current, page: pageKindNow(), screen: screenNowRef.current(), ...(first ? { first: 1 } : {}) })
-      }, 1500)
+      }
+      openingRef.current = opening
+      keepOpening(opening.id, { at: opening.at, last: Date.now(), did: "none" })
+      setTimeout(() => opening.sendOpen?.(), 1500)
     }
     pageChatRef.current = Boolean(how?.pageChat && !captured)
     if (captured) {
@@ -922,6 +925,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const opening = openingRef.current
     openingRef.current = null
     if (opening) {
+      opening.sendOpen?.()
       void sendBackground({ type: "useEvent", f: "panel", a: "close", open_s: Math.min(9999, Math.round((Date.now() - opening.at) / 1000)), did: opening.did })
       keepOpening(opening.id, null)
     }
@@ -2805,6 +2809,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const hintAsked = useRef(false)
   useEffect(() => {
     if (!draft.trim() || noteMode || hintAsked.current) return
+    // 2.8.1 (R3): not counted while the coordinator wouldn't show it (day 1, its budget): it was spent unseen.
+    if (!coachRef.current?.may("note_tip")) return
     hintAsked.current = true
     // 2.7.1: a pointer's hint (up and down for Note and Do) once on this device, even after the finger's was used.
     void Promise.all([noteHintCount(), pointerUsed ? pointerHintSeen() : Promise.resolve(true)]).then(([count, seen]) => {
@@ -2824,22 +2830,21 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [fullAt, setFullAt] = useState<number | null | undefined>(undefined)
   useEffect(() => void loadFullAt().then(setFullAt), [])
   const offerCardAsked = useRef(false)
+  const offerByTap = useRef(false)
+  const offerCounted = useRef(false)
   // Whether the limit card is up (the discount notification's tap then needs no «once more»).
   const limitUpRef = useRef(false)
   limitUpRef.current = error?.code === "LIMIT_REACHED"
   useEffect(() => {
     if (TARGET !== "safari" || !open || offerCardAsked.current || !status || fullAt === undefined) return
     if (!isReturn(status.limitedBefore, fullAt) || !status.offer || status.plan !== "free" || status.hasOwnKey) return
-    // 2.8 (В3.3): through the hint coordinator (not on the first day; one hint at a time; it counts its shows).
-    if (!coachRef.current?.ready || !coachRef.current.may("pro_offer")) return
     offerCardAsked.current = true
     void offerCardCount().then((count) => {
       if (count < 0 || count >= 3) return
+      offerByTap.current = false
       setOfferCard(true)
-      void setOfferCardCount(count + 1)
-      void sendBackground({ type: "useEvent", f: "chat_plans", a: "shown", via: "return", state: "discount" })
     })
-  }, [open, status, fullAt, coach.ready])
+  }, [open, status, fullAt])
   // Bought (here, in the app or on another device): the answers-back reminder goes, with whatever it would have said,
   // and the full-price mark with it.
   const boughtSeen = useRef(false)
@@ -3304,13 +3309,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const offerFor = lastUserIndex >= 0 && !historyMode && !agentBusy && messages[lastUserIndex].similarAsk === undefined && asksForAction(messages[lastUserIndex].content) ? lastUserIndex : -1
   // Under the answer once it's there (where the answer says it is), under the question while it's written.
   const offerAt = offerFor < 0 ? -1 : messages[offerFor + 1]?.role === "assistant" ? offerFor + 1 : offerFor
+  // (2.8.1: the answer's own button, outside the hint coordinator: the director's review, R7.)
   const offerTap = () => {
-    coach.tap("agent_offer")
-    coach.done("agent_offer")
     void startAgent(messages[offerFor].content, undefined, threadFor(offerFor))
   }
   const offerChip = (at: number) =>
-    at === offerAt && slot === "agent_offer" && (
+    at === offerAt && (
       <button type="button" class="cf-chip cf-agent-hint" onClick={offerTap}>
         <Icon.Sparkle size={13} /> {t("agentHint")}{!hasPro(plan) && <span class="cf-pro-badge">Pro</span>}
       </button>
@@ -3394,10 +3398,6 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // The offer card was answered: it isn't shown again.
   const closeOfferCard = useCallback((code: string | null) => {
-    if (code) {
-      coachRef.current?.tap("pro_offer")
-      coachRef.current?.done("pro_offer")
-    } else coachRef.current?.dismiss("pro_offer")
     setOfferCard(false)
     void setOfferCardCount(-1)
     void sendBackground({ type: "useEvent", f: "chat_plans", a: code ? "discount" : "later", via: "return", state: "discount" })
@@ -3479,8 +3479,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       if (!openNowRef.current) show()
       if (limitUpRef.current) return
       offerCardAsked.current = true
+      offerByTap.current = true
+      offerCounted.current = false
       setOfferCard(true)
-      void sendBackground({ type: "useEvent", f: "chat_plans", a: "shown", via: "return", state: "discount" })
     }
     const onHash = () => void take()
     onHash()
@@ -4054,6 +4055,18 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // full price first). What a return would bring: for the one notification that may say it.
   const offerGiven = TARGET === "safari" && plan === "free" && !ownKeyActive ? error?.offer ?? status?.offer ?? null : null
   const offer = offerGiven && fullAt !== undefined && isReturn(status?.limitedBefore, fullAt) ? offerGiven : null
+  // 2.8.1 (the director, R1): the discount is a purchase surface, not a hint: nothing holds it (hints wait for it), and
+  // its visit is counted and reported only once it is on screen (the card needs the offer, no error, no answer coming).
+  const offerOnScreen = open && offerCard && !!offer && !error && partial === null
+  useEffect(() => {
+    if (!offerOnScreen || offerCounted.current) return
+    offerCounted.current = true
+    // From the notification's tap: «once more», whatever its count of visits (not counted).
+    if (!offerByTap.current) void offerCardCount().then((count) => {
+      if (count >= 0) void setOfferCardCount(count + 1)
+    })
+    void sendBackground({ type: "useEvent", f: "chat_plans", a: "shown", via: "return", state: "discount" })
+  }, [offerOnScreen])
   const returnDiscount = TARGET === "safari" && plan === "free" && !ownKeyActive ? status?.returnOffer?.discount ?? offerGiven?.discount ?? null : null
   // Videos and PDFs on the page are read for Pro (and the user's own key); free answers say they skipped them.
   const mediaOn = readsMedia(status, TARGET)
@@ -4956,7 +4969,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       if (last === today) return
       void chrome.storage.local.set({ [FAB_SHOWN_KEY]: today })
       // `first`: the first time ever for someone who never opened the panel (an update from 2.7 has no mark yet).
-      void sendBackground({ type: "useEvent", f: "fab", a: "shown", page: pageKindNow(), ...(!last && coachRef.current?.panelOpens === 0 ? { first: 1 } : {}) })
+      void sendBackground({ type: "useEvent", f: "fab", a: "shown", page: pageKindNow(), ...(!last && coachRef.current?.panelOpens === 0 && coachRef.current.armed ? { first: 1 } : {}) })
     }).catch(() => undefined)
   }, [fabVisible, coach.ready])
 
@@ -4970,8 +4983,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const lastChat = showReady && coach.answers > 0
     ? threadList.find((th) => th.id !== threadRef.current && th.kind !== "history" && th.m.some((e) => e.role === "assistant") && Date.now() - (th.a ?? th.u) < 14 * 86_400_000) ?? null
     : null
+  // The consent in the question's own tap (В6.3) is the ask arm's, for a new install; anyone else asked with ready
+  // questions gets the consent card as before (R5: not «Agree and ask» to someone from 2.7 who never gave it).
+  const consentInTap = consent !== "ok" && arm === "ask" && coach.armed
   const askReady = (text: string) => {
-    if (consent === "ok") return ask(text, { via: "ready" })
+    if (!consentInTap) return ask(text, { via: "ready" })
     // The question's own button said «Agree and ask» over the consent's text: given by this tap.
     void giveConsent().then(() => {
       setConsent("ok")
@@ -5028,20 +5044,24 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   wantIf("organize_tags", open && tagsCard && !messCard && promoOk)
   wantIf("byok_offer", open && byokCard && byokDiscount !== null && !error && partial === null)
   wantIf("renewal", open && renewal === "ask" && !error && partial === null)
-  wantIf("pro_offer", open && offerCard && offer && !error && partial === null)
   wantIf("media_tip", chatFree && mediaDue)
   wantIf("invite", chatFree && inviteNew)
   wantIf("whatsnew", chatFree && !inviteNew && hintDue("new27") && !mediaDue)
   wantIf("side", chatFree && !inviteNew && hintDue("side") && !hintDue("new27") && !mediaDue)
   wantIf("chats_tip", open && view === "threads" && hintDue("chats") && threadList.length > 0 && guide !== "chatList" && !(guide && PLAN_VIEW[guide] === "threads"))
   wantIf("note_tip", open && noteHint && draft.trim() && !noteMode && !sendMenu)
-  wantIf("agent_offer", open && offerAt >= 0)
   wantIf("google_offer", open && view === "chat" && webFor)
   wantIf("collect_tip", open && view === "chat" && collectOffer !== null && collectOffer < messages.length && !picked)
   // What the person is in the middle of holds every hint: the consent, the guide or the tour, the plans, the limit.
   // (Ready questions that carry the consent are the consent too: nothing beside them until it's given.)
-  const coachFlow = guide !== null || touring || (open && (pending !== null || findConsent !== null || plansOpen !== null || memoryOffer !== null || error?.code === "LIMIT_REACHED" || (showReady && consent !== "ok")))
+  // (The limit card and the return discount are purchase surfaces: when one is due, hints wait — never the other way.)
+  const coachFlow = guide !== null || touring || (open && (pending !== null || findConsent !== null || plansOpen !== null || memoryOffer !== null || error?.code === "LIMIT_REACHED" || offerOnScreen || (showReady && consentInTap)))
   const slot = coach.pick(coachWants, coachFlow)
+  // A page line counts as shown once it holds the slot (R4: picked but held back, it was counted unseen).
+  const lineUp = !!pageHints.line && slot === `page_${pageHints.line}`
+  useEffect(() => {
+    if (lineUp) pageHints.seen()
+  }, [lineUp, pageHints.line])
   const pulse = slot === "fab_pulse"
   // What the first screen of an opening shows (panel.open's screen).
   screenNowRef.current = () =>
@@ -5271,7 +5291,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               ) : (
                 <>
                   {selHint && slot === "sel_ask" && <div class="cf-bubble-hint">{t("selHint")}</div>}
-                  {!selHint && slot === null && coach.may("sel_icons") && <SelIconsTip watching={listsKind("watch")} />}
+                  {!selHint && coach.may("sel_icons") && <SelIconsTip watching={listsKind("watch")} allowed={slot === "sel_icons"} onWant={(on) => coach.want("sel_icons", on)} />}
                 </>
               )}
             </>
@@ -5715,7 +5735,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     {showReady && (
                       <ReadyQuestions
                         questions={readyQuestions}
-                        consentFirst={consent !== "ok"}
+                        consentFirst={consentInTap}
                         again={consent === "old"}
                         onAsk={askReady}
                         last={lastChat ? { name: threadName(lastChat), open: () => {
@@ -6018,7 +6038,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   </div>
                 )}
 
-                {slot === "pro_offer" && offer && (
+                {offerCard && offer && !error && partial === null && (
                   <div class="cf-card offer">
                     <strong>{t("offerCardTitle")}</strong>
                     <p>{t("offerCardBody", offer.discount, PRO_WEEKLY)}</p>
@@ -6584,6 +6604,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           }}
           onAdapt={adaptTemplate}
           hintUp={(slot !== null && slot !== "write_tip") || !coach.may("write_tip")}
+          tipOk={slot === "write_tip"}
+          onTipWant={(on) => coach.want("write_tip", on)}
         />
       )}
     </div>

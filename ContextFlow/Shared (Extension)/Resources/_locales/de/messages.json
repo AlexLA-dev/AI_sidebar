@@ -2745,7 +2745,7 @@
   "message": "Was ist die Kernaussage?"
  },
  "rqArticleArgue": {
-  "message": "Was ist hier fragwürdig?"
+  "message": "Was lässt sich hier bestreiten?"
  },
  "rqArticleMe": {
   "message": "Was bedeutet das für mich?"
@@ -2832,7 +2832,7 @@
   "message": "Kopierte Antworten an einem Ort behalten: diese zu einer Sammlung hinzufügen."
  },
  "collectTipAdd": {
-  "message": "Zu einer Sammlung"
+  "message": "Zur Sammlung hinzufügen"
  },
  "phClose": {
   "message": "Tipp ausblenden"

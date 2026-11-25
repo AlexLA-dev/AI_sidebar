@@ -52,6 +52,8 @@ export function useCoach({ consent, paid }: { consent: boolean; paid: boolean })
   const stateRef = useRef(state)
   stateRef.current = state
   const [wanted, setWanted] = useState<ReadonlySet<CoachHint>>(new Set())
+  // R9: hints another tab claimed the session for first (seen when this one went to count its show).
+  const [blocked, setBlocked] = useState<ReadonlySet<CoachHint>>(new Set())
   const current = useRef<CoachHint | null>(null)
   const here = useRef(new Set<CoachHint>())
   const [slot, setSlot] = useState<CoachHint | null>(null)
@@ -59,6 +61,28 @@ export function useCoach({ consent, paid }: { consent: boolean; paid: boolean })
   useEffect(() => {
     void loadCoach(Date.now()).then((s) => setState(touch(s, Date.now())))
     return onCoachChanged(setState)
+  }, [])
+
+  // R8: the session goes on while the person uses the page (a page loaded, shown again, tapped, scrolled), not only
+  // while the coordinator writes: half an hour of reading isn't a new session. Kept at most once a minute.
+  useEffect(() => {
+    let lastKept = 0
+    const used = () => {
+      const now = Date.now()
+      if (now - lastKept < 60_000) return
+      lastKept = now
+      void changeCoach((s) => touch(s, now), now).then(setState)
+    }
+    used()
+    const shown = () => document.visibilityState === "visible" && used()
+    document.addEventListener("visibilitychange", shown)
+    window.addEventListener("pointerdown", used, { passive: true, capture: true })
+    window.addEventListener("scroll", used, { passive: true, capture: true })
+    return () => {
+      document.removeEventListener("visibilitychange", shown)
+      window.removeEventListener("pointerdown", used, { capture: true })
+      window.removeEventListener("scroll", used, { capture: true })
+    }
   }, [])
 
   const change = useCallback((fn: (s: CoachState) => CoachState) => {
@@ -77,11 +101,11 @@ export function useCoach({ consent, paid }: { consent: boolean; paid: boolean })
   const pick = useCallback((wanting: Iterable<CoachHint>, flow: boolean): CoachHint | null => {
     const s = stateRef.current
     if (!s) return null
-    const all = new Set([...wanting, ...wanted])
+    const all = new Set([...wanting, ...wanted].filter((id) => !blocked.has(id)))
     const next = choose(s, all, { now: Date.now(), rung: rungRef.current, flow, current: current.current, here: here.current })
     current.current = next
     return next
-  }, [wanted])
+  }, [wanted, blocked])
 
   // What the panel picked this render, committed after it (the shown count waits a second on screen).
   const commit = useCallback((id: CoachHint | null) => setSlot((was) => (was === id ? was : id)), [])
@@ -89,7 +113,15 @@ export function useCoach({ consent, paid }: { consent: boolean; paid: boolean })
   useEffect(() => {
     if (!slot || here.current.has(slot)) return
     const id = slot
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
+      if (current.current !== id || here.current.has(id)) return
+      // R9: another tab may have shown its hint a moment ago: read the stored state before counting this one.
+      const fresh = await loadCoach(Date.now())
+      if (HINTS[id].kind === "hint" && !allowed(fresh, id, { now: Date.now(), rung: rungRef.current, flow: false, current: null, here: here.current })) {
+        current.current = null
+        setBlocked((was) => new Set([...was, id]))
+        return
+      }
       if (current.current !== id || here.current.has(id)) return
       here.current.add(id)
       // A hint shown until taken (the ✦ pulse) is reported once a device day, not on every page (the director).

@@ -10,8 +10,8 @@
 export type Rung = 7 | 8 | 10 | 11 | 12 | 13
 
 export const HINT_IDS = [
-  "fab_pulse", "sel_ask", "agent_offer", "translate_pill", "cookie_line", "sel_icons", "write_tip", "note_tip",
-  "organize_consent", "organize_mess", "organize_tags", "byok_offer", "renewal", "pro_offer", "media_tip", "chats_tip",
+  "fab_pulse", "sel_ask", "translate_pill", "cookie_line", "sel_icons", "write_tip", "note_tip",
+  "organize_consent", "organize_mess", "organize_tags", "byok_offer", "renewal", "media_tip", "chats_tip",
   "side", "whatsnew", "invite",
   "page_similar", "page_watch", "page_summary", "page_listen", "page_video", "page_templates", "page_remind", "page_calendar",
   "page_agent", "google_offer", "collect_tip"
@@ -20,9 +20,11 @@ export type CoachHint = (typeof HINT_IDS)[number]
 
 /**
  * - "hint": the ordinary kind: a budget of shows, retired after two ✕ or once taken, one per session.
- * - "answer": belongs to an answer the person asked for («Сделать на этой странице?» under an action question): any
- *   day, no session or show budget, still one at a time.
- * - "notice": says what ContextFlow just did (the cookie window closed): one at a time, nothing else.
+ * - "answer": belongs to an answer the person asked for: any day, no session or show budget, still one at a time.
+ *   (2.8.1: none now — the agent's «Do it on this page?» is the answer's own button and the return discount a purchase
+ *   surface, both outside the coordinator: the director's review.)
+ * - "notice": says what ContextFlow just did on the person's page (the cookie window closed): it takes its few seconds
+ *   ahead of a hint (the ✦ pulse waits), counts for nothing.
  */
 export type HintKind = "hint" | "answer" | "notice"
 
@@ -45,7 +47,6 @@ export const HINTS: Record<CoachHint, HintSpec> = {
   // Day 1: what leads to the next rung.
   fab_pulse: hint(100, 7, 1, { untilDone: true }),
   sel_ask: hint(80, 11, 1),
-  agent_offer: { prio: 75, rung: 8, day: 1, kind: "answer" },
   // Day 2 on: one capability a day, where the page fits.
   translate_pill: hint(60, 11, 2, { cap: true }),
   page_similar: hint(60, 11, 2, { cap: true }),
@@ -72,14 +73,10 @@ export const HINTS: Record<CoachHint, HintSpec> = {
   organize_mess: hint(40, 11, 2),
   organize_tags: hint(40, 11, 2),
   invite: hint(30, 11, 2),
-  // The return discount after the free answers ran out (the limit session's, 2.8.1): the owner's rule is «при
-  // возвращении, если даже нотификации не было» — on return the same day too, so it isn't held to day 2 or to the
-  // session's one thing. It counts its own shows (offerCard, three).
-  pro_offer: { prio: 70, rung: 8, day: 1, kind: "answer" },
   byok_offer: hint(30, 11, 2),
   renewal: hint(30, 11, 2),
   whatsnew: hint(20, 11, 2),
-  cookie_line: { prio: 10, rung: 11, day: 1, kind: "notice" }
+  cookie_line: { prio: 10, rung: 7, day: 1, kind: "notice" }
 }
 
 /** Where the state is kept on the device (state.ts). */
@@ -210,9 +207,9 @@ const sessionUsed = (s: CoachState): boolean => s.session.shown !== null && HINT
 export function choose(s: CoachState, wanting: Iterable<CoachHint>, m: Moment): CoachHint | null {
   if (m.flow) return null
   const fit = [...new Set(wanting)].filter((id) => allowed(s, id, m))
-  // An answer's own offer comes with the answer the person asked for: it goes before a hint already up.
-  const answer = fit.filter((id) => HINTS[id].kind === "answer").sort((a, b) => HINTS[b].prio - HINTS[a].prio)[0]
-  if (answer) return answer
+  // An answer's own offer, then a notice of what was just done, go before a hint already up.
+  const first = fit.filter((id) => HINTS[id].kind !== "hint").sort((a, b) => Number(HINTS[a].kind === "notice") - Number(HINTS[b].kind === "notice") || HINTS[b].prio - HINTS[a].prio)[0]
+  if (first) return first
   if (m.current && fit.includes(m.current)) return m.current
   if (!fit.length) return null
   const order = (id: CoachHint) => HINT_IDS.indexOf(id)

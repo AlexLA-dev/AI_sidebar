@@ -2730,7 +2730,7 @@
   "message": "Le trouver moins cher ?"
  },
  "fabFirstLabel": {
-  "message": "Posez une question sur cette page"
+  "message": "Interroger cette page"
  },
  "rqProductWorth": {
   "message": "Est-ce que ça vaut son prix ?"
@@ -2739,16 +2739,16 @@
   "message": "Quels sont ses défauts ?"
  },
  "rqProductCheck": {
-  "message": "Que vérifier avant d'acheter ?"
+  "message": "Que vérifier avant d’acheter ?"
  },
  "rqArticleMain": {
-  "message": "Quelle est l'idée principale ?"
+  "message": "Quelle est l’idée principale ?"
  },
  "rqArticleArgue": {
-  "message": "Qu'est-ce qui est discutable ici ?"
+  "message": "Qu’est-ce qui est discutable ici ?"
  },
  "rqArticleMe": {
-  "message": "Qu'est-ce que ça change pour moi ?"
+  "message": "Qu’est-ce que ça change pour moi ?"
  },
  "rqVideoAbout": {
   "message": "De quoi parle cette vidéo ?"
@@ -2766,7 +2766,7 @@
   "message": "Quand, où et combien ça coûte ?"
  },
  "rqEventWorth": {
-  "message": "Est-ce que ça vaut le coup d'y aller ?"
+  "message": "Est-ce que ça vaut le coup d’y aller ?"
  },
  "rqStayKey": {
   "message": "Quels sont les détails importants ?"
@@ -2775,10 +2775,10 @@
   "message": "Que savoir avant de me décider ?"
  },
  "rqAnyMain": {
-  "message": "Qu'est-ce qui compte ici ?"
+  "message": "Qu’est-ce qui compte ici ?"
  },
  "rqAnyWorth": {
-  "message": "Qu'est-ce qu'il faut savoir ici ?"
+  "message": "Qu’est-ce qu’il faut savoir ici ?"
  },
  "rqTitle": {
   "message": "Posez une question sur cette page"
@@ -2823,7 +2823,7 @@
   "message": "Chercher ça sur Google"
  },
  "googleOfferFree": {
-  "message": "N'utilise pas vos réponses gratuites : une des {0} réponses Google par jour."
+  "message": "N’utilise pas vos réponses gratuites : une des {0} réponses Google par jour."
  },
  "googleOfferPro": {
   "message": "Une de vos {0} réponses Google cette semaine."

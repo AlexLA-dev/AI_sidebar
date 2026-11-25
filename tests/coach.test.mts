@@ -52,13 +52,14 @@ test("day 1 is quiet: only what leads to the next rung", () => {
   const all = lib.HINT_IDS
   const shown = all.filter((id: string) => lib.allowed(s, id, moment(at(1, 2), 11)))
   // (The return discount is the limit's own offer: on return the same day too, the owner's rule.)
-  assert.deepEqual(shown.sort(), ["agent_offer", "cookie_line", "fab_pulse", "pro_offer", "sel_ask"].sort())
+  // (The agent's chip and the return discount aren't hints: outside the coordinator since 2.8.1.)
+  assert.deepEqual(shown.sort(), ["cookie_line", "fab_pulse", "sel_ask"].sort())
   for (const id of ["organize_mess", "organize_tags", "organize_consent", "invite", "whatsnew", "translate_pill", "page_similar"]) {
     assert.equal(lib.allowed(s, id, moment(at(1, 2), 13)), false, `${id} waits for day 2`)
     assert.equal(lib.allowed(s, id, moment(at(2), 11)), true, `${id} on day 2`)
   }
   // Before the first answer, nothing but the pulse and an answer's own offer.
-  assert.deepEqual(all.filter((id: string) => lib.allowed(s, id, moment(at(3), 8))).sort(), ["agent_offer", "fab_pulse", "pro_offer"])
+  assert.deepEqual(all.filter((id: string) => lib.allowed(s, id, moment(at(3), 8))).sort(), ["cookie_line", "fab_pulse"])
 })
 
 test("one at a time, the one up stays, an answer's offer comes first, the flow holds everything", () => {
@@ -66,8 +67,10 @@ test("one at a time, the one up stays, an answer's offer comes first, the flow h
   const m = moment(at(2))
   assert.equal(lib.choose(s, ["invite", "organize_mess", "whatsnew"], m), "organize_mess", "highest priority")
   assert.equal(lib.choose(s, ["invite", "organize_mess"], { ...m, current: "invite" }), "invite", "no flipping to another")
-  assert.equal(lib.choose(s, ["invite", "agent_offer"], { ...m, current: "invite" }), "agent_offer")
-  assert.equal(lib.choose(s, ["invite", "agent_offer", "fab_pulse"], { ...m, flow: true }), null)
+  // A notice of what was just done on the page takes its few seconds ahead of a hint up (the cookie line, the pulse).
+  assert.equal(lib.choose(s, ["invite", "cookie_line"], { ...m, current: "invite" }), "cookie_line")
+  assert.equal(lib.choose(s, ["fab_pulse", "cookie_line"], { ...moment(at(1), 7), current: "fab_pulse" }), "cookie_line")
+  assert.equal(lib.choose(s, ["invite", "cookie_line", "fab_pulse"], { ...m, flow: true }), null)
   assert.equal(lib.choose(s, [], m), null)
 })
 
@@ -85,8 +88,6 @@ test("each hint at most twice, gone after two ✕, never again once taken", () =
   s = lib.afterDone(fresh(), "side", at(2))
   assert.equal(lib.allowed(s, "side", m(5)), false)
   // An answer's offer stays the way to the agent each time a question asks for it.
-  s = lib.afterDone(fresh(), "agent_offer", at(2))
-  assert.equal(lib.allowed(s, "agent_offer", m(2)), true)
   // The pulse shows until the panel opens, whatever the count.
   s = fresh()
   for (let i = 0; i < 5; i++) s = lib.afterShown(s, "fab_pulse", at(1, i * 0.1))
@@ -129,7 +130,7 @@ test("what 2.7 kept is read once: closed, used and seen hints aren't asked again
   for (const id of ["page_similar", "page_watch", "sel_ask", "note_tip", "whatsnew", "side", "chats_tip", "organize_mess", "fab_pulse"]) {
     assert.equal(lib.allowed(s, id, moment(at(1))), false, id)
   }
-  for (const id of ["pro_offer", "invite", "page_listen"]) assert.equal(lib.allowed(s, id, moment(at(1))), true, id)
+  for (const id of ["invite", "page_listen"]) assert.equal(lib.allowed(s, id, moment(at(1))), true, id)
   // Turned off with two ✕ in 2.7: every page line stays off.
   const off = lib.seedCoach(fresh(), { "cf:pageHints": { off: true } }, at(1))
   assert.equal(lib.retired(off, "page_listen"), true)
@@ -141,6 +142,11 @@ test("what 2.7 kept is read once: closed, used and seen hints aren't asked again
   assert.equal(blank.armed, true)
   assert.equal(s.armed, false)
   assert.equal(lib.seedCoach(fresh(), { "cf:tourSeen": true }, DAY1).armed, false)
+  // R5: from 2.7 with no chat kept (only the consent given, a closed line): no arm, and not on «day 1».
+  const old27 = lib.seedCoach(fresh(), { "cf:consent": 3 }, at(1))
+  assert.equal(old27.armed, false)
+  assert.ok(lib.dayNumber(old27.first, at(1)) >= 2)
+  assert.equal(lib.seedCoach(fresh(), { "cf:pageHints": { closes: 1 } }, at(1)).armed, false)
   assert.equal(lib.seedCoach(s, { "cf:selHint": 0 }, at(1)), s, "once")
 })
 

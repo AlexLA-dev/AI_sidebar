@@ -17,7 +17,8 @@ test("the page's line isn't looked for while the first run is to come, and nothi
   assert.match(look, /if \(aheadRef\.current\) \{\n\s+done\.current = true\n\s+return\n\s+\}/)
   // Before the page's kind is read, before a line is picked, shown or counted against the first days' five.
   const ahead = look.indexOf("if (aheadRef.current)")
-  for (const later of ["if (!readyRef.current", "pageIsForeign()", "pickHint(", "saveHints(afterShown(", "setLine(id)", 'step("shown", id)']) {
+  // (2.8.1, R4: shown and counted only once the coordinator puts the line on screen: PageHints' seen(), not in the look.)
+  for (const later of ["if (!readyRef.current", "pageIsForeign()", "pickHint(", "setLine(id)"]) {
     assert.ok(look.indexOf(later) > ahead, `${later} comes after the first-run check`)
   }
   // The page is settled with it: no line later on the same page, once the first run is over (no retry).

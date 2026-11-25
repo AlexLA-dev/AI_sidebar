@@ -960,6 +960,9 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
     case "jobsSeen":
       void markSeen(message.thread).then(() => sendResponse(true), () => sendResponse(false))
       return true
+    case "installId":
+      void installId().then(sendResponse, () => sendResponse(null))
+      return true
     case "platform":
       if (message.platform && message.platform !== platformKept) {
         platformKept = message.platform

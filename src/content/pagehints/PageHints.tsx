@@ -44,6 +44,8 @@ export interface PageHints {
   // Has the person's plan the feature (the how-to), or is it offered to them.
   has: (id: HintId) => boolean
   tap: () => void
+  /** The line is on screen (the coordinator gave it the slot): counted once. */
+  seen: () => void
   // 2.8 (В5): the line's tap does its feature on this page (the panel runs it): counted as tapped and used, no how-to.
   act: () => HintId | null
   close: () => void
@@ -111,9 +113,8 @@ export function usePageHints({ plan, ready, firstRunAhead, open, may, onUsed }: 
       if (!alive || !id) return
       // Not today (the first day is quiet, one capability a day, its shows used up): nothing counted for it.
       if (mayRef.current && !mayRef.current(id)) return
-      await saveHints(afterShown(await seeded(await loadHints(now)), id, now))
+      // 2.8.1 (R4): counted once it is on screen (seen(), when the coordinator gives it the slot), not when picked.
       setLine(id)
-      step("shown", id)
       timer = setTimeout(() => setLine((cur) => (cur === id ? null : cur)), LINE_MS)
     }
     timer = setTimeout(() => void look(), FIRST_LOOK_MS)
@@ -171,6 +172,16 @@ export function usePageHints({ plan, ready, firstRunAhead, open, may, onUsed }: 
     open()
   }, [open])
 
+  const counted = useRef<HintId | null>(null)
+  const seen = useCallback(() => {
+    const id = lineRef.current
+    if (!id || counted.current === id) return
+    counted.current = id
+    const now = Date.now()
+    void loadHints(now).then((s) => seeded(s)).then((s) => saveHints(afterShown(s, id, now)))
+    step("shown", id)
+  }, [])
+
   const act = useCallback((): HintId | null => {
     const id = lineRef.current
     if (!id) return null
@@ -199,6 +210,7 @@ export function usePageHints({ plan, ready, firstRunAhead, open, may, onUsed }: 
     glow: glow?.target ?? null,
     has: (id) => hasFeature(id, planRef.current),
     tap,
+    seen,
     act,
     close,
     doneChat: () => setChat(null)

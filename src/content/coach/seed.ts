@@ -6,7 +6,10 @@ import { HINT_IDS, type CoachHint, type CoachState, type HintCount } from "./rul
 
 export const SEED_KEYS = [
   "cf:pageHints", "cf:selHint", "cf:noteHint", "cf:hintsSeen", "cf:offerCard", "cf:orgCards", "cf:selIconsTip",
-  "cf:insertTipSeen", "cf:trHidden", "cf:tourSeen", "cf:valueMoments", "cf:threads", "cf:consent", "cf:invite"
+  "cf:insertTipSeen", "cf:trHidden", "cf:tourSeen", "cf:valueMoments", "cf:threads", "cf:consent", "cf:invite",
+  // 2.8.1 (R5): another sign that ContextFlow was here before this version (sites translated whole). Not the platform
+  // (2.8.1's panel says it as it starts) nor the settings' time (the app's copy comes at a new install too).
+  "cf:trAuto"
 ] as const
 
 const PAGE_IDS: Record<string, CoachHint> = {
@@ -64,7 +67,6 @@ export function seedCoach(s: CoachState, stored: Record<string, unknown>, now: n
   }
   counter("cf:selHint", "sel_ask", 3)
   counter("cf:noteHint", "note_tip", 3)
-  counter("cf:offerCard", "pro_offer", 3)
   if (stored["cf:selIconsTip"]) retire("sel_icons", "seen")
   if (stored["cf:insertTipSeen"]) retire("write_tip", "seen")
   const seen = Array.isArray(stored["cf:hintsSeen"]) ? (stored["cf:hintsSeen"] as unknown[]) : []
@@ -83,18 +85,23 @@ export function seedCoach(s: CoachState, stored: Record<string, unknown>, now: n
   const answers = Math.max(s.answers, answersIn(threads), num(stored["cf:valueMoments"]) ?? 0)
   const used = firstUse(threads)
   const opened = stored["cf:tourSeen"] === true || answers > 0
+  // Anything of an earlier version on the device: never in the first-open test, never on «day 1».
+  const before = opened || !!stored["cf:consent"] || used !== null || !!stored["cf:pageHints"] || !!stored["cf:orgCards"] ||
+    (Array.isArray(stored["cf:trHidden"]) && (stored["cf:trHidden"] as unknown[]).length > 0) || !!stored["cf:trAuto"] ||
+    !!stored["cf:selHint"] || !!stored["cf:noteHint"]
   return {
     ...s,
     hints,
-    first: used !== null ? Math.min(s.first, used) : s.first,
+    // An earlier install whose first use isn't known: its second day at least.
+    first: used !== null ? Math.min(s.first, used) : before ? Math.min(s.first, now - 86_400_000) : s.first,
     answers,
     panelOpens: Math.max(s.panelOpens, opened ? 1 : 0),
     // Answers on a day before today: they have come back before (rung 12 needs two days).
     askDays: used !== null && used < now - 86_400_000 && answers > 1 && s.askDays.length < 2 ? ["seed-1", "seed-2", ...s.askDays].slice(-8) : s.askDays,
     // The fab pulse is for the first open only.
     ...(opened ? { hints: { ...hints, fab_pulse: { shown: 0, dismissed: 0, done: true } } } : {}),
-    // A new install: nothing used before (no chat, no first run, no answer counted).
-    armed: !opened && answers === 0 && used === null,
+    // A new install: nothing of ContextFlow on the device before.
+    armed: !before,
     seeded: true
   }
 }

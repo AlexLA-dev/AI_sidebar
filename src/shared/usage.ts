@@ -31,8 +31,8 @@ const PAGE_KINDS = ["product", "article", "video", "form", "event", "stay", "oth
 
 /** The hints of the 2.8 coordinator (src/content/coach/rules.ts HINT_IDS; tests/coach.test.mts keeps them the same). */
 export const COACH_HINTS = [
-  "fab_pulse", "sel_ask", "agent_offer", "translate_pill", "cookie_line", "sel_icons", "write_tip", "note_tip",
-  "organize_consent", "organize_mess", "organize_tags", "byok_offer", "renewal", "pro_offer", "media_tip", "chats_tip",
+  "fab_pulse", "sel_ask", "translate_pill", "cookie_line", "sel_icons", "write_tip", "note_tip",
+  "organize_consent", "organize_mess", "organize_tags", "byok_offer", "renewal", "media_tip", "chats_tip",
   "whatsnew", "invite",
   "page_similar", "page_watch", "page_summary", "page_listen", "page_video", "page_templates", "page_remind", "page_calendar",
   "page_agent", "google_offer", "collect_tip"

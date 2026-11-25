@@ -74,7 +74,7 @@ test("the first-open test: arms by the install id's last hex digit, sent as clie
   assert.deepEqual(variantFields({ variant: "first=ask" }), { variant: "first=ask" })
   // Only a new install is in the test (one updated from 2.7 keeps 2.7's first run, unlabelled).
   assert.match(read("src/background/index.ts"), /const variant = armed \? variantOf\(id\) : null/)
-  assert.match(read("src/content/coach/seed.ts"), /armed: !opened && answers === 0 && used === null/)
+  assert.match(read("src/content/coach/seed.ts"), /armed: !before,/)
   // Both arms: the first three answers free (the guide's mark, and the first answers of every install).
   assert.match(read("src/content/App.tsx"), /\(guideRef\.current && !planTour\.current\) \|\| \(coachRef\.current\?\.ready && coachRef\.current\.answers < 3\) \? \{ tour: true as const \}/)
   // The "ask" arm starts with ready questions: its first run is over as the panel first opens.
