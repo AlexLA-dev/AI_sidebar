@@ -868,7 +868,6 @@
   "b805da32b11a": "Öffne die App „Einstellungen“ und wähle „Apps“ → „Safari“ (nicht „ContextFlow“) → „Erweiterungen“ → „ContextFlow“.",
   "9cf76ea2ed86": "Öffne „Einstellungen“, dann links „Apps“ → „Safari“ (nicht „ContextFlow“) → „Erweiterungen“ → „ContextFlow“.",
   "07b51faeeeef": "Zurück in Safari: Lade die Seite neu und tippe auf ✦.",
-  "abbe3a8e83ad": "Setze unter „Berechtigungen“ die Option „Alle Websites“ auf „Erlauben“.",
   "251e7f817a8c": "Probier ContextFlow auf dieser Seite aus — ContextFlow",
   "c0dc9525754b": "Ein kurzer Artikel zum Ausprobieren von ContextFlow: Tippe auf ✦ und frag dazu.",
   "24f837f22822": "Probier ContextFlow auf dieser Seite aus",
@@ -894,7 +893,6 @@
   "270760321fc9": "Markiere „Seine Kurve hat einen Haken“ und frag: „Stimmt das?“",
   "896f51d1cdab": "„Was hat spätere Forschung dazu herausgefunden?“",
   "4ec1ebf7c590": "Kein ✦ auf der Seite? ContextFlow ist auf Websites noch nicht erlaubt.",
-  "6c05410141f9": "Wähle „Immer erlauben“. ContextFlow liest eine Seite nur, wenn du etwas fragst.",
   "6d90d5d0fc5c": "<strong>iPhone.</strong> Öffne in der Adressleiste das Seitenmenü → „ContextFlow“ → „Immer erlauben …“ → „Auf jeder Website immer erlauben“.",
   "94ed35173be3": "<strong>iPad.</strong> Tippe neben der Adresse auf die Taste mit dem Puzzleteil → „ContextFlow“ → „Immer erlauben …“ → „Auf jeder Website immer erlauben“.",
   "ca4ea310de90": "Nicht „Einen Tag lang erlauben“: Damit ist ✦ morgen wieder weg.",
@@ -909,5 +907,6 @@
   "095c2a50886f": "Ja. Alle drei sind im App Store zum Einstieg kostenlos.",
   "af61a24dc3fd": "Alle drei bringen einen KI-Chat neben die Seite, die du liest, und alle drei können sie zusammenfassen und mit markiertem Text arbeiten. ContextFlow und Zeki funktionieren in Safari; die Seite von SurfMind im App Store spricht von „deinem Browser“ und nennt keinen. Sie unterscheiden sich darin, was noch dazukommt. Ich entwickle ContextFlow selbst, bin also nicht neutral. Zeki und SurfMind beschreibe ich hier so, wie ihre Seiten im App Store sie beschreiben, Stand November 2026.",
   "c27425609fb6": "<strong>Mit eigenem Schlüssel:</strong> kostenlos und unbegrenzt, mit Schlüsseln von Anthropic, OpenAI, Google, OpenRouter, Groq oder Mistral und jedem Modell, auf das der Schlüssel Zugriff hat.",
-  "f202491f0a07": "Safari zeigt dieselbe Warnung bei jeder Erweiterung, weil es nicht wissen kann, was sie tut. Seitentext wird nur gesendet, wenn du etwas fragst, und nicht zum Trainieren von Modellen verwendet. Du kannst es auch Website für Website erlauben; dann erscheint ✦ nur auf diesen Websites."
+  "f202491f0a07": "Safari zeigt dieselbe Warnung bei jeder Erweiterung, weil es nicht wissen kann, was sie tut. Seitentext wird nur gesendet, wenn du etwas fragst, und nicht zum Trainieren von Modellen verwendet. Du kannst es auch Website für Website erlauben; dann erscheint ✦ nur auf diesen Websites.",
+  "f6a68fb273c4": "Wähle „Immer erlauben“. Seitentext wird nur gesendet, wenn du etwas fragst, und nicht zum Trainieren von Modellen verwendet."
 }

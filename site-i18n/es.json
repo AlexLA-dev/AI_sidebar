@@ -868,7 +868,6 @@
   "b805da32b11a": "Abre la app Ajustes y ve a Apps → Safari (no ContextFlow) → Extensiones → ContextFlow.",
   "9cf76ea2ed86": "Abre Ajustes y luego Apps a la izquierda → Safari (no ContextFlow) → Extensiones → ContextFlow.",
   "07b51faeeeef": "Vuelve a Safari, recarga la página y toca ✦.",
-  "abbe3a8e83ad": "En Permisos, ajusta “Todos los sitios web” en “Permitir”.",
   "251e7f817a8c": "Prueba ContextFlow en esta página — ContextFlow",
   "c0dc9525754b": "Un artículo breve para probar ContextFlow: toca ✦ y pregunta sobre él.",
   "24f837f22822": "Prueba ContextFlow en esta página",
@@ -894,7 +893,6 @@
   "270760321fc9": "Selecciona «Su curva tiene un pero» y pregunta: «¿Es cierto?»",
   "896f51d1cdab": "«¿Qué descubrieron investigaciones posteriores sobre esto?»",
   "4ec1ebf7c590": "¿No aparece ✦ en la página? ContextFlow aún no tiene permiso en los sitios web.",
-  "6c05410141f9": "Elige «Permitir siempre». ContextFlow solo lee una página cuando le preguntas algo.",
   "6d90d5d0fc5c": "<strong>iPhone.</strong> Abre el menú de la página en la barra de direcciones → ContextFlow → “Permitir siempre…” → “Permitir siempre en todos los sitios web”.",
   "94ed35173be3": "<strong>iPad.</strong> Toca el botón de la pieza de puzle junto a la dirección → ContextFlow → “Permitir siempre…” → “Permitir siempre en todos los sitios web”.",
   "ca4ea310de90": "No “Permitir durante un día”: con eso, ✦ desaparece mañana.",
@@ -909,5 +907,6 @@
   "095c2a50886f": "Sí. Las tres se pueden empezar a usar gratis desde el App Store.",
   "af61a24dc3fd": "Las tres ponen un chat de IA junto a la página que lees, y las tres pueden resumirla y trabajar con el texto seleccionado. ContextFlow y Zeki funcionan en Safari; la página de SurfMind en el App Store habla de «tu navegador» y no nombra ninguno. Se diferencian en lo que añaden. Yo hago ContextFlow, así que no soy neutral. Zeki y SurfMind se describen aquí tal como lo hacen sus páginas del App Store, en noviembre de 2026.",
   "c27425609fb6": "<strong>Con tu propia clave:</strong> gratis e ilimitado, con claves de Anthropic, OpenAI, Google, OpenRouter, Groq o Mistral, y cualquier modelo al que dé acceso la clave.",
-  "f202491f0a07": "Safari muestra el mismo aviso con todas las extensiones, porque no puede saber qué hace cada una. El texto de la página solo se envía cuando preguntas algo y no se usa para entrenar modelos. También puedes permitirlo sitio por sitio; entonces ✦ solo aparece en esos sitios."
+  "f202491f0a07": "Safari muestra el mismo aviso con todas las extensiones, porque no puede saber qué hace cada una. El texto de la página solo se envía cuando preguntas algo y no se usa para entrenar modelos. También puedes permitirlo sitio por sitio; entonces ✦ solo aparece en esos sitios.",
+  "f6a68fb273c4": "Elige «Permitir siempre». El texto de la página solo se envía cuando preguntas algo y no se usa para entrenar modelos."
 }

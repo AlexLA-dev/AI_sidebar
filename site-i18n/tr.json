@@ -868,7 +868,6 @@
   "b805da32b11a": "Ayarlar uygulamasını açın ve Uygulamalar → Safari (ContextFlow değil) → Uzantılar → ContextFlow bölümüne gidin.",
   "9cf76ea2ed86": "Ayarlar’ı açın, ardından soldaki Uygulamalar → Safari (ContextFlow değil) → Uzantılar → ContextFlow’a gidin.",
   "07b51faeeeef": "Safari’ye dönün, sayfayı yeniden yükleyin ve ✦ düğmesine dokunun.",
-  "abbe3a8e83ad": "İzinler bölümünde “Tüm Web Siteleri” seçeneğini “İzin Ver” yapın.",
   "251e7f817a8c": "ContextFlow'u bu sayfada deneyin — ContextFlow",
   "c0dc9525754b": "ContextFlow'u denemek için kısa bir makale: ✦ düğmesine dokunun ve makale hakkında sorun.",
   "24f837f22822": "ContextFlow'u bu sayfada deneyin",
@@ -894,7 +893,6 @@
   "270760321fc9": "“Eğrisinin bir kusuru var” cümlesini seçin ve sorun: “Bu doğru mu?”",
   "896f51d1cdab": "“Sonraki araştırmalar bu konuda ne buldu?”",
   "4ec1ebf7c590": "Sayfada ✦ yok mu? ContextFlow’a web sitelerinde henüz izin verilmedi.",
-  "6c05410141f9": "“Her Zaman İzin Ver”i seçin. ContextFlow bir sayfayı yalnızca ona bir şey sorduğunuzda okur.",
   "6d90d5d0fc5c": "<strong>iPhone.</strong> Adres çubuğundaki sayfa menüsünü açın → ContextFlow → “Her Zaman İzin Ver…” → “Her Web Sitesinde Her Zaman İzin Ver”.",
   "94ed35173be3": "<strong>iPad.</strong> Adresin yanındaki yapboz parçası düğmesine dokunun → ContextFlow → “Her Zaman İzin Ver…” → “Her Web Sitesinde Her Zaman İzin Ver”.",
   "ca4ea310de90": "“Bir Gün İzin Ver” değil: onunla ✦ yarın yine kaybolur.",
@@ -909,5 +907,6 @@
   "095c2a50886f": "Evet. Üçüne de App Store'dan ücretsiz başlayabilirsiniz.",
   "af61a24dc3fd": "Üçü de okuduğunuz sayfanın yanına bir yapay zekâ sohbeti koyar ve üçü de sayfayı özetleyebilir, seçili metinle de çalışabilir. ContextFlow ve Zeki Safari'de çalışır; SurfMind'ın App Store sayfası ise “tarayıcınız” diyor ve hangi tarayıcı olduğunu söylemiyor. Fark, bunların üstüne gelenlerde. ContextFlow'u ben geliştiriyorum, yani tarafsız değilim. Zeki ve SurfMind burada, Kasım 2026'da App Store sayfalarında anlatıldığı şekliyle yer alıyor.",
   "c27425609fb6": "<strong>Kendi anahtarınızla:</strong> ücretsiz ve sınırsız; Anthropic, OpenAI, Google, OpenRouter, Groq ya da Mistral anahtarlarıyla ve anahtarın erişebildiği herhangi bir modelle.",
-  "f202491f0a07": "Safari her uzantı için aynı uyarıyı gösterir, çünkü bir uzantının ne yaptığını bilemez. Sayfa metni yalnızca bir şey sorduğunuzda gönderilir ve model eğitmek için kullanılmaz. Dilerseniz site site de izin verebilirsiniz; o zaman ✦ yalnızca o sitelerde görünür."
+  "f202491f0a07": "Safari her uzantı için aynı uyarıyı gösterir, çünkü bir uzantının ne yaptığını bilemez. Sayfa metni yalnızca bir şey sorduğunuzda gönderilir ve model eğitmek için kullanılmaz. Dilerseniz site site de izin verebilirsiniz; o zaman ✦ yalnızca o sitelerde görünür.",
+  "f6a68fb273c4": "“Her Zaman İzin Ver”i seçin. Sayfa metni yalnızca bir şey sorduğunuzda gönderilir ve model eğitmek için kullanılmaz."
 }

@@ -868,7 +868,6 @@
   "b805da32b11a": "Ouvrez l’app Réglages et accédez à Apps → Safari (pas ContextFlow) → Extensions → ContextFlow.",
   "9cf76ea2ed86": "Ouvrez Réglages, puis Apps à gauche → Safari (pas ContextFlow) → Extensions → ContextFlow.",
   "07b51faeeeef": "De retour dans Safari, rechargez la page et touchez ✦.",
-  "abbe3a8e83ad": "Sous Autorisations, réglez « Tous les sites web » sur « Autoriser ».",
   "251e7f817a8c": "Essayez ContextFlow sur cette page — ContextFlow",
   "c0dc9525754b": "Un court article pour essayer ContextFlow : touchez ✦ et posez une question dessus.",
   "24f837f22822": "Essayez ContextFlow sur cette page",
@@ -894,7 +893,6 @@
   "270760321fc9": "Sélectionnez « Sa courbe a un hic » et demandez : « C’est vrai ? »",
   "896f51d1cdab": "« Qu’ont découvert les recherches plus récentes à ce sujet ? »",
   "4ec1ebf7c590": "Pas de ✦ sur la page ? ContextFlow n’est pas encore autorisé sur les sites web.",
-  "6c05410141f9": "Choisissez « Toujours autoriser ». ContextFlow ne lit une page que lorsque vous lui posez une question.",
   "6d90d5d0fc5c": "<strong>iPhone.</strong> Ouvrez le menu de la page dans la barre d’adresse → ContextFlow → « Toujours autoriser… » → « Toujours autoriser sur chaque site web ».",
   "94ed35173be3": "<strong>iPad.</strong> Touchez le bouton en forme de pièce de puzzle à côté de l’adresse → ContextFlow → « Toujours autoriser… » → « Toujours autoriser sur chaque site web ».",
   "ca4ea310de90": "Pas « Autoriser pendant un jour » : avec ce choix, ✦ disparaît dès demain.",
@@ -909,5 +907,6 @@
   "095c2a50886f": "Oui. Les trois sont gratuits pour commencer sur l’App Store.",
   "af61a24dc3fd": "Toutes trois placent une discussion IA à côté de la page que vous lisez, et toutes trois peuvent la résumer et travailler sur du texte sélectionné. ContextFlow et Zeki fonctionnent dans Safari ; la page App Store de SurfMind parle de « votre navigateur » et n’en nomme aucun. Elles diffèrent par ce qu’elles ajoutent. Je développe ContextFlow, donc je ne suis pas neutre. Zeki et SurfMind sont décrits ici tels que leurs pages App Store les décrivent, en novembre 2026.",
   "c27425609fb6": "<strong>Avec votre propre clé :</strong> gratuit et illimité, avec des clés d’Anthropic, OpenAI, Google, OpenRouter, Groq ou Mistral, et n’importe quel modèle accessible avec la clé.",
-  "f202491f0a07": "Safari affiche le même avertissement pour toutes les extensions, car il ne peut pas savoir ce que fait chacune. Le texte de la page n’est envoyé que lorsque vous posez une question, et il ne sert pas à entraîner des modèles. Vous pouvez aussi l’autoriser site par site ; ✦ n’apparaît alors que sur ces sites."
+  "f202491f0a07": "Safari affiche le même avertissement pour toutes les extensions, car il ne peut pas savoir ce que fait chacune. Le texte de la page n’est envoyé que lorsque vous posez une question, et il ne sert pas à entraîner des modèles. Vous pouvez aussi l’autoriser site par site ; ✦ n’apparaît alors que sur ces sites.",
+  "f6a68fb273c4": "Choisissez « Toujours autoriser ». Le texte de la page n’est envoyé que lorsque vous posez une question, et il ne sert pas à entraîner des modèles."
 }
