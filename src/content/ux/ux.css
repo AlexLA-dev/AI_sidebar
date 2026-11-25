@@ -310,6 +310,21 @@ mark.cf-mark-last { border-start-end-radius: 2px; border-end-end-radius: 2px; }
 .cf-offer-own { margin: 6px 0 0; font-size: 13px; }
 .cf-whole .cf-pro-badge { margin-inline-start: 4px; }
 
+/* 2.8 (Р19): the free answers' limit card, simpler (LimitCard): one plan, one buy button, «Remind me» and «More». */
+.cf-limit-card .cf-limit-offer { margin: 2px 0 4px; font-size: 13px; font-weight: 600; color: var(--ok); }
+.cf-limit-card .cf-limit-buy { flex: 1 1 auto; justify-content: center; }
+.cf-limit-card p.cf-limit-terms { margin: 6px 0 0; font-size: 12px; line-height: 1.4; color: var(--text-3); text-align: center; }
+.cf-limit-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-top: 8px; font-size: 13px; }
+.cf-limit-row .cf-answers-back { margin: 0; flex: 1 1 auto; min-width: 0; }
+.cf-limit-row .cf-link { padding: 0; font-size: 13px; }
+.cf-limit-more-toggle { margin-inline-start: auto; color: var(--text-2) !important; white-space: nowrap; }
+.cf-limit-more { list-style: none; margin: 8px 0 0; padding: 0; font-size: 13px; }
+.cf-limit-more li { display: flex; align-items: baseline; gap: 12px; padding: 8px 0; border-top: 1px solid var(--border); }
+.cf-limit-more li > span { flex: 1 1 auto; min-width: 0; line-height: 1.4; color: var(--text); }
+.cf-limit-more li > .cf-link { flex: none; padding: 0; font-size: 13px; white-space: nowrap; }
+.cf-limit-more-note > span { color: var(--note-text) !important; }
+.cf-limit-more-note svg { display: inline-block; width: 13px; height: 13px; vertical-align: -2px; }
+
 /* 2.7, Calendar and Reminders: «Также в Напоминания» in the Remind window, and the AI's card under an answer. */
 .cf-sheet-also { cursor: pointer; }
 .cf-sheet-also input { width: 18px; height: 18px; accent-color: var(--accent); flex-shrink: 0; }

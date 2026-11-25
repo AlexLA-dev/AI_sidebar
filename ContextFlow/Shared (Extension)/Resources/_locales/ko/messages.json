@@ -1004,9 +1004,6 @@
  "limitFreeBack_other": {
   "message": "{1}({2} 후)에 무료 답변 {0}개가 다시 제공돼요."
  },
- "limitFreePro": {
-  "message": "Pro에서는 주당 최대 {0}개 답변, 페이지의 동영상·PDF 읽기, AI 검색, 모든 채팅에 묻기를 쓸 수 있어요."
- },
  "limitNotes": {
   "message": "메모는 무료이고 제한이 없어요. 중요한 내용을 지금 적어 두고 나중에 AI에게 물어보세요."
  },
@@ -1021,9 +1018,6 @@
  },
  "errKeyRate": {
   "message": "지금 {0}에서 내 키의 요청을 제한하고 있어요(계정의 속도 제한). 1분쯤 기다렸다가 다시 질문해 주세요. 한도는 {1}에서 확인할 수 있어요."
- },
- "offerLimit": {
-  "message": "또는 첫 달 {0}% 할인된 Pro를 이용해 보세요. 더 깊이 있고 자세한 답변을 주 {1}회까지 받을 수 있습니다. 언제든 해지할 수 있습니다."
  },
  "offerButton": {
   "message": "첫 달 {0}% 할인"
@@ -3847,6 +3841,51 @@
  },
  "offerByCode": {
   "message": "App Store에서 코드로 적용됩니다."
+ },
+ "limitOfferLine": {
+  "message": "첫 달 {0}% 할인"
+ },
+ "limitBuyOffer": {
+  "message": "Pro 시작하기 — 첫 달 {0}% 할인"
+ },
+ "limitBuyPrice": {
+  "message": "Pro 시작하기 — 월 {0}"
+ },
+ "limitThen": {
+  "message": "이후 월 {0}."
+ },
+ "limitRenews": {
+  "message": "매월 자동 갱신돼요. App Store에서 언제든 해지할 수 있어요."
+ },
+ "answersBackAt": {
+  "message": "{0}에 알려 주기"
+ },
+ "limitMore": {
+  "message": "더 보기"
+ },
+ "moreYearly": {
+  "message": "연간: {0}"
+ },
+ "moreYearlySave": {
+  "message": "연간: {0}, {1}% 절약"
+ },
+ "moreUltra": {
+  "message": "Ultra: 월 {0}, Pro의 모든 기능에 듣기와 비슷한 것 찾기까지"
+ },
+ "moreUltraNoPrice": {
+  "message": "Ultra: Pro의 모든 기능에 듣기와 비슷한 것 찾기까지"
+ },
+ "moreChoose": {
+  "message": "선택"
+ },
+ "moreNotes": {
+  "message": "메모는 무료이고 제한이 없어요"
+ },
+ "moreOwnKey": {
+  "message": "API 키가 있으신가요?"
+ },
+ "moreOwnKeyLink": {
+  "message": "내 키 사용"
  },
  "tip_4cf1b54b00": {
   "message": "팁"

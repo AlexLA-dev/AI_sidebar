@@ -196,9 +196,11 @@ export const FEATURES: Record<string, Feature> = {
   // (to the app), the discount, a note, the own key, Retry.
   chat_plans: {
     // 2.8 (В7.1): «Remind me when my answers are back» tapped, set, or notifications off.
-    since: "2.6", tracked: "2.6", on: "ext", actions: ["shown", "choose", "discount", "note", "own_key", "retry", "close", "remind", "remind_set", "remind_off", "remind_notify", "remind_app"],
+    // 2.8 (Р19, the simpler limit card): "more" opened; what was tapped inside it is its own action (choose with the
+    // plan and period, note, own_key) with from "more".
+    since: "2.6", tracked: "2.6", on: "ext", actions: ["shown", "choose", "discount", "note", "own_key", "retry", "close", "remind", "remind_set", "remind_off", "remind_notify", "remind_app", "more"],
     via: ["limit", "memory", "pro_only", "ultra_only"],
-    fields: { plan: ["pro", "ultra"], period: ["monthly", "yearly"] }
+    fields: { plan: ["pro", "ultra"], period: ["monthly", "yearly"], from: ["more"] }
   },
   // 2.7: the page translated in place (src/content/translate): the pill by the circle shown on a page in another
   // language, tapped, the consent asked from it, the translation shown, "Original", × (hidden on that site), the

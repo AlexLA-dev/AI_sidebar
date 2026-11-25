@@ -1004,9 +1004,6 @@
  "limitFreeBack_other": {
   "message": "{1}（{2}後）に無料回答が{0}回分戻ります。"
  },
- "limitFreePro": {
-  "message": "Proなら週に最大{0}回の回答、ページの動画とPDFの読み取り、AI検索、すべてのチャットへの質問が使えます。"
- },
  "limitNotes": {
   "message": "メモは無料・無制限です。大事なことを今メモして、あとでAIに聞きましょう。"
  },
@@ -1021,9 +1018,6 @@
  },
  "errKeyRate": {
   "message": "{0}が現在、お使いのキーからのリクエストを制限しています（アカウントのレート制限）。1分ほど待ってから、もう一度質問してください。制限は{1}で確認できます。"
- },
- "offerLimit": {
-  "message": "または、最初の 1 か月が {0}% オフの Pro をどうぞ。より深く詳しい回答を週 {1} 件まで受け取れます。いつでも解約できます。"
  },
  "offerButton": {
   "message": "最初の1か月が {0}% オフ"
@@ -3847,6 +3841,51 @@
  },
  "offerByCode": {
   "message": "App Store でコードを使って適用されます。"
+ },
+ "limitOfferLine": {
+  "message": "最初の1か月が {0}% オフ"
+ },
+ "limitBuyOffer": {
+  "message": "Proを始める — 最初の1か月 {0}% オフ"
+ },
+ "limitBuyPrice": {
+  "message": "Proを始める — 月額 {0}"
+ },
+ "limitThen": {
+  "message": "その後は月額 {0}。"
+ },
+ "limitRenews": {
+  "message": "毎月自動更新されます。App Store でいつでも解約できます。"
+ },
+ "answersBackAt": {
+  "message": "{0} に知らせる"
+ },
+ "limitMore": {
+  "message": "その他"
+ },
+ "moreYearly": {
+  "message": "年額：{0}"
+ },
+ "moreYearlySave": {
+  "message": "年額：{0}（{1}%お得）"
+ },
+ "moreUltra": {
+  "message": "Ultra：月額 {0}。Pro のすべてに加えて、読み上げと「似たものを探す」"
+ },
+ "moreUltraNoPrice": {
+  "message": "Ultra：Pro のすべてに加えて、読み上げと「似たものを探す」"
+ },
+ "moreChoose": {
+  "message": "選ぶ"
+ },
+ "moreNotes": {
+  "message": "メモは無料・無制限"
+ },
+ "moreOwnKey": {
+  "message": "API キーをお持ちですか？"
+ },
+ "moreOwnKeyLink": {
+  "message": "自分のキーを使う"
  },
  "tip_4cf1b54b00": {
   "message": "ヒント"

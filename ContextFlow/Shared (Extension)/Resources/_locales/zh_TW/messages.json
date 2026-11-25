@@ -1004,9 +1004,6 @@
  "limitFreeBack_other": {
   "message": "{1}（{2}後）會恢復 {0} 個免費回答。"
  },
- "limitFreePro": {
-  "message": "Pro 每週最多 {0} 個回答，能讀取頁面上的影片和 PDF，還有 AI 搜尋和跨所有對話提問。"
- },
  "limitNotes": {
   "message": "筆記一直免費、不限次數：現在先記下重點，之後再問 AI。"
  },
@@ -1021,9 +1018,6 @@
  },
  "errKeyRate": {
   "message": "{0} 目前正在限制你的金鑰發出的請求（帳號的速率限制）。請等一分鐘再問一次。你的額度請見 {1}。"
- },
- "offerLimit": {
-  "message": "或升級 Pro，首月省 {0}%：每週最多 {1} 個回答，更深入、更詳細。隨時可以取消。"
  },
  "offerButton": {
   "message": "首月省 {0}%"
@@ -3847,6 +3841,51 @@
  },
  "offerByCode": {
   "message": "在 App Store 中以優惠代碼套用。"
+ },
+ "limitOfferLine": {
+  "message": "首月省 {0}%"
+ },
+ "limitBuyOffer": {
+  "message": "升級 Pro — 首月省 {0}%"
+ },
+ "limitBuyPrice": {
+  "message": "升級 Pro — 每月 {0}"
+ },
+ "limitThen": {
+  "message": "之後每月 {0}。"
+ },
+ "limitRenews": {
+  "message": "按月自動續訂，可隨時在 App Store 中取消。"
+ },
+ "answersBackAt": {
+  "message": "{0} 提醒我"
+ },
+ "limitMore": {
+  "message": "更多"
+ },
+ "moreYearly": {
+  "message": "年繳：每年 {0}"
+ },
+ "moreYearlySave": {
+  "message": "年繳：每年 {0}，省 {1}%"
+ },
+ "moreUltra": {
+  "message": "Ultra：每月 {0}，包含 Pro 所有功能，另有朗讀和尋找相似"
+ },
+ "moreUltraNoPrice": {
+  "message": "Ultra：包含 Pro 所有功能，另有朗讀和尋找相似"
+ },
+ "moreChoose": {
+  "message": "選擇"
+ },
+ "moreNotes": {
+  "message": "筆記一直免費、不限次數"
+ },
+ "moreOwnKey": {
+  "message": "有自己的 API 金鑰？"
+ },
+ "moreOwnKeyLink": {
+  "message": "使用我的金鑰"
  },
  "tip_4cf1b54b00": {
   "message": "提示"

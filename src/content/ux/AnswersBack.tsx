@@ -67,9 +67,11 @@ export function notifyLink(page: string): string {
   return `contextflow://notifications?why=answers_back${/^https?:\/\//.test(page) ? `&page=${encodeURIComponent(page.split("#")[0])}` : ""}`
 }
 
-export function AnswersBack({ resetsAt, count, url, onEvent }: {
+export function AnswersBack({ resetsAt, count, url, short, onEvent }: {
   // When the free answers come back (ms).
   resetsAt: number
+  // The simpler limit card (2.8, Р19): «Remind me at 2:00 AM», a link beside «More».
+  short?: boolean
   count: number
   // The page the notification opens.
   url: string
@@ -146,7 +148,7 @@ export function AnswersBack({ resetsAt, count, url, onEvent }: {
           }}>{t("answersBackInApp")}</button>
         </>
       ) : (
-        <button type="button" class="cf-link" disabled={state === "asking"} onClick={() => void ask()}>{t("answersBackAsk", String(count))}</button>
+        <button type="button" class="cf-link" disabled={state === "asking"} onClick={() => void ask()}>{short ? t("answersBackAt", clock(resetsAt)) : t("answersBackAsk", String(count))}</button>
       )}
     </p>
   )

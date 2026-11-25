@@ -1004,9 +1004,6 @@
  "limitFreeBack_other": {
   "message": "Saat {1} itibarıyla, {2} sonra {0} yeni ücretsiz yanıt hakkınız olacak."
  },
- "limitFreePro": {
-  "message": "Pro size haftada {0} yanıta kadar, sayfadaki videoları ve PDF'leri, yapay zekâ ile aramayı ve tüm sohbetlerinizde soru sormayı sunar."
- },
  "limitNotes": {
   "message": "Notlar ücretsiz ve sınırsız: önemli olanı şimdi yazın, yapay zekâya sonra sorun."
  },
@@ -1021,9 +1018,6 @@
  },
  "errKeyRate": {
   "message": "{0} şu anda anahtarınızdan gelen istekleri sınırlıyor: bu, hesabınızın hız sınırı. Bir dakika bekleyip yeniden sorun. Sınırlarınız: {1}."
- },
- "offerLimit": {
-  "message": "Ya da ilk ayda %{0} indirimle Pro'ya geçin: haftada {1} yanıta kadar, daha derin ve daha ayrıntılı. İstediğiniz zaman iptal edebilirsiniz."
  },
  "offerButton": {
   "message": "İlk ay %{0} indirimli"
@@ -3847,6 +3841,51 @@
  },
  "offerByCode": {
   "message": "İndirim App Store'da bir kodla uygulanır."
+ },
+ "limitOfferLine": {
+  "message": "İlk ay %{0} indirimli"
+ },
+ "limitBuyOffer": {
+  "message": "Pro'ya geç: ilk ay %{0} indirimli"
+ },
+ "limitBuyPrice": {
+  "message": "Pro'ya geç: aylık {0}"
+ },
+ "limitThen": {
+  "message": "Sonrasında aylık {0}."
+ },
+ "limitRenews": {
+  "message": "Her ay yenilenir. İstediğiniz zaman App Store'dan iptal edebilirsiniz."
+ },
+ "answersBackAt": {
+  "message": "Yanıtlar dönünce hatırlat ({0})"
+ },
+ "limitMore": {
+  "message": "Daha fazla"
+ },
+ "moreYearly": {
+  "message": "Yıllık: yılda {0}"
+ },
+ "moreYearlySave": {
+  "message": "Yıllık: yılda {0}, %{1} tasarruf"
+ },
+ "moreUltra": {
+  "message": "Ultra: aylık {0}; Pro'daki her şey, artı Dinle ve Benzerini bul"
+ },
+ "moreUltraNoPrice": {
+  "message": "Ultra: Pro'daki her şey, artı Dinle ve Benzerini bul"
+ },
+ "moreChoose": {
+  "message": "Seç"
+ },
+ "moreNotes": {
+  "message": "Notlar ücretsiz ve sınırsız"
+ },
+ "moreOwnKey": {
+  "message": "API anahtarınız var mı?"
+ },
+ "moreOwnKeyLink": {
+  "message": "Kendi anahtarımı kullan"
  },
  "tip_4cf1b54b00": {
   "message": "İpuçları"

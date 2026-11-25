@@ -80,6 +80,7 @@ import { conditionFor } from "./watch/draft"
 import { openWatchSheet } from "./watch/WatchSheet"
 import { PlansSheet, type PlansFeature } from "./Plans"
 import { TasteLine, tasteOf, tasteUsedLead, ultraLine } from "./Taste"
+import { LimitCard } from "./ux/LimitCard"
 import { PlanOffer, type OfferChoice, type OfferPlace } from "./ux/PlanOffer"
 import { ListenBar, SpeakerIcon, useListen, VoicedIcon } from "./listen/useListen"
 import { listenMark, markClock, voicedId, type MadeList } from "../shared/voiced"
@@ -3700,8 +3701,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     void noteBuying({ plan: chosen, period, was: statusRef.current?.plan ?? "free", at: Date.now() })
     openAppFromTap(touch, { target: "subscribe", plan: chosen, period, feature: chosen === "ultra" ? "listen" : undefined, via, back: source.href() })
   }
-  const offerEvent = (place: OfferPlace) => (action: string, choice?: OfferChoice) =>
-    void sendBackground({ type: "useEvent", f: "chat_plans", a: action, via: place, ...(choice ? { plan: choice.plan, period: choice.period } : {}) })
+  // `from`: "more" for what was tapped inside the limit card's «More» (2.8, Р19).
+  const offerEvent = (place: OfferPlace) => (action: string, choice?: OfferChoice, from?: "more") =>
+    void sendBackground({ type: "useEvent", f: "chat_plans", a: action, via: place, ...(choice ? { plan: choice.plan, period: choice.period } : {}), ...(from ? { from } : {}) })
   const panelOpenRef = useRef(open)
   panelOpenRef.current = open
   // 2.8 (В7.4): Pro's weekly taste of Listen (null: none).
@@ -5601,45 +5603,56 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   const long = (error.weight ?? 1) > 1 && left > 0
                   // Free and Pro (build 91): the plans message in the chat, Retry once the answers are back. An own key
                   // subscriber, and Ultra (nothing above it), keep the card.
+                  // Free (2.8, Р19): the simpler card, one purchase and the rest under «More».
+                  if (!byok && !hasPro(plan)) {
+                    const event = offerEvent("limit")
+                    return (
+                      <LimitCard
+                        status={status}
+                        title={long ? t("limitLongTitle") : t("limitFreeTitle")}
+                        body={<>
+                          {long && `${t("limitLongBody", error.weight!, left)} `}
+                          {backFree}
+                        </>}
+                        offer={offer ? { code: offer.code, discount: offer.discount } : null}
+                        remind={TARGET === "safari" && resetsAt
+                          ? <AnswersBack short resetsAt={Date.parse(resetsAt)} count={back} url={source.href()} onEvent={(a) => event(a)} />
+                          : undefined}
+                        retryAt={resetsAt ? Date.parse(resetsAt) : "unknown"}
+                        ownKey={TARGET === "safari"}
+                        onRetry={lastIsUser ? () => retry() : undefined}
+                        onChoose={choosePlan}
+                        onRedeem={redeemOffer}
+                        onNote={writeNote}
+                        onOwnKey={() => openSettingsAt("ownKey")}
+                        onEvent={event}
+                      />
+                    )
+                  }
+                  // A Pro subscriber: Ultra, in their own period (unchanged; the free-only parts, the offer, the
+                  // reminder and the own key, went with the free card above).
                   if (!byok && !isUltra(plan)) {
                     const event = offerEvent("limit")
                     return (
                       <PlanOffer
                         place="limit"
                         status={status}
-                        title={long ? t("limitLongTitle") : hasPro(plan) ? t("limitProTitle") : t("limitFreeTitle")}
+                        title={long ? t("limitLongTitle") : t("limitProTitle")}
                         body={<>
                           {long && `${t("limitLongBody", error.weight!, left)} `}
-                          {hasPro(plan) ? backPro : backFree}
+                          {backPro}
                         </>}
-                        plans={hasPro(plan) ? ["ultra"] : ["pro", "ultra"]}
+                        plans={["ultra"]}
                         retryAt={resetsAt ? Date.parse(resetsAt) : "unknown"}
                         onRetry={lastIsUser ? () => retry() : undefined}
                         onChoose={choosePlan}
                         onEvent={event}
-                        extra={<>
-                          {offer && (
-                            <>
-                              <div class="cf-card-actions">
-                                <button type="button" class="cf-secondary" onClick={() => { event("discount"); redeemOffer(offer.code) }}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
-                              </div>
-                              {/* The first month only, through the App Store's code page (acceptance 3: next to the monthly
-                                  price it read as a second, cheaper buy button). */}
-                              <p class="cf-offer-code">{t("offerByCode")}</p>
-                            </>
-                          )}
+                        extra={
                           <p class="cf-limit-notes">
                             <Icon.Pencil /> {t("limitNotes")}{" "}
                             <button type="button" class="cf-link" onClick={() => { event("note"); writeNote() }}>{t("writeNote")}</button>
                           </p>
-                          {/* 2.8 (В7.1): a notification when the free answers are back, asked about here. */}
-                          {!hasPro(plan) && TARGET === "safari" && resetsAt && (
-                            <AnswersBack resetsAt={Date.parse(resetsAt)} count={back} url={source.href()} onEvent={(a) => event(a)} />
-                          )}
-                          {!hasPro(plan) && TARGET === "safari" && (
-                            <p class="cf-offer-own"><button type="button" class="cf-link" onClick={() => { event("own_key"); openSettingsAt("ownKey") }}>{t("useOwnKey")}</button></p>
-                          )}
-                        </>}
+                        }
                       />
                     )
                   }
@@ -5654,7 +5667,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                             // With a key: only Google answers go through ContextFlow. A key added after the refusal
                             // (from this card) leaves a question that wasn't a Google one: nothing more to say, Retry.
                             ? `${backFree}${!status?.hasOwnKey ? ` ${t("byokLimitNoKey", back, PRO_WEEKLY)}` : messages[messages.length - 1]?.mode === "google" ? ` ${t("byokLimitGoogle", back, PRO_WEEKLY)}` : ""}`
-                            : `${backFree} ${offer ? t("offerLimit", offer.discount, PRO_WEEKLY) : t("limitFreePro", PRO_WEEKLY)}`}
+                            : backFree}
                       </p>
                       <p class="cf-limit-notes">
                         <Icon.Pencil /> {t("limitNotes")}{" "}
@@ -5673,17 +5686,6 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                           )}
                         </div>
                       )}
-                      {!hasPro(plan) && !byok && (
-                        <div class="cf-card-actions">
-                          {offer ? (
-                            <button type="button" class="cf-primary" onClick={() => redeemOffer(offer.code)}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
-                          ) : (
-                            <button type="button" class="cf-primary" onClick={() => void openApp("subscribe")}><Icon.Sparkle size={14} /> {t("getPro")}</button>
-                          )}
-                          <button type="button" class="cf-secondary" onClick={() => openSettingsAt("ownKey")}>{t("useOwnKey")}</button>
-                        </div>
-                      )}
-                      {!hasPro(plan) && !byok && offer && <p class="cf-offer-code">{t("offerByCode")}</p>}
                     </div>
                   )
                 })()}

@@ -1004,9 +1004,6 @@
  "limitFreeBack_other": {
   "message": "{0} respuestas gratis nuevas a las {1}, en {2}."
  },
- "limitFreePro": {
-  "message": "Con Pro tienes hasta {0} respuestas a la semana, vídeos y PDF de la página, búsqueda con IA y preguntas sobre todos tus chats."
- },
  "limitNotes": {
   "message": "Las notas siguen siendo gratis y sin límite: apunta ahora lo importante y pregúntale a la IA después."
  },
@@ -1021,9 +1018,6 @@
  },
  "errKeyRate": {
   "message": "{0} está limitando ahora mismo las solicitudes de tu clave: es el límite de tu cuenta. Espera un minuto y vuelve a preguntar. Tus límites están en {1}."
- },
- "offerLimit": {
-  "message": "O consigue Pro con un {0} % de descuento el primer mes: hasta {1} respuestas a la semana, más profundas y detalladas. Cancela cuando quieras."
  },
  "offerButton": {
   "message": "Primer mes con un {0} % de descuento"
@@ -3847,6 +3841,51 @@
  },
  "offerByCode": {
   "message": "Se aplica con un código en el App Store."
+ },
+ "limitOfferLine": {
+  "message": "Primer mes con un {0} % de descuento"
+ },
+ "limitBuyOffer": {
+  "message": "Obtener Pro: primer mes con un {0} % de descuento"
+ },
+ "limitBuyPrice": {
+  "message": "Obtener Pro por {0} al mes"
+ },
+ "limitThen": {
+  "message": "Después, {0} al mes."
+ },
+ "limitRenews": {
+  "message": "Se renueva cada mes. Cancela cuando quieras en el App Store."
+ },
+ "answersBackAt": {
+  "message": "Avísame cuando vuelvan ({0})"
+ },
+ "limitMore": {
+  "message": "Más"
+ },
+ "moreYearly": {
+  "message": "Anual: {0} al año"
+ },
+ "moreYearlySave": {
+  "message": "Anual: {0} al año, ahorra un {1} %"
+ },
+ "moreUltra": {
+  "message": "Ultra: {0} al mes, todo lo de Pro más Escuchar y Buscar similares"
+ },
+ "moreUltraNoPrice": {
+  "message": "Ultra: todo lo de Pro más Escuchar y Buscar similares"
+ },
+ "moreChoose": {
+  "message": "Elegir"
+ },
+ "moreNotes": {
+  "message": "Las notas siguen siendo gratis y sin límite"
+ },
+ "moreOwnKey": {
+  "message": "¿Tienes una clave de API?"
+ },
+ "moreOwnKeyLink": {
+  "message": "Usar la mía"
  },
  "tip_4cf1b54b00": {
   "message": "Consejos"

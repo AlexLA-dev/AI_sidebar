@@ -1004,9 +1004,6 @@
  "limitFreeBack_other": {
   "message": "{0} nouvelles réponses gratuites à {1}, dans {2}."
  },
- "limitFreePro": {
-  "message": "Avec Pro : jusqu’à {0} réponses par semaine, les vidéos et PDF de la page, la recherche IA et des questions sur toutes vos discussions."
- },
  "limitNotes": {
   "message": "Les notes restent gratuites et illimitées : notez l’essentiel maintenant, interrogez l’IA plus tard."
  },
@@ -1021,9 +1018,6 @@
  },
  "errKeyRate": {
   "message": "{0} limite en ce moment les demandes de votre clé : c’est la limite de votre compte. Attendez une minute, puis reposez la question. Vos limites se trouvent sur {1}."
- },
- "offerLimit": {
-  "message": "Ou passez à Pro avec {0} % de réduction le premier mois : jusqu'à {1} réponses par semaine, plus approfondies et détaillées. Résiliable à tout moment."
  },
  "offerButton": {
   "message": "Premier mois à −{0} %"
@@ -3847,6 +3841,51 @@
  },
  "offerByCode": {
   "message": "Appliquée avec un code dans l’App Store."
+ },
+ "limitOfferLine": {
+  "message": "Premier mois à −{0} %"
+ },
+ "limitBuyOffer": {
+  "message": "Passer à Pro : premier mois à −{0} %"
+ },
+ "limitBuyPrice": {
+  "message": "Passer à Pro pour {0} par mois"
+ },
+ "limitThen": {
+  "message": "Ensuite {0} par mois."
+ },
+ "limitRenews": {
+  "message": "Renouvellement mensuel. Résiliable à tout moment dans l’App Store."
+ },
+ "answersBackAt": {
+  "message": "Me le rappeler à {0}"
+ },
+ "limitMore": {
+  "message": "Plus"
+ },
+ "moreYearly": {
+  "message": "Annuel : {0} par an"
+ },
+ "moreYearlySave": {
+  "message": "Annuel : {0} par an, soit {1} % d’économie"
+ },
+ "moreUltra": {
+  "message": "Ultra : {0} par mois, tout Pro avec en plus Écouter et Trouver similaire"
+ },
+ "moreUltraNoPrice": {
+  "message": "Ultra : tout Pro avec en plus Écouter et Trouver similaire"
+ },
+ "moreChoose": {
+  "message": "Choisir"
+ },
+ "moreNotes": {
+  "message": "Les notes restent gratuites et illimitées"
+ },
+ "moreOwnKey": {
+  "message": "Vous avez une clé d’API ?"
+ },
+ "moreOwnKeyLink": {
+  "message": "Utiliser la mienne"
  },
  "tip_4cf1b54b00": {
   "message": "Astuces"
