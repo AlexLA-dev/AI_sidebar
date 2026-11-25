@@ -12,7 +12,7 @@ import { useEffect, useState } from "preact/hooks"
 import { t } from "../../shared/i18n"
 import { productOf, type Period } from "../../shared/plan"
 import type { StatusInfo } from "../../shared/types"
-import { currencyCode, tierLines } from "../Plans"
+import { currencyCode } from "../Plans"
 import * as Icon from "../icons"
 import { savingOf, useAnswersBack, usePrices, type OfferChoice } from "./PlanOffer"
 
@@ -80,8 +80,9 @@ export function LimitCard({ status, title, body, offer, remind, retryAt, ownKey,
           <strong>{t("planPro")}</strong>
           {monthly && <span class="cf-plan-price">{t("plansPerMonth", monthly)}</span>}
         </div>
-        {offer && <p class="cf-limit-offer">{t("limitOfferLine", offer.discount)}</p>}
-        {facts && <ul class="cf-plan-lines">{tierLines("pro", facts).slice(0, 2).map((line, i) => <li key={i}>{line}</li>)}</ul>}
+        {/* One short line of what Pro gives: the card fits the panel as it opens on the smallest iPhone (the director on
+            #263); the rest is under More and in the plans. The offer is said by the button only. */}
+        {facts && <p class="cf-limit-pro-line">{t("limitProLine", String(facts.proWeekly))}</p>}
         {monthly && currency && <p class="cf-hint cf-plans-currency">{t("plansCurrency", currency)}</p>}
       </div>
       <div class="cf-card-actions">
@@ -95,12 +96,10 @@ export function LimitCard({ status, title, body, offer, remind, retryAt, ownKey,
           </button>
         )}
       </div>
-      {/* What happens after: the price it renews at, and where the code is applied / where it's cancelled. No promise we
-          can't stand behind (the director: «Cancel anytime in two taps» isn't true). */}
+      {/* One line: where the code is applied, or where it's cancelled. No promise we can't stand behind (the director:
+          «Cancel anytime in two taps» isn't true). The price it renews at is the box's, right above. */}
       <p class="cf-limit-terms">
-        {(offer ? [monthly ? t("limitThen", monthly) : "", t("offerByCode")].filter(Boolean).join(" ") : t("limitRenews"))
-          // No space after a full-width stop (ja, zh); «App Store» kept on one line.
-          .replace(/([。．]) /g, "$1").replace(/App Store/g, "App\u00a0Store")}
+        {(offer ? t("offerByCode") : t("limitCancel")).replace(/App Store/g, "App\u00a0Store")}
       </p>
       <div class="cf-limit-row">
         {remind}

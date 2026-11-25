@@ -1312,11 +1312,8 @@
   "answersBackInApp": "ContextFlowアプリで設定する",
   "hoursMinutes": "{0}時間{1}分",
   "offerByCode": "App Store でコードを使って適用されます。",
-  "limitOfferLine": "最初の1か月が {0}% オフ",
   "limitBuyOffer": "Proを始める — 最初の1か月 {0}% オフ",
   "limitBuyPrice": "Proを始める — 月額 {0}",
-  "limitThen": "その後は月額 {0}。",
-  "limitRenews": "毎月自動更新されます。App Store でいつでも解約できます。",
   "answersBackAt": "{0} に知らせる",
   "limitMore": "その他",
   "moreYearly": "年額：{0}",
@@ -1326,5 +1323,7 @@
   "moreChoose": "選ぶ",
   "moreNotes": "メモは無料・無制限",
   "moreOwnKey": "API キーをお持ちですか？",
-  "moreOwnKeyLink": "自分のキーを使う"
+  "moreOwnKeyLink": "自分のキーを使う",
+  "limitProLine": "週に最大{0}回の回答",
+  "limitCancel": "App Store でいつでも解約できます。"
 }

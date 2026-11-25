@@ -1312,11 +1312,8 @@
   "answersBackInApp": "Programarlo en la app ContextFlow",
   "hoursMinutes": "{0} h {1} min",
   "offerByCode": "Se aplica con un código en el App Store.",
-  "limitOfferLine": "Primer mes con un {0} % de descuento",
   "limitBuyOffer": "Obtener Pro: primer mes al {0} %",
   "limitBuyPrice": "Obtener Pro por {0} al mes",
-  "limitThen": "Después, {0} al mes.",
-  "limitRenews": "Se renueva cada mes. Cancela cuando quieras en el App Store.",
   "answersBackAt": "Avísame cuando vuelvan ({0})",
   "limitMore": "Más",
   "moreYearly": "Anual: {0} al año",
@@ -1326,5 +1323,7 @@
   "moreChoose": "Elegir",
   "moreNotes": "Las notas siguen siendo gratis y sin límite",
   "moreOwnKey": "¿Tienes una clave de API?",
-  "moreOwnKeyLink": "Usar la mía"
+  "moreOwnKeyLink": "Usar la mía",
+  "limitProLine": "Hasta {0} respuestas a la semana",
+  "limitCancel": "Cancela cuando quieras en el App Store."
 }

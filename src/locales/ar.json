@@ -1312,11 +1312,8 @@
   "answersBackInApp": "اضبطه في تطبيق ContextFlow",
   "hoursMinutes": "{0} س {1} د",
   "offerByCode": "يُطبَّق الخصم برمز في App Store.",
-  "limitOfferLine": "الشهر الأول بخصم {0}%",
   "limitBuyOffer": "اشترك في Pro: الشهر الأول بخصم {0}%",
   "limitBuyPrice": "اشترك في Pro مقابل {0} شهريًا",
-  "limitThen": "ثم {0} شهريًا.",
-  "limitRenews": "يتجدد شهريًا. يمكنك الإلغاء في أي وقت من App Store.",
   "answersBackAt": "ذكّرني الساعة {0}",
   "limitMore": "المزيد",
   "moreYearly": "سنوي: {0} في السنة",
@@ -1326,5 +1323,7 @@
   "moreChoose": "اختر",
   "moreNotes": "الملاحظات تبقى مجانية وبلا حدود",
   "moreOwnKey": "لديك مفتاح API؟",
-  "moreOwnKeyLink": "استخدم مفتاحي"
+  "moreOwnKeyLink": "استخدم مفتاحي",
+  "limitProLine": "حتى {0} إجابة أسبوعيًا",
+  "limitCancel": "يمكنك الإلغاء في أي وقت من App Store."
 }

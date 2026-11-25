@@ -1312,11 +1312,8 @@
   "answersBackInApp": "Поставити в застосунку ContextFlow",
   "hoursMinutes": "{0} год {1} хв",
   "offerByCode": "Знижка діє за кодом в App Store.",
-  "limitOfferLine": "Перший місяць зі знижкою {0}%",
   "limitBuyOffer": "Оформити Pro: перший місяць −{0}%",
   "limitBuyPrice": "Оформити Pro — {0} на місяць",
-  "limitThen": "Далі {0} на місяць.",
-  "limitRenews": "Поновлюється щомісяця. Скасувати можна будь-коли в App Store.",
   "answersBackAt": "Нагадати о {0}",
   "limitMore": "Ще",
   "moreYearly": "На рік: {0}",
@@ -1326,5 +1323,7 @@
   "moreChoose": "Обрати",
   "moreNotes": "Нотатки безкоштовні й без ліміту",
   "moreOwnKey": "Маєте свій ключ API?",
-  "moreOwnKeyLink": "Підключити"
+  "moreOwnKeyLink": "Підключити",
+  "limitProLine": "До {0} відповідей на тиждень",
+  "limitCancel": "Скасувати можна будь-коли в App Store."
 }

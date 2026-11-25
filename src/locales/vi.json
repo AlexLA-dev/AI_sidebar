@@ -1312,11 +1312,8 @@
   "answersBackInApp": "Đặt trong ứng dụng ContextFlow",
   "hoursMinutes": "{0} giờ {1} phút",
   "offerByCode": "Áp dụng bằng mã trong App Store.",
-  "limitOfferLine": "Tháng đầu giảm {0}%",
   "limitBuyOffer": "Dùng Pro — tháng đầu giảm {0}%",
   "limitBuyPrice": "Dùng Pro — {0} mỗi tháng",
-  "limitThen": "Sau đó {0} mỗi tháng.",
-  "limitRenews": "Tự gia hạn hằng tháng. Hủy bất cứ lúc nào trong App Store.",
   "answersBackAt": "Nhắc tôi lúc {0}",
   "limitMore": "Thêm",
   "moreYearly": "Theo năm: {0} mỗi năm",
@@ -1326,5 +1323,7 @@
   "moreChoose": "Chọn",
   "moreNotes": "Ghi chú vẫn miễn phí và không giới hạn",
   "moreOwnKey": "Bạn có khóa API?",
-  "moreOwnKeyLink": "Dùng khóa của tôi"
+  "moreOwnKeyLink": "Dùng khóa của tôi",
+  "limitProLine": "Tối đa {0} câu trả lời mỗi tuần",
+  "limitCancel": "Hủy bất cứ lúc nào trong App Store."
 }

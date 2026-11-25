@@ -1312,11 +1312,8 @@
   "answersBackInApp": "Поставить в приложении ContextFlow",
   "hoursMinutes": "{0} ч {1} мин",
   "offerByCode": "Скидка применяется по коду в App Store.",
-  "limitOfferLine": "Первый месяц со скидкой {0}%",
   "limitBuyOffer": "Оформить Pro: первый месяц −{0}%",
   "limitBuyPrice": "Оформить Pro — {0} в месяц",
-  "limitThen": "Дальше {0} в месяц.",
-  "limitRenews": "Продлевается каждый месяц. Отменить можно в любой момент в App Store.",
   "answersBackAt": "Напомнить в {0}",
   "limitMore": "Ещё",
   "moreYearly": "На год: {0}",
@@ -1326,5 +1323,7 @@
   "moreChoose": "Выбрать",
   "moreNotes": "Заметки бесплатны и без лимита",
   "moreOwnKey": "Есть свой ключ API?",
-  "moreOwnKeyLink": "Подключить"
+  "moreOwnKeyLink": "Подключить",
+  "limitProLine": "До {0} ответов в неделю",
+  "limitCancel": "Отменить можно в любой момент в App Store."
 }

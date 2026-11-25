@@ -1312,11 +1312,8 @@
   "answersBackInApp": "In der ContextFlow-App einstellen",
   "hoursMinutes": "{0} Std. {1} Min.",
   "offerByCode": "Wird mit einem Code im App Store eingelöst.",
-  "limitOfferLine": "Erster Monat mit {0} % Rabatt",
   "limitBuyOffer": "Pro holen – erster Monat mit {0} % Rabatt",
   "limitBuyPrice": "Pro holen – {0} pro Monat",
-  "limitThen": "Danach {0} pro Monat.",
-  "limitRenews": "Verlängert sich monatlich. Jederzeit im App Store kündbar.",
   "answersBackAt": "Um {0} erinnern",
   "limitMore": "Mehr",
   "moreYearly": "Jährlich: {0} pro Jahr",
@@ -1326,5 +1323,7 @@
   "moreChoose": "Wählen",
   "moreNotes": "Notizen bleiben gratis und unbegrenzt",
   "moreOwnKey": "Eigener API-Schlüssel?",
-  "moreOwnKeyLink": "Verwenden"
+  "moreOwnKeyLink": "Verwenden",
+  "limitProLine": "Bis zu {0} Antworten pro Woche",
+  "limitCancel": "Jederzeit im App Store kündbar."
 }

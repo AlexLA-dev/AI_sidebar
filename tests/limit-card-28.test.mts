@@ -76,10 +76,11 @@ test("no offer: one box (Pro, monthly price), one buy button with the price, the
   assert.equal(card.buttons().length, 2)
   assert.equal(card.el.querySelectorAll(".cf-seg").length, 0)
   assert.match(card.el.querySelector(".cf-plan-price").textContent, /\$6\.99 \/ month/)
-  assert.equal(card.el.querySelectorAll(".cf-plan-lines li").length, 2)
+  // One short line of what Pro gives (the card fits the panel as it opens on the smallest iPhone).
+  assert.equal(card.el.querySelector(".cf-limit-pro-line").textContent, "Up to 375 answers a week")
+  assert.equal(card.el.querySelectorAll(".cf-plan-lines li").length, 0)
   assert.equal(card.el.querySelector(".cf-limit-buy").textContent.trim(), "Get Pro — $6.99 a month")
-  assert.equal(card.el.querySelector(".cf-limit-terms").textContent.replace(/\u00a0/g, " "), "Renews monthly. Cancel anytime in the App Store.")
-  assert.equal(card.el.querySelector(".cf-limit-offer"), null)
+  assert.equal(card.el.querySelector(".cf-limit-terms").textContent.replace(/\u00a0/g, " "), "Cancel anytime in the App Store.")
   assert.equal(card.el.querySelector(".cf-limit-more"), null)
   assert.doesNotMatch(card.text(), /\$59\.99|\$12\.99/)
   await click(card.el.querySelector(".cf-limit-buy"))
@@ -88,12 +89,13 @@ test("no offer: one box (Pro, monthly price), one buy button with the price, the
   ui.clear(card.el)
 })
 
-test("with the offer: the box says the first month, the button goes to the code page, then the price it renews at", async () => {
+test("with the offer: the button says the first month and goes to the code page; the line under it says it's a code", async () => {
   const card = mount({ offer: OFFER })
   await tick()
-  assert.equal(card.el.querySelector(".cf-limit-offer").textContent, "First month 50% off")
+  // Said once, by the button: no second line about it in the box.
+  assert.doesNotMatch(card.el.querySelector(".cf-offer-plan-card").textContent, /50/)
   assert.equal(card.el.querySelector(".cf-limit-buy").textContent.trim(), "Get Pro — first month 50% off")
-  assert.equal(card.el.querySelector(".cf-limit-terms").textContent.replace(/\u00a0/g, " "), "Then $6.99 a month. Applied with a code in the App Store.")
+  assert.equal(card.el.querySelector(".cf-limit-terms").textContent.replace(/\u00a0/g, " "), "Applied with a code in the App Store.")
   // One price in the box: no second, discounted price.
   assert.equal((card.el.querySelector(".cf-offer-plan-card").textContent.match(/\$/g) ?? []).length, 1)
   await click(card.el.querySelector(".cf-limit-buy"))
@@ -167,7 +169,7 @@ test("the panel: free people get this card, a Pro subscriber keeps Ultra in thei
 })
 
 test("15 languages: every string translated, placeholders kept, no «two taps» anywhere", () => {
-  const keys = ["limitOfferLine", "limitBuyOffer", "limitBuyPrice", "limitThen", "limitRenews", "answersBackAt", "limitMore", "moreYearly", "moreYearlySave", "moreUltra", "moreUltraNoPrice", "moreChoose", "moreNotes", "moreOwnKey", "moreOwnKeyLink"]
+  const keys = ["limitProLine", "limitCancel", "limitBuyOffer", "limitBuyPrice", "answersBackAt", "limitMore", "moreYearly", "moreYearlySave", "moreUltra", "moreUltraNoPrice", "moreChoose", "moreNotes", "moreOwnKey", "moreOwnKeyLink"]
   const en = JSON.parse(read("src/locales/en.json"))
   const langs = readdirSync(join(root, "src/locales")).filter((f) => f.endsWith(".json"))
   assert.equal(langs.length, 15)
@@ -178,7 +180,7 @@ test("15 languages: every string translated, placeholders kept, no «two taps» 
       for (const slot of en[key].match(/\{\d\}/g) ?? []) assert.ok(d[key].includes(slot), `${f} ${key} ${slot}`)
       if (f !== "en.json" && !["limitMore"].includes(key)) assert.notEqual(d[key], en[key], `${f} ${key} untranslated`)
     }
-    assert.match(d.limitRenews, /App Store/, f)
+    assert.match(d.limitCancel, /App Store/, f)
     for (const text of Object.values(d) as string[]) assert.doesNotMatch(text, /two taps|двух касани|два касани|zwei Tipp|deux touch/i, f)
   }
 })

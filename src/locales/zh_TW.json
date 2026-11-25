@@ -1312,11 +1312,8 @@
   "answersBackInApp": "在 ContextFlow App 中設定",
   "hoursMinutes": "{0} 小時 {1} 分鐘",
   "offerByCode": "在 App Store 中以優惠代碼套用。",
-  "limitOfferLine": "首月省 {0}%",
   "limitBuyOffer": "升級 Pro — 首月省 {0}%",
   "limitBuyPrice": "升級 Pro — 每月 {0}",
-  "limitThen": "之後每月 {0}。",
-  "limitRenews": "按月自動續訂，可隨時在 App Store 中取消。",
   "answersBackAt": "{0} 提醒我",
   "limitMore": "更多",
   "moreYearly": "年繳：每年 {0}",
@@ -1326,5 +1323,7 @@
   "moreChoose": "選擇",
   "moreNotes": "筆記一直免費、不限次數",
   "moreOwnKey": "有自己的 API 金鑰？",
-  "moreOwnKeyLink": "使用我的金鑰"
+  "moreOwnKeyLink": "使用我的金鑰",
+  "limitProLine": "每週最多 {0} 個回答",
+  "limitCancel": "可隨時在 App Store 中取消。"
 }

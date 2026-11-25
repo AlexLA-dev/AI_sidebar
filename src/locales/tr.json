@@ -1312,11 +1312,8 @@
   "answersBackInApp": "ContextFlow uygulamasında ayarla",
   "hoursMinutes": "{0} sa {1} dk",
   "offerByCode": "İndirim App Store'da bir kodla uygulanır.",
-  "limitOfferLine": "İlk ay %{0} indirimli",
   "limitBuyOffer": "Pro'ya geç: ilk ay %{0} indirimli",
   "limitBuyPrice": "Pro'ya geç: aylık {0}",
-  "limitThen": "Sonrasında aylık {0}.",
-  "limitRenews": "Her ay yenilenir. İstediğiniz zaman App Store'dan iptal edebilirsiniz.",
   "answersBackAt": "Yanıtlar dönünce hatırlat ({0})",
   "limitMore": "Daha fazla",
   "moreYearly": "Yıllık: yılda {0}",
@@ -1326,5 +1323,7 @@
   "moreChoose": "Seç",
   "moreNotes": "Notlar ücretsiz ve sınırsız",
   "moreOwnKey": "API anahtarınız var mı?",
-  "moreOwnKeyLink": "Kendi anahtarımı kullan"
+  "moreOwnKeyLink": "Kendi anahtarımı kullan",
+  "limitProLine": "Haftada en fazla {0} yanıt",
+  "limitCancel": "İstediğiniz zaman App Store'dan iptal edebilirsiniz."
 }

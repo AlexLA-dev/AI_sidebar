@@ -1312,11 +1312,8 @@
   "answersBackInApp": "Set it in the ContextFlow app",
   "hoursMinutes": "{0} h {1} min",
   "offerByCode": "Applied with a code in the App Store.",
-  "limitOfferLine": "First month {0}% off",
   "limitBuyOffer": "Get Pro — first month {0}% off",
   "limitBuyPrice": "Get Pro — {0} a month",
-  "limitThen": "Then {0} a month.",
-  "limitRenews": "Renews monthly. Cancel anytime in the App Store.",
   "answersBackAt": "Remind me at {0}",
   "limitMore": "More",
   "moreYearly": "Yearly: {0} a year",
@@ -1326,5 +1323,7 @@
   "moreChoose": "Choose",
   "moreNotes": "Notes stay free and unlimited",
   "moreOwnKey": "Have an API key?",
-  "moreOwnKeyLink": "Use my own"
+  "moreOwnKeyLink": "Use my own",
+  "limitProLine": "Up to {0} answers a week",
+  "limitCancel": "Cancel anytime in the App Store."
 }
