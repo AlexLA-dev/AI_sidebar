@@ -71,6 +71,8 @@ enum ChatAI {
         ]
         // 2.7: a friend's code's extra answers run (the server checks it; see Invite.swift).
         if InviteModel.keptUntil() != nil { client["inv"] = 1 }
+        // 2.8 (В1.9): a simulator or debug build is ours, never a person (OurBuild, SharedDefaults).
+        if OurBuild.isOurs { client["audience"] = "test" }
         var body: [String: Any] = [
             "installId": (Activation.shared.accountToken ?? UUID()).uuidString.lowercased(),
             "client": client
@@ -186,14 +188,17 @@ enum ChatAI {
               let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let limits = object["limits"] as? [String: Any] else { return nil }
         let watch = limits["watch"] as? [String: Int] ?? [:]
-        let speak = (object["ultra"] as? [String: Any])?["speak"] as? [String: Any]
+        // 2.8 (В7.4): Pro's weekly taste of Listen (on the server's numbers), in place of Ultra's minutes.
+        let taste = (object["taste"] as? [String: Any])?["speak"] as? [String: Any]
+        let speak = (object["ultra"] as? [String: Any])?["speak"] as? [String: Any] ?? taste
         return PlanFacts(
             proWeekly: limits["proWeekly"] as? Int ?? 375,
             speakWeeklyMinutes: (limits["speakWeeklySeconds"] as? Int ?? 1800) / 60,
             similarWeekly: limits["similarWeekly"] as? Int ?? 10,
             watchPro: watch["pro"] ?? 20,
             watchUltra: watch["ultra"] ?? 50,
-            speakLeftSeconds: speak.flatMap { s in (s["limit"] as? Int).map { max(0, $0 - (s["used"] as? Int ?? 0)) } }
+            speakLeftSeconds: speak.flatMap { s in (s["limit"] as? Int).map { max(0, $0 - (s["used"] as? Int ?? 0)) } },
+            tasteSpeakSeconds: taste?["limit"] as? Int
         )
     }
 
@@ -204,6 +209,8 @@ enum ChatAI {
         var watchPro = 20
         var watchUltra = 50
         var speakLeftSeconds: Int?
+        /// 2.8 (В7.4): Pro's taste of Listen, seconds a week (nil: none, or not Pro).
+        var tasteSpeakSeconds: Int?
     }
 
     /// Read aloud (2.6, Ultra): one part of the text, spoken by our server (/api/v2/speak), as 24 kHz 16-bit PCM.
@@ -277,7 +284,8 @@ enum ChatAI {
             "reason": reason,
             "product": entitlement.productId ?? "",
             "from": "app",
-            "client": ["platform": platform, "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "", "locale": Locale.current.identifier]
+            // 2.8 (В1.6): with the build, the storefront and whether an ad brought it (AppSource, Setup.swift).
+            "client": AppSource.client(platform: platform, locale: Locale.current.identifier)
         ]
         if let installId = SharedDefaults.shared.readExtensionStatus().installId { body["installId"] = installId }
         if let end = entitlement.expiresAt { body["days_left"] = max(0, Int(end.timeIntervalSinceNow / 86_400)) }
@@ -292,7 +300,8 @@ enum ChatAI {
             "kind": "social_open",
             "appId": Activation.shared.appId,
             "network": network,
-            "client": ["platform": platform, "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "", "locale": Locale.current.identifier]
+            // 2.8 (В1.6): with the build, the storefront and whether an ad brought it (AppSource, Setup.swift).
+            "client": AppSource.client(platform: platform, locale: Locale.current.identifier)
         ]
         if let installId = SharedDefaults.shared.readExtensionStatus().installId { body["installId"] = installId }
         guard let request = try? request("api/v2/event", body) else { return }
@@ -528,7 +537,8 @@ extension ChatAI {
             "kind": kind,
             "appId": Activation.shared.appId,
             "surface": "app",
-            "client": ["platform": platform, "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "", "locale": Locale.current.identifier]
+            // 2.8 (В1.6): with the build, the storefront and whether an ad brought it (AppSource, Setup.swift).
+            "client": AppSource.client(platform: platform, locale: Locale.current.identifier)
         ]
         for (key, value) in fields { body[key] = value }
         if let installId = SharedDefaults.shared.readExtensionStatus().installId { body["installId"] = installId }

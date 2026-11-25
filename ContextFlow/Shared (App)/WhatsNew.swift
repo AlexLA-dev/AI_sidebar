@@ -110,7 +110,8 @@ enum WhatsNew {
         guard newer(found.version, than: installed), defaults.string(forKey: notifiedKey) != found.version else { return }
         let center = UNUserNotificationCenter.current()
         let settings = await center.notificationSettings()
-        guard settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional else { return }
+        // Not with quiet permission: that's the setup reminders' only (2.8).
+        guard NotifyStatus.on(settings.authorizationStatus) else { return }
         let content = UNMutableNotificationContent()
         content.title = String(localized: "ContextFlow \(found.version) is here")
         content.body = String(localized: "See what's new in this version.")
@@ -166,7 +167,11 @@ struct WhatsNewView: View {
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                         if let url = URL(string: store.url) {
-                            Button("Update") { openURL(url) }
+                            Button("Update") {
+                                // 2.8 (В1.7): the tab's one action.
+                                ChatAI.reportUse("whatsnew", "tap")
+                                openURL(url)
+                            }
                                 .buttonStyle(.borderedProminent)
                         }
                     }

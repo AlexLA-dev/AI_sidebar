@@ -1,0 +1,72 @@
+{
+ "ar": {
+  "Allow for One Day": "السماح ليوم واحد",
+  "Always Allow…": "السماح دومًا…",
+  "Always Allow on Every Website": "السماح دائمًا على كل موقع إلكتروني"
+ },
+ "de": {
+  "Allow for One Day": "Einen Tag lang erlauben",
+  "Always Allow…": "Immer erlauben …",
+  "Always Allow on Every Website": "Auf jeder Website immer erlauben"
+ },
+ "es": {
+  "Allow for One Day": "Permitir durante un día",
+  "Always Allow…": "Permitir siempre…",
+  "Always Allow on Every Website": "Permitir siempre en todos los sitios web"
+ },
+ "fr": {
+  "Allow for One Day": "Autoriser pendant un jour",
+  "Always Allow…": "Toujours autoriser…",
+  "Always Allow on Every Website": "Toujours autoriser sur chaque site web"
+ },
+ "it": {
+  "Allow for One Day": "Consenti per un giorno",
+  "Always Allow…": "Consenti sempre…",
+  "Always Allow on Every Website": "Consenti sempre su tutti i siti web"
+ },
+ "ja": {
+  "Allow for One Day": "1日だけ許可",
+  "Always Allow…": "常に許可…",
+  "Always Allow on Every Website": "すべてのWebサイトで常に許可"
+ },
+ "ko": {
+  "Allow for One Day": "1일 동안 허용",
+  "Always Allow…": "항상 허용…",
+  "Always Allow on Every Website": "모든 웹사이트에서 항상 허용"
+ },
+ "pt-BR": {
+  "Allow for One Day": "Permitir por Um Dia",
+  "Always Allow…": "Sempre Permitir…",
+  "Always Allow on Every Website": "Sempre Permitir em Todos os Sites"
+ },
+ "ru": {
+  "Allow for One Day": "Разрешить на 1 день",
+  "Always Allow…": "Разрешать всегда…",
+  "Always Allow on Every Website": "Разрешать всегда на каждом сайте"
+ },
+ "tr": {
+  "Allow for One Day": "Bir Gün İzin Ver",
+  "Always Allow…": "Her Zaman İzin Ver…",
+  "Always Allow on Every Website": "Her Web Sitesinde Her Zaman İzin Ver"
+ },
+ "uk": {
+  "Allow for One Day": "Дозволити на один день",
+  "Always Allow…": "Дозволяти завжди…",
+  "Always Allow on Every Website": "Завжди дозволяти на кожному вебсайті"
+ },
+ "vi": {
+  "Allow for One Day": "Cho phép trong một ngày",
+  "Always Allow…": "Luôn Cho phép…",
+  "Always Allow on Every Website": "Luôn luôn cho phép trên mọi trang web"
+ },
+ "zh-Hans": {
+  "Allow for One Day": "允许1天",
+  "Always Allow…": "始终允许…",
+  "Always Allow on Every Website": "在每个网站上始终允许"
+ },
+ "zh-Hant": {
+  "Allow for One Day": "允許一天",
+  "Always Allow…": "永遠允許⋯",
+  "Always Allow on Every Website": "一律在每個網站允許"
+ }
+}

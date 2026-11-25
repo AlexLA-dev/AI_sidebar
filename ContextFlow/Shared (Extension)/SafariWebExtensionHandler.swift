@@ -77,6 +77,11 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         let item = context.inputItems.first as? NSExtensionItem
         let message = item?.userInfo?[SFExtensionMessageKey] as? [String: Any] ?? [:]
         let command = message["command"] as? String ?? ""
+        // 2.8: the panel opened on a page: the app's guide over Settings, if it's still up, goes.
+        if command == "getEntitlement" || command == "page_seen" { SharedDefaults.postPanelOpened() }
+        #if DEBUG
+        NSLog("[cf-setup] native %@", command)
+        #endif
         if SharedDefaults.shared.recordExtensionSeen(used: command == "getEntitlement", installId: message["installId"] as? String) {
             // Switched on: the reminders to finish setup the app scheduled are no longer needed.
             let center = UNUserNotificationCenter.current()
@@ -227,6 +232,18 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                                                               title: title, body: body, open: page, ask: message["ask"] as? Bool ?? false)
                 Self.reply(context, ["success": true, "data": ["outcome": outcome.rawValue]])
             }
+        case "remind_pending":
+            // 2.8: whether a reminder is waiting on the device (the app may have set it, the panel's fallback when the
+            // extension couldn't): its time, or none.
+            let chat = message["chat"] as? String ?? ""
+            let key = message["message"] as? String ?? ""
+            Task {
+                let at = await MessageReminders.isPending(chat: chat, message: key)
+                Self.reply(context, ["success": true, "data": at.map { ["at": $0.timeIntervalSince1970 * 1000] } ?? [:]])
+            }
+        case "offer_tap_take":
+            // 2.8: the discount reminder's tap, noted by the app moments before (OfferTap); taken once.
+            Self.reply(context, ["success": true, "data": OfferTap.take().map { ["age": $0] } ?? [:]])
         case "unremind":
             if let chat = message["chat"] as? String, let key = message["message"] as? String {
                 MessageReminders.cancel(chat: chat, message: key)
@@ -552,6 +569,9 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             default:
                 Self.reply(context, ["success": true, "data": SharedDefaults.shared.readInvite()])
             }
+        // 2.8: the first page this background heard from (the notice above has gone to the app).
+        case "page_seen":
+            Self.reply(context, ["success": true])
         case "ping":
             let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
             let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
@@ -560,6 +580,8 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             // own install id until the server has the two together (src/background/link.ts). Nothing when the app hasn't
             // been opened yet: the extension asks again later.
             if let app = SharedDefaults.shared.appId() { data["app"] = app }
+            // 2.8 (В1.9): a simulator or debug build: the extension marks its requests as ours too.
+            if OurBuild.isOurs { data["test"] = true }
             Self.reply(context, ["success": true, "data": data])
         default:
             Self.reply(context, ["success": false, "error": "Unknown command: \(command)"])
@@ -666,7 +688,8 @@ enum ListenAway {
         case .authorized: return "authorized"
         case .denied: return "denied"
         case .notDetermined: return "notDetermined"
-        case .provisional: return "provisional"
+        // Quiet permission is the setup reminders' only (2.8): for the panel, not asked yet.
+        case .provisional: return "notDetermined"
         #if os(iOS)
         case .ephemeral: return "ephemeral"
         #endif
@@ -696,7 +719,7 @@ enum ListenAway {
 
         let center = UNUserNotificationCenter.current()
         let status = await center.notificationSettings().authorizationStatus
-        guard status == .authorized || status == .provisional else { return }
+        guard NotifyStatus.on(status) else { return }
         let content = UNMutableNotificationContent()
         let title = String((message["title"] as? String ?? "").prefix(200))
         content.title = title.isEmpty ? "ContextFlow" : title

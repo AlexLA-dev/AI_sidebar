@@ -1004,9 +1004,6 @@
  "limitFreeBack_other": {
   "message": "{1}({2} 후)에 무료 답변 {0}개가 다시 제공돼요."
  },
- "limitFreePro": {
-  "message": "Pro에서는 주당 최대 {0}개 답변, 페이지의 동영상·PDF 읽기, AI 검색, 모든 채팅에 묻기를 쓸 수 있어요."
- },
  "limitNotes": {
   "message": "메모는 무료이고 제한이 없어요. 중요한 내용을 지금 적어 두고 나중에 AI에게 물어보세요."
  },
@@ -1022,11 +1019,8 @@
  "errKeyRate": {
   "message": "지금 {0}에서 내 키의 요청을 제한하고 있어요(계정의 속도 제한). 1분쯤 기다렸다가 다시 질문해 주세요. 한도는 {1}에서 확인할 수 있어요."
  },
- "offerLimit": {
-  "message": "또는 첫 달 {0}% 할인된 Pro를 이용해 보세요. 더 깊이 있고 자세한 답변을 주 {1}회까지 받을 수 있습니다. 언제든 해지할 수 있습니다."
- },
  "offerButton": {
-  "message": "Pro {0}% 할인"
+  "message": "첫 달 {0}% 할인"
  },
  "offerShort": {
   "message": "Pro −{0}%"
@@ -2305,9 +2299,6 @@
  },
  "offerMemoryLong": {
   "message": "이 채팅에는 무료 답변이 기억하는 답변과 메모 {0}개보다 많은 내용이 있습니다. Pro에서는 AI가 채팅 전체를 기억합니다: 모든 메시지, 메모, 질문한 페이지까지."
- },
- "offerRetryAt": {
-  "message": "{0}에 답변이 다시 가능합니다."
  },
  "similarWhere": {
   "message": "찾을 범위"
@@ -3799,6 +3790,126 @@
  },
  "agentRecapTerms": {
   "message": "페이지의 취소 조건: {0}"
+ },
+ "tasteListenLeft": {
+  "message": "Pro 듣기: 이번 주 {1}분 중 {0}분 남음"
+ },
+ "tasteSimilarLeft": {
+  "message": "Pro 전체 검색: 이번 주 {1}회 중 {0}회 남음"
+ },
+ "tasteUltraListen": {
+  "message": "Ultra에서는 주 {0}분"
+ },
+ "tasteUltraSimilar": {
+  "message": "Ultra에서는 전체 검색 주 {0}회"
+ },
+ "tasteListenUsed": {
+  "message": "이번 주 Pro 듣기 {0}분을 모두 썼어요. {1}에 다시 생겨요."
+ },
+ "tasteSimilarUsed": {
+  "message": "이번 주 Pro 전체 검색을 썼어요. {0}에 다시 생기고, 빠른 검색은 계속 쓸 수 있어요."
+ },
+ "tasteSimilarDone": {
+  "message": "Ultra와 같은 전체 검색이에요. Pro에서는 주 1회 쓸 수 있어요."
+ },
+ "boughtPro": {
+  "message": "Pro가 켜졌어요. 주 {0}개까지 답변해요. 바로 물어보세요."
+ },
+ "boughtUltra": {
+  "message": "Ultra가 켜졌어요. 듣기, 전체 검색 비슷한 것 찾기, Pro의 모든 기능을 쓸 수 있어요."
+ },
+ "boughtByok": {
+  "message": "내 키 요금제가 켜졌어요. 설정에서 API 키를 추가하세요."
+ },
+ "answersBackAsk": {
+  "message": "답변 {0}개가 돌아오면 알려 주기"
+ },
+ "answersBackSet": {
+  "message": "{0}에 답변이 돌아오면 알려 드릴게요."
+ },
+ "answersBackOff": {
+  "message": "ContextFlow 알림이 꺼져 있어요. 답변은 {0}에 돌아와요."
+ },
+ "answersBackFailed": {
+  "message": "알림을 설정하지 못했어요. 답변은 {0}에 돌아와요."
+ },
+ "answersBackBody": {
+  "message": "무료 답변 {0}개가 돌아왔어요. 어떤 페이지든 물어보세요."
+ },
+ "answersBackInApp": {
+  "message": "ContextFlow 앱에서 설정하기"
+ },
+ "hoursMinutes": {
+  "message": "{0}시간 {1}분"
+ },
+ "offerByCode": {
+  "message": "App Store에서 코드로 적용됩니다."
+ },
+ "limitBuyOffer": {
+  "message": "Pro 시작하기 — 첫 달 {0}% 할인"
+ },
+ "limitBuyPrice": {
+  "message": "Pro 시작하기 — 월 {0}"
+ },
+ "answersBackAt": {
+  "message": "{0}에 알려 주기"
+ },
+ "limitMore": {
+  "message": "더 보기"
+ },
+ "moreYearly": {
+  "message": "연간: {0}"
+ },
+ "moreYearlySave": {
+  "message": "연간: {0}, {1}% 절약"
+ },
+ "moreUltra": {
+  "message": "Ultra: 월 {0}, Pro의 모든 기능에 듣기와 비슷한 것 찾기까지"
+ },
+ "moreUltraNoPrice": {
+  "message": "Ultra: Pro의 모든 기능에 듣기와 비슷한 것 찾기까지"
+ },
+ "moreChoose": {
+  "message": "선택"
+ },
+ "moreNotes": {
+  "message": "메모는 무료이고 제한이 없어요"
+ },
+ "moreOwnKey": {
+  "message": "API 키가 있으신가요?"
+ },
+ "moreOwnKeyLink": {
+  "message": "내 키 사용"
+ },
+ "limitProLine": {
+  "message": "주당 최대 {0}개 답변"
+ },
+ "limitCancel": {
+  "message": "App Store에서 언제든 해지할 수 있어요."
+ },
+ "limitCardTitle": {
+  "message": "무료 답변을 모두 사용했어요"
+ },
+ "limitCardBack": {
+  "message": "{0}({1} 후)에 다시 제공돼요."
+ },
+ "answersBackOfferAsk": {
+  "message": "이 알림에서 Pro 할인도 알려 주기"
+ },
+ "answersBackOfferBody": {
+  "message": "무료 답변 {0}개가 돌아왔어요. 더 필요하다면 Pro 첫 달이 {1}% 할인이에요."
+ },
+ "setOfferNotify": {
+  "message": "알림에서 Pro 할인 알려 주기"
+ },
+ "setOfferNotifyHint": {
+  "message": "무료 답변을 다 썼을 때 설정하는 알림 하나에만 해당돼요. 켜기 전까지는 꺼져 있어요."
+ },
+ "limitCardBackNow": {
+  "message": "무료 답변이 돌아왔어요."
+ },
+ "limitCardTitleBack": {
+  "message": "무료 답변이 돌아왔어요"
  },
  "tip_4cf1b54b00": {
   "message": "팁"

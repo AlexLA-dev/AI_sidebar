@@ -136,7 +136,7 @@ final class VoicedList: ObservableObject {
     /// Called as a chat opens: the ids and keys (hashing, splitting, regular expressions, kept scripts read from disk)
     /// are worked out off the main thread, and only what's known and asked about is touched here, on the main actor.
     func ask(answers: [String]) {
-        guard StoreKitManager.shared.isUltra, !answers.isEmpty else { return }
+        guard StoreKitManager.shared.canListen, !answers.isEmpty else { return }
         let recent = Array(answers.suffix(30))
         Task {
             let all = await Task.detached(priority: .utility) { VoicedQuery.answers(recent) }.value
@@ -547,7 +547,9 @@ final class ListenPlayer: NSObject, ObservableObject {
             visible = true
             return
         }
-        guard StoreKitManager.shared.isUltra else {
+        // 2.8 (В7.4): Pro tries it too (its weekly taste); the server says ULTRA_ONLY when there's none, and the sheet
+        // then says what Ultra adds, as before.
+        guard StoreKitManager.shared.isPro else {
             stop()
             self.request = ListenRequest(id: id, parts: [], lang: "", what: "answer", title: title, url: nil)
             state = .ultraOnly
@@ -681,10 +683,10 @@ final class ListenPlayer: NSObject, ObservableObject {
         // so the few-minutes note can come before it starts rather than the limit after.
         // Only when it could matter (more than a minute of audio): a short answer starts at once, and the facts come in
         // meanwhile (build 92: every Listen waited up to 2 s for them, an 18 s answer felt slow on iPad).
-        if secondsLeft == nil, StoreKitManager.shared.isUltra, duration - base <= 60 {
+        if secondsLeft == nil, StoreKitManager.shared.canListen, duration - base <= 60 {
             Task { await StoreKitManager.shared.refreshPlanFacts() }
         }
-        if !anyway, secondsLeft == nil, StoreKitManager.shared.isUltra, duration - base > 60 {
+        if !anyway, secondsLeft == nil, StoreKitManager.shared.canListen, duration - base > 60 {
             state = .loading
             waitTask = Task { [weak self] in
                 await withTaskGroup(of: Void.self) { group in

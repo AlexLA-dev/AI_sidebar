@@ -37,12 +37,13 @@ enum MessageReminders {
     static func schedule(chat: String, message: String, at: Date, title: String, body: String, open page: URL? = nil, ask: Bool) async -> Outcome {
         let center = UNUserNotificationCenter.current()
         var status = await center.notificationSettings().authorizationStatus
-        if status == .notDetermined {
+        // Quiet permission (the setup reminders', 2.8) counts as not asked.
+        if NotifyStatus.notAsked(status) {
             guard ask else { return .notAsked }
             _ = try? await center.requestAuthorization(options: [.alert, .sound])
             status = await center.notificationSettings().authorizationStatus
         }
-        guard status == .authorized || status == .provisional else { return .denied }
+        guard NotifyStatus.on(status) else { return .denied }
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
@@ -61,8 +62,36 @@ enum MessageReminders {
             return .scheduled
         } catch {
             log("failed \(request.identifier): \(error)")
+            // 2.8 (the director's acceptance 2, C3: «Source is not authorized … Denied» right after Allow, not reproduced
+            // here): what this process sees now, beside what the app saw last, so the next failing run names the cause.
+            log("failed \(request.identifier) — \(await statusLine(Bundle.main.bundleIdentifier ?? "?")); app saw: \(appStatusLine())")
             return .failed
         }
+    }
+
+    // MARK: What each process sees (2.8 diagnostics)
+
+    private static let appStatusKey = "cf_notify_app_status_v1"
+
+    /// One line of this process's notification settings: authorization, alert, centre, lock screen, sound, provisional.
+    static func statusLine(_ who: String) async -> String {
+        let s = await UNUserNotificationCenter.current().notificationSettings()
+        return "\(who): auth=\(s.authorizationStatus.rawValue) alert=\(s.alertSetting.rawValue) center=\(s.notificationCenterSetting.rawValue) lock=\(s.lockScreenSetting.rawValue) sound=\(s.soundSetting.rawValue)"
+    }
+
+    /// The app notes what it sees (on launch and each time it comes to the front), for the extension's failure line.
+    static func noteAppStatus() async {
+        let line = await statusLine("app")
+        UserDefaults(suiteName: SharedDefaults.suiteName)?.set("\(line) at \(ISO8601DateFormatter().string(from: Date()))", forKey: appStatusKey)
+    }
+
+    static func appStatusLine() -> String {
+        UserDefaults(suiteName: SharedDefaults.suiteName)?.string(forKey: appStatusKey) ?? "never noted"
+    }
+
+    /// Whether this reminder is waiting on the device (the app may have set it: the panel's fallback, 2.8).
+    static func isPending(chat: String, message: String) async -> Date? {
+        await pending()[identifier(chat: chat, message: message)]
     }
 
     static func cancel(chat: String, message: String) {
@@ -86,5 +115,24 @@ enum MessageReminders {
         #if canImport(os)
         Logger(subsystem: "com.contextflow.app", category: "reminders").notice("\(text, privacy: .public)")
         #endif
+    }
+}
+
+/// 2.8: the answers-back reminder that said there's a Pro discount (only for someone who opted in) was tapped. The app
+/// notes the moment in the App Group; the panel on the page that opens takes it once (`offer_tap_take`) and acts on its
+/// address's #cf-offer=1 only with a fresh note. The mark alone does nothing: any page or link can put it there.
+enum OfferTap {
+    private static let key = "cf.offerTapAt"
+    private static var defaults: UserDefaults? { UserDefaults(suiteName: SharedDefaults.suiteName) }
+
+    static func record() {
+        defaults?.set(Date().timeIntervalSince1970, forKey: key)
+    }
+
+    /// Seconds since the tap, taken once (the note is cleared); nil when there is none.
+    static func take() -> Double? {
+        guard let defaults, let at = defaults.object(forKey: key) as? Double else { return nil }
+        defaults.removeObject(forKey: key)
+        return Date().timeIntervalSince1970 - at
     }
 }

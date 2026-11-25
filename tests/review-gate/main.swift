@@ -9,6 +9,7 @@ struct Case: Decodable {
     let sinceTaskLink: Double?
     let busy: Bool
     let now: Double
+    let firstDay: Bool?
 }
 
 struct First: Decodable {
@@ -25,7 +26,7 @@ struct Input: Decodable {
 let input = try JSONDecoder().decode(Input.self, from: FileHandle.standardInput.readDataToEndOfFile())
 let goes: [Bool] = input.cases.map { c in
     guard let via = ReviewGate.Via(rawValue: c.via) else { return false }
-    return ReviewGate.goesNow(via, ReviewGate.State(firstSession: c.firstSession, goodAnswers: c.goodAnswers, lastAsk: c.lastAsk, sinceTaskLink: c.sinceTaskLink, busy: c.busy, now: c.now))
+    return ReviewGate.goesNow(via, ReviewGate.State(firstSession: c.firstSession, goodAnswers: c.goodAnswers, lastAsk: c.lastAsk, sinceTaskLink: c.sinceTaskLink, busy: c.busy, now: c.now, firstDay: c.firstDay ?? false))
 }
 let first = input.first.map { ReviewGate.firstSession(firstLaunch: $0.firstLaunch, now: $0.now, left: $0.left) }
 let out: [String: Any] = [

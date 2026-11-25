@@ -7,8 +7,8 @@
 import type { ComponentChildren, VNode } from "preact"
 import { useEffect, useState } from "preact/hooks"
 
-import { t, uiLanguage } from "../../shared/i18n"
-import { productOf, type PaidPlan, type Period } from "../../shared/plan"
+import { t } from "../../shared/i18n"
+import { productOf, startPeriod, type PaidPlan, type Period } from "../../shared/plan"
 import type { StatusInfo } from "../../shared/types"
 import { currencyCode, tierLines, yearlySaving } from "../Plans"
 import * as Icon from "../icons"
@@ -27,6 +27,26 @@ export function savingOf(prices: Record<string, string>, plan: PaidPlan): number
   return Number(prices[`${yearly}#percent`]) || yearlySaving(prices[productOf(plan, "monthly")], prices[yearly])
 }
 
+/** The App Store's prices, or the last ones this device had (build 92: "Choose Pro" came with no price at all). */
+export function usePrices(status: StatusInfo | null): Record<string, string> {
+  const [keptPrices, setKeptPrices] = useState<Record<string, string>>({})
+  useEffect(() => void lastPrices().then(setKeptPrices), [])
+  const given = status?.store?.prices ?? {}
+  return Object.keys(given).length ? given : keptPrices
+}
+
+/** Whether the answers are back (Retry shows up then): from `at` (ms) on; null is now; "unknown" while the server hasn't
+ *  said when (2.8: no made-up time, Retry waits). Turns true by itself at that moment. */
+export function useAnswersBack(at: number | null | "unknown" | undefined): boolean {
+  const [now, setNow] = useState(Date.now())
+  useEffect(() => {
+    if (!at || at === "unknown" || at <= now) return
+    const timer = setTimeout(() => setNow(Date.now()), Math.min(at - now + 500, 2_147_000_000))
+    return () => clearTimeout(timer)
+  }, [at, now])
+  return at !== "unknown" && (!at || at <= now)
+}
+
 export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "ultra"], focus, extra, retryAt, onRetry, onChoose, onEvent, onClose }: {
   place: OfferPlace
   status: StatusInfo | null
@@ -39,31 +59,23 @@ export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "
   focus?: OfferChoice["plan"]
   // The place's own actions under the button (the discount, a note, the own key).
   extra?: ComponentChildren
-  // Retry the question: possible from `retryAt` (ms) on (when the answers are back); null when it is now.
-  retryAt?: number | null
+  // Retry the question: shown from `retryAt` (ms) on (when the answers are back); null when it is now; "unknown"
+  // while the server hasn't said when (2.8: no made-up time, Retry waits).
+  retryAt?: number | null | "unknown"
   onRetry?: () => void
   onChoose: (choice: OfferChoice) => void
   onEvent: (action: "shown" | "choose" | "retry" | "close", choice?: OfferChoice) => void
   onClose?: () => void
 }): VNode {
-  // The App Store's prices, or the last ones this device had (build 92: "Choose Pro" came with no price at all).
-  const [keptPrices, setKeptPrices] = useState<Record<string, string>>({})
-  useEffect(() => void lastPrices().then(setKeptPrices), [])
-  const given = status?.store?.prices ?? {}
-  const prices = Object.keys(given).length ? given : keptPrices
+  const prices = usePrices(status)
   const facts = status?.plans
   const [plan, setPlan] = useState<OfferChoice["plan"]>(focus && plans.includes(focus) ? focus : plans[0])
-  const [period, setPeriod] = useState<Period>("yearly")
+  // Monthly first (DEFAULT_PERIOD); a subscriber's own period when they're changing plan.
+  const [period, setPeriod] = useState<Period>(startPeriod(status?.store?.active ? status.store.productId : null))
   // Shown once per message.
   useEffect(() => onEvent("shown", { plan, period }), [])
-  // Retry comes alive when the answers are back.
-  const [now, setNow] = useState(Date.now())
-  useEffect(() => {
-    if (!retryAt || retryAt <= now) return
-    const timer = setTimeout(() => setNow(Date.now()), Math.min(retryAt - now + 500, 2_147_000_000))
-    return () => clearTimeout(timer)
-  }, [retryAt, now])
-  const canRetry = Boolean(onRetry) && (!retryAt || retryAt <= now)
+  const answersBack = useAnswersBack(retryAt)
+  const canRetry = Boolean(onRetry) && answersBack
 
   const monthly = prices[productOf(plan, "monthly")]
   const yearly = prices[productOf(plan, "yearly")]
@@ -119,13 +131,14 @@ export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "
       )}
       <div class="cf-card-actions">
         <button type="button" class="cf-primary" onClick={choose}><Icon.Sparkle size={14} /> {t("plansChoose", name(plan))}</button>
-        {onRetry && (
-          <button type="button" class="cf-secondary" disabled={!canRetry} onClick={() => { onEvent("retry"); onRetry() }} title={canRetry ? t("retry") : undefined}>
+        {/* Only once the answers are back (the director's acceptance 3: a greyed Retry beside «Choose» while they're out
+            could only hit the limit again; when they're back is in the card's own text). */}
+        {canRetry && (
+          <button type="button" class="cf-secondary" onClick={() => { onEvent("retry"); onRetry!() }}>
             <Icon.Retry /> {t("retry")}
           </button>
         )}
       </div>
-      {onRetry && !canRetry && retryAt && <p class="cf-offer-retry-at">{t("offerRetryAt", new Intl.DateTimeFormat(uiLanguage(), { hour: "numeric", minute: "2-digit" }).format(retryAt))}</p>}
       {extra}
     </div>
   )

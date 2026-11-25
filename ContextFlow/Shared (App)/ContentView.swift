@@ -54,6 +54,29 @@ enum AppTab: Hashable {
     case home, chats, templates, tips, pro, settings, whatsNew
     /// 2.7: Подборки, the Mac's sidebar (on iPhone and iPad they open from the Chats screen).
     case collections
+
+    /// The name `tab.open` counts it by (src/shared/usage.ts).
+    var event: String {
+        switch self {
+        case .home: return "start"
+        case .chats: return "chats"
+        case .templates: return "templates"
+        case .tips: return "tips"
+        case .pro: return "pro"
+        case .settings: return "settings"
+        case .whatsNew: return "whats_new"
+        case .collections: return "collections"
+        }
+    }
+}
+
+/// The install's first day (2.8, В3.3): no promo sheets then. From the app's first launch on this device (an update
+/// that had the app before counts as past it).
+enum QuietDay {
+    static var firstDay: Bool {
+        guard !SharedDefaults.shared.appUpdatedInstall(), let first = SharedDefaults.shared.appFirstLaunch() else { return false }
+        return Date().timeIntervalSince1970 - first < 86_400
+    }
 }
 
 // MARK: - Root
@@ -108,7 +131,9 @@ struct ContentView: View {
     private func openWhatsNewAfterUpdate() {
         // Not for a new user («Start as a new user», test builds): it waits for a launch with the person's own data.
         guard !preview.on else { return }
-        let existing = hasChats || UserDefaults.standard.object(forKey: "cf_whatsnew_organize") != nil
+        // 2.8 (В3.3): only an install that updated from an older version is an existing user; chats alone aren't (a new
+        // install has them minutes after its first answers, or back from iCloud).
+        let existing = SharedDefaults.shared.appUpdatedInstall() || UserDefaults.standard.object(forKey: "cf_whatsnew_organize") != nil
         guard WhatsNew.dueAfterUpdate(existingUser: existing) else { return }
         UserDefaults.standard.set(true, forKey: "cf_whatsnew_organize")
         openWhatsNew()
@@ -122,9 +147,22 @@ struct ContentView: View {
             return
         }
         #endif
-        guard hasChats, !UserDefaults.standard.bool(forKey: "cf_whatsnew_organize") else { return }
+        // 2.8 (the director's acceptance, shot 15): never over the App Store's sheet; it waits for another time.
+        guard hasChats, !store.purchasing, !Paywall.shared.purchasing, Paywall.shared.buyNow == nil, !UserDefaults.standard.bool(forKey: "cf_whatsnew_organize") else { return }
+        // 2.8 (В3.3, the quiet first day): this is 2.5's What's new. A new install never gets a What's new for a version it
+        // didn't update from (it came on a fresh install's first day, minutes after its first answers), and no promo
+        // sheet comes in an install's first day.
+        guard SharedDefaults.shared.appUpdatedInstall(), !QuietDay.firstDay else { return }
         UserDefaults.standard.set(true, forKey: "cf_whatsnew_organize")
         whatsNew = true
+    }
+
+    /// A purchase started while What's new was up (the app opened by the panel's «Choose»): it goes, and comes another
+    /// time.
+    private func purchaseStarted(_ purchasing: Bool) {
+        guard purchasing, whatsNew else { return }
+        whatsNew = false
+        UserDefaults.standard.set(false, forKey: "cf_whatsnew_organize")
     }
 
     /// What a plan adds, after a purchase or an upgrade (2.6, build 89).
@@ -156,6 +194,15 @@ struct ContentView: View {
         Binding(get: { otherSheet ? nil : tour.run }, set: { if $0 == nil, !otherSheet { closeTour() } })
     }
 
+    /// 2.8 (В1.7): which tabs are opened (Tips, What's new and Pro above all), and What's new left. Before the tab's own
+    /// handling, while `whatsNewShown` still says whether What's new was showing.
+    private func reportTab(_ next: AppTab) {
+        ChatAI.reportUse("tab", "open", ["what": next.event])
+        if next == .tips { ChatAI.reportUse("tips", "open") }
+        if next == .whatsNew { ChatAI.reportUse("whatsnew", "shown") }
+        if next != .whatsNew, whatsNewShown { ChatAI.reportUse("whatsnew", "close") }
+    }
+
     private func closeTour() {
         guard tour.close() else { return }
         // It stood in for "You're all set" after a purchase: the rating is asked as that alert did.
@@ -166,7 +213,7 @@ struct ContentView: View {
     /// plan's tour, the notifications question, the setup guide, the 2.5 What's new sheet, Listen's player (unless a
     /// text was just heard to its end in it). Safari's moment then waits for the next time the app comes to the front.
     private func askForReview(_ request: ReviewAsk.Request) {
-        var busy = tour.run != nil || showingSetup || whatsNew || (listenShown.visible && request.via != .listen)
+        var busy = tour.run != nil || showingSetup || whatsNew || Paywall.shared.purchasing || (listenShown.visible && request.via != .listen)
         #if os(iOS)
         if notify.ask != nil { busy = true }
         #endif
@@ -204,14 +251,24 @@ struct ContentView: View {
             }
             #endif
             .onChange(of: hasChats) { _ in showWhatsNewIfDue() }
+            .onReceive(Paywall.shared.$purchasing) { purchaseStarted($0) }
             .onReceive(router.$pending.compactMap { $0 }) { url in
                 switch url.host {
                 // 2.6: the panel's plans sheet names the plan and period; the plans screen opens on it. Build 94: also for
                 // a subscriber choosing another period or a lower plan (they went to Settings, with nothing to buy);
                 // only the plan they already have goes to Settings.
+                // 2.8 (В7.2): from the panel with the page to go back to: the App Store's sheet at once, over whatever is on
+                // screen, and back to Safari after it (the Pro tab only when the purchase can't go through here).
+                case "subscribe" where Paywall.wantsPlan(url, current: store.entitlement.active ? store.entitlement.productId : nil) && QuickBuy.wants(url):
+                    // At once, before anything else on launch can present a sheet over the App Store's.
+                    Paywall.shared.purchasing = true
+                    QuickBuy.run(url, store: store) { tab = .pro }
                 case "subscribe" where Paywall.wantsPlan(url, current: store.entitlement.active ? store.entitlement.productId : nil):
                     Paywall.shared.open(url)
                     tab = .pro
+                // 2.8: a reminder the panel couldn't set from the extension (the director's acceptance 2, C3), set here.
+                case "remind":
+                    AppReminder.open(url)
                 case "subscribe", "manage":
                     tab = store.isPro ? .settings : .pro
                     showPlan = store.isPro
@@ -234,16 +291,25 @@ struct ContentView: View {
                 case "invite":
                     let code = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "code" }?.value ?? ""
                     invite.draft = InviteModel.parseCode(code) ?? ""
-                    if hasChats || !invite.offersEntry { invite.shown = true } else { tab = .home }
+                    // 2.8 (В3.4): the code is entered on Invite a friend (the first screen no longer has a card for it).
+                    invite.shown = true
                 #if os(iOS)
                 // Listen in Safari without notifications (2.6): asked here (the extension can't), then the text plays.
                 case "notifications":
                     let id = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "listen" }?.value?.lowercased()
-                    // 2.7: the link's own text is kept, so it's here whether or not the extension's copy has come.
-                    ListenLink.keep(url)
-                    Task { await NotifyAsk.shared.show(.listen, listen: id) }
+                    if let id {
+                        // 2.7: the link's own text is kept, so it's here whether or not the extension's copy has come.
+                        ListenLink.keep(url)
+                        Task { await NotifyAsk.shared.show(.listen, listen: id) }
+                    } else {
+                        // 2.8 (В3.2): a moment of value in the panel (`why`), the one way the panel asks.
+                        Task { await NotifyAsk.shared.show(link: url) }
+                    }
                 #endif
                 case "tips": tab = .tips
+                // 2.8: a reminder to finish setup was tapped: the guide (in a sheet when there are chats).
+                case "setup":
+                    if hasChats { showingSetup = true } else { tab = .home }
                 #if DEBUG
                 // 2.6 (100): suggestions coming from "another device" while a chat is read (ChatLibrary.debugOrg).
                 case "debug-org": chats.debugOrg(url)
@@ -281,6 +347,8 @@ struct ContentView: View {
                 WhatsNew.schedule()
                 #endif
                 tour.debugStartIfAsked()
+                // 2.8 (В1.6): the storefront every app event carries, read before the first ones where it can be.
+                await AppSource.refresh()
                 await store.refreshEntitlement()
                 ReviewAsk.shared.cameToFront()
                 await activation.launched()
@@ -303,6 +371,7 @@ struct ContentView: View {
             // What's new hides again once another tab is chosen (Tips is back in its place). Left after an update: a good
             // moment for a rating (2.6 (100)).
             .onChange(of: tab) { next in
+                reportTab(next)
                 if next != .whatsNew {
                     if whatsNewShown { ReviewAsk.shared.ask(.whatsNew) }
                     whatsNewShown = false
@@ -461,8 +530,18 @@ struct HomeView: View {
     @ObservedObject var activation: Activation
     var openPro: () -> Void
     var openTips: () -> Void
+    #if os(iOS)
+    /// Where the setup card's top is in the visible part of the home, and how tall that part is (2.8).
+    @State private var setupTop: CGFloat = 0
+    @State private var visibleHeight: CGFloat = 0
+    #endif
 
     var body: some View {
+        // 2.8 (the director's acceptance): back from Settings with ContextFlow on, the card's new step came in at the old
+        // scroll position, its heading off screen. The card is brought into view whenever its step changes, and only
+        // when its heading is off screen or low on it (acceptance 3: on iPad, where the card is already near the top,
+        // scrolling it up put the app's own heading under the floating tab bar).
+        ScrollViewReader { scroller in
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 // Test builds, «Start as a new user» on (Setup.swift): what this is, and the way back.
@@ -477,9 +556,13 @@ struct HomeView: View {
                 macStatus
                 #else
                 SetupCard(activation: activation, openSafari: openSafari)
+                    .id("setup")
+                    .background(GeometryReader { place in
+                        Color.clear.preference(key: SetupTopKey.self, value: place.frame(in: .named("home")).minY)
+                    })
                 #endif
-                // 2.7 (plan section 5): a new install enters a friend's code here (bonus answers for the first week).
-                FriendCodeCard()
+                // 2.8 (В3.4): the friend's code card left the first screen (one job there: switching ContextFlow on).
+                // A code is entered on Invite a friend, in Settings or from an invite link.
                 howToCard
                 planCard
                 footer
@@ -488,8 +571,35 @@ struct HomeView: View {
             .frame(maxWidth: 640)
             .frame(maxWidth: .infinity)
         }
+        #if os(iOS)
+        .coordinateSpace(name: "home")
+        .background(GeometryReader { place in
+            Color.clear
+                .onAppear { visibleHeight = place.size.height }
+                .onChange(of: place.size.height) { visibleHeight = $0 }
+        })
+        .onPreferenceChange(SetupTopKey.self) { if let top = $0 { setupTop = top } }
+        .onChange(of: activation.state) { _ in bringSetupIntoView(scroller) }
+        // And when it leads with Safari's permission (back from Safari, the panel still unused).
+        .onChange(of: activation.backFromSafariUnused) { _ in bringSetupIntoView(scroller) }
+        #endif
+        }
         .navigationTitle("ContextFlow")
     }
+
+    #if os(iOS)
+    /// After the card's new step is laid out: up to the top only when its heading is above the screen or in its lower
+    /// half.
+    private func bringSetupIntoView(_ scroller: ScrollViewProxy) {
+        DispatchQueue.main.async {
+            #if DEBUG
+            NSLog("[cf-setup] setup card top %.0f of %.0f", setupTop, visibleHeight)
+            #endif
+            guard setupTop < 0 || setupTop > visibleHeight * 0.5 else { return }
+            withAnimation(.easeInOut(duration: 0.3)) { scroller.scrollTo("setup", anchor: .top) }
+        }
+    }
+    #endif
 
     private var header: some View {
         HStack(spacing: 16) {
@@ -545,6 +655,8 @@ struct HomeView: View {
             }
             .buttonStyle(.borderedProminent)
         }
+        // 2.8 (В1.1): the funnel's zero step, the instruction shown.
+        .onAppear { if !enabled { activation.instructionShown() } }
     }
 
     #endif
@@ -553,7 +665,11 @@ struct HomeView: View {
         Card(title: "How to use it", systemImage: "hand.tap") {
             #if os(iOS)
             Step(number: 1, text: "Open any article, product page or document in Safari.")
-            Step(number: 2, text: "Tap the ✦ button on the page — or tap the page menu in the address bar and choose ContextFlow.")
+            // 2.8: the iPad's page menu has no extensions; ContextFlow is behind the puzzle-piece button there (seen opening
+            // the panel on iPadOS 26.5 and 27 once allowed).
+            Step(number: 2, text: UIDevice.current.userInterfaceIdiom == .pad
+                 ? "Tap the ✦ button on the page — or tap the puzzle-piece button next to the address and choose ContextFlow."
+                 : "Tap the ✦ button on the page — or tap the page menu in the address bar and choose ContextFlow.")
             Step(number: 3, text: "Pick Summarize, Key takeaways, Explain or Translate, or ask your own question.")
             Step(number: 4, text: "Select text first to ask about just that part.")
             #else
@@ -1240,6 +1356,14 @@ struct ProView: View {
             .onChange(of: paywall.focus) { _ in scrollToFocus(scroller) }
             .onAppear { buyChosen() }
             .onChange(of: paywall.buyNow) { _ in buyChosen() }
+            // 2.8 (В7.2): what the one-tap purchase from the panel couldn't finish.
+            .onAppear { takeNotice() }
+            .onChange(of: paywall.notice) { _ in takeNotice() }
+            // 2.8 (В1.5): the plans screen shown, and where from.
+            .onAppear { ChatAI.reportUse("paywall", "shown", ["via": paywall.via]) }
+            // 2.8 (the owner): Monthly first; a subscriber sees their own period.
+            .onAppear { paywall.startPeriod(subscribed: store.entitlement.active ? store.entitlement.productId : nil) }
+            .onDisappear { paywall.via = "tab"; paywall.periodDone() }
             .onChange(of: store.products.count) { _ in buyChosen() }
         }
         .navigationTitle("ContextFlow Pro")
@@ -1251,6 +1375,12 @@ struct ProView: View {
                 dismissButton: .default(Text("OK")) { ReviewAsk.shared.ask(.purchase, after: 0.5) }
             )
         }
+    }
+
+    private func takeNotice() {
+        guard let notice = paywall.notice else { return }
+        paywall.notice = nil
+        message = notice
     }
 
     /// Chosen in the panel (contextflow://subscribe?plan=…&period=…): its purchase opens at once, once the plans have
@@ -1518,9 +1648,16 @@ struct ProView: View {
     private func buy(_ product: Product) {
         busyProduct = product.id
         message = nil
+        // 2.8 (В1.5): every purchase with where it started (the tab, a link from the panel, …), its plan and period.
+        let fields = PurchaseEvent.fields(product.id, via: paywall.via)
+        ChatAI.reportUse("paywall", "plan", fields)
+        paywall.purchasing = true
         Task {
+            defer { paywall.purchasing = false }
             do {
-                switch try await store.purchase(product) {
+                let outcome = try await store.purchase(product)
+                ChatAI.reportUse("paywall", outcome == .purchased ? "buy_ok" : outcome == .pending ? "buy_pending" : "buy_cancel", fields)
+                switch outcome {
                 // The plan's tour, when it starts now, takes the place of "You're all set".
                 case .purchased:
                     // Bought, but another plan stays on until the renewal (the App Store's sheet said so): said here too.
@@ -1537,10 +1674,163 @@ struct ProView: View {
                 case .cancelled: break
                 }
             } catch {
+                ChatAI.reportUse("paywall", "buy_fail", fields)
                 message = error.localizedDescription
             }
             busyProduct = nil
         }
+    }
+}
+
+/// 2.8 (В7.2): a plan and period chosen in the panel, with the page to go back to (contextflow://subscribe?plan=pro&
+/// period=monthly&via=sheet&back=<page>): the App Store's sheet for it at once, then Safari again: iPhone and iPad open
+/// the page with #cf-bought=<plan | later | no> (the panel takes it out and reopens), the Mac brings Safari's window back.
+/// The page's address stays on the device. Waiting for approval, or an error: the Pro tab, saying so.
+@MainActor
+enum QuickBuy {
+    static func wants(_ url: URL) -> Bool { product(url) != nil && back(url) != nil }
+
+    static func product(_ url: URL) -> String? {
+        let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+        guard let plan = items.first(where: { $0.name == "plan" })?.value.flatMap(StoreKitManager.Tier.init(rawValue:)),
+              let period = items.first(where: { $0.name == "period" })?.value else { return nil }
+        return "com.contextflow.\(plan.rawValue).\(period == "yearly" ? "yearly" : "monthly")"
+    }
+
+    static func back(_ url: URL) -> URL? {
+        let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+        guard let value = items.first(where: { $0.name == "back" })?.value, value.count <= 2000,
+              let page = URL(string: value), ["http", "https"].contains(page.scheme ?? "") else { return nil }
+        return page
+    }
+
+    /// Where in the panel it started (the events' `via`): the plans sheet, the plans in the chat, Settings' yearly line.
+    static func via(_ url: URL) -> String {
+        let value = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "via" }?.value ?? ""
+        return ["sheet", "chat", "settings", "yearly"].contains(value) ? "panel_\(value)" : "panel"
+    }
+
+    private static var running = false
+
+    static func run(_ url: URL, store: StoreKitManager, showPlans: @escaping () -> Void) {
+        guard !running, let id = product(url), let page = back(url) else {
+            if !running { Paywall.shared.purchasing = false }
+            return
+        }
+        running = true
+        Paywall.shared.purchasing = true
+        Task { @MainActor in
+            defer {
+                running = false
+                Paywall.shared.purchasing = false
+            }
+            if store.products.isEmpty { await store.loadProducts() }
+            guard let product = store.products.first(where: { $0.id == id }) else {
+                // The App Store didn't answer: the plans, with the plan chosen, as before.
+                Paywall.shared.open(url)
+                showPlans()
+                return
+            }
+            let fields = PurchaseEvent.fields(product.id, via: via(url))
+            ChatAI.reportUse("paywall", "plan", fields)
+            do {
+                switch try await store.purchase(product) {
+                case .purchased:
+                    ChatAI.reportUse("paywall", "buy_ok", fields)
+                    let now = store.entitlement.active && store.entitlement.productId == product.id
+                    backToSafari(page, word: now ? PlanProducts.plan(of: product.id) : "later")
+                case .cancelled:
+                    ChatAI.reportUse("paywall", "buy_cancel", fields)
+                    backToSafari(page, word: "no")
+                case .pending:
+                    ChatAI.reportUse("paywall", "buy_pending", fields)
+                    Paywall.shared.notice = String(localized: "Your purchase is waiting for approval.")
+                    showPlans()
+                }
+            } catch {
+                ChatAI.reportUse("paywall", "buy_fail", fields)
+                Paywall.shared.notice = error.localizedDescription
+                Paywall.shared.open(url)
+                Paywall.shared.buyNow = nil
+                showPlans()
+            }
+        }
+    }
+
+    static func backToSafari(_ page: URL, word: String) {
+        #if os(iOS)
+        var parts = URLComponents(url: page, resolvingAgainstBaseURL: false)
+        if (parts?.fragment ?? "").isEmpty { parts?.fragment = "cf-bought=\(word)" }
+        let target = parts?.url ?? page
+        // The address itself, not `x-safari-https://`: Safari then goes back to the tab that has this page, where the panel
+        // is as it was (the director's acceptance 2, D2-5: x-safari- always opened a new tab, the page's state lost; the
+        // simulator check: the address itself 3 tabs → 3, x-safari- 3 → 4). Where another browser is the default, iOS opens
+        // the page there: no way to name Safari and keep the tab; the status bar's «◀ Safari» still goes back.
+        UIApplication.shared.open(target)
+        #else
+        // Safari's own window, as it was (the tab and its panel): no new tab.
+        PlanTour.openSafari()
+        #endif
+    }
+}
+
+/// 2.8 (the director's acceptance 2, C3): a reminder the extension couldn't set («Source is not authorized» right after
+/// Allow), set by the app from its own process: contextflow://remind?chat=…&message=…&at=<ms>&title=…&body=…&page=<page>.
+/// The same reminder id as the panel's, so it is set once at most; then back to the page, where the panel finds it
+/// waiting (remind_pending). Notifications not on for the app either: the app's own ask (NotifyAsk), as the panel's link.
+@MainActor
+enum AppReminder {
+    static func open(_ url: URL) {
+        let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+        let value = { (name: String) in items.first { $0.name == name }?.value ?? "" }
+        let id = "^[A-Za-z0-9_-]{1,64}$"
+        let chat = value("chat"), message = value("message")
+        guard chat.range(of: id, options: .regularExpression) != nil, message.range(of: id, options: .regularExpression) != nil,
+              let ms = Double(value("at")), ms > Date().timeIntervalSince1970 * 1000 else { return }
+        let page = URL(string: value("page")).flatMap { ["http", "https"].contains($0.scheme ?? "") ? $0 : nil }
+        let title = String(value("title").prefix(200)), body = String(value("body").prefix(300))
+        Task {
+            let outcome = await MessageReminders.schedule(chat: chat, message: message, at: Date(timeIntervalSince1970: ms / 1000),
+                                                          title: title.isEmpty ? "ContextFlow" : title, body: body, open: page, ask: false)
+            MessageReminders.log("app set \(MessageReminders.identifier(chat: chat, message: message)): \(outcome.rawValue) — \(await MessageReminders.statusLine("app"))")
+            #if os(iOS)
+            if outcome == .scheduled {
+                if let page { backToPage(page) }
+            } else {
+                await NotifyAsk.shared.show(.answers_back, page: page)
+            }
+            #else
+            if let page { backToPage(page) }
+            #endif
+        }
+    }
+
+    private static func backToPage(_ page: URL) {
+        #if os(iOS)
+        UIApplication.shared.open(page)
+        #else
+        PlanTour.openSafari()
+        #endif
+    }
+}
+
+/// 2.8 (В1.5): what a purchase's events carry: the plan, its period, the offer it went with, and where it started.
+enum PurchaseEvent {
+    static func fields(_ productId: String, via: String, offer: String = "none") -> [String: String] {
+        ["via": via, "plan": PlanProducts.plan(of: productId), "period": productId.hasSuffix(".yearly") ? "yearly" : "monthly", "offer": offer]
+    }
+}
+
+/// The period every plan choice in the app opens on (2.8, the owner: «всегда лучше поначалу показывать месячные подписки»;
+/// all subscriptions so far are monthly). Yearly stays one tap away with its saving. The app's one place for it (the
+/// panel's is DEFAULT_PERIOD in src/shared/plan.ts).
+enum PlanDefaults {
+    static let yearlyFirst = false
+
+    /// A subscriber's own period (changing plan), else the default.
+    static func startsYearly(subscribed productId: String?) -> Bool {
+        guard let productId, productId.hasSuffix(".yearly") || productId.hasSuffix(".monthly") else { return yearlyFirst }
+        return productId.hasSuffix(".yearly")
     }
 }
 
@@ -1558,17 +1848,38 @@ final class Paywall: ObservableObject {
         return "com.contextflow.\(tier.rawValue).\(period == "yearly" ? "yearly" : "monthly")" != productId
     }
     @Published var focus: StoreKitManager.Tier?
-    @Published var yearly = true
+    /// Monthly first (PlanDefaults); a period named by a link, or a subscriber's own, when there is one.
+    @Published var yearly = PlanDefaults.yearlyFirst
+    /// The period came with a link (the panel's choice): the Pro screen opening doesn't put it back to the default.
+    private var periodFromLink = false
     /// The product to buy at once (build 95, the owner since 91: "Choose…" in the panel and "Buy" in the chat open the
     /// App Store's purchase of that plan and period, not the plans with one more tap to go).
     @Published var buyNow: String?
+    /// 2.8: what the one-tap purchase couldn't finish (waiting for approval, an error), said on the Pro screen.
+    @Published var notice: String?
+    /// 2.8 (the director's acceptance, shot 15): the App Store's sheet is up for a purchase. Nothing else is presented
+    /// meanwhile (What's new waits for another time); after a one-tap purchase or a cancel the person is back in Safari.
+    @Published var purchasing = false
+    /// 2.8 (В1.5): how the plans screen was reached: the tab itself, or a link (from the panel: where in it).
+    var via = "tab"
+
+    /// The Pro screen opening: Monthly, or the subscriber's own period (changing plan, they see where they are), unless a
+    /// link named one.
+    func startPeriod(subscribed productId: String?) {
+        if periodFromLink { return }
+        yearly = PlanDefaults.startsYearly(subscribed: productId)
+    }
+
+    /// The Pro screen gone: the next opening starts afresh.
+    func periodDone() { periodFromLink = false }
 
     func open(_ url: URL) {
         let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+        via = items.contains { $0.name == "via" } ? QuickBuy.via(url) : "deeplink"
         let value = { (name: String) in items.first { $0.name == name }?.value }
         let plan = value("plan").flatMap(StoreKitManager.Tier.init(rawValue:))
         if let plan { focus = plan }
-        if let period = value("period") { yearly = period == "yearly" }
+        if let period = value("period") { yearly = period == "yearly"; periodFromLink = true }
         // A plan and a period named: that product is bought now (the plans stay behind the App Store's sheet).
         if let plan, let period = value("period") { buyNow = "com.contextflow.\(plan.rawValue).\(period == "yearly" ? "yearly" : "monthly")" }
     }
@@ -2180,7 +2491,7 @@ struct SettingsView: View {
         Section(header: Text("Your plan"), footer: restoreMessage.map { Text($0) }) {
             HStack {
                 Text(planName(store.entitlement.productId))
-                    .task { if store.isUltra { await store.refreshPlanFacts() } }
+                    .task { if store.isPro { await store.refreshPlanFacts() } }
                 Spacer()
                 if let date = store.entitlement.expiresAt {
                     if store.entitlement.autoRenew == false {
@@ -2196,6 +2507,15 @@ struct SettingsView: View {
             if store.isUltra, let left = store.planFacts.speakLeftSeconds {
                 Text("Listening: \(left / 60) of \(store.planFacts.speakWeeklyMinutes) min left this week")
                     .foregroundColor(.secondary)
+            }
+            // 2.8 (В7.4): Pro's weekly taste of Listen, and what Ultra has.
+            if !store.isUltra, let taste = store.planFacts.tasteSpeakSeconds, let left = store.planFacts.speakLeftSeconds {
+                Text("Listen in Pro: \(left / 60) of \(taste / 60) min left this week")
+                    .foregroundColor(.secondary)
+                // To the plans, Ultra first (the app's own link, as the panel's «In Ultra» opens it).
+                Button("In Ultra: \(store.planFacts.speakWeeklyMinutes) min a week") {
+                    if let url = URL(string: "contextflow://subscribe?plan=ultra&feature=listen") { openURL(url) }
+                }
             }
             if let offer = store.yearlySwitch, Date().timeIntervalSince1970 > yearlyHiddenUntil {
                 yearlyLine(offer)
@@ -2579,3 +2899,13 @@ struct PlanTourView: View {
         }
     }
 }
+
+#if os(iOS)
+/// The setup card's top in the home's visible part (2.8).
+/// Optional: the views beside the card report nothing (with a plain number their default overwrote the card's: seen,
+/// "setup card top 0" with the heading off screen).
+private struct SetupTopKey: PreferenceKey {
+    static var defaultValue: CGFloat? = nil
+    static func reduce(value: inout CGFloat?, nextValue: () -> CGFloat?) { value = value ?? nextValue() }
+}
+#endif

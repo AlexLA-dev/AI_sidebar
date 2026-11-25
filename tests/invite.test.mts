@@ -358,8 +358,10 @@ test("wiring: the panel's group, the reward card, the marks on requests; the app
   assert.match(read("src/background/index.ts"), /inviteMarks\(\)/)
   assert.match(read("src/background/index.ts"), /startInvite\(\{/)
   const content = read("ContextFlow/Shared (App)/ContentView.swift")
-  assert.match(content, /FriendCodeCard\(\)/)
-  assert.match(content, /case "invite":/)
+  // 2.8 (В3.4): no card on the first screen; an invite link opens Invite a friend with the code in its field.
+  assert.doesNotMatch(content, /FriendCodeCard/)
+  assert.doesNotMatch(read("ContextFlow/Shared (App)/Invite.swift"), /FriendCodeCard|offersEntry|entryHidden/)
+  assert.match(content, /case "invite":[\s\S]{0,260}?invite\.draft = InviteModel\.parseCode\(code\) \?\? ""\s*\/\/[^\n]*\n\s*invite\.shown = true/)
   assert.match(content, /InviteModel\.shared\.shown = true/)
   assert.match(read("ContextFlow/Shared (App)/ChatAI.swift"), /client\["inv"\] = 1/)
   assert.match(read("ContextFlow/Shared (Extension)/SafariWebExtensionHandler.swift"), /case "invite":/)

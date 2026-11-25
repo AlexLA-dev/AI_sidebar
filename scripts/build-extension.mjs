@@ -164,6 +164,8 @@ const options = {
     __TIPS__: JSON.stringify(tips),
     // Page watch: how often a page is checked, in seconds (15 minutes; test builds: CF_WATCH_EVERY_S=60).
     __WATCH_EVERY_S__: String(Number(process.env.CF_WATCH_EVERY_S) || 900),
+    // 2.8: the return after a full-price card, in seconds (6 hours; test builds with a local stand: CF_RETURN_GAP_S=60).
+    __RETURN_GAP_S__: String(/^http:\/\/localhost:\d+$/.test(apiBase) && Number(process.env.CF_RETURN_GAP_S) > 0 ? Number(process.env.CF_RETURN_GAP_S) : 21600),
     "process.env.NODE_ENV": JSON.stringify("production")
   },
   logLevel: "info"

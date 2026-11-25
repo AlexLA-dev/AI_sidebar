@@ -1004,9 +1004,6 @@
  "limitFreeBack_other": {
   "message": "{0} nouvelles réponses gratuites à {1}, dans {2}."
  },
- "limitFreePro": {
-  "message": "Avec Pro : jusqu’à {0} réponses par semaine, les vidéos et PDF de la page, la recherche IA et des questions sur toutes vos discussions."
- },
  "limitNotes": {
   "message": "Les notes restent gratuites et illimitées : notez l’essentiel maintenant, interrogez l’IA plus tard."
  },
@@ -1022,11 +1019,8 @@
  "errKeyRate": {
   "message": "{0} limite en ce moment les demandes de votre clé : c’est la limite de votre compte. Attendez une minute, puis reposez la question. Vos limites se trouvent sur {1}."
  },
- "offerLimit": {
-  "message": "Ou passez à Pro avec {0} % de réduction le premier mois : jusqu'à {1} réponses par semaine, plus approfondies et détaillées. Résiliable à tout moment."
- },
  "offerButton": {
-  "message": "Pro à −{0} %"
+  "message": "Premier mois à −{0} %"
  },
  "offerShort": {
   "message": "Pro −{0} %"
@@ -2305,9 +2299,6 @@
  },
  "offerMemoryLong": {
   "message": "Ce chat compte plus que les {0} réponses et notes dont se souvient une réponse gratuite. Avec Pro, l'IA s'en souvient en entier : chaque message, vos notes et les pages sur lesquelles vous avez posé des questions."
- },
- "offerRetryAt": {
-  "message": "Les réponses reviennent à {0}."
  },
  "similarWhere": {
   "message": "Où chercher"
@@ -3799,6 +3790,126 @@
  },
  "agentRecapTerms": {
   "message": "Annulation, selon la page : {0}"
+ },
+ "tasteListenLeft": {
+  "message": "Écouter dans Pro : {0} min sur {1} restantes cette semaine"
+ },
+ "tasteSimilarLeft": {
+  "message": "Recherche complète dans Pro : {0} sur {1} restante cette semaine"
+ },
+ "tasteUltraListen": {
+  "message": "Dans Ultra : {0} min par semaine"
+ },
+ "tasteUltraSimilar": {
+  "message": "Dans Ultra : {0} recherches complètes par semaine"
+ },
+ "tasteListenUsed": {
+  "message": "Les {0} minutes d’écoute de Pro pour cette semaine sont utilisées. Elles reviennent {1}."
+ },
+ "tasteSimilarUsed": {
+  "message": "La recherche complète de Pro pour cette semaine est utilisée. Elle revient {0} ; la recherche rapide marche toujours."
+ },
+ "tasteSimilarDone": {
+  "message": "Une recherche complète, comme dans Ultra : Pro en a une par semaine."
+ },
+ "boughtPro": {
+  "message": "Pro est activé : jusqu’à {0} réponses par semaine. Posez vos questions."
+ },
+ "boughtUltra": {
+  "message": "Ultra est activé : Écouter, la recherche complète de similaires et tout Pro."
+ },
+ "boughtByok": {
+  "message": "Le forfait Clé personnelle est activé. Ajoutez votre clé API dans les réglages."
+ },
+ "answersBackAsk": {
+  "message": "Me prévenir quand mes {0} réponses reviennent"
+ },
+ "answersBackSet": {
+  "message": "Je vous préviens à {0}, quand vos réponses reviennent."
+ },
+ "answersBackOff": {
+  "message": "Les notifications de ContextFlow sont désactivées. Vos réponses reviennent à {0}."
+ },
+ "answersBackFailed": {
+  "message": "Le rappel n’a pas pu être créé. Vos réponses reviennent à {0}."
+ },
+ "answersBackBody": {
+  "message": "Vos {0} réponses gratuites sont de retour. Posez une question sur n’importe quelle page."
+ },
+ "answersBackInApp": {
+  "message": "Le régler dans l’app ContextFlow"
+ },
+ "hoursMinutes": {
+  "message": "{0} h {1} min"
+ },
+ "offerByCode": {
+  "message": "Appliquée avec un code dans l’App Store."
+ },
+ "limitBuyOffer": {
+  "message": "Passer à Pro : premier mois à −{0} %"
+ },
+ "limitBuyPrice": {
+  "message": "Passer à Pro pour {0} par mois"
+ },
+ "answersBackAt": {
+  "message": "Me le rappeler à {0}"
+ },
+ "limitMore": {
+  "message": "Plus"
+ },
+ "moreYearly": {
+  "message": "Annuel : {0} par an"
+ },
+ "moreYearlySave": {
+  "message": "Annuel : {0} par an, soit {1} % d’économie"
+ },
+ "moreUltra": {
+  "message": "Ultra : {0} par mois, tout Pro avec en plus Écouter et Trouver similaire"
+ },
+ "moreUltraNoPrice": {
+  "message": "Ultra : tout Pro avec en plus Écouter et Trouver similaire"
+ },
+ "moreChoose": {
+  "message": "Choisir"
+ },
+ "moreNotes": {
+  "message": "Les notes restent gratuites et illimitées"
+ },
+ "moreOwnKey": {
+  "message": "Vous avez une clé d’API ?"
+ },
+ "moreOwnKeyLink": {
+  "message": "Utiliser la mienne"
+ },
+ "limitProLine": {
+  "message": "Jusqu’à {0} réponses par semaine"
+ },
+ "limitCancel": {
+  "message": "Résiliable à tout moment dans l’App Store."
+ },
+ "limitCardTitle": {
+  "message": "Réponses gratuites épuisées"
+ },
+ "limitCardBack": {
+  "message": "De retour à {0}, dans {1}."
+ },
+ "answersBackOfferAsk": {
+  "message": "M’informer aussi d’une réduction sur Pro dans ce rappel"
+ },
+ "answersBackOfferBody": {
+  "message": "Vos {0} réponses gratuites sont de retour. Et si vous en voulez plus, le premier mois de Pro est à −{1} %."
+ },
+ "setOfferNotify": {
+  "message": "Réductions Pro dans les rappels"
+ },
+ "setOfferNotifyHint": {
+  "message": "Seulement dans le rappel que vous programmez quand vos réponses gratuites sont épuisées. Désactivé tant que vous ne l’activez pas."
+ },
+ "limitCardBackNow": {
+  "message": "Vos réponses gratuites sont de retour."
+ },
+ "limitCardTitleBack": {
+  "message": "Réponses gratuites de retour"
  },
  "tip_4cf1b54b00": {
   "message": "Astuces"

@@ -1,5 +1,6 @@
 import Combine
 import Foundation
+import StoreKit
 import SwiftUI
 import UserNotifications
 #if os(iOS)
@@ -72,6 +73,7 @@ final class Activation: ObservableObject {
     /// «Start as a new user» began or ended (test builds): the state as it's recorded for that, with nothing reported.
     func previewChanged() {
         state = Self.recordedState()
+        backFromSafariUnused = UserDefaults.standard.bool(forKey: "cf_setup_back_unused")
     }
 
     /// Re-reads the state: the extension may have been switched on while the app was in the background.
@@ -95,6 +97,7 @@ final class Activation: ObservableObject {
         state = next
         if next != .off { SetupReminders.cancel() }
         if before == .off, next != .off { reportEnabled() }
+        checkSafariTrip()
     }
 
     // MARK: The way to switching it on (2.7, plan section 8 «Активация»): counts only, f "activation" in usage.ts.
@@ -109,23 +112,75 @@ final class Activation: ObservableObject {
     private var nextStepAt = Date.distantPast
     private static let enabledReportedKey = "cf_activation_enabled_reported"
 
-    private func step(_ action: String, _ fields: [String: String] = [:]) {
+    private func step(_ action: String, _ fields: [String: String] = [:], feature: String = "activation") {
         // «Start as a new user» (test builds) isn't a new install: its steps aren't counted.
         guard !NewUserPreview.isOn else { return }
         let now = Date()
         let at = max(now, nextStepAt)
         nextStepAt = at.addingTimeInterval(1)
-        ChatAI.reportUse("activation", action, fields, after: at.timeIntervalSince(now))
+        ChatAI.reportUse(feature, action, fields, after: at.timeIntervalSince(now))
     }
 
     /// The guide's video started floating over Settings (iPhone, iPad).
     func guideStarted() { step("video") }
 
+    /// 2.8 (В1.1, names from the 2.8 event schema): the funnel's zero step, the instruction to switch it on shown
+    /// (activation.shown, "via" the home card); and the «Open Safari» step shown once it's on (setup.safari_shown).
+    /// Each once an install.
+    func instructionShown() { once("shown", key: "cf_activation_shown_reported", fields: ["via": "card"]) }
+    func safariStepShown() { once("safari_shown", key: "cf_activation_safari_shown_reported", feature: "setup") }
+
+    /// «Open Safari» tapped on the setup card: setup.open_safari (`via`: "step", the step after switching it on; "card",
+    /// the card once it's been used; "guide", the guide's own button where this iOS can't tell the app it's on).
+    func openedSafari(_ via: String) {
+        step("open_safari", ["via": via], feature: "setup")
+        UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: Self.safariTripKey)
+    }
+
+    /// 2.8 («Ask»): the person went to Safari from the «Open Safari» step and came back, and the panel still hasn't been
+    /// opened. With All Websites left on Ask no ✦ shows on any page, so the step then names Safari's page menu first.
+    /// Kept on disk: from the first return after a trip until the panel is used.
+    @Published private(set) var backFromSafariUnused = UserDefaults.standard.bool(forKey: "cf_setup_back_unused")
+    private static let safariTripKey = "cf_setup_safari_trip_at"
+
+    private func checkSafariTrip() {
+        let defaults = UserDefaults.standard
+        let at = defaults.double(forKey: Self.safariTripKey)
+        guard at > 0, Date().timeIntervalSince1970 - at > 5 else { return }
+        defaults.removeObject(forKey: Self.safariTripKey)
+        guard state == .on, !backFromSafariUnused else { return }
+        backFromSafariUnused = true
+        defaults.set(true, forKey: "cf_setup_back_unused")
+        once("ask_shown", key: "cf_setup_ask_shown_reported", feature: "setup")
+    }
+
+    private func once(_ action: String, key: String, fields: [String: String] = [:], feature: String = "activation") {
+        guard !NewUserPreview.isOn, !UserDefaults.standard.bool(forKey: key) else { return }
+        UserDefaults.standard.set(true, forKey: key)
+        step(action, fields, feature: feature)
+    }
+
+    /// The reminders to finish setup were scheduled (setup.reminder; "perm": "quiet" provisional, "on" full permission).
+    func remindersScheduled(_ perm: String) { step("reminder", ["perm": perm], feature: "setup") }
+
     /// Settings opened from the app to switch ContextFlow on: "card" (the home screen's), "chats" (their empty state, Mac).
     func wentToSettings(_ via: String) {
         trip = .going
+        settingsHow = nil
         UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: Self.tripKey)
+        UserDefaults.standard.removeObject(forKey: Self.howKey)
         step("settings", ["via": via])
+    }
+
+    /// How the system took the request to open Settings (2.8, В2.1): "direct" Safari's settings for ContextFlow were
+    /// asked for and the system said yes, "app" the app's own page (an older iOS, or the direct way failed). Sent with
+    /// "back": it's known only after the app has started leaving.
+    private var settingsHow: String?
+    private static let howKey = "cf_activation_settings_how"
+
+    func settingsOpened(_ how: String) {
+        settingsHow = how
+        UserDefaults.standard.set(how, forKey: Self.howKey)
     }
 
     /// The app is no longer in front (Settings is).
@@ -141,7 +196,9 @@ final class Activation: ObservableObject {
         guard at > 0, trip != .going else { return }
         trip = nil
         defaults.removeObject(forKey: Self.tripKey)
-        if Date().timeIntervalSince1970 - at < 3600 { step("back") }
+        let how = settingsHow ?? defaults.string(forKey: Self.howKey)
+        defaults.removeObject(forKey: Self.howKey)
+        if Date().timeIntervalSince1970 - at < 3600 { step("back", how.map { ["how": $0] } ?? [:]) }
     }
 
     /// The app first saw it switched on, once an install (an update that had it on before never sends it).
@@ -166,8 +223,13 @@ final class Activation: ObservableObject {
     }
     #endif
 
-    /// On every launch: offer the reminders once on a new install that isn't set up yet, then report
+    /// On every launch: the reminders to finish setup, once on a new install that isn't set up yet, then report
     /// "app opened" (once a day).
+    ///
+    /// 2.8 (В2.3, В2.6, the owner's decision of 2026-11-24): nothing asks about notifications at launch any more (the
+    /// question came in the middle of setup, before anything useful had happened). The reminders go with quiet
+    /// (provisional) permission instead: no question, delivered to Notification Center without a sound or a banner.
+    /// The question itself comes at a moment of value (NotifyAsk).
     func launched() async {
         // Back from Settings in a new process (2.7): before refresh, which may count it switched on.
         cameBack()
@@ -175,16 +237,27 @@ final class Activation: ObservableObject {
         let defaults = UserDefaults.standard
         if newInstall || NewUserPreview.isOn, state == .off, !defaults.bool(forKey: Self.remindersOfferedKey) {
             defaults.set(true, forKey: Self.remindersOfferedKey)
-            // Let the guide appear before the system asks about notifications.
-            try? await Task.sleep(nanoseconds: 1_200_000_000)
-            #if os(iOS)
-            // 2.6: our screen first (what they're for, reading aloud included), then the system's question.
-            await NotifyAsk.shared.show(.launch)
-            #else
             await SetupReminders.schedule()
-            #endif
         }
         await reportOpen()
+        await reportDeliveredReminders()
+    }
+
+    /// A reminder to finish setup that reached Notification Center (2.8, В1.1): seen by the app the next time it's in
+    /// front (`launched`, on every launch and every return), so it's counted then, once a reminder. Tapping one is
+    /// counted where the tap arrives (AppDelegate).
+    private func reportDeliveredReminders() async {
+        let delivered = await UNUserNotificationCenter.current().deliveredNotifications()
+        #if DEBUG
+        NSLog("[cf-setup] delivered: %@", delivered.map(\.request.identifier).joined(separator: ","))
+        #endif
+        let defaults = UserDefaults.standard
+        for (id, what) in zip(SharedDefaults.setupReminderIds, ["15m", "24h"]) where delivered.contains(where: { $0.request.identifier == id }) {
+            let key = "cf_activation_reminder_\(what)"
+            guard !defaults.bool(forKey: key) else { continue }
+            defaults.set(true, forKey: key)
+            step("reminder_seen", ["what": what], feature: "setup")
+        }
     }
 
     /// What StoreKit attaches to a purchase, so the server knows which install subscribed: the
@@ -204,11 +277,7 @@ final class Activation: ObservableObject {
         var body: [String: Any] = [
             "kind": "app_open",
             "appId": appId,
-            "client": [
-                "platform": Self.platform,
-                "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "",
-                "locale": Bundle.main.preferredLocalizations.first ?? ""
-            ],
+            "client": AppSource.client(platform: Self.platform, locale: Bundle.main.preferredLocalizations.first ?? ""),
             "extension": state.rawValue
         ]
         body["notifications"] = await SetupReminders.permission()
@@ -226,6 +295,7 @@ final class Activation: ObservableObject {
             UserDefaults.standard.set(day, forKey: Self.openReportedKey)
             if adToken != nil {
                 let answer = (try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["ads"] as? String
+                AppSource.adAnswered(answer)
                 let defaults = UserDefaults.standard
                 // Apple may need a while to have the record ("pending"): try again on a later launch.
                 defaults.set(answer == nil || answer == "pending" ? defaults.integer(forKey: Self.adsTriesKey) - 1 : 0, forKey: Self.adsTriesKey)
@@ -257,19 +327,84 @@ final class Activation: ObservableObject {
     }
 }
 
+// MARK: - Where the app's events come from (2.8, В1.6)
+
+/// What every app event carries besides its own fields, so organic installs and ads can be compared by country and
+/// builds told apart: the build (CFBundleVersion), the App Store's storefront (its three-letter country code, as
+/// StoreKit gives it; not the device's region or location), and whether Apple Ads brought this install ("ad": "yes"
+/// or "no", once Apple has answered; a Mac never comes from Apple Ads). Nothing else, and nothing that identifies
+/// anyone.
+enum AppSource {
+    private static let storefrontKey = "cf_storefront"
+    private static let adKey = "cf_ads_source"
+
+    static var build: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "" }
+
+    /// The storefront as last read (StoreKit answers asynchronously; read at launch).
+    static var storefront: String? { UserDefaults.standard.string(forKey: storefrontKey) }
+
+    /// "yes" Apple Ads brought it, "no" Apple said it didn't (or a Mac), nil not known yet.
+    static var ad: String? {
+        #if os(macOS)
+        return "no"
+        #else
+        return UserDefaults.standard.string(forKey: adKey)
+        #endif
+    }
+
+    /// Reads the storefront once a launch: before the first events where it can.
+    static func refresh() async {
+        guard let code = await Storefront.current?.countryCode, code.range(of: "^[A-Z]{2,3}$", options: .regularExpression) != nil else { return }
+        UserDefaults.standard.set(code, forKey: storefrontKey)
+    }
+
+    /// The server's answer to the AdServices token (Activation.reportOpen): "attributed" or "organic"; "pending" waits.
+    static func adAnswered(_ answer: String?) {
+        if answer == "attributed" { UserDefaults.standard.set("yes", forKey: adKey) }
+        if answer == "organic" { UserDefaults.standard.set("no", forKey: adKey) }
+    }
+
+    /// The event's `client` (the server keeps build, sf and ad beside platform, version and locale).
+    static func client(platform: String, locale: String) -> [String: String] {
+        var client = [
+            "platform": platform,
+            "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "",
+            "build": build,
+            "locale": locale
+        ]
+        if let storefront { client["sf"] = storefront }
+        if let ad { client["ad"] = ad }
+        // 2.8 (В1.9): a simulator or debug build is ours, never a person.
+        if OurBuild.isOurs { client["audience"] = "test" }
+        return client
+    }
+}
+
 #if os(iOS)
 // MARK: - Notifications, asked with a reason (2.6)
 
 /// The system's question about notifications can't say what they're for, so this screen comes first: reminders, pages
 /// that change, and read aloud carried on from Safari when the page goes away or the screen locks. When they're off
-/// (iOS asks only once), it opens the app's notification settings instead. Shown on a new install, once after an
-/// Ultra purchase, and when Listen in Safari needs them (the extension can't ask): then the text plays here after.
+/// (iOS asks only once), it opens the app's notification settings instead. Shown once after an Ultra purchase, when
+/// Listen in Safari needs them (the extension can't ask: then the text plays here after), and at the panel's moments
+/// of value (2.8, В3.2): a reminder set, a page watched, the day's free answers used up.
+///
+/// 2.8 (В2.3, the owner): no longer on a new install's first launch, in the middle of setting ContextFlow up. The
+/// setup reminders go quietly instead (SetupReminders), and quiet permission counts here as not asked: this question
+/// still comes at the first moment of value, and a yes turns the quiet permission into the full one.
+///
+/// The one way in for the panel: `contextflow://notifications?why=later|watch|answers_back` (and `&page=<https address>`
+/// to go back to that page in Safari once it's answered). Everything that prompts the person is meant to go through
+/// one hint coordinator (plan В3.1); until it exists, this is the only place that asks about notifications.
 @MainActor
 final class NotifyAsk: ObservableObject {
     static let shared = NotifyAsk()
 
     enum Reason: String {
-        case launch, ultra, listen
+        case ultra, listen
+        /// The panel's moments of value (2.8): a reminder set, a page watched, a reminder for when the free answers are
+        /// back.
+        case later, watch, answers_back
     }
 
     struct Ask: Identifiable {
@@ -279,28 +414,41 @@ final class NotifyAsk: ObservableObject {
         let denied: Bool
         /// From Listen in Safari: the text handed over, played here once this is answered.
         let listen: String?
+        /// The page in Safari the panel asked from, opened again once this is answered (2.8).
+        var page: URL? = nil
     }
 
     @Published var ask: Ask?
     private static let ultraKey = "cf_notify_asked_ultra"
 
-    /// Shown when notifications aren't on (not asked yet, or turned off); otherwise a text handed over just plays.
-    func show(_ reason: Reason, listen id: String? = nil) async {
+    /// Shown when notifications aren't on (not asked yet, only quiet, or turned off); otherwise a text handed over just
+    /// plays.
+    func show(_ reason: Reason, listen id: String? = nil, page: URL? = nil) async {
         let status = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
-        guard status == .notDetermined || status == .denied else {
+        guard NotifyStatus.notAsked(status) || status == .denied else {
             // Already on (the panel hadn't heard yet): back to Safari, where it plays (build 93).
             if let id, !backToSafari(id) { play(id) }
+            if id == nil, let page { Self.openInSafari(page) }
             return
         }
-        ask = Ask(reason: reason, denied: status == .denied, listen: id)
-        ChatAI.reportUse("notify", "shown", ["why": reason.rawValue, "status": status == .denied ? "denied" : "not_asked"])
+        ask = Ask(reason: reason, denied: status == .denied, listen: id, page: page)
+        ChatAI.reportUse("notify", "shown", ["why": reason.rawValue, "status": status == .denied ? "denied" : status == .provisional ? "quiet" : "not_asked"])
+    }
+
+    /// The panel's link (2.8): `why` one of its moments, `page` the page to go back to (https or http only).
+    func show(link url: URL) async {
+        let query = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+        let value = { (name: String) in query.first { $0.name == name }?.value }
+        guard let reason = value("why").flatMap(Reason.init(rawValue:)), reason != .listen, reason != .ultra else { return }
+        let page = value("page").flatMap(URL.init(string:)).flatMap { $0.scheme == "https" || $0.scheme == "http" ? $0 : nil }
+        await show(reason, page: page)
     }
 
     /// Once, after an Ultra purchase (read aloud carries on from Safari only with notifications).
     func afterUltra() async {
         guard !UserDefaults.standard.bool(forKey: Self.ultraKey) else { return }
         let status = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
-        guard status == .notDetermined || status == .denied else { return }
+        guard NotifyStatus.notAsked(status) || status == .denied else { return }
         UserDefaults.standard.set(true, forKey: Self.ultraKey)
         await show(.ultra)
     }
@@ -314,12 +462,8 @@ final class NotifyAsk: ObservableObject {
             if let url = URL(string: UIApplication.openNotificationSettingsURLString) { await UIApplication.shared.open(url) }
             return
         }
-        if ask.reason == .launch {
-            // The setup reminders ask the system themselves, and are scheduled when allowed.
-            await SetupReminders.schedule()
-        } else {
-            _ = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])
-        }
+        // Asked without .provisional: from quiet permission too, this is the system's real question.
+        _ = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])
         finish()
     }
 
@@ -332,13 +476,17 @@ final class NotifyAsk: ObservableObject {
 
     private func finish() {
         let id = ask?.listen
+        let page = ask?.page
         ask = nil
-        guard let id else { return }
+        guard let id else {
+            if let page { Self.openInSafari(page) }
+            return
+        }
         // Build 93 (the owner: "is it necessary to move it to the app if Safari wasn't hidden?"): with notifications on,
         // back to the page in Safari, where the panel plays it; without them, it plays here (and the panel says so).
         Task {
             let status = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
-            if [.authorized, .provisional, .ephemeral].contains(status), backToSafari(id) { return }
+            if NotifyStatus.on(status), backToSafari(id) { return }
             SharedDefaults.shared.markListenTaken(id)
             play(id)
         }
@@ -358,6 +506,14 @@ final class NotifyAsk: ObservableObject {
             await UIApplication.shared.open(url)
         }
         return true
+    }
+
+    /// The page the panel asked from, in Safari itself (after this screen has gone).
+    private static func openInSafari(_ page: URL) {
+        Task {
+            try? await Task.sleep(nanoseconds: 400_000_000)
+            SafariPage.open(page)
+        }
     }
 
     /// The text Listen handed over in Safari: played here (after this screen has gone).
@@ -383,6 +539,13 @@ struct NotifyAskView: View {
             Text("Turn on notifications")
                 .font(.title2.weight(.bold))
                 .multilineTextAlignment(.center)
+            if let lead {
+                Text(lead)
+                    .font(.headline)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: 440)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             VStack(alignment: .leading, spacing: 16) {
                 row("speaker.wave.2.fill", "Keep listening when you leave Safari or lock the screen: a notification carries it on in the app, from the same second.")
                 row("bell.fill", "Reminders you set on answers and notes.")
@@ -411,6 +574,16 @@ struct NotifyAskView: View {
         .interactiveDismissDisabled()
     }
 
+    /// What this moment needs them for (2.8: the panel's moments of value).
+    private var lead: LocalizedStringKey? {
+        switch ask.reason {
+        case .later: return "So the reminder you just set reaches you."
+        case .watch: return "So you hear when the page you watch changes."
+        case .answers_back: return "So you know when your free answers are back."
+        case .ultra, .listen: return nil
+        }
+    }
+
     private func row(_ icon: String, _ text: LocalizedStringKey) -> some View {
         HStack(alignment: .top, spacing: 14) {
             Image(systemName: icon)
@@ -429,10 +602,26 @@ struct NotifyAskView: View {
 
 /// Two local notifications on a new install, 15 minutes and a day after the first launch, unless the
 /// extension is switched on before (the extension's native handler or the app withdraws them).
+///
+/// 2.8 (В2.6, the owner's yes of 2026-11-24): with quiet (provisional) permission, granted without a question. They're
+/// delivered to Notification Center, without a banner or a sound, so they reach people who were never asked. Nothing
+/// else is sent with quiet permission: every other notification counts it as not asked (NotifyStatus). Where
+/// notifications are fully on already, they come as usual; turned off, they don't come.
 enum SetupReminders {
     static func schedule() async {
         let center = UNUserNotificationCenter.current()
-        guard (try? await center.requestAuthorization(options: [.alert, .sound])) == true else { return }
+        var quiet = true
+        #if DEBUG
+        // Comparisons on the simulator (2.8: the extension's own reminders after quiet permission): `-CFDebugNoQuiet YES`
+        // takes no quiet permission, as 2.7 didn't.
+        if UserDefaults.standard.bool(forKey: "CFDebugNoQuiet") { quiet = false }
+        #endif
+        if quiet, await center.notificationSettings().authorizationStatus == .notDetermined {
+            _ = try? await center.requestAuthorization(options: [.alert, .sound, .provisional])
+        }
+        let status = await center.notificationSettings().authorizationStatus
+        guard NotifyStatus.on(status) || status == .provisional else { return }
+        await MainActor.run { Activation.shared.remindersScheduled(status == .provisional ? "quiet" : "on") }
         let ids = SharedDefaults.setupReminderIds
         center.removePendingNotificationRequests(withIdentifiers: ids)
         #if os(iOS)
@@ -445,12 +634,20 @@ enum SetupReminders {
             (ids[1], 24 * 3600, String(localized: "Your AI for Safari is waiting"),
              String(localized: "Turn on ContextFlow to summarize any page in one tap. 5 free answers every day."))
         ]
-        for reminder in reminders {
+        for (index, reminder) in reminders.enumerated() {
             let content = UNMutableNotificationContent()
             content.title = reminder.title
             content.body = reminder.body
             content.sound = .default
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: reminder.after, repeats: false)
+            // Its tap is counted and opens the setup guide (AppDelegate).
+            content.userInfo = ["setup": index == 0 ? "15m" : "24h"]
+            var after = reminder.after
+            #if DEBUG
+            // Simulator checks of the quiet reminder: `-CFDebugSetupReminderSeconds 20` brings the first one forward.
+            let soon = UserDefaults.standard.double(forKey: "CFDebugSetupReminderSeconds")
+            if soon > 0, index == 0 { after = soon }
+            #endif
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: after, repeats: false)
             try? await center.add(UNNotificationRequest(identifier: reminder.id, content: content, trigger: trigger))
         }
     }
@@ -466,6 +663,7 @@ enum SetupReminders {
         switch await UNUserNotificationCenter.current().notificationSettings().authorizationStatus {
         case .notDetermined: return "not_asked"
         case .denied: return "denied"
+        case .provisional: return "quiet"
         default: return "granted"
         }
     }
@@ -536,42 +734,120 @@ enum FirstPage {
     @MainActor
     private static func show() {
         guard let page = url else { return }
-        if #available(iOS 17, *), let safari = URL(string: "x-safari-\(page.absoluteString)") {
-            UIApplication.shared.open(safari) { opened in if !opened { UIApplication.shared.open(page) } }
-        } else {
-            UIApplication.shared.open(page)
-        }
+        SafariPage.open(page)
     }
     #endif
 }
 
 #if os(iOS)
+// MARK: - A page in Safari itself
+
+/// A page opened in Safari itself, not another default browser (the panel lives in Safari): on iOS 17 and later through
+/// the x-safari- scheme. 2.8 (found by the limit session): iOS handles x-safari-https only, an x-safari-http address does
+/// nothing; an http page, or a failed x-safari- one, opens as it is (the default browser). One rule for every place.
+@MainActor
+enum SafariPage {
+    /// The address that opens `page` in Safari itself, or nil where only the page's own address can.
+    static func safariURL(_ page: URL) -> URL? {
+        guard page.scheme?.lowercased() == "https" else { return nil }
+        if #available(iOS 17, *) { return URL(string: "x-safari-\(page.absoluteString)") }
+        return nil
+    }
+
+    static func open(_ page: URL) {
+        if let safari = safariURL(page) {
+            UIApplication.shared.open(safari) { opened in if !opened { UIApplication.shared.open(page) } }
+        } else {
+            UIApplication.shared.open(page)
+        }
+    }
+}
+
 // MARK: - Setup guide (iOS)
 
+/// Where «Open Settings» lands, and so what the card, its footnote and the guide over Settings show (2.8, В2.1).
+enum SetupPath {
+    /// The iPhone on iOS 26.2 and later: Safari's settings are asked to open on ContextFlow's own page (2.6), but
+    /// where they land isn't proven (2.8: the iPhone simulators land on Settings' first page, and the system reports
+    /// success either way). The whole way is shown, and the footnote reads right whichever page opens.
+    case maybeDirect
+    /// The iPad (2.8, the owner's iPad and the iPad simulators): the same call opens Settings on Apps or on its first
+    /// page, never on ContextFlow's. The whole way is shown, from Apps on the left.
+    case fromApps
+    /// iOS before 26.2: the app's own page in Settings, from where «Apps» at the top left leads on.
+    case appPage
+
+    static var current: SetupPath {
+        if UIDevice.current.userInterfaceIdiom == .pad { return .fromApps }
+        if #available(iOS 26.2, *) { return .maybeDirect }
+        return .appPage
+    }
+
+    /// The walkthrough's screens the guide over Settings plays. On iPhone 26.2+ the owner's real iPhone lands on
+    /// ContextFlow's own page (2.8 acceptance 3), as 2.7 assumed: the last three, as 2.7 played them.
+    var phases: [Int] { self == .maybeDirect ? [3, 4, 5] : Array(0..<6) }
+
+    /// The first written step: on iPad it starts where Settings opens.
+    /// 2.8: the Apps list has ContextFlow itself in view (above Safari), and its page has no extension switch: the step
+    /// says Safari, not ContextFlow.
+    var firstStep: LocalizedStringKey {
+        self == .fromApps ? "In Settings, tap Apps on the left, then Safari in the list (not ContextFlow), then Extensions."
+            : "Open the Settings app and go to Apps → Safari (not ContextFlow) → Extensions."
+    }
+
+    /// No ✦ on any page: All Websites is still Ask. 2.8 (acceptance 2): the way that has worked every time, on iPad and
+    /// iPhone, is Settings (ContextFlow's page → All Websites → Allow). Safari's own question (behind the puzzle-piece
+    /// button on iPad, in the page menu on iPhone) has not been seen to grant anything yet, so it's never the fix here,
+    /// only a side note.
+    var allowFirstStep: LocalizedStringKey {
+        switch self {
+        case .fromApps: return "Tap Open Settings, then Apps on the left → Safari (not ContextFlow) → Extensions → ContextFlow."
+        // The owner's real iPhone lands on ContextFlow's page (acceptance 3); simulators land on Settings' first page.
+        case .maybeDirect: return "Tap Open Settings: it opens on ContextFlow. If not, go to Apps → Safari (not ContextFlow) → Extensions → ContextFlow."
+        case .appPage: return "Tap Open Settings and go to Apps → Safari (not ContextFlow) → Extensions → ContextFlow."
+        }
+    }
+
+    /// Safari's own question, from the page, with Safari's own button names (MobileSafari.framework's strings in each
+    /// language). 2.8 acceptance 3: on the owner's real iPad «Always Allow…» → «Always Allow on Every Website» brought ✦
+    /// at once; in the simulators it never granted anything (a simulator limit). iPad: the puzzle-piece button;
+    /// iPhone: the page menu.
+    var safariAsksStep: LocalizedStringKey {
+        self == .fromApps
+            ? "Tap the puzzle-piece button next to the address → ContextFlow → “Always Allow…” → “Always Allow on Every Website”."
+            : "Open the page menu in the address bar → ContextFlow → “Always Allow…” → “Always Allow on Every Website”."
+    }
+
+    var noSparkleStep: LocalizedStringKey {
+        self == .fromApps
+            ? "No ✦? Tap the puzzle-piece button next to the address → ContextFlow → “Always Allow…” → “Always Allow on Every Website”."
+            : "No ✦? Open the page menu in the address bar → ContextFlow → “Always Allow…” → “Always Allow on Every Website”."
+    }
+}
+
 /// The home screen's first card: how to switch ContextFlow on, shown as the Settings screens themselves
-/// with each tap played out; then "almost there" until the panel has been opened once.
+/// with each tap played out; then the «Open Safari» step until the panel has been opened once.
 struct SetupCard: View {
     @ObservedObject var activation: Activation
     var openSafari: () -> Void
 
     var body: some View {
         switch activation.state {
-        case .off: guide
-        case .on: almostThere
+        case .off:
+            guide.onAppear {
+                activation.instructionShown()
+                SettingsPiP.shared.prepare(phases: path.phases, path: path)
+            }
+        case .on: safariStep.onAppear { activation.safariStepShown() }
         case .inUse: ready
         }
     }
 
-    /// iOS and iPadOS 26.2 and later open Safari's settings on ContextFlow itself (2.6, the owner: "Open Settings"
-    /// led to the app's own settings). Older versions open the app's page, from where the steps above lead on.
-    private var directSettings: Bool {
-        if #available(iOS 26.2, *) { return true }
-        return false
-    }
+    private let path = SetupPath.current
 
     private var guide: some View {
         Card(title: "Turn on ContextFlow", systemImage: "switch.2") {
-            SettingsWalkthrough()
+            SettingsWalkthrough(path: path)
                 // The picture-in-picture guide's source: in the window, under the walkthrough it shows.
                 .background(PiPSource(layer: SettingsPiP.shared.layer))
             Button(action: openSettingsWithGuide) {
@@ -582,18 +858,35 @@ struct SetupCard: View {
             }
             .buttonStyle(.borderedProminent)
             .padding(.top, 4)
-            if directSettings {
+            .accessibilityIdentifier("cf-setup-settings")
+            switch path {
+            case .maybeDirect:
+                // 2.8 acceptance 3: the owner's real iPhone lands on ContextFlow's own page, with its switch (2.7's text,
+                // 2.7's rule: iOS 26.2+); simulators and some devices land elsewhere: the second line.
                 Text("Settings opens on ContextFlow: switch it on, then set All Websites to Allow.")
                     .font(.footnote)
                     .foregroundColor(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
-            } else {
+                Text("If it opens somewhere else, start from Apps → Safari (not ContextFlow) → Extensions.")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            case .fromApps:
+                // 2.8 (В2.1): what happens, not what we'd like to happen.
+                Text("On iPad, Settings doesn't open on ContextFlow's page: start from Apps on the left and follow the steps above.")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            case .appPage:
                 Text("Settings opens on ContextFlow's page: tap “Apps” at the top left, then follow the steps above.")
                     .font(.footnote)
                     .foregroundColor(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 // This iOS can't tell the app it's on until the panel is used: the way on from here.
-                Button(action: openSafari) {
+                Button {
+                    activation.openedSafari("guide")
+                    openSafari()
+                } label: {
                     Label("Switched it on? Open Safari", systemImage: "safari")
                         .font(.subheadline.weight(.semibold))
                         .frame(maxWidth: .infinity)
@@ -606,28 +899,88 @@ struct SetupCard: View {
     /// With the guide floating over Settings where picture in picture works (2.6, the owner: "like Chrome, a video
     /// over the windows with the steps"); else Settings alone.
     private func openSettingsWithGuide() {
-        SettingsPiP.shared.start(phases: directSettings ? [3, 4, 5] : Array(0..<6), then: openExtensionSettings)
+        SettingsPiP.shared.start(phases: path.phases, path: path, then: openExtensionSettings)
     }
 
-    private func openExtensionSettings() {
-        activation.wentToSettings("card")
+    private func openExtensionSettings() { openExtensionSettings(via: "card") }
+
+    /// `via`: "card" the switch-it-on step, "allow" the «Open Safari» step's way to All Websites: Allow (2.8).
+    private func openExtensionSettings(via: String) {
+        activation.wentToSettings(via)
         let appSettings = {
             if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+            activation.settingsOpened("app")
         }
         if #available(iOS 26.2, *) {
+            // Also on iPad, where it lands on Apps (the nearest to ContextFlow's page it gets there).
             SFSafariSettings.openExtensionsSettings(forIdentifiers: [extensionBundleIdentifier]) { error in
-                if error != nil { appSettings() }
+                #if DEBUG
+                NSLog("[cf-setup] openExtensionsSettings: %@", error.map { String(describing: $0) } ?? "no error")
+                #endif
+                DispatchQueue.main.async {
+                    if error != nil { appSettings() } else { activation.settingsOpened("direct") }
+                }
             }
         } else {
             appSettings()
         }
     }
 
-    private var almostThere: some View {
-        Card(title: "Almost there", systemImage: "checkmark.circle") {
-            Text("ContextFlow is on. Now open any page in Safari and tap ✦. If Safari asks, choose Always Allow, then Always Allow on Every Website.")
-                .font(.callout)
-                .fixedSize(horizontal: false, vertical: true)
+    /// 2.8 (В2.4): switched on, never used on a page. The next step is the app's own: one big button to Safari, and
+    /// what to tap there (✦, then Safari's own question about the extension).
+    private var safariStep: some View {
+        Card(title: "Next: open Safari", systemImage: "safari") {
+            Text("ContextFlow is on in Safari.")
+                .font(.callout.weight(.semibold))
+            // Above the clip: on an iPhone the button is on the first screen without scrolling.
+            safariButton("step", large: true)
+            // With All Websites left on Ask (the step people skip in Settings), no ✦ shows on any page. Back from Safari with
+            // the panel still unused, the fix that has worked every time comes first: Settings, with its own button.
+            if activation.backFromSafariUnused {
+                Text("No ✦ on the page? ContextFlow isn't allowed on websites yet.")
+                    .font(.callout.weight(.semibold))
+                    .fixedSize(horizontal: false, vertical: true)
+                // Acceptance 3: Safari's own question first (four taps without leaving the page; seen granting on the
+                // owner's real iPad), Settings second (the way seen working every time in the simulators).
+                Text(path.safariAsksStep)
+                    .font(.callout)
+                    .fixedSize(horizontal: false, vertical: true)
+                oneDayNote
+                Text("Or in Settings:")
+                    .font(.callout.weight(.semibold))
+                    .padding(.top, 4)
+                Step(number: 1, text: path.allowFirstStep)
+                // Acceptance 3: after «Don't Allow» in Safari's own question, Settings lists the websites one by one
+                // (Deny) and «Other Websites» instead of All Websites, and a denied website stays denied under Other
+                // Websites: Allow. Seen working: every row of that list set to Allow, then ✦ on the page.
+                Step(number: 2, text: "Under Permissions, set All Websites to Allow. If you see a list of websites there instead, set every row in it to Allow.")
+                // How it really goes back: Settings' own way back (top left) leads to the app, not to Safari, and Open
+                // Safari opens the page in a new tab, loaded afresh (nothing to reload).
+                Step(number: 3, text: "Tap ◀ ContextFlow at the top left, then Open Safari, and tap ✦ on the page.")
+                Button {
+                    // Acceptance 3: on iPad the floating strip sits over Settings' Back button, and after «Don't Allow»
+                    // in Safari's question this trip needs Back after every website in the list (seen: blocked under
+                    // the strip). Here the iPad goes without it; the steps above are the guide.
+                    if path == .fromApps {
+                        openExtensionSettings(via: "allow")
+                    } else {
+                        SettingsPiP.shared.start(phases: path.phases, path: path) { openExtensionSettings(via: "allow") }
+                    }
+                } label: {
+                    Label("Open Settings", systemImage: "gear")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 6)
+                }
+                .buttonStyle(.bordered)
+                .accessibilityIdentifier("cf-setup-allow-settings")
+                // The picture-in-picture guide's source, as on the switch-it-on step.
+                .background(PiPSource(layer: SettingsPiP.shared.layer))
+            } else {
+                Step(number: 1, text: "Tap ✦ on the page.")
+                Step(number: 2, text: path.noSparkleStep)
+                oneDayNote
+            }
             if let url = TipClip.url("open") {
                 TipClipView(url: url)
                     .aspectRatio(TipClip.aspect, contentMode: .fit)
@@ -636,35 +989,55 @@ struct SetupCard: View {
                     .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.primary.opacity(0.08)))
                     .frame(maxWidth: .infinity)
             }
-            safariButton
         }
+    }
+
+    /// «Allow for One Day» is Safari's prominent blue button, and with it ✦ is gone the next day.
+    private var oneDayNote: some View {
+        Text("Not “Allow for One Day”: with it, ✦ is gone again tomorrow.")
+            .font(.footnote)
+            .foregroundColor(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+
+    /// 2.8: the iPad's page menu has no extensions; ContextFlow is behind the puzzle-piece button there (seen opening the
+    /// panel on iPadOS 26.5 and 27 once allowed).
+    private static var readyText: LocalizedStringKey {
+        UIDevice.current.userInterfaceIdiom == .pad
+            ? "Open any page and tap ✦ — or tap the puzzle-piece button next to the address and choose ContextFlow."
+            : "Open any page and tap ✦ — or choose ContextFlow in the page menu of the address bar."
     }
 
     private var ready: some View {
         Card(title: "ContextFlow is on in Safari", systemImage: "checkmark.seal.fill") {
-            Text("Open any page and tap ✦ — or choose ContextFlow in the page menu of the address bar.")
+            Text(Self.readyText)
                 .font(.callout)
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
-            safariButton
+            safariButton("card", large: false)
         }
     }
 
-    private var safariButton: some View {
-        Button(action: openSafari) {
+    private func safariButton(_ via: String, large: Bool) -> some View {
+        Button {
+            activation.openedSafari(via)
+            openSafari()
+        } label: {
             Label("Open Safari", systemImage: "safari")
-                .font(.headline)
+                .font(large ? .title3.weight(.semibold) : .headline)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 6)
+                .padding(.vertical, large ? 10 : 6)
         }
         .buttonStyle(.borderedProminent)
         .padding(.top, 4)
+        .accessibilityIdentifier("cf-setup-safari")
     }
 }
 
 /// The Settings screens on the way to switching ContextFlow on, drawn like iOS Settings and stepped
 /// through on their own (tap to skip ahead). With Reduce Motion it waits for taps.
 struct SettingsWalkthrough: View {
+    var path: SetupPath = .current
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var phase = 0
     private static let phases = 6
@@ -681,7 +1054,7 @@ struct SettingsWalkthrough: View {
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel(Text("Settings, Apps, Safari, Extensions, ContextFlow: Allow Extension on, All Websites: Allow."))
             VStack(alignment: .leading, spacing: 10) {
-                Step(number: 1, text: "Open the Settings app and go to Apps → Safari → Extensions.")
+                Step(number: 1, text: path.firstStep)
                     .opacity(step == 1 ? 1 : 0.45)
                 Step(number: 2, text: "Tap ContextFlow and switch it on.")
                     .opacity(step == 2 ? 1 : 0.45)
@@ -883,6 +1256,9 @@ final class SettingsPiP: NSObject {
     private var controller: AVPictureInPictureController?
     private var frames: [CVPixelBuffer] = []
     private var phases: [Int] = []
+    private var path: SetupPath?
+    /// The app went to the background since the guide started (Settings is in front).
+    private var away = false
     private var queued = 0
     private var pendingOpen: (() -> Void)?
     /// Each screen this long, as in the card.
@@ -893,6 +1269,28 @@ final class SettingsPiP: NSObject {
     private override init() {
         super.init()
         layer.videoGravity = .resizeAspect
+        // Back in the app, the guide goes (2.8): from the system itself, as Activation's trip does. SwiftUI's scene phase
+        // didn't arrive on the way back in the simulators, and the guide floated on over Safari afterwards. Only once the
+        // app is active again (stopping it while the app is still coming to the front left a black window), and only
+        // after the app really left (starting the guide doesn't count).
+        NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main) { _ in
+            Task { @MainActor in SettingsPiP.shared.away = true }
+        }
+        // From Settings straight to Safari, the app never comes back to the front: the extension says when the panel opens
+        // (a Darwin notice), and the guide goes then.
+        CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), nil, { _, _, _, _, _ in
+            #if DEBUG
+            NSLog("[cf-setup] panel opened: the guide goes")
+            #endif
+            Task { @MainActor in SettingsPiP.shared.stop() }
+        }, SharedDefaults.panelOpenedNotice as CFString, nil, .deliverImmediately)
+        NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main) { _ in
+            Task { @MainActor in
+                guard SettingsPiP.shared.away else { return }
+                SettingsPiP.shared.away = false
+                SettingsPiP.shared.stop()
+            }
+        }
     }
 
     private func makeController() -> AVPictureInPictureController? {
@@ -908,31 +1306,93 @@ final class SettingsPiP: NSObject {
 
     /// Floats the screens for `phases` (Settings opens on ContextFlow's page on 26.2+: the last three), then calls
     /// `open` once the window shows, or at once when it can't.
-    func start(phases: [Int], then open: @escaping () -> Void) {
-        guard let controller = makeController() else { return open() }
-        if phases != self.phases || frames.isEmpty {
-            self.phases = phases
-            frames = phases.compactMap { Self.frame(phase: $0) }
+    /// The controller and the frames made ahead, when the card shows (2.8: on the first tap of a process the system's
+    /// picture in picture wasn't ready yet, and the guide floated only on the second tap; the simulator showed the same).
+    func prepare(phases: [Int], path: SetupPath) {
+        guard makeController() != nil else { return }
+        render(phases: phases, path: path)
+    }
+
+    private func render(phases: [Int], path: SetupPath) {
+        guard phases != self.phases || path != self.path || frames.isEmpty else { return }
+        self.phases = phases
+        self.path = path
+        frames = phases.compactMap { Self.frame(phase: $0, path: path) }
+    }
+
+    func start(phases: [Int], path: SetupPath, then open: @escaping () -> Void) {
+        guard let controller = makeController() else {
+            #if DEBUG
+            NSLog("[cf-setup] guide start: picture in picture not supported")
+            #endif
+            return open()
         }
+        render(phases: phases, path: path)
+        #if DEBUG
+        NSLog("[cf-setup] guide start: phases %@ frames %d size %@ possible %@", phases.description, frames.count,
+              frames.first.map { "\(CVPixelBufferGetWidth($0))x\(CVPixelBufferGetHeight($0))" } ?? "-",
+              controller.isPictureInPicturePossible ? "yes" : "no")
+        #endif
         guard !frames.isEmpty else { return open() }
+        // If it hasn't started by the time Settings is in front, it starts as the app leaves (this trip only).
+        if #available(iOS 14.2, *) { controller.canStartPictureInPictureAutomaticallyFromInline = true }
         let session = AVAudioSession.sharedInstance()
         try? session.setCategory(.playback, mode: .moviePlayback, options: [.mixWithOthers])
         try? session.setActive(true)
         play()
         pendingOpen = open
-        controller.startPictureInPicture()
+        // 2.8: started once the system says it's possible, not at once: the layer has no frame yet at this point, and an
+        // early start failed (the director's iPad: no guide on the first try, the guide on the second).
+        startWhenPossible(controller, tries: 9)
         // Not possible on this device right now, or slow to start: Settings opens anyway.
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in self?.openPending() }
     }
 
-    /// Back in the app: the window goes.
+    private func startWhenPossible(_ controller: AVPictureInPictureController, tries: Int) {
+        guard pendingOpen != nil else { return }
+        if controller.isPictureInPicturePossible || tries == 0 {
+            #if DEBUG
+            NSLog("[cf-setup] guide startPictureInPicture: possible %@ tries left %d layer status %d",
+                  controller.isPictureInPicturePossible ? "yes" : "no", tries, layer.status.rawValue)
+            #endif
+            controller.startPictureInPicture()
+            return
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in self?.startWhenPossible(controller, tries: tries - 1) }
+    }
+
+    /// Back in the app: the window goes, and so does its last frame. 2.8 (В2.2): `flush()` kept the frame on the layer,
+    /// which lives in the card under the walkthrough: back from Settings, a white box with the last step's caption
+    /// stayed over the steps (and where picture in picture didn't start, the frames played there).
     func stop() {
+        #if DEBUG
+        NSLog("[cf-setup] guide stop: active %@ queued %d", controller?.isPictureInPictureActive == true ? "yes" : "no", queued)
+        #endif
         guard controller?.isPictureInPictureActive == true || queued > 0 else { return }
-        controller?.stopPictureInPicture()
-        layer.stopRequestingMediaData()
-        layer.flush()
-        queued = 0
+        // Not on the next time the app goes to the background.
+        if #available(iOS 14.2, *) { controller?.canStartPictureInPictureAutomaticallyFromInline = false }
+        // Floating: it closes first, and its frames go when it has (the delegate's didStop); emptied while it was still
+        // up, the window turned black. Not floating: the frames go now.
+        if controller?.isPictureInPictureActive == true {
+            controller?.stopPictureInPicture()
+            // In the background (the panel opened in Safari) the system ignores stopPictureInPicture: without its content
+            // and its controller the window goes. A new controller is made for the next time.
+            if UIApplication.shared.applicationState != .active {
+                controller?.contentSource = nil
+                controller = nil
+                clear()
+            }
+        } else {
+            clear()
+        }
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+    }
+
+    /// Nothing queued and nothing shown on the layer.
+    private func clear() {
+        layer.stopRequestingMediaData()
+        layer.flushAndRemoveImage()
+        queued = 0
     }
 
     private func openPending() {
@@ -969,19 +1429,38 @@ final class SettingsPiP: NSObject {
     }
 
     /// One screen with its step under it, drawn like the card's walkthrough, as a video frame.
-    private static func frame(phase: Int) -> CVPixelBuffer? {
-        let step: LocalizedStringKey = phase < 2 ? "Open the Settings app and go to Apps → Safari → Extensions."
+    private static func frame(phase: Int, path: SetupPath) -> CVPixelBuffer? {
+        let step: LocalizedStringKey = phase < 2 ? path.firstStep
             : phase < 4 ? "Tap ContextFlow and switch it on." : "Under Permissions, set All Websites to Allow."
-        let view = VStack(spacing: 10) {
-            SettingsScreen(phase: phase).frame(height: 216)
-            Text(step)
-                .font(.footnote.weight(.semibold))
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
+        let view: AnyView
+        if path == .fromApps {
+            // 2.8 (the director's acceptance, iPad): a picture of a screen made a tall window over the right-hand pane,
+            // hiding the very rows to tap (ContextFlow on the Extensions list, and its caption sat over the wrong
+            // ContextFlow row on Apps). On iPad the guide is a short strip instead: the whole path, the step to tap now
+            // marked, so it reads right on whichever screen the person is.
+            //
+            // Acceptance 3 (iPad mini, 26.5): the system sizes the window, not the app. Strips 92, 140, 200 and 280 high
+            // all floated 465 points wide at the top right (465×74 … 465×231); the square screens of 2.7.1, 333×311.
+            // So no shape clears Settings' Back button (under the strip's left end) without covering the rows to tap.
+            // The switch-on trip needs no Back (each step goes forward; Apps on the left starts it again from any screen),
+            // and the window drags away like any picture in picture: both seen. The «No ✦» trip does need Back (one row
+            // per website after «Don't Allow»): on iPad it goes without the strip (SetupCard).
+            view = AnyView(pathStrip(phase: phase)
+                .padding(.horizontal, 14)
+                .frame(width: 560, height: 92)
+                .background(Color(uiColor: .systemBackground)))
+        } else {
+            view = AnyView(VStack(spacing: 10) {
+                SettingsScreen(phase: phase).frame(height: 216)
+                Text(step)
+                    .font(.footnote.weight(.semibold))
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(12)
+            .frame(width: 320, height: 300, alignment: .top)
+            .background(Color(uiColor: .systemBackground)))
         }
-        .padding(12)
-        .frame(width: 320, height: 300, alignment: .top)
-        .background(Color(uiColor: .systemBackground))
         let renderer = ImageRenderer(content: view)
         renderer.scale = 2
         guard let image = renderer.cgImage else { return nil }
@@ -999,6 +1478,36 @@ final class SettingsPiP: NSObject {
         return buffer
     }
 
+    /// The path in Settings as one line, the names Settings itself shows: the step for this screen marked, the ones
+    /// before it dimmed (phase 0 marks Apps and Safari: the iPad starts from Apps on the left).
+    private static func pathStrip(phase: Int) -> some View {
+        let names = [String(localized: "Apps"), "Safari", String(localized: "Extensions"), "ContextFlow",
+                     String(localized: "Allow Extension"), String(localized: "All Websites"), String(localized: "Allow")]
+        let now: Set<Int> = phase == 0 ? [0, 1] : [phase + 1]
+        var line = AttributedString()
+        for (index, name) in names.enumerated() {
+            if index > 0 {
+                var arrow = AttributedString("  ›  ")
+                arrow.foregroundColor = .secondary
+                line += arrow
+            }
+            var part = AttributedString(name)
+            if now.contains(index) {
+                part.foregroundColor = .accentColor
+                part.font = .system(size: 17, weight: .bold)
+            } else {
+                part.foregroundColor = index < (now.min() ?? 0) ? .secondary : .primary
+            }
+            line += part
+        }
+        return Text(line)
+            .font(.system(size: 15, weight: .medium))
+            .multilineTextAlignment(.center)
+            .lineLimit(3)
+            .minimumScaleFactor(0.7)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
     private nonisolated static func sample(_ buffer: CVPixelBuffer, at time: CMTime) -> CMSampleBuffer? {
         var format: CMVideoFormatDescription?
         CMVideoFormatDescriptionCreateForImageBuffer(allocator: kCFAllocatorDefault, imageBuffer: buffer, formatDescriptionOut: &format)
@@ -1011,7 +1520,16 @@ final class SettingsPiP: NSObject {
 }
 
 extension SettingsPiP: AVPictureInPictureControllerDelegate {
+    #if DEBUG
+    nonisolated func pictureInPictureControllerWillStartPictureInPicture(_ controller: AVPictureInPictureController) {
+        NSLog("[cf-setup] guide willStart")
+    }
+    #endif
+
     nonisolated func pictureInPictureControllerDidStartPictureInPicture(_ controller: AVPictureInPictureController) {
+        #if DEBUG
+        NSLog("[cf-setup] guide didStart")
+        #endif
         Task { @MainActor in
             Activation.shared.guideStarted()
             self.openPending()
@@ -1019,7 +1537,20 @@ extension SettingsPiP: AVPictureInPictureControllerDelegate {
     }
 
     nonisolated func pictureInPictureController(_ controller: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
+        #if DEBUG
+        NSLog("[cf-setup] guide failedToStart: %@", "\(error)")
+        #endif
+        // 2.8: the frames stay queued, so it can still start as the app leaves for Settings (allowed for this trip); back
+        // in the app, stop() takes them off the card (В2.2).
         Task { @MainActor in self.openPending() }
+    }
+
+    nonisolated func pictureInPictureControllerDidStopPictureInPicture(_ controller: AVPictureInPictureController) {
+        #if DEBUG
+        NSLog("[cf-setup] guide didStop")
+        #endif
+        // Closed by the person over Settings, or stopped on the way back: its frame doesn't come back into the card.
+        Task { @MainActor in self.clear() }
     }
 }
 
@@ -1119,8 +1650,8 @@ enum TestBuild {
 /// «Start as a new user» (2.7, the owner testing TestFlight 107: after deleting the app and installing it again his
 /// chats and settings came back from iCloud, so the changed first run couldn't be seen as a new user). TestFlight and
 /// debug builds only (TestBuild): a row in Settings. While it's on, this device shows the app as a new install has it:
-/// the Get Started screen with the setup guide in place of the chats, the notifications question before the system's,
-/// the friend's code card, and the extension counted as switched on and used only from what it did since. In Safari
+/// the Get Started screen with the setup guide in place of the chats, the quiet reminders to finish setup, and the
+/// extension counted as switched on and used only from what it did since. In Safari
 /// the panel's own first run starts over once (src/shared/firstRun.ts).
 ///
 /// Nothing is deleted or changed in iCloud, in the App Group's copy of the chats or in the settings: the chats are
@@ -1132,9 +1663,10 @@ final class NewUserPreview: ObservableObject {
     static let shared = NewUserPreview()
 
     nonisolated private static let key = "cf_new_user_preview_since"
-    /// What a new install hasn't been asked or hasn't put away yet, in the app's own defaults on this device: the
-    /// notifications question at launch (with the reminders to finish setup), and the friend's code card.
-    private static let firstRunKeys = ["cf_setup_reminders_offered", "cf_invite_entry_hidden"]
+    /// What a new install hasn't had yet, in the app's own defaults on this device: the reminders to finish setup, and
+    /// the setup funnel's once-an-install steps (2.8; they're not sent while this is on, so a preview can see them again).
+    private static let firstRunKeys = ["cf_setup_reminders_offered", "cf_activation_shown_reported", "cf_activation_safari_shown_reported",
+                                       "cf_setup_back_unused", "cf_setup_ask_shown_reported", "cf_setup_safari_trip_at"]
 
     /// On now (a store build never: the flag left by a test build installed before it counts for nothing).
     nonisolated static var isOn: Bool {
@@ -1157,10 +1689,9 @@ final class NewUserPreview: ObservableObject {
         for key in Self.firstRunKeys { defaults.removeObject(forKey: key) }
         // The extension's side: what it does from now counts as a new install's, and the panel's first run starts over.
         SharedDefaults.shared.setNewUserPreview(now)
-        InviteModel.shared.entryHidden = false
         on = true
         Activation.shared.previewChanged()
-        // As at a new install's first launch: the notifications question while ContextFlow is off in Safari.
+        // As at a new install's first launch: the quiet reminders to finish setup while ContextFlow is off in Safari.
         Task { await Activation.shared.launched() }
     }
 
@@ -1188,7 +1719,7 @@ struct NewUserPreviewSection: View {
             header: Text(verbatim: "Test build"),
             footer: Text(verbatim: preview.on
                 ? "You see ContextFlow as a new user on this device. Your chats, notes and collections are hidden here, not deleted, and keep syncing."
-                : "Shows the first run again on this device: the setup guide, the notifications question, the friend's code card, and the tour in Safari. Nothing is deleted, in iCloud or here.")
+                : "Shows the first run again on this device: the setup guide, the reminders to finish setup, and the tour in Safari. Nothing is deleted, in iCloud or here.")
         ) {
             if preview.on {
                 Button {

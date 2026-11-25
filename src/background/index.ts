@@ -2,7 +2,7 @@ import { tipClip } from "./tipClips"
 import { deviceNow } from "../shared/appleItems"
 import { mediaKinds, type MediaKind } from "../shared/attachments"
 import { API_BASE, LINKS, TARGET, VERSION, TEST_PLAN } from "../shared/config"
-import { appLink, planOfProduct, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, ULTRA_DEFAULTS, WATCH_LIMITS, type PaidPlan, type Period } from "../shared/plan"
+import { appLink, planOfProduct, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, ULTRA_DEFAULTS, WATCH_LIMITS, type BuyVia, type PaidPlan, type Period } from "../shared/plan"
 import { consentStatus } from "../shared/consent"
 import { urlKey } from "../shared/conversation"
 import { LINK_OPEN_KEY, linkOpen } from "../shared/linkOpen"
@@ -93,32 +93,30 @@ async function ownKey(): Promise<string> {
 // whose consent screen names Anthropic (67 and later). Asked once per worker; Chrome has none.
 // 2.7.1: the same answer carries the app's random id (once the app has been opened), for linkApp below; the ping
 // carries this install's id, so the app has it from the extension's first message, not only once the panel opens.
-let nativeAsk: Promise<{ build: string; app: string | null }> | null = null
+let nativeAsk: Promise<{ build: string; app: string | null; test: boolean }> | null = null
 let nativeAppAskedAt = 0
 
-function nativeInfo(): Promise<{ build: string; app: string | null }> {
-  if (TARGET !== "safari") return Promise.resolve({ build: "", app: null })
+function nativeInfo(): Promise<{ build: string; app: string | null; test: boolean }> {
+  if (TARGET !== "safari") return Promise.resolve({ build: "", app: null, test: false })
   // No app id yet (the app not opened so far): asked again at most once a minute, never on every request.
   if (nativeAsk && nativeAppAskedAt && Date.now() - nativeAppAskedAt > 60_000) nativeAsk = null
   nativeAsk ??= installId()
-    .then((id) => callNative<{ build?: string; app?: string }>("ping", { installId: id }, 1500))
+    .then((id) => callNative<{ build?: string; app?: string; test?: boolean }>("ping", { installId: id }, 1500))
     .then((data) => {
       // No answer: asked again by the next caller.
       if (!data?.build) nativeAsk = null
       const app = typeof data?.app === "string" ? data.app : null
       nativeAppAskedAt = data?.build && !app ? Date.now() : 0
-      return { build: data?.build ?? "", app }
+      // 2.8 (В1.9): the app's side says it's a simulator or debug build (OurBuild): every request is marked as ours.
+      return { build: data?.build ?? "", app, test: data?.test === true }
     })
   return nativeAsk
 }
 
-function appBuild(): Promise<string> {
-  return nativeInfo().then((info) => info.build)
-}
-
 async function clientInfo() {
-  const [build, os, invite] = await Promise.all([appBuild(), platform(), inviteMarks().catch(() => ({}))])
-  return { version: VERSION, ...(build ? { build } : {}), platform: os, locale: uiLanguage(), ...invite }
+  const [native, os, invite] = await Promise.all([nativeInfo(), platform(), inviteMarks().catch(() => ({}))])
+  const { build, test } = native
+  return { version: VERSION, ...(build ? { build } : {}), platform: os, locale: uiLanguage(), ...invite, ...(test ? { audience: "test" } : {}) }
 }
 
 // ---------------------------------------------------- App Store subscription
@@ -338,18 +336,24 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
     })
     if (!res.ok) throw new Error(`status ${res.status}`)
     const body = (await res.json()) as {
-      plan: Plan; usage: Usage | null; limitedBefore?: boolean; offer?: ProOffer | null; upgradeOffer?: { discount: number } | null
+      plan: Plan; usage: Usage | null; limitedBefore?: boolean; offer?: ProOffer | null; returnOffer?: { discount?: unknown } | null; upgradeOffer?: { discount: number } | null
       limits?: { freeDaily?: number; proWeekly?: number; ultraWeekly?: number; searchFreeDaily?: number; searchProWeekly?: number; speakWeeklySeconds?: number; similarWeekly?: number; watch?: Record<Plan, number> }
       organize?: { on?: unknown; space?: unknown; config?: unknown }
       ultra?: { speak?: Usage | null; similar?: Usage | null } | null
+      taste?: { speak?: Usage | null; similar?: Usage | null } | null
       country?: string
       invite?: { active?: unknown } | null
     }
     value = {
       plan: body.plan,
       ...(typeof body.country === "string" && /^[A-Z]{2}$/.test(body.country) ? { country: body.country } : {}), usage: body.usage, limitedBefore: body.limitedBefore === true, offer: body.offer ?? null,
+      ...(typeof body.returnOffer?.discount === "number" ? { returnOffer: { discount: body.returnOffer.discount } } : {}),
       upgradeOffer: body.upgradeOffer ?? null,
       ultra: body.ultra ? { speak: body.ultra.speak ?? null, similar: body.ultra.similar ?? null } : null,
+      // 2.8 (В7.4): Pro's tastes of Ultra (the server sends only those that are on).
+      ...(body.taste && (body.taste.speak || body.taste.similar)
+        ? { taste: { ...(body.taste.speak ? { speak: body.taste.speak } : {}), ...(body.taste.similar ? { similar: body.taste.similar } : {}) } }
+        : {}),
       // 2.7: friends who came with this install's code and asked on two days (only once it has a code).
       ...(body.invite && typeof body.invite.active === "number" ? { invite: { active: body.invite.active } } : {}),
       plans: planFacts(body.limits),
@@ -772,14 +776,15 @@ async function rateApp(): Promise<void> {
 }
 
 async function openApp(
-  target: "subscribe" | "manage" | "home", feature?: "ai" | "organize" | "listen" | "watch", plan: PaidPlan = "pro", period?: Period
+  target: "subscribe" | "manage" | "home", feature?: "ai" | "organize" | "listen" | "watch", plan: PaidPlan = "pro", period?: Period,
+  extra: { back?: string; via?: BuyVia } = {}
 ): Promise<{ opened: boolean; url: string }> {
   if (TARGET !== "safari") {
     await chrome.tabs.create({ url: LINKS.appStore })
     return { opened: true, url: LINKS.appStore }
   }
   // 2.6: the plan and period chosen in the panel's plans sheet open preselected in the app.
-  const url = appLink(target, feature, plan, period)
+  const url = appLink(target, feature, plan, period, extra)
   // macOS can launch the app from the extension; on iOS the page has to follow the link.
   const result = await callNative<{ opened?: boolean }>("openApp", { url })
   entitlementCache = null
@@ -893,7 +898,16 @@ async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" 
 
 // ---------------------------------------------------------------- messages
 
+// 2.8 (the app's guide over Settings): the first message from a page in this background's life tells the app's side that
+// ContextFlow runs on a page now (All Websites allowed). The app, still playing its guide over Settings because people go
+// from Settings straight to Safari, stops it then. Once per background; carries nothing.
+let pageSeenSent = false
+
 chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendResponse) => {
+  if (TARGET === "safari" && _sender.tab && !pageSeenSent) {
+    pageSeenSent = true
+    void callNative("page_seen", {}, 1500).catch(() => undefined)
+  }
   switch (message?.type) {
     case "shotCapture":
       void captureTab(_sender.tab?.windowId).then(sendResponse, () => sendResponse({ ok: false, code: "FAILED" }))
@@ -930,7 +944,7 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
         .then(sendResponse, () => sendResponse(null))
       return true
     case "openApp":
-      openApp(message.target, message.feature, message.plan, message.period).then(sendResponse, () => sendResponse({ opened: false, url: "" }))
+      openApp(message.target, message.feature, message.plan, message.period, { back: message.back, via: message.via }).then(sendResponse, () => sendResponse({ opened: false, url: "" }))
       return true
     case "listenInApp":
       listenInApp(message).then(sendResponse, () => sendResponse({ url: null }))
@@ -1069,6 +1083,15 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       return true
     case "remind":
       remind(message).then(sendResponse, () => sendResponse({ outcome: "unavailable" }))
+      return true
+    case "offerTapTake":
+      (TARGET === "safari" ? callNative<{ age?: number }>("offer_tap_take", {}, 5000) : Promise.resolve(null))
+        .then((r) => sendResponse({ age: typeof r?.age === "number" ? r.age : null }), () => sendResponse({ age: null }))
+      return true
+    case "remindPending":
+      // 2.8: a reminder waiting on the device (the app may have set it for the panel); its time, or none.
+      (TARGET === "safari" ? callNative<{ at?: number }>("remind_pending", { chat: message.chat, message: message.message }, 5000) : Promise.resolve(null))
+        .then((r) => sendResponse({ at: typeof r?.at === "number" ? r.at : null }), () => sendResponse({ at: null }))
       return true
     case "uxEvent":
       void reportUx(message)

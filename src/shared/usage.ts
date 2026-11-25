@@ -92,11 +92,17 @@ export const FEATURES: Record<string, Feature> = {
   },
   offer: { since: "2.4", actions: ["shown", "redeem", "later"] },
   // The app's notifications screen before the system's question (2.6): why it came up, and what was answered.
-  notify: { since: "2.6", tracked: "2.6", on: "app", actions: ["shown", "on", "later"], fields: { why: ["launch", "ultra", "listen"], status: ["denied", "not_asked"] } },
+  // 2.8 (В3.2): no longer at launch ("launch" stays for older builds); asked at the panel's moments of value: "later"
+  // (a reminder set), "watch", "answers_back". "quiet": only the setup reminders' provisional permission so far.
+  notify: { since: "2.6", tracked: "2.6", on: "app", actions: ["shown", "on", "later"], fields: { why: ["launch", "ultra", "listen", "later", "watch", "answers_back"], status: ["denied", "not_asked", "quiet"] } },
+  // 2.8 (В1.5, sent from 2.8): the app's plans screen shown, a plan's Buy ("plan"), and how the App Store's sheet ended,
+  // with where it started (the tab, a link; from the panel: its plans sheet, the plans in the chat, Settings' yearly line,
+  // straight to the sheet in one tap), the plan, its period and the offer it went with.
   paywall: {
-    since: "2.0", on: "app", actions: ["shown", "plan", "buy_ok", "buy_cancel", "buy_pending", "buy_fail", "restore", "manage"],
-    via: ["tab", "home", "deeplink", "ai_lock", "ask_chats", "limit", "offer", "organize", "tips", "whatsnew"],
-    fields: { plan: ["monthly", "yearly", "own_key", "promo"] }
+    since: "2.0", tracked: "2.8", on: "app", actions: ["shown", "plan", "buy_ok", "buy_cancel", "buy_pending", "buy_fail", "restore", "manage"],
+    via: ["tab", "home", "deeplink", "ai_lock", "ask_chats", "limit", "offer", "organize", "tips", "whatsnew", "panel", "panel_sheet", "panel_chat", "panel_settings", "panel_yearly"],
+    // The 2.8 schema (events-2.8.md, rung 15): `plan` is the plan bought (its old values were never sent).
+    fields: { plan: ["pro", "ultra", "byok"], period: ["monthly", "yearly"], offer: ["none", "promo", "intro", "code"] }
   },
   renewal: { since: "2.4", tracked: "2.4", actions: ["shown", "answer"] },
   // 2.6: the guided first request (src/content/Guide.tsx) reports these; "what" is the step it was on (or, for "exit",
@@ -133,12 +139,26 @@ export const FEATURES: Record<string, Feature> = {
     since: "2.7", tracked: "2.7", actions: ["open", "share", "copy", "code_ok", "code_bad", "reward_shown", "reward_pro", "reward_ultra", "reward_answers"],
     via: ["settings", "card", "app", "first_screen"]
   },
-  tab: { since: "2.0", on: "app", actions: ["open"], fields: { what: ["start", "chats", "templates", "tips", "pro", "settings"] } },
+  // 2.8 (В1.7): first sent in 2.8, on every change of tab (What's new and the Mac's Collections too).
+  tab: { since: "2.0", tracked: "2.8", on: "app", actions: ["open"], fields: { what: ["start", "chats", "templates", "tips", "pro", "settings", "whats_new", "collections"] } },
   tips: {
     since: "2.0", on: "app", actions: ["open", "play"],
     fields: { what: ["summary", "translate", "selection", "note", "video", "pdf", "chats", "search", "tags", "ai_search", "ask_chats", "quick_insert", "templates", "copied", "organize"] }
   },
-  setup: { since: "2.4", on: "app", actions: ["open_settings", "open_safari", "mac_settings", "notif_granted", "notif_denied", "banner_tap"] },
+  // 2.8 (events-2.8.md): "open_safari" the «Open Safari» button ("via": "step" the step after switching it on, "card"
+  // once it's been used, "guide" an iOS that can't say it's on), "safari_shown" that step on screen (once an install);
+  // "reminder" the reminders to finish setup scheduled ("perm": "quiet" provisional, "on" full permission),
+  // "reminder_seen" one of them in Notification Center when the app came to the front ("what": which). Its tap is
+  // notif.tap with what "setup". "ask_shown" (once an install): back from Safari with the panel still unused, the step
+  // names Safari's page menu first (with All Websites on Ask no ✦ shows).
+  setup: {
+    since: "2.4", tracked: "2.8", on: "app",
+    actions: ["open_settings", "open_safari", "mac_settings", "notif_granted", "notif_denied", "banner_tap", "safari_shown", "reminder", "reminder_seen", "ask_shown"],
+    via: ["step", "card", "guide"],
+    fields: { perm: ["quiet", "on"], what: ["15m", "24h"] }
+  },
+  // 2.8 (В1.7): the What's new tab shown, its Update button tapped, the tab left.
+  whatsnew: { since: "2.6", tracked: "2.8", on: "app", actions: ["shown", "tap", "close"] },
   // 2.7 (plan section 8, «Активация»): the way from the app to ContextFlow switched on, counted, never what's on screen.
   // "video": the guide started floating over Settings (iPhone, iPad); "settings": Settings opened from the app (the
   // home card, or on a Mac the chats' empty state too); "back": the app in front again after that trip; "enabled": the
@@ -146,12 +166,20 @@ export const FEATURES: Record<string, Feature> = {
   // gives it the install id, sends it with the app's id (both random), so the steps in the app join the ones Safari's
   // side logs: switched on there (ext_on) and the first answer. 2.7.1: sent by the extension's background instead, until
   // the server confirms it, and again when the app's id changes (src/background/link.ts); still both ids only.
+  // 2.8 (В1.1, events-2.8.md): "shown" the instruction to switch it on was on screen (once an install, "via" card: the
+  // funnel's zero step); "back" carries how Settings was opened ("how": "direct" Safari's settings for ContextFlow,
+  // "app" the app's own page). The «Open Safari» step and the reminders are setup.*.
   activation: {
-    since: "2.7", tracked: "2.7", on: "app", actions: ["video", "settings", "back", "enabled", "linked"], via: ["card", "chats"]
+    since: "2.7", tracked: "2.7", on: "app",
+    actions: ["video", "settings", "back", "enabled", "linked", "shown"],
+    // "allow" (2.8): Settings opened from the «Open Safari» step to set All Websites to Allow.
+    via: ["card", "chats", "allow"],
+    fields: { how: ["direct", "app"] }
   },
   // "similar": Find similar's "found" notification (the search ended after the person left Safari); "panel": the page
   // its tap opened showed the panel on that chat (the chat named in the page's address, the panel's step).
-  notif: { since: "2.4", on: "app", actions: ["tap", "panel"], fields: { what: ["remind", "remind_page", "setup", "watch", "similar"] } },
+  // "when" (2.8): which reminder to finish setup was tapped.
+  notif: { since: "2.4", on: "app", actions: ["tap", "panel"], fields: { what: ["remind", "remind_page", "setup", "watch", "similar", "offer"], when: ["15m", "24h"] } },
   app: {
     since: "2.4", tracked: "2.4", on: "app", actions: ["open"], via: ["icon", "deeplink", "notif"],
     fields: { what: ["subscribe", "manage", "tips", "chats", "chat", "templates", "open"] }
@@ -177,23 +205,31 @@ export const FEATURES: Record<string, Feature> = {
   // Build 95: a text whose audio played out but isn't marked ("unvoiced"), and why: skipped ahead here, skipped in Safari
   // before it was carried on ("before"), or the end not reached by `gap_s` seconds ("short").
   listen: {
-    since: "2.6", tracked: "2.6", actions: ["start", "app", "ultra", "limit", "error", "apple", "interrupted", "retry", "heard", "notify", "notify_on", "notify_later", "carried_on", "back_safari", "back_play", "go", "voiced", "unvoiced", "notify_was_on"],
+    since: "2.6", tracked: "2.6", actions: ["start", "app", "ultra", "limit", "error", "apple", "interrupted", "retry", "heard", "notify", "notify_on", "notify_later", "carried_on", "back_safari", "back_play", "go", "voiced", "unvoiced", "taste_used", "notify_was_on"],
     fields: { what: ["answer", "page"], heard_s: "int", cache_s: "int", icloud_s: "int", server_s: "int", charged_s: "int", why: ["skipped", "before", "short"], gap_s: "int" }
   },
   // 2.6: the plans sheet (Own key, Pro, Ultra): opened from where, and the plan and period chosen (to the app).
   plans: {
-    since: "2.6", tracked: "2.6", on: "ext", actions: ["open", "choose", "yearly"],
+    // 2.8 (В7.2): "bought", back from the App Store's sheet with the plan on (the period chosen).
+    since: "2.6", tracked: "2.6", on: "ext", actions: ["open", "choose", "yearly", "bought"],
     via: ["listen", "settings", "watch", "limit", "similar", "translate", "spaces", "collections"],
     // Build 93: the currency of the prices shown and the App Store country they came from (none: no prices came).
-    fields: { plan: ["byok", "pro", "ultra"], period: ["monthly", "yearly"], cur: "code", sf: "code" }
+    // 2.8 (В7.4): the Ultra feature it opened on (Pro's taste of it used, or its «In Ultra» link).
+    fields: { plan: ["byok", "pro", "ultra"], period: ["monthly", "yearly"], cur: "code", sf: "code", feature: ["listen", "similar"] }
   },
   // Build 91: the plans message in the chat — out of answers ("limit"), the chat's memory ("memory": the switch, or a
   // free chat past its last messages), a Pro or Ultra feature refused; shown, and what was tapped: a plan and period
   // (to the app), the discount, a note, the own key, Retry.
   chat_plans: {
-    since: "2.6", tracked: "2.6", on: "ext", actions: ["shown", "choose", "discount", "note", "own_key", "retry", "close"],
-    via: ["limit", "memory", "pro_only", "ultra_only"],
-    fields: { plan: ["pro", "ultra"], period: ["monthly", "yearly"] }
+    // 2.8 (В7.1): «Remind me when my answers are back» tapped, set, or notifications off.
+    // 2.8 (Р19, the simpler limit card): "more" opened; what was tapped inside it is its own action (choose with the
+    // plan and period, note, own_key) with from "more".
+    // 2.8 (the owner: full price first, the code on return): `state` on shown, and on remind_set (what the reminder
+    // will say); the opt-in to a discount in that reminder turned on or off, on the card or in Settings; the «once
+    // more» card on return ("return": shown, discount, later).
+    since: "2.6", tracked: "2.6", on: "ext", actions: ["shown", "choose", "discount", "note", "own_key", "retry", "close", "remind", "remind_set", "remind_off", "remind_notify", "remind_app", "more", "offer_notify_on", "offer_notify_off", "later"],
+    via: ["limit", "memory", "pro_only", "ultra_only", "return", "settings"],
+    fields: { plan: ["pro", "ultra"], period: ["monthly", "yearly"], from: ["more"], state: ["full", "discount"] }
   },
   // 2.7: the page translated in place (src/content/translate): the pill by the circle shown on a page in another
   // language, tapped, the consent asked from it, the translation shown, "Original", × (hidden on that site), the
@@ -208,7 +244,8 @@ export const FEATURES: Record<string, Feature> = {
   // 2.7: Find similar — Ultra's full search, the light one for Own key and Pro (`what`). The panel: its card opened
   // ("pick"), a search asked ("find"), the light search's week or Pro's answers used ("limit"); the panel and the app: an
   // item opened ("open"). Each search itself, its plan and cost, is logged by the server ("similar", with `mode`).
-  similar: { since: "2.6", tracked: "2.7", actions: ["pick", "find", "limit", "open"], fields: { what: ["light", "full"] } },
+  // 2.8 (В7.4): "taste", Pro's taste of the full search (asked, or its week used).
+  similar: { since: "2.6", tracked: "2.7", actions: ["pick", "find", "limit", "open"], fields: { what: ["light", "full", "taste"] } },
   watch: {
     since: "2.5", actions: ["create", "alert", "stop", "error", "daily"],
     via: ["bubble", "later", "panel", "app", "notif", "list", "auto"],
@@ -399,6 +436,16 @@ export function sessionFields(body: Record<string, unknown> | null | undefined):
     ...(has(SURFACES, s) ? { s } : {}),
     ...(typeof psid === "string" && UUID.test(psid) ? { psid: psid.toLowerCase() } : {})
   }
+}
+
+// 2.8 (growth plan, ~/ContextFlow-work/director/growth-plan/events-2.8.md): the test arms an install is in, from its
+// first event on: "<test>=<arm>", at most three joined by commas. Names only, never an id.
+const VARIANT = /^[a-z0-9_]{1,16}=[a-z0-9_]{1,16}(?:,[a-z0-9_]{1,16}=[a-z0-9_]{1,16}){0,2}$/
+
+/** The client's test variant (client.variant) as an event field, or nothing when it isn't one. */
+export function variantFields(client: Record<string, unknown> | null | undefined): { variant?: string } {
+  const value = client?.variant
+  return typeof value === "string" && VARIANT.test(value) ? { variant: value } : {}
 }
 
 /** A "use" step's own fields, or null when the feature or the action isn't in the registry (or is sent as its

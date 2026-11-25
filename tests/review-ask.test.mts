@@ -110,7 +110,7 @@ test("every ask goes through ReviewAsk: one requestReview, at the root, and each
   assert.match(content, /\.onReceive\(ReviewAsk\.shared\.requests\) \{ askForReview\(\$0\) \}/)
   assert.match(content, /if ReviewAsk\.shared\.take\(request, busy: busy\) \{ requestReview\(\) \}/)
   // Not over something being done; Listen's player only unless its text was just heard to its end.
-  assert.match(content, /var busy = tour\.run != nil \|\| showingSetup \|\| whatsNew \|\| \(listenShown\.visible && request\.via != \.listen\)/)
+  assert.match(content, /var busy = tour\.run != nil \|\| showingSetup \|\| whatsNew \|\| Paywall\.shared\.purchasing \|\| \(listenShown\.visible && request\.via != \.listen\)/)
   assert.match(content, /if notify\.ask != nil \{ busy = true \}/)
   // Safari's moment: at launch and whenever the app comes to the front (iOS: twice over, one ask waits at a time).
   assert.equal([...content.matchAll(/ReviewAsk\.shared\.cameToFront\(\)/g)].length, 4)
@@ -158,7 +158,7 @@ const swiftc = spawnSync("which", ["swiftc"]).status === 0
 const skip = process.platform !== "darwin" ? "the app's Foundation is Apple's: run on a Mac" : !swiftc && "no swiftc here"
 const NOW = 1_800_000_000
 const DAY = 86_400
-const base = { firstSession: false, goodAnswers: 5, lastAsk: null as number | null, sinceTaskLink: null as number | null, busy: false, now: NOW }
+const base = { firstSession: false, goodAnswers: 5, lastAsk: null as number | null, sinceTaskLink: null as number | null, busy: false, now: NOW, firstDay: false }
 const CASES: Array<{ name: string; via: string; goes: boolean } & Partial<typeof base>> = [
   { name: "Safari's milestone, back from Safari", via: "ext_moment", goes: true },
   { name: "Safari's milestone in the app's first session (Apple: never then)", via: "ext_moment", firstSession: true, goes: false },
@@ -179,7 +179,9 @@ const CASES: Array<{ name: string; via: string; goes: boolean } & Partial<typeof
   { name: "Find similar's answer opened", via: "similar", goes: true },
   { name: "What's new left after an update", via: "whatsnew", goes: true },
   { name: "a suggestion taken", via: "organize", goes: true },
-  { name: "a suggestion taken over a sheet", via: "organize", busy: true, goes: false }
+  { name: "a suggestion taken over a sheet", via: "organize", busy: true, goes: false },
+  // 2.8 (В3.3): nothing on a new install's first day, at any moment.
+  ...["ext_moment", "app_answer", "tour", "purchase", "listen", "similar", "whatsnew", "organize"].map((via) => ({ name: `${via} on the install's first day`, via, firstDay: true, goes: false }))
 ]
 const FIRST = [
   { name: "the very first launch (not recorded yet)", firstLaunch: null, now: NOW, left: false, first: true },

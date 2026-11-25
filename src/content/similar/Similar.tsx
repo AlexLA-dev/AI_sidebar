@@ -69,7 +69,7 @@ export function whereLabel(region: "world" | "local", country?: string | null): 
   return country ? t("similarLocalIn", countryLabel(country)) : t("similarLocal")
 }
 
-export function SimilarPicker({ title, region, country, onRegion, onFind, onClose, light }: {
+export function SimilarPicker({ title, region, country, onRegion, onFind, onClose, light, taste }: {
   title: string
   // Where to look, as chosen last time (null: never chosen, asked now) and their country for "near me".
   region?: "world" | "local" | null
@@ -80,6 +80,8 @@ export function SimilarPicker({ title, region, country, onRegion, onFind, onClos
   // 2.7: the light search (Own key and Pro), with its searches a week and, for Pro, the answers one counts as: said, and
   // no "where" (it looks anywhere).
   light?: { weekly: number; answers?: number }
+  // 2.8 (В7.4): Pro's taste of the full search: what's left this week and the way to Ultra (src/content/Taste.tsx).
+  taste?: VNode | null
 }): VNode {
   // Build 98: several chips at once ("cheaper" and "in stock"), each checked.
   const [chips, setChips] = useState<SimilarChip[]>([])
@@ -135,6 +137,7 @@ export function SimilarPicker({ title, region, country, onRegion, onFind, onClos
         </div>
       )}
       <p class="cf-similar-hint">{t("similarHint")}</p>
+      {taste}
       {light !== undefined && <p class="cf-similar-light">{light.answers ? t("similarLightNotePro", String(light.weekly), String(light.answers)) : t("similarLightNote", String(light.weekly))}</p>}
       <div class="cf-card-actions">
         <button type="button" class="cf-primary" onClick={find} disabled={asks && !region}><SimilarIcon size={14} /> {t("similarFind")}</button>
@@ -327,7 +330,7 @@ const STEP_TEXT: Record<SimilarStep, Parameters<typeof t>[0]> = {
  * The answer: the list (items as they come, while `step` is set), the note, and when the pages were checked.
  * `onWatch` absent: no page watch here (not Safari).
  */
-export function SimilarList({ answer, items, step, pages, onOpen, onWatch, light: running = false }: {
+export function SimilarList({ answer, items, step, pages, onOpen, onWatch, light: running = false, tasteFoot }: {
   answer?: SimilarAnswer
   items: SimilarItem[]
   step?: SimilarStep | null
@@ -336,6 +339,8 @@ export function SimilarList({ answer, items, step, pages, onOpen, onWatch, light
   onWatch?: (item: SimilarItem) => void
   // 2.7: a light search under way (a finished answer says so itself).
   light?: boolean
+  // 2.8 (В7.4): under an answer that was Pro's taste of the full search, what it was and the way to Ultra.
+  tasteFoot?: VNode | null
 }): VNode {
   const streaming = Boolean(step)
   const light = answer ? answer.light === true : running
@@ -370,6 +375,7 @@ export function SimilarList({ answer, items, step, pages, onOpen, onWatch, light
         <p class="cf-similar-checked"><Tick size={12} /> {t("similarChecked", new Intl.DateTimeFormat(uiLang(), { hour: "numeric", minute: "2-digit" }).format(new Date(answer.at)))}</p>
       )}
       {!streaming && answer?.light && <p class="cf-similar-light">{t("similarLightFoot")}</p>}
+      {!streaming && answer?.taste && tasteFoot}
     </div>
   )
 }

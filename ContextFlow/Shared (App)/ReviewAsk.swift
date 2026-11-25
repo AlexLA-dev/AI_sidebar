@@ -104,7 +104,8 @@ final class ReviewAsk {
             lastAsk: UserDefaults.standard.object(forKey: lastAskKey) as? Double,
             sinceTaskLink: taskLinkAt.map { Date().timeIntervalSince($0) },
             busy: busy,
-            now: now
+            now: now,
+            firstDay: QuietDay.firstDay
         )
         guard (debugAlways && !busy) || ReviewGate.goesNow(request.via, state) else { return false }
         let pending = SharedDefaults.shared.pendingReviewMoment()

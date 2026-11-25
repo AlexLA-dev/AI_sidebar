@@ -49,17 +49,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             await MainActor.run { DeepLinkRouter.shared.handle(WhatsNew.link) }
             return
         }
+        // A reminder to finish setup (2.8, В1.1): counted, and the setup guide opens.
+        if let which = info["setup"] as? String {
+            await MainActor.run {
+                ChatAI.reportOrganize("use", ["f": "notif", "a": "tap", "what": "setup", "s": "notif", "when": which == "24h" ? "24h" : "15m"])
+                if let setup = URL(string: "contextflow://setup") { DeepLinkRouter.shared.handle(setup) }
+            }
+            return
+        }
         // A deferred agent task (2.7.1): its page in Safari itself (another default browser has no panel), with
         // #cf-task=<id>; the panel there goes on with the task (AgentTasks).
         if info["agentTask"] is String {
             await MainActor.run {
                 ChatAI.reportOrganize("use", ["f": "notif", "a": "tap", "what": "agent", "s": "notif"])
                 guard let page = AgentTasks.opened(info) else { return }
-                if #available(iOS 17, *), let safari = URL(string: "x-safari-\(page.absoluteString)") {
-                    UIApplication.shared.open(safari) { opened in if !opened { UIApplication.shared.open(page) } }
-                } else {
-                    UIApplication.shared.open(page)
-                }
+                SafariPage.open(page)
             }
             return
         }
@@ -74,11 +78,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             await MainActor.run {
                 ChatAI.reportOrganize("use", ["f": "notif", "a": "tap", "what": "similar", "s": "notif"])
                 if let page = SimilarAway.opened(info) {
-                    if #available(iOS 17, *), let safari = URL(string: "x-safari-\(page.absoluteString)") {
-                        UIApplication.shared.open(safari) { opened in if !opened { UIApplication.shared.open(page) } }
-                    } else {
-                        UIApplication.shared.open(page)
-                    }
+                    SafariPage.open(page)
                 } else if let chats = URL(string: "contextflow://chats") {
                     DeepLinkRouter.shared.handle(chats)
                 }
@@ -92,6 +92,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 DeepLinkRouter.shared.handle(url)
             }
             return
+        }
+        // 2.8: the answers-back reminder that also said there's a Pro discount (only for someone who opted in): its page
+        // has #cf-offer=1, and the panel opens there on the discount.
+        if let open = info["open"] as? String, open.contains("cf-offer=1") {
+            // The panel acts on the page's mark only with this note, taken within moments (OfferTap).
+            OfferTap.record()
+            await MainActor.run { ChatAI.reportOrganize("use", ["f": "notif", "a": "tap", "what": "offer", "s": "notif"]) }
         }
         await MainActor.run { ChatAI.reportUx("ux_remind", info["open"] != nil ? ["action": "opened", "what": "page"] : ["action": "opened"]) }
         if let open = info["open"] as? String, let page = URL(string: open) {

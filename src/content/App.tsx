@@ -4,7 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { composePage, readsMedia, type MediaKind } from "../shared/attachments"
 import { LINKS, PRODUCTS, SHADOW_MODE, TARGET, TEST_PLAN } from "../shared/config"
 import { RENEWAL_REASONS, type RenewalReason } from "../shared/renewal"
-import { freeAnswersBack, t, uiDirection, uiLang, uiLanguage, type MessageKey } from "../shared/i18n"
+import { answersBackShort, freeAnswersBack, t, timeLeft, uiDirection, uiLang, uiLanguage, type MessageKey } from "../shared/i18n"
 import {
   DEFAULT_SETTINGS,
   type AskPayload,
@@ -71,20 +71,26 @@ import { active as agentActive, pendingKey, type Answer as AgentAnswer, type Pla
 import { WATCH_STORAGE } from "../shared/watch/types"
 import { urlKey as watchUrlKey } from "../shared/conversation"
 import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell, whereLabel } from "./similar/Similar"
-import { factsFrom, SIMILAR_CHIPS, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, similarMode, type SimilarAnswer, type SimilarAsk, type SimilarChip, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
+import { factsFrom, SIMILAR_CHIPS, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, similarMode, similarTaste, type SimilarAnswer, type SimilarAsk, type SimilarChip, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
 import { markdownWords } from "../shared/similarWords"
 import { takeChatMark } from "./similar/mark"
 import { LINK_OPEN_KEY, linkOpen, messageAt, messageRef, takesLinkOpen, type LinkOpen } from "../shared/linkOpen"
 import { structured } from "../shared/watch/extract"
 import { conditionFor } from "./watch/draft"
 import { openWatchSheet } from "./watch/WatchSheet"
-import { PlansSheet } from "./Plans"
+import { PlansSheet, type PlansFeature } from "./Plans"
+import { TasteLine, tasteOf, tasteUsedLead, ultraLine } from "./Taste"
+import { LimitCard } from "./ux/LimitCard"
+import { clearFullAt, isReturn, loadFullAt, noteFullAt, offerTapNow, returnBy } from "./ux/offerReturn"
 import { PlanOffer, type OfferChoice, type OfferPlace } from "./ux/PlanOffer"
 import { ListenBar, SpeakerIcon, useListen, VoicedIcon } from "./listen/useListen"
 import { listenMark, markClock, voicedId, type MadeList } from "../shared/voiced"
 import { dodgeFab } from "./fabDodge"
 import { besideMenu, glassScale, setFixedProbe, toFixed } from "./fixedPlace"
-import { hasPro, isUltra, similarTone, ULTRA_DEFAULTS, type PaidPlan } from "../shared/plan"
+import { hasPro, isUltra, similarTone, ULTRA_DEFAULTS, type BuyVia, type PaidPlan, type Period } from "../shared/plan"
+import { boughtNow, clearBuying, noteBuying, readBuying, takeBoughtMark } from "./purchase"
+import { AnswersBack } from "./ux/AnswersBack"
+import { firstSeen, isFirstDay } from "./firstDay"
 import { SettingsView } from "./Settings"
 import type { SettingsAt } from "./settingsFold"
 import { shareLabels } from "./shareLabels"
@@ -302,9 +308,7 @@ async function copyText(text: string): Promise<boolean> {
 
 function timeUntil(iso: string | undefined): string {
   if (!iso) return t("hours", 24)
-  const ms = Math.max(0, Date.parse(iso) - Date.now())
-  const hours = Math.floor(ms / 3_600_000)
-  return hours >= 1 ? t("hours", hours) : t("minutes", Math.max(1, Math.ceil(ms / 60_000)))
+  return timeLeft(Math.max(0, Date.parse(iso) - Date.now()))
 }
 
 /** The local time of day a limit resets ("3:00 AM"). */
@@ -512,6 +516,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [similarRun, setSimilarRun] = useState<{ items: SimilarItem[]; step: SimilarStep; pages?: number } | null>(null)
   // 2.6: the plans sheet, open on this plan (Ultra from Listen).
   const [plansOpen, setPlansOpen] = useState<PaidPlan | null>(null)
+  // 2.8 (В7.4): the Ultra feature the sheet opens on (a taste used up) and its line on top.
+  const [plansFeature, setPlansFeature] = useState<{ feature: PlansFeature; lead?: string } | null>(null)
   const [draft, setDraft] = useState("")
   // The send button writes a note to the chat instead of asking (switched by swiping or scrolling on it).
   const [noteMode, setNoteMode] = useState(false)
@@ -801,6 +807,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       setStatus(next)
       setUsage(next.usage)
     }
+    return next
   }, [platform])
 
   /** 110: the usage read fresh for what the answers went on (the count's details, in «+» and Settings); null offline. */
@@ -1091,6 +1098,54 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     return () => document.removeEventListener("visibilitychange", onVisible)
   }, [open, refreshStatus])
 
+  // 2.8: the install's first day starts counting the first time the panel runs (firstDay.ts).
+  useEffect(() => void firstSeen(), [])
+
+  // 2.8 (В7.2): back from the App Store's sheet after a plan chosen here: the plan read afresh, and said when it's on
+  // (the limit's card goes). iPhone and iPad come back by the page's address with the app's mark, which opens the panel;
+  // the Mac by Safari's window coming to the front.
+  const [bought, setBought] = useState<PaidPlan | null>(null)
+  useEffect(() => {
+    let busy = false
+    const check = async () => {
+      if (busy || document.visibilityState !== "visible") return
+      const mark = takeBoughtMark()
+      // Only the tab that comes back takes it (every open tab's panel reads the same record; the simulator check after
+      // acceptance 1 counted «bought» three times): iPhone and iPad come back by the address with the app's mark, the Mac
+      // by Safari's window in front, so the focused tab.
+      if (!mark && (touch || !document.hasFocus())) return
+      const buying = await readBuying()
+      if (!mark && !buying) return
+      busy = true
+      // Claimed at once, before anything is awaited again: said and counted once.
+      if (buying) await clearBuying()
+      try {
+        if (mark && !panelOpenRef.current) show()
+        const next = await refreshStatus(true)
+        const now = boughtNow(buying, next?.plan)
+        if (now) {
+          setBought(now)
+          setError((e) => (e && (e.code === "LIMIT_REACHED" || e.code === "PRO_ONLY") ? null : e))
+          void sendBackground({ type: "useEvent", f: "plans", a: "bought", plan: now, ...(buying ? { period: buying.period } : {}) })
+          // In view: it comes at the chat's end, under what was there (it stayed below the fold on iPhone).
+          setTimeout(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }), 120)
+        }
+      } finally {
+        busy = false
+      }
+    }
+    void check()
+    const onEvent = () => void check()
+    document.addEventListener("visibilitychange", onEvent)
+    window.addEventListener("focus", onEvent)
+    window.addEventListener("hashchange", onEvent)
+    return () => {
+      document.removeEventListener("visibilitychange", onEvent)
+      window.removeEventListener("focus", onEvent)
+      window.removeEventListener("hashchange", onEvent)
+    }
+  }, [refreshStatus, show, touch])
+
   // The first time the panel is open and idle: the guided first request where there's a page to summarize (2.6),
   // else the tour of what it can do.
   useEffect(() => {
@@ -1349,8 +1404,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // More answers and notes than a free answer remembers (build 92: the last 5).
     if (entries.filter((e) => e.role === "assistant" || e.note).length <= FREE_MEMORY) return
     const chat = threadRef.current
-    void memoryOffered().then((done) => {
-      if (done.includes(chat) || threadRef.current !== chat) return
+    // 2.8 (the director's acceptance 2, C2-q5): on the first day the only place plans appear is the limit card. Not
+    // marked as offered: it can come in this chat from day 2.
+    void Promise.all([memoryOffered(), isFirstDay()]).then(([done, firstDay]) => {
+      if (firstDay || done.includes(chat) || threadRef.current !== chat) return
       void markMemoryOffered(chat)
       setMemoryOffer("long")
     })
@@ -1918,7 +1975,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   openSimilarRef.current = openSimilar
 
   /** Ends a Find similar: the checked list as the chat's answer, or why there isn't one. */
-  const finishSimilar = (history: Turn[], answer: Omit<SimilarAnswer, "asked" | "at"> | null, asked: string, code: string | null, usage?: Usage | null, entry?: Turn, answers?: number) => {
+  const finishSimilar = (history: Turn[], answer: Omit<SimilarAnswer, "asked" | "at"> | null, asked: string, code: string | null, usage?: Usage | null, entry?: Turn, answers?: number, taste?: boolean) => {
     portRef.current = null
     askToken.current = null
     partialRef.current = ""
@@ -1928,11 +1985,19 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       // Not in their plan after all (the server's word), or the week's searches are used: the question goes, a card
       // says so.
       setMessages(history.slice(0, -1))
+      // 2.8 (В7.4): Pro's taste of the full search is used this week: the plans, Find similar first.
+      if (code === "LIMIT_REACHED" && taste) {
+        void sendBackground({ type: "useEvent", f: "similar", a: "limit", what: "taste" })
+        openPlans("ultra", "similar", "similar", tasteUsedLead("similar", usage, uiLang()))
+        return
+      }
       const light = similarMode(statusRef.current?.plan) === "light"
       if (code === "LIMIT_REACHED") void sendBackground({ type: "useEvent", f: "similar", a: "limit", what: light ? "light" : "full" })
       setSimilarCard(code === "LIMIT_REACHED" ? { limit: usage ?? null, ...(light ? { light } : {}), ...(answers ? { answers } : {}) } : "upsell")
       return
     }
+    // 2.8 (В7.4): Pro's taste of the full search taken: the counter (and the next search's kind) from the server.
+    if (answer?.taste || entry?.similar?.taste) void refreshStatus(true)
     if (entry || answer) {
       // The list as the background wrote it into the chat (build 91), else as it came.
       const full: SimilarAnswer | null = entry ? null : { ...answer!, asked, at: Date.now() }
@@ -1956,9 +2021,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // else the device's region.
     // 2.7: the light search doesn't ask (it looks from their country), so no choice is shown under the question (a plan
     // not known yet sends the choice, and the server decides).
-    const region = statusRef.current && similarMode(statusRef.current.plan) === "light" ? undefined : where?.region ?? settingsRef.current.similarRegion
+    // 2.8 (В7.4): Pro's taste of Ultra's full search, while this week's is left: the full search, asked as such.
+    const taste = similarTaste(statusRef.current?.plan, tasteOf(statusRef.current, "similar"))
+    const region = statusRef.current && similarMode(statusRef.current.plan, tasteOf(statusRef.current, "similar")) === "light" ? undefined : where?.region ?? settingsRef.current.similarRegion
     const country = where?.country ?? statusRef.current?.country ?? localeCountry()
-    void sendBackground({ type: "useEvent", f: "similar", a: "find", what: similarMode(statusRef.current?.plan) })
+    void sendBackground({ type: "useEvent", f: "similar", a: "find", what: taste ? "taste" : similarMode(statusRef.current?.plan) })
     setUndoBar(null)
     setFirstWin(null)
     setError(null)
@@ -2003,7 +2070,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           ...(region ? { region } : {}),
           ...(country ? { country } : {}),
           // Build 95: the chip apart from their own words (an ask without them: all of the condition is their words).
-          ...(ask ? { chip: ask.chips?.[0] ?? "", ...(ask.chips && ask.chips.length > 1 ? { chips: ask.chips } : {}), words: ask.words ?? "" } : {})
+          ...(ask ? { chip: ask.chips?.[0] ?? "", ...(ask.chips && ask.chips.length > 1 ? { chips: ask.chips } : {}), words: ask.words ?? "" } : {}),
+          ...(taste ? { taste: true } : {})
         }
       })
     })
@@ -2040,7 +2108,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         finishSimilar(history, answer ?? { intro: "", items, note: "", condition: "" }, condition, null, undefined, event.entry)
       } else if (event.type === "error") {
         settled = true
-        finishSimilar(history, items.length ? { intro: "", items, note: "", condition: "" } : null, condition, event.code, event.usage, event.entry, event.answers)
+        finishSimilar(history, items.length ? { intro: "", items, note: "", condition: "" } : null, condition, event.code, event.usage, event.entry, event.answers, event.taste)
       }
     })
     // Closed without an end: the background may still be answering it, so the chat is read again.
@@ -2658,19 +2726,36 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // An install that ran out of free answers before is offered Pro with the first month off once more: the card
   // shows in up to three page visits, until it's answered (asking a question just hides it for now).
+  // 2.8 (the owner): the code only on return (offerReturn.ts). When this device first showed the full-price card;
+  // undefined until read.
+  const [fullAt, setFullAt] = useState<number | null | undefined>(undefined)
+  useEffect(() => void loadFullAt().then(setFullAt), [])
   const offerCardAsked = useRef(false)
+  // Whether the limit card is up (the discount notification's tap then needs no «once more»).
+  const limitUpRef = useRef(false)
+  limitUpRef.current = error?.code === "LIMIT_REACHED"
   useEffect(() => {
-    if (TARGET !== "safari" || !open || offerCardAsked.current || !status) return
-    if (!status.limitedBefore || !status.offer || status.plan !== "free" || status.hasOwnKey) return
-    // 2.8 (В3.3): not on the first day; the coordinator counts its shows from here on.
+    if (TARGET !== "safari" || !open || offerCardAsked.current || !status || fullAt === undefined) return
+    if (!isReturn(status.limitedBefore, fullAt) || !status.offer || status.plan !== "free" || status.hasOwnKey) return
+    // 2.8 (В3.3): through the hint coordinator (not on the first day; one hint at a time; it counts its shows).
     if (!coachRef.current?.ready || !coachRef.current.may("pro_offer")) return
     offerCardAsked.current = true
     void offerCardCount().then((count) => {
       if (count < 0 || count >= 3) return
       setOfferCard(true)
       void setOfferCardCount(count + 1)
+      void sendBackground({ type: "useEvent", f: "chat_plans", a: "shown", via: "return", state: "discount" })
     })
-  }, [open, status, coach.ready])
+  }, [open, status, fullAt, coach.ready])
+  // Bought (here, in the app or on another device): the answers-back reminder goes, with whatever it would have said,
+  // and the full-price mark with it.
+  const boughtSeen = useRef(false)
+  useEffect(() => {
+    if (TARGET !== "safari" || !status || status.plan === "free" || boughtSeen.current) return
+    boughtSeen.current = true
+    void sendBackground({ type: "remind", chat: "cf-limit", message: "answers-back", at: null })
+    void clearFullAt()
+  }, [status])
   // It comes after the chat: bring it into view.
   useEffect(() => {
     if (offerCard) requestAnimationFrame(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }))
@@ -3222,6 +3307,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     } else coachRef.current?.dismiss("pro_offer")
     setOfferCard(false)
     void setOfferCardCount(-1)
+    void sendBackground({ type: "useEvent", f: "chat_plans", a: code ? "discount" : "later", via: "return", state: "discount" })
     if (code) redeemOffer(code)
   }, [redeemOffer])
 
@@ -3285,6 +3371,29 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // чтобы сайдбар открывался там сразу и на том чате и месте, где кликнули на страницу»: any link in the app names its
   // chat and message (#cf-chat=…&cf-at=…), a link in the panel leaves a note (src/shared/linkOpen.ts), and a tab already
   // showing the page is told; each opens the panel on that chat, at that message.
+  // 2.8: the answers-back reminder that said there's a discount (for someone who opted in) opens its page with
+  // #cf-offer=1: the panel opens on the discount («once more»), whatever its count of visits; the mark leaves the
+  // address at once.
+  useEffect(() => {
+    if (popup || TARGET !== "safari") return
+    const take = async () => {
+      // Only with our app's note of the tap, moments old (offerTapNow); the mark alone does nothing.
+      if (!(await offerTapNow((message) => sendBackground(message, { timeoutMs: 6_000, tries: 1 })))) return
+      void sendBackground({ type: "useEvent", f: "notif", a: "panel", what: "offer" })
+      // The chat, wherever the panel was left (Settings, the list): the discount is there. The limit card still up is
+      // itself in its discount state now; else «once more» shows it.
+      setView("chat")
+      if (!openNowRef.current) show()
+      if (limitUpRef.current) return
+      offerCardAsked.current = true
+      setOfferCard(true)
+      void sendBackground({ type: "useEvent", f: "chat_plans", a: "shown", via: "return", state: "discount" })
+    }
+    const onHash = () => void take()
+    onHash()
+    window.addEventListener("hashchange", onHash)
+    return () => window.removeEventListener("hashchange", onHash)
+  }, [popup, show])
   const openThreadRef = useRef(openThread)
   openThreadRef.current = openThread
   const threadListRef = useRef(threadList)
@@ -3646,11 +3755,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     return () => clearTimeout(timer)
   }, [open, view, pointedChip, messages.length, chipsSig, markUltra])
   // Read aloud (2.6, Ultra): an answer or the page. Without Ultra, Listen opens the plans sheet on Ultra.
-  const openPlans = useCallback((focus: PaidPlan, via: "listen" | "settings" | "watch" | "limit" | "similar" | "translate" | "spaces" | "collections" = "listen") => {
+  const openPlans = useCallback((focus: PaidPlan, via: "listen" | "settings" | "watch" | "limit" | "similar" | "translate" | "spaces" | "collections" = "listen", feature?: PlansFeature, lead?: string) => {
     setPlansOpen(focus)
+    setPlansFeature(feature ? { feature, ...(lead ? { lead } : {}) } : null)
     // The prices' currency and App Store country as the app's side gave them (a wrong currency can be traced from them).
     const prices = statusRef.current?.store?.prices ?? {}
-    void sendBackground({ type: "useEvent", f: "plans", a: "open", via, plan: focus, cur: prices["#currency"], sf: prices["#storefront"] })
+    void sendBackground({ type: "useEvent", f: "plans", a: "open", via, plan: focus, cur: prices["#currency"], sf: prices["#storefront"], ...(feature ? { feature } : {}) })
   }, [])
   if (status?.plan) planKnownRef.current = status.plan
   // Spaces (2.7, Spaces.tsx): the space the panel is in, its chats, the switcher's steps.
@@ -3729,18 +3839,29 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setView("chat")
   }
   // The plans message in the chat (build 91): a plan and period chosen open the app on them, as the plans sheet does.
-  const choosePlan = (choice: OfferChoice) => {
-    openAppFromTap(touch, { target: "subscribe", plan: choice.plan, period: choice.period, feature: choice.plan === "ultra" ? "listen" : undefined })
+  const choosePlan = (choice: OfferChoice) => buyPlan(choice.plan, choice.period, "chat")
+  /** 2.8 (В7.2): a plan and period chosen in the panel: the App Store's sheet for it, at once, through the app, which then
+   *  sends the person back to this page (src/content/purchase.ts). */
+  const buyPlan = (chosen: PaidPlan, period: Period, via: BuyVia) => {
+    void noteBuying({ plan: chosen, period, was: statusRef.current?.plan ?? "free", at: Date.now() })
+    openAppFromTap(touch, { target: "subscribe", plan: chosen, period, feature: chosen === "ultra" ? "listen" : undefined, via, back: source.href() })
   }
-  const offerEvent = (place: OfferPlace) => (action: string, choice?: OfferChoice) =>
-    void sendBackground({ type: "useEvent", f: "chat_plans", a: action, via: place, ...(choice ? { plan: choice.plan, period: choice.period } : {}) })
+  // `from`: "more" for what was tapped inside the limit card's «More» (2.8, Р19).
+  // `state`: the card's (full price, or the discount on return), on shown; what the reminder will say, on remind_set.
+  const offerEvent = (place: OfferPlace) => (action: string, choice?: OfferChoice, from?: "more", state?: "full" | "discount") =>
+    void sendBackground({ type: "useEvent", f: "chat_plans", a: action, via: place, ...(choice ? { plan: choice.plan, period: choice.period } : {}), ...(from ? { from } : {}), ...(state ? { state } : {}) })
   const panelOpenRef = useRef(open)
   panelOpenRef.current = open
+  // 2.8 (В7.4): Pro's weekly taste of Listen (null: none).
+  const listenTaste = tasteOf(status, "listen")
+  const listenAllowed = isUltra(plan) || listenTaste !== null
+  const listenSpeak = status?.ultra?.speak ?? listenTaste
   const listen = useListen({
     platform,
     plan,
-    speakLeft: status?.ultra?.speak ? Math.max(0, status.ultra.speak.limit - status.ultra.speak.used) : null,
-    onUltra: () => openPlans("ultra"),
+    allowed: listenAllowed,
+    speakLeft: listenSpeak ? Math.max(0, listenSpeak.limit - listenSpeak.used) : null,
+    onUltra: (used) => (used ? openPlans("ultra", "listen", "listen", tasteUsedLead("listen", listenTaste, uiLang())) : openPlans("ultra")),
     follow: followLink,
     send: (message) => sendBackground(message),
     // Back from the app (build 93): the panel opens again if it was open.
@@ -3764,7 +3885,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
   }, [])
   const anyMark = Object.keys(voiced).length > 0 || Object.keys(made).length > 0
-  const answerMark = (text: string) => (anyMark && isUltra(plan) ? listenMark(voicedId("answer", text), voiced, made) : null)
+  const answerMark = (text: string) => (anyMark && listenAllowed ? listenMark(voicedId("answer", text), voiced, made) : null)
   const markWords = (mark: "free" | number) => (mark === "free" ? t("listenVoiced") : t("listenMadeLeft", markClock(mark)))
   // A long press on Listen (iPhone, iPad: no tooltip there) says what its mark means, under the answer's tools.
   const [markSaid, setMarkSaid] = useState<number | null>(null)
@@ -3778,7 +3899,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // the chat's answers as the server counts them, heard on any device in any number of listens. Asked about when the
   // chat shows (each at most every 10 minutes: the background keeps track); the voiced ones join the list.
   const unvoicedShown = useMemo(() => {
-    if (TARGET !== "safari" || view !== "chat" || streaming || !isUltra(plan)) return []
+    if (TARGET !== "safari" || view !== "chat" || streaming || !listenAllowed) return []
     return messages.filter((m) => m.role === "assistant" && !m.note && m.content && !voiced[voicedId("answer", m.content)]).slice(-30)
   }, [messages, voiced, view, streaming, plan])
   const unvoicedKey = unvoicedShown.map((m) => voicedId("answer", m.content)).join(",")
@@ -3806,7 +3927,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const listenSounds = listen.state.at === "playing" || listen.state.at === "paused" || listen.state.at === "loading"
   const playingChat = listenSounds && "key" in listen.state ? listen.state.key.split("|")[0] : null
   // The bar: under the chat's question field, and at the bottom of the chats list while something plays (build 93).
-  const listenBar = <ListenBar state={listen.state} title={listen.title} onTitle={listenGo} speed={listen.speed} left={listen.left} onSpeed={listen.cycleSpeed} onAnyway={listen.anyway} onRetry={listen.retry} onNotifyOn={listen.notifyTurnOn} onNotifyLater={listen.notifyNotNow} onToggle={listen.toggle} onSeek={listen.seek} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
+  const listenBar = <ListenBar state={listen.state} title={listen.title} onTitle={listenGo} speed={listen.speed} left={listen.left} onSpeed={listen.cycleSpeed} onAnyway={listen.anyway} onRetry={listen.retry} onNotifyOn={listen.notifyTurnOn} onNotifyLater={listen.notifyNotNow} onToggle={listen.toggle} onSeek={listen.seek} onStop={listen.stop} onPlans={() => (listenTaste ? openPlans("ultra", "limit", "listen", tasteUsedLead("listen", listenTaste, uiLang())) : openPlans("ultra", "limit"))} />
   // The panel closed (build 92): what isn't playing goes, its audio and clock with it; what plays goes on (it's back
   // in the bar when the panel opens again).
   // Only at the moment it closes: a text paused later (the page left, with the panel closed) keeps its notification.
@@ -3834,7 +3955,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const memoryAllowed = hasPro(plan) || ownKeyActive
   const memoryOn = memoryAllowed && settings.chatMemory !== false
   // The App Store offer code for Pro, once this install has run out of free answers (Safari only).
-  const offer = TARGET === "safari" && plan === "free" && !ownKeyActive ? error?.offer ?? status?.offer ?? null : null
+  // The code the server gave (at the limit, or for someone who ran out before), shown only on return (2.8, the owner:
+  // full price first). What a return would bring: for the one notification that may say it.
+  const offerGiven = TARGET === "safari" && plan === "free" && !ownKeyActive ? error?.offer ?? status?.offer ?? null : null
+  const offer = offerGiven && fullAt !== undefined && isReturn(status?.limitedBefore, fullAt) ? offerGiven : null
+  const returnDiscount = TARGET === "safari" && plan === "free" && !ownKeyActive ? status?.returnOffer?.discount ?? offerGiven?.discount ?? null : null
   // Videos and PDFs on the page are read for Pro (and the user's own key); free answers say they skipped them.
   const mediaOn = readsMedia(status, TARGET)
   const tryPro = (kinds: MediaKind[]) => {
@@ -5364,9 +5489,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               onOrganizePro={() => tryOrganizePro("settings")}
               onUpgrade={() => (byok ? upgrade("settings") : void openApp("subscribe"))}
               onPlans={() => openPlans(hasPro(plan) || byok ? "ultra" : "pro", "settings")}
+              onTaste={(feature) => openPlans("ultra", "settings", feature)}
               onYearly={(chosen) => {
                 void sendBackground({ type: "useEvent", f: "plans", a: "yearly", plan: chosen, period: "yearly" })
-                openAppFromTap(touch, { target: "subscribe", plan: chosen, period: "yearly" })
+                buyPlan(chosen, "yearly", "yearly")
               }}
               upgradeLabel={byokDiscount !== null ? t("upgradeProOff", byokDiscount) : t("upgradePro")}
               onManage={() => void openApp("manage")}
@@ -5475,7 +5601,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         <>
                           {m.grounding && <div class="cf-grounded"><Icon.Search size={13} /> {t("googleBadge")}</div>}
                           {m.similar ? (
-                            <SimilarList answer={m.similar} items={m.similar.items} onOpen={(url) => openPage(url, threadRef.current, messageRef(messages, idx))} onWatch={listsKind("watch") ? watchItem : undefined} />
+                            <SimilarList answer={m.similar} items={m.similar.items} onOpen={(url) => openPage(url, threadRef.current, messageRef(messages, idx))} onWatch={listsKind("watch") ? watchItem : undefined} tasteFoot={plan === "pro" ? <p class="cf-taste"><span>{t("tasteSimilarDone")}</span><button type="button" class="cf-link" onClick={() => openPlans("ultra", "similar", "similar")}>{ultraLine("similar", status?.plans)} ›</button></p> : null} />
                           ) : (
                             <Markdown text={historyMode ? linkChats(m.content, chatNames) : m.content} marks={m.marks} onCopyCode={(code) => void copyText(code)} onChat={historyMode ? openChatLink : undefined} />
                           )}
@@ -5492,7 +5618,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
                 {partial !== null && (
                   <div class="cf-msg ai">
-                    {similarRun ? <SimilarList items={similarRun.items} step={similarRun.step} pages={similarRun.pages} onOpen={openPage} light={similarMode(plan) === "light"} /> : partial ? <Markdown text={withoutItemMarker(partial).text} /> : <div class="cf-thinking"><span /><span /><span /> {t(reading === "video" ? "readingVideo" : reading === "pdf" ? "readingPdf" : streamMode === "google" ? "searching" : "thinking")}</div>}
+                    {similarRun ? <SimilarList items={similarRun.items} step={similarRun.step} pages={similarRun.pages} onOpen={openPage} light={similarMode(plan, tasteOf(status, "similar")) === "light"} /> : partial ? <Markdown text={withoutItemMarker(partial).text} /> : <div class="cf-thinking"><span /><span /><span /> {t(reading === "video" ? "readingVideo" : reading === "pdf" ? "readingPdf" : streamMode === "google" ? "searching" : "thinking")}</div>}
                   </div>
                 )}
 
@@ -5581,7 +5707,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     region={settings.similarRegion ?? null}
                     country={status?.country ?? localeCountry()}
                     onRegion={(r) => updateSettings({ similarRegion: r })}
-                    light={similarMode(plan) === "light" ? { weekly: status?.plans.similarLightWeekly ?? SIMILAR_LIGHT_WEEKLY, ...(plan === "pro" ? { answers: status?.plans.similarProAnswers ?? SIMILAR_PRO_ANSWERS } : {}) } : undefined}
+                    taste={tasteOf(status, "similar") ? <TasteLine feature="similar" usage={tasteOf(status, "similar")!} facts={status?.plans} onUltra={() => openPlans("ultra", "similar", "similar")} /> : null}
+                    light={similarMode(plan, tasteOf(status, "similar")) === "light" ? { weekly: status?.plans.similarLightWeekly ?? SIMILAR_LIGHT_WEEKLY, ...(plan === "pro" ? { answers: status?.plans.similarProAnswers ?? SIMILAR_PRO_ANSWERS } : {}) } : undefined}
                     onFind={(condition, label, ask) => {
                       if (!similarSubject) return findSimilar(condition, label, false, undefined, undefined, ask)
                       // What was selected, in the question: "Find similar: “…”" (and the condition after it).
@@ -5692,47 +5819,95 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       <button type="button" class="cf-primary" onClick={() => closeOfferCard(offer.code)}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
                       <button type="button" class="cf-secondary" onClick={() => closeOfferCard(null)}>{t("offerLater")}</button>
                     </div>
+                    <p class="cf-offer-code">{t("offerByCode")}</p>
                   </div>
                 )}
 
+                {bought && (
+                  <div class="cf-card cf-bought" role="status">
+                    <span><Icon.Check /> {bought === "ultra" ? t("boughtUltra") : bought === "pro" ? t("boughtPro", String(status?.plans.proWeekly ?? 375)) : t("boughtByok")}</span>
+                    <button type="button" class="cf-icon-btn" onClick={() => setBought(null)} aria-label={t("close")}>×</button>
+                  </div>
+                )}
                 {error && error.code === "LIMIT_REACHED" && (() => {
                   const resetsAt = error.usage?.resetsAt ?? usage?.resetsAt
+                  // When they're back, only as the server says it (the director's acceptance 2, D2-5: a chat reopened in
+                  // a new tab showed «at 10:04 PM, in 24 h» and an active Retry until the status came): nothing until then.
                   const back = error.usage?.limit ?? usage?.limit ?? 5
+                  const backFree = resetsAt ? freeAnswersBack(back, clockTime(resetsAt), timeUntil(resetsAt)) : ""
+                  const backPro = resetsAt ? t("limitProBody", timeUntil(resetsAt)) : ""
                   // A long page: some answers are left, but fewer than it counts as (2.5).
                   const left = Math.max(0, (error.usage?.limit ?? 0) - (error.usage?.used ?? 0))
                   const long = (error.weight ?? 1) > 1 && left > 0
                   // Free and Pro (build 91): the plans message in the chat, Retry once the answers are back. An own key
                   // subscriber, and Ultra (nothing above it), keep the card.
+                  // Free (2.8, Р19): the simpler card, one purchase and the rest under «More».
+                  if (!byok && !hasPro(plan)) {
+                    const event = offerEvent("limit")
+                    return (
+                      <LimitCard
+                        status={status}
+                        title={long ? t("limitLongTitle") : t("limitCardTitle")}
+                        backTitle={long ? undefined : t("limitCardTitleBack")}
+                        body={<>
+                          {long && `${t("limitLongBody", error.weight!, left)} `}
+                          {/* Past the reset (the card kept, Retry there): they're back, not «in 1 min». */}
+                          {resetsAt ? (Date.parse(resetsAt) > Date.now() ? answersBackShort(clockTime(resetsAt), timeUntil(resetsAt)) : t("limitCardBackNow")) : ""}
+                        </>}
+                        offer={offer ? { code: offer.code, discount: offer.discount } : null}
+                        remind={TARGET === "safari" && resetsAt
+                          ? <AnswersBack
+                              short
+                              resetsAt={Date.parse(resetsAt)}
+                              count={back}
+                              url={source.href()}
+                              offer={returnDiscount && fullAt !== undefined && returnBy(Date.parse(resetsAt), fullAt) ? returnDiscount : null}
+                              offerOn={settings.offerNotify}
+                              onOfferOn={(on) => {
+                                updateSettings({ offerNotify: on })
+                                event(on ? "offer_notify_on" : "offer_notify_off")
+                              }}
+                              onEvent={(a, state) => event(a, undefined, undefined, state)}
+                            />
+                          : undefined}
+                        retryAt={resetsAt ? Date.parse(resetsAt) : "unknown"}
+                        ownKey={TARGET === "safari"}
+                        onRetry={lastIsUser ? () => retry() : undefined}
+                        onChoose={choosePlan}
+                        onRedeem={redeemOffer}
+                        onNote={writeNote}
+                        onOwnKey={() => openSettingsAt("ownKey")}
+                        onEvent={(action, choice, from, state) => {
+                          if (action === "shown" && state === "full") void noteFullAt().then(setFullAt)
+                          event(action, choice, from, state)
+                        }}
+                      />
+                    )
+                  }
+                  // A Pro subscriber: Ultra, in their own period (unchanged; the free-only parts, the offer, the
+                  // reminder and the own key, went with the free card above).
                   if (!byok && !isUltra(plan)) {
                     const event = offerEvent("limit")
                     return (
                       <PlanOffer
                         place="limit"
                         status={status}
-                        title={long ? t("limitLongTitle") : hasPro(plan) ? t("limitProTitle") : t("limitFreeTitle")}
+                        title={long ? t("limitLongTitle") : t("limitProTitle")}
                         body={<>
                           {long && `${t("limitLongBody", error.weight!, left)} `}
-                          {hasPro(plan) ? t("limitProBody", timeUntil(resetsAt)) : freeAnswersBack(back, clockTime(resetsAt), timeUntil(resetsAt))}
+                          {backPro}
                         </>}
-                        plans={hasPro(plan) ? ["ultra"] : ["pro", "ultra"]}
-                        retryAt={resetsAt ? Date.parse(resetsAt) : null}
+                        plans={["ultra"]}
+                        retryAt={resetsAt ? Date.parse(resetsAt) : "unknown"}
                         onRetry={lastIsUser ? () => retry() : undefined}
                         onChoose={choosePlan}
                         onEvent={event}
-                        extra={<>
-                          {offer && (
-                            <div class="cf-card-actions">
-                              <button type="button" class="cf-secondary" onClick={() => { event("discount"); redeemOffer(offer.code) }}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
-                            </div>
-                          )}
+                        extra={
                           <p class="cf-limit-notes">
                             <Icon.Pencil /> {t("limitNotes")}{" "}
                             <button type="button" class="cf-link" onClick={() => { event("note"); writeNote() }}>{t("writeNote")}</button>
                           </p>
-                          {!hasPro(plan) && TARGET === "safari" && (
-                            <p class="cf-offer-own"><button type="button" class="cf-link" onClick={() => { event("own_key"); openSettingsAt("ownKey") }}>{t("useOwnKey")}</button></p>
-                          )}
-                        </>}
+                        }
                       />
                     )
                   }
@@ -5742,12 +5917,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       <p>
                         {long && `${t("limitLongBody", error.weight!, left)} `}
                         {hasPro(plan)
-                          ? t("limitProBody", timeUntil(resetsAt))
+                          ? backPro
                           : byok
                             // With a key: only Google answers go through ContextFlow. A key added after the refusal
                             // (from this card) leaves a question that wasn't a Google one: nothing more to say, Retry.
-                            ? `${freeAnswersBack(back, clockTime(resetsAt), timeUntil(resetsAt))}${!status?.hasOwnKey ? ` ${t("byokLimitNoKey", back, PRO_WEEKLY)}` : messages[messages.length - 1]?.mode === "google" ? ` ${t("byokLimitGoogle", back, PRO_WEEKLY)}` : ""}`
-                            : `${freeAnswersBack(back, clockTime(resetsAt), timeUntil(resetsAt))} ${offer ? t("offerLimit", offer.discount, PRO_WEEKLY) : t("limitFreePro", PRO_WEEKLY)}`}
+                            ? `${backFree}${!status?.hasOwnKey ? ` ${t("byokLimitNoKey", back, PRO_WEEKLY)}` : messages[messages.length - 1]?.mode === "google" ? ` ${t("byokLimitGoogle", back, PRO_WEEKLY)}` : ""}`
+                            : backFree}
                       </p>
                       <p class="cf-limit-notes">
                         <Icon.Pencil /> {t("limitNotes")}{" "}
@@ -5764,16 +5939,6 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                               <Icon.Retry /> {messages[messages.length - 1]?.mode === "google" ? t("askWithoutGoogle") : t("retry")}
                             </button>
                           )}
-                        </div>
-                      )}
-                      {!hasPro(plan) && !byok && (
-                        <div class="cf-card-actions">
-                          {offer ? (
-                            <button type="button" class="cf-primary" onClick={() => redeemOffer(offer.code)}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
-                          ) : (
-                            <button type="button" class="cf-primary" onClick={() => void openApp("subscribe")}><Icon.Sparkle size={14} /> {t("getPro")}</button>
-                          )}
-                          <button type="button" class="cf-secondary" onClick={() => openSettingsAt("ownKey")}>{t("useOwnKey")}</button>
                         </div>
                       )}
                     </div>
@@ -5799,9 +5964,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     onEvent={offerEvent("pro_only")}
                     onClose={() => setError(null)}
                     extra={offer ? (
-                      <div class="cf-card-actions">
-                        <button type="button" class="cf-secondary" onClick={() => { offerEvent("pro_only")("discount"); redeemOffer(offer.code) }}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
-                      </div>
+                      <>
+                        <div class="cf-card-actions">
+                          <button type="button" class="cf-secondary" onClick={() => { offerEvent("pro_only")("discount"); redeemOffer(offer.code) }}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
+                        </div>
+                        <p class="cf-offer-code">{t("offerByCode")}</p>
+                      </>
                     ) : undefined}
                   />
                 ))}
@@ -5817,9 +5985,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     onEvent={offerEvent("memory")}
                     onClose={() => setMemoryOffer(null)}
                     extra={offer ? (
-                      <div class="cf-card-actions">
-                        <button type="button" class="cf-secondary" onClick={() => { offerEvent("memory")("discount"); redeemOffer(offer.code) }}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
-                      </div>
+                      <>
+                        <div class="cf-card-actions">
+                          <button type="button" class="cf-secondary" onClick={() => { offerEvent("memory")("discount"); redeemOffer(offer.code) }}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
+                        </div>
+                        <p class="cf-offer-code">{t("offerByCode")}</p>
+                      </>
                     ) : undefined}
                   />
                 )}
@@ -6142,10 +6313,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             <PlansSheet
               status={status}
               focus={plansOpen}
+              {...(plansFeature ? { feature: plansFeature.feature, lead: plansFeature.lead } : {})}
               onChoose={(chosen, period) => {
                 setPlansOpen(null)
-                void sendBackground({ type: "useEvent", f: "plans", a: "choose", plan: chosen, period })
-                openAppFromTap(touch, { target: "subscribe", plan: chosen, period, feature: chosen === "ultra" ? "listen" : undefined })
+                void sendBackground({ type: "useEvent", f: "plans", a: "choose", plan: chosen, period, ...(plansFeature ? { feature: plansFeature.feature } : {}) })
+                buyPlan(chosen, period, "sheet")
               }}
               onClose={() => setPlansOpen(null)}
             />

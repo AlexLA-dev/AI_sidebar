@@ -1004,9 +1004,6 @@
  "limitFreeBack_other": {
   "message": "{1}（{2}后）将恢复 {0} 次免费回答。"
  },
- "limitFreePro": {
-  "message": "Pro 每周最多 {0} 个回答，读取页面上的视频和 PDF，还有 AI 搜索和跨所有对话提问。"
- },
  "limitNotes": {
   "message": "笔记始终免费且不限次数：现在记下重点，稍后再问 AI。"
  },
@@ -1022,11 +1019,8 @@
  "errKeyRate": {
   "message": "{0} 目前正在限制你的密钥发出的请求（账户的速率限制）。请等一分钟再提问。你的限额见 {1}。"
  },
- "offerLimit": {
-  "message": "或开通 Pro，首月优惠 {0}%：每周最多 {1} 次更深入、更详细的回答。可随时取消。"
- },
  "offerButton": {
-  "message": "Pro 首月优惠 {0}%"
+  "message": "首月优惠 {0}%"
  },
  "offerShort": {
   "message": "Pro −{0}%"
@@ -2305,9 +2299,6 @@
  },
  "offerMemoryLong": {
   "message": "这个对话的回答和笔记已超过免费回答能记住的 {0} 条。使用 Pro，AI 会记住整个对话：每条消息、你的笔记和你提问过的页面。"
- },
- "offerRetryAt": {
-  "message": "回答将在 {0} 恢复。"
  },
  "similarWhere": {
   "message": "搜索范围"
@@ -3799,6 +3790,126 @@
  },
  "agentRecapTerms": {
   "message": "页面上的取消条款：{0}"
+ },
+ "tasteListenLeft": {
+  "message": "Pro 朗读：本周剩余 {0}/{1} 分钟"
+ },
+ "tasteSimilarLeft": {
+  "message": "Pro 完整搜索：本周剩余 {0}/{1} 次"
+ },
+ "tasteUltraListen": {
+  "message": "Ultra：每周 {0} 分钟"
+ },
+ "tasteUltraSimilar": {
+  "message": "Ultra：每周 {0} 次完整搜索"
+ },
+ "tasteListenUsed": {
+  "message": "本周 Pro 的 {0} 分钟朗读已用完，{1}恢复。"
+ },
+ "tasteSimilarUsed": {
+  "message": "本周 Pro 的完整搜索已用过，{0}恢复；快速搜索照常可用。"
+ },
+ "tasteSimilarDone": {
+  "message": "这是和 Ultra 一样的完整搜索：Pro 每周可用一次。"
+ },
+ "boughtPro": {
+  "message": "Pro 已开通：每周最多 {0} 次回答。尽管问吧。"
+ },
+ "boughtUltra": {
+  "message": "Ultra 已开通：朗读、完整的查找相似，以及 Pro 的全部功能。"
+ },
+ "boughtByok": {
+  "message": "自有密钥已开通。请在设置中添加你的 API 密钥。"
+ },
+ "answersBackAsk": {
+  "message": "{0} 次回答恢复时提醒我"
+ },
+ "answersBackSet": {
+  "message": "{0} 回答恢复时会提醒你。"
+ },
+ "answersBackOff": {
+  "message": "ContextFlow 的通知已关闭。回答将在 {0} 恢复。"
+ },
+ "answersBackFailed": {
+  "message": "无法设置提醒。回答将在 {0} 恢复。"
+ },
+ "answersBackBody": {
+  "message": "{0} 次免费回答已恢复。可以问任何页面。"
+ },
+ "answersBackInApp": {
+  "message": "在 ContextFlow App 中设置"
+ },
+ "hoursMinutes": {
+  "message": "{0} 小时 {1} 分钟"
+ },
+ "offerByCode": {
+  "message": "在 App Store 中通过优惠代码使用。"
+ },
+ "limitBuyOffer": {
+  "message": "升级 Pro — 首月优惠 {0}%"
+ },
+ "limitBuyPrice": {
+  "message": "升级 Pro — 每月 {0}"
+ },
+ "answersBackAt": {
+  "message": "{0} 提醒我"
+ },
+ "limitMore": {
+  "message": "更多"
+ },
+ "moreYearly": {
+  "message": "年付：每年 {0}"
+ },
+ "moreYearlySave": {
+  "message": "年付：每年 {0}，省 {1}%"
+ },
+ "moreUltra": {
+  "message": "Ultra：每月 {0}，包含 Pro 全部功能，另有朗读和查找相似"
+ },
+ "moreUltraNoPrice": {
+  "message": "Ultra：包含 Pro 全部功能，另有朗读和查找相似"
+ },
+ "moreChoose": {
+  "message": "选择"
+ },
+ "moreNotes": {
+  "message": "笔记始终免费且不限次数"
+ },
+ "moreOwnKey": {
+  "message": "有自己的 API 密钥？"
+ },
+ "moreOwnKeyLink": {
+  "message": "使用我的密钥"
+ },
+ "limitProLine": {
+  "message": "每周最多 {0} 次回答"
+ },
+ "limitCancel": {
+  "message": "可随时在 App Store 中取消。"
+ },
+ "limitCardTitle": {
+  "message": "免费回答已用完"
+ },
+ "limitCardBack": {
+  "message": "{0}（{1}后）恢复。"
+ },
+ "answersBackOfferAsk": {
+  "message": "在这条提醒里也告诉我 Pro 的优惠"
+ },
+ "answersBackOfferBody": {
+  "message": "{0} 次免费回答已恢复。如果需要更多，Pro 首月优惠 {1}%。"
+ },
+ "setOfferNotify": {
+  "message": "在提醒中告知 Pro 优惠"
+ },
+ "setOfferNotifyHint": {
+  "message": "仅限免费回答用完时你设置的那一条提醒。在你开启之前保持关闭。"
+ },
+ "limitCardBackNow": {
+  "message": "免费回答已恢复。"
+ },
+ "limitCardTitleBack": {
+  "message": "免费回答已恢复"
  },
  "tip_4cf1b54b00": {
   "message": "技巧"

@@ -161,7 +161,8 @@ test("«Open Safari» leads to the site, nowhere to a web search", () => {
   assert.match(view, /private func openSafari\(\) \{\n[^}]*FirstPage\.open\(\)\n\s+\}/)
   assert.match(view, /static func openSafari\(\) \{\n\s+#if os\(iOS\)\n[^#]*FirstPage\.open\(\)\n\s+#else/)
   // Safari itself where the system can be told so, the plain address otherwise.
-  assert.match(firstPage, /if #available\(iOS 17, \*\), let safari = URL\(string: "x-safari-\\\(page\.absoluteString\)"\)/)
+  // 2.8: through SafariPage (x-safari- for https only; tests/setup-28.test.mts).
+  assert.match(firstPage, /SafariPage\.open\(page\)/)
   assert.match(firstPage, /static let site = "https:\/\/context-flow\.app"/)
 })
 

@@ -69077,6 +69077,2824 @@
           }
         }
       }
+    },
+    "Listen in Pro: %lld of %lld min left this week": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الاستماع في Pro: تبقّى %1$lld من %2$lld د هذا الأسبوع"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anhören in Pro: diese Woche noch %1$lld von %2$lld Min."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escuchar en Pro: te quedan %1$lld de %2$lld min esta semana"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Écouter dans Pro : %1$lld min sur %2$lld restantes cette semaine"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ascolta in Pro: questa settimana restano %1$lld min su %2$lld"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proの読み上げ：今週は残り%1$lld/%2$lld分"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro 듣기: 이번 주 %2$lld분 중 %1$lld분 남음"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvir no Pro: restam %1$lld de %2$lld min nesta semana"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слушать в Pro: осталось %1$lld из %2$lld мин на неделю"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro'da dinleme: bu hafta %2$lld dakikadan %1$lld dakika kaldı"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слухати в Pro: залишилося %1$lld з %2$lld хв цього тижня"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nghe trong Pro: tuần này còn %1$lld/%2$lld phút"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro 朗读：本周剩余 %1$lld/%2$lld 分钟"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro 朗讀：本週剩餘 %1$lld/%2$lld 分鐘"
+          }
+        }
+      }
+    },
+    "In Ultra: %lld min a week": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "في Ultra: ‏%lld د أسبوعيًا"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Ultra: %lld Min. pro Woche"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En Ultra: %lld min a la semana"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dans Ultra : %lld min par semaine"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Ultra: %lld min a settimana"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ultraなら週%lld分"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ultra에서는 주 %lld분"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Ultra: %lld min por semana"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В Ultra — %lld мин в неделю"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ultra'da: haftada %lld dakika"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В Ultra — %lld хв на тиждень"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trong Ultra: %lld phút mỗi tuần"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ultra：每周 %lld 分钟"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ultra：每週 %lld 分鐘"
+          }
+        }
+      }
+    },
+    "In Settings, tap Apps on the left, then Safari in the list, then Extensions.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "في الإعدادات، اضغط على «التطبيقات» على اليمين، ثم Safari في القائمة، ثم «الامتدادات»."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe in „Einstellungen“ links auf „Apps“, dann in der Liste auf „Safari“ und dann auf „Erweiterungen“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En Ajustes, toca Apps a la izquierda, luego Safari en la lista y después Extensiones."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dans Réglages, touchez Apps à gauche, puis Safari dans la liste, puis Extensions."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Impostazioni, tocca App a sinistra, poi Safari nell’elenco, poi Estensioni."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「設定」で左側の「アプリ」をタップし、一覧の「Safari」、続いて「機能拡張」をタップします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정에서 왼쪽의 앱을 탭한 다음, 목록에서 Safari를 탭하고 확장 프로그램을 탭하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nos Ajustes, toque em Apps à esquerda, depois em Safari na lista e em Extensões."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В «Настройках» нажмите «Приложения» слева, затем Safari в списке, затем «Расширения»."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ayarlar’da soldaki Uygulamalar’a, ardından listede Safari’ye, sonra Uzantılar’a dokunun."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У «Параметрах» торкніться «Програми» ліворуч, потім Safari у списку, потім «Розширення»."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trong Cài đặt, chạm vào Ứng dụng ở bên trái, rồi Safari trong danh sách, rồi Tiện ích mở rộng."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在“设置”中，轻点左侧的“App”，然后轻点列表中的“Safari”，再轻点“扩展”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在「設定」中，點一下左側的「App」，接著點一下列表中的「Safari」，再點一下「延伸功能」。"
+          }
+        }
+      }
+    },
+    "On iPad, Settings doesn't open on ContextFlow's page: start from Apps on the left and follow the steps above.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "على iPad، لا تُفتح الإعدادات على صفحة ContextFlow: ابدأ من «التطبيقات» على اليمين واتبع الخطوات أعلاه."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf dem iPad öffnet „Einstellungen“ nicht die Seite von ContextFlow: Beginne links bei „Apps“ und folge den Schritten oben."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En el iPad, Ajustes no se abre en la página de ContextFlow: empieza por Apps a la izquierda y sigue los pasos de arriba."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sur iPad, Réglages ne s’ouvre pas sur la page de ContextFlow : commencez par Apps à gauche et suivez les étapes ci-dessus."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Su iPad, Impostazioni non si apre sulla pagina di ContextFlow: parti da App a sinistra e segui i passaggi qui sopra."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPadでは、設定はContextFlowのページで開きません。左側の「アプリ」から始めて、上の手順に進んでください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPad에서는 설정이 ContextFlow 페이지로 열리지 않아요. 왼쪽의 ‘앱’부터 시작해 위의 단계를 따라 하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No iPad, os Ajustes não abrem na página do ContextFlow: comece por Apps à esquerda e siga os passos acima."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На iPad «Настройки» не открываются на странице ContextFlow: начните с «Приложений» слева и следуйте шагам выше."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPad’de Ayarlar, ContextFlow sayfasında açılmaz: soldaki Uygulamalar’dan başlayın ve yukarıdaki adımları izleyin."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На iPad «Параметри» не відкриваються на сторінці ContextFlow: почніть із «Програм» ліворуч і виконайте кроки вище."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trên iPad, Cài đặt không mở trang của ContextFlow: hãy bắt đầu từ Ứng dụng ở bên trái và làm theo các bước ở trên."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 iPad 上，“设置”不会直接打开 ContextFlow 的页面：请从左侧的“App”开始，按照上面的步骤操作。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 iPad 上，「設定」不會直接打開 ContextFlow 的頁面：請從左側的「App」開始，依照上面的步驟操作。"
+          }
+        }
+      }
+    },
+    "Next: open Safari": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التالي: افتح Safari"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Als Nächstes: Safari öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siguiente: abre Safari"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ensuite : ouvrez Safari"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ora: apri Safari"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次は Safari を開きます"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음: Safari 열기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Próximo passo: abra o Safari"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дальше: откройте Safari"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sıradaki: Safari’yi açın"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Далі: відкрийте Safari"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiếp theo: mở Safari"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下一步：打开 Safari"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下一步：打開 Safari"
+          }
+        }
+      }
+    },
+    "So the reminder you just set reaches you.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حتى يصلك التذكير الذي ضبطته للتو."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Damit dich die Erinnerung erreicht, die du gerade gesetzt hast."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para que te llegue el recordatorio que acabas de poner."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour que le rappel que vous venez de créer vous parvienne."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Così ti arriva il promemoria che hai appena impostato."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定したリマインダーを受け取るには通知が必要です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "방금 설정한 리마인더를 받으려면 알림이 필요해요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para que o lembrete que você acabou de definir chegue até você."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чтобы напоминание, которое вы только что поставили, до вас дошло."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Az önce kurduğunuz hatırlatıcı size ulaşsın diye."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Щоб нагадування, яке ви щойно поставили, до вас дійшло."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Để lời nhắc bạn vừa đặt đến được với bạn."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要通知，你刚设置的提醒才能送达。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要通知，你剛設定的提醒才能送達。"
+          }
+        }
+      }
+    },
+    "So you hear when the page you watch changes.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حتى تعرف عندما تتغيّر الصفحة التي تتابعها."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Damit du erfährst, wenn sich die beobachtete Seite ändert."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para que sepas cuándo cambia la página que sigues."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour savoir quand la page que vous suivez change."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Così sai quando cambia la pagina che segui."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ウォッチしているページが変わったらお知らせします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지켜보는 페이지가 바뀌면 바로 알려 드려요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para saber quando a página que você acompanha mudar."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чтобы узнать, когда изменится страница, за которой вы следите."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Takip ettiğiniz sayfa değiştiğinde haberiniz olsun diye."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Щоб дізнатися, коли зміниться сторінка, за якою ви стежите."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Để bạn biết khi trang bạn đang theo dõi thay đổi."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你关注的页面有变化时，我们会通知你。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你關注的頁面有變化時，我們會通知你。"
+          }
+        }
+      }
+    },
+    "So you know when your free answers are back.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حتى تعرف متى تعود إجاباتك المجانية."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Damit du weißt, wann deine Gratis-Antworten wieder da sind."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para que sepas cuándo vuelves a tener respuestas gratis."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour savoir quand vos réponses gratuites sont de retour."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Così sai quando tornano le tue risposte gratis."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無料の回答がまた使えるようになったらお知らせします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "무료 답변이 다시 생기면 알려 드려요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para saber quando suas respostas grátis voltarem."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чтобы узнать, когда бесплатные ответы снова появятся."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ücretsiz yanıtlarınız yenilendiğinde haberiniz olsun diye."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Щоб дізнатися, коли безкоштовні відповіді знову з’являться."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Để bạn biết khi lượt trả lời miễn phí đã có lại."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "免费回答恢复时，我们会通知你。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "免費回答恢復時，我們會通知你。"
+          }
+        }
+      }
+    },
+    "Tap ✦ on the page.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اضغط على ✦ في الصفحة."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe auf der Seite auf ✦."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca ✦ en la página."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez ✦ sur la page."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca ✦ sulla pagina."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページ上の✦をタップします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지에서 ✦를 탭하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque em ✦ na página."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите ✦ на странице."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sayfadaki ✦ düğmesine dokunun."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Торкніться ✦ на сторінці."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chạm vào ✦ trên trang."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "轻点页面上的 ✦。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "點一下頁面上的 ✦。"
+          }
+        }
+      }
+    },
+    "No ✦? Open the page menu in the address bar and choose ContextFlow.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا ترى ✦؟ افتح قائمة الصفحة في شريط العناوين واختر ContextFlow."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kein ✦ zu sehen? Öffne in der Adressleiste das Seitenmenü und wähle „ContextFlow“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿No ves ✦? Abre el menú de la página en la barra de direcciones y elige ContextFlow."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas de ✦ ? Ouvrez le menu de la page dans la barre d’adresse et choisissez ContextFlow."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non vedi ✦? Apri il menu della pagina nella barra degli indirizzi e scegli ContextFlow."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦が見当たらない場合は、アドレスバーのページメニューを開いて「ContextFlow」を選択します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦가 안 보이면 주소 막대의 페이지 메뉴를 열고 ContextFlow를 선택하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não vê o ✦? Abra o menu da página na barra de endereço e escolha ContextFlow."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет ✦? Откройте меню страницы в адресной строке и выберите ContextFlow."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ yok mu? Adres çubuğundaki sayfa menüsünü açıp ContextFlow'u seçin."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Немає ✦? Відкрийте меню сторінки в адресному рядку й виберіть ContextFlow."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thấy ✦? Mở menu trang trên thanh địa chỉ và chọn ContextFlow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "看不到 ✦？打开地址栏中的页面菜单并选择“ContextFlow”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "看不到 ✦？打開網址列中的頁面選單並選擇「ContextFlow」。"
+          }
+        }
+      }
+    },
+    "When Safari asks, choose Always Allow, then Always Allow on Every Website.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عندما يسألك Safari، اختر «السماح دائمًا»، ثم «السماح دائمًا على كل موقع ويب»."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wenn Safari fragt, wähle „Immer erlauben“ und dann „Auf allen Websites immer erlauben“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuando Safari pregunte, elige “Permitir siempre” y luego “Permitir siempre en todos los sitios web”."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quand Safari le demande, choisissez « Toujours autoriser », puis « Toujours autoriser sur tous les sites web »."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quando Safari lo chiede, scegli “Consenti sempre”, poi “Consenti sempre su tutti i siti web”."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safariに確認されたら「常に許可」、続けて「すべてのWebサイトで常に許可」を選びます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari가 물으면 ‘항상 허용’을 선택한 다음 ‘모든 웹 사이트에서 항상 허용’을 선택하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quando o Safari perguntar, escolha “Sempre Permitir” e depois “Sempre Permitir em Todos os Sites”."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Когда Safari спросит, выберите «Всегда разрешать», затем «Всегда разрешать на всех веб-сайтах»."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari sorduğunda önce “Her Zaman İzin Ver”i, ardından “Her Web Sitesinde Her Zaman İzin Ver”i seçin."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Коли Safari запитає, виберіть «Завжди дозволяти», потім «Завжди дозволяти на всіх вебсайтах»."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Khi Safari hỏi, chọn Luôn cho phép, rồi chọn Luôn cho phép trên mọi trang web."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari 询问时，请选择“始终允许”，然后选择“在所有网站上始终允许”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari 詢問時，請選擇「永遠允許」，然後選擇「在每個網站上永遠允許」。"
+          }
+        }
+      }
+    },
+    "No ✦ on the page? Safari is waiting for your permission.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا يظهر ✦ في الصفحة؟ ينتظر Safari إذنك."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kein ✦ auf der Seite? Safari wartet auf deine Erlaubnis."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿No aparece ✦ en la página? Safari está esperando tu permiso."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas de ✦ sur la page ? Safari attend votre autorisation."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessun ✦ sulla pagina? Safari aspetta il tuo permesso."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページに✦が表示されませんか？ Safariがあなたの許可を待っています。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지에 ✦가 없나요? Safari가 허용을 기다리고 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não aparece o ✦ na página? O Safari está esperando sua permissão."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет ✦ на странице? Safari ждёт вашего разрешения."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sayfada ✦ yok mu? Safari izninizi bekliyor."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Немає ✦ на сторінці? Safari чекає на ваш дозвіл."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thấy ✦ trên trang? Safari đang chờ bạn cho phép."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "页面上没有 ✦？Safari 正在等待你的许可。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "頁面上沒有 ✦？Safari 正在等待你的許可。"
+          }
+        }
+      }
+    },
+    "In Safari, open the page menu in the address bar and choose ContextFlow.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "في Safari، افتح قائمة الصفحة في شريط العناوين واختر ContextFlow."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffne in Safari in der Adressleiste das Seitenmenü und wähle „ContextFlow“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En Safari, abre el menú de la página en la barra de direcciones y elige ContextFlow."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dans Safari, ouvrez le menu de la page dans la barre d’adresse et choisissez ContextFlow."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Safari, apri il menu della pagina nella barra degli indirizzi e scegli ContextFlow."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safariで、アドレスバーのページメニューを開いて「ContextFlow」を選択します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari에서 주소 막대의 페이지 메뉴를 열고 ContextFlow를 선택하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Safari, abra o menu da página na barra de endereço e escolha ContextFlow."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В Safari откройте меню страницы в адресной строке и выберите ContextFlow."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari’de adres çubuğundaki sayfa menüsünü açıp ContextFlow'u seçin."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У Safari відкрийте меню сторінки в адресному рядку й виберіть ContextFlow."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trong Safari, mở menu trang trên thanh địa chỉ và chọn ContextFlow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 Safari 中，打开地址栏中的页面菜单并选择“ContextFlow”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 Safari 中，打開網址列中的頁面選單並選擇「ContextFlow」。"
+          }
+        }
+      }
+    },
+    "Open the Settings app and go to Apps → Safari (not ContextFlow) → Extensions.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "افتح تطبيق الإعدادات وانتقل إلى التطبيقات ← Safari (وليس ContextFlow) ← الامتدادات."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffne die App „Einstellungen“ und wähle „Apps“ → „Safari“ (nicht „ContextFlow“) → „Erweiterungen“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre la app Ajustes y ve a Apps → Safari (no ContextFlow) → Extensiones."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrez l’app Réglages et accédez à Apps → Safari (pas ContextFlow) → Extensions."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri l’app Impostazioni e vai su App → Safari (non ContextFlow) → Estensioni."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「設定」アプリを開き、「アプリ」→「Safari」（ContextFlowではなく）→「機能拡張」と進みます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정 앱을 열고 앱 → Safari(ContextFlow 아님) → 확장 프로그램으로 이동하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abra o app Ajustes e acesse Apps → Safari (não o ContextFlow) → Extensões."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Откройте приложение «Настройки» и перейдите в «Приложения» → Safari (не ContextFlow) → «Расширения»."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ayarlar uygulamasını açın ve Uygulamalar → Safari (ContextFlow değil) → Uzantılar bölümüne gidin."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відкрийте програму «Параметри» й перейдіть у «Програми» → Safari (не ContextFlow) → «Розширення»."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở ứng dụng Cài đặt và đi tới Ứng dụng → Safari (không phải ContextFlow) → Tiện ích mở rộng."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开“设置”App，然后前往“App”→“Safari”（不是 ContextFlow）→“扩展”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開「設定」App，然後前往「App」→「Safari」（不是 ContextFlow）→「延伸功能」。"
+          }
+        }
+      }
+    },
+    "In Settings, tap Apps on the left, then Safari in the list (not ContextFlow), then Extensions.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "في الإعدادات، اضغط على «التطبيقات» على اليمين، ثم Safari في القائمة (وليس ContextFlow)، ثم «الامتدادات»."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe in „Einstellungen“ links auf „Apps“, dann in der Liste auf „Safari“ (nicht „ContextFlow“) und dann auf „Erweiterungen“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En Ajustes, toca Apps a la izquierda, luego Safari en la lista (no ContextFlow) y después Extensiones."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dans Réglages, touchez Apps à gauche, puis Safari dans la liste (pas ContextFlow), puis Extensions."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Impostazioni, tocca App a sinistra, poi Safari nell’elenco (non ContextFlow), poi Estensioni."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「設定」で左側の「アプリ」をタップし、一覧の「Safari」（ContextFlowではなく）、続いて「機能拡張」をタップします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정에서 왼쪽의 앱을 탭한 다음, 목록에서 Safari(ContextFlow 아님)를 탭하고 확장 프로그램을 탭하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nos Ajustes, toque em Apps à esquerda, depois em Safari na lista (não no ContextFlow) e em Extensões."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В «Настройках» нажмите «Приложения» слева, затем Safari в списке (не ContextFlow), затем «Расширения»."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ayarlar’da soldaki Uygulamalar’a, ardından listede Safari’ye (ContextFlow’a değil), sonra Uzantılar’a dokunun."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У «Параметрах» торкніться «Програми» ліворуч, потім Safari у списку (не ContextFlow), потім «Розширення»."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trong Cài đặt, chạm vào Ứng dụng ở bên trái, rồi Safari trong danh sách (không phải ContextFlow), rồi Tiện ích mở rộng."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在“设置”中，轻点左侧的“App”，然后轻点列表中的“Safari”（不是 ContextFlow），再轻点“扩展”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在「設定」中，點一下左側的「App」，接著點一下列表中的「Safari」（不是 ContextFlow），再點一下「延伸功能」。"
+          }
+        }
+      }
+    },
+    "No ✦? Tap the puzzle-piece button next to the address, then ContextFlow.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا ترى ✦؟ اضغط على زر قطعة البازل بجانب العنوان، ثم ContextFlow."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kein ✦ zu sehen? Tippe neben der Adresse auf die Taste mit dem Puzzleteil und dann auf „ContextFlow“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿No ves ✦? Toca el botón de la pieza de puzle junto a la dirección y luego ContextFlow."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas de ✦ ? Touchez le bouton en forme de pièce de puzzle à côté de l’adresse, puis ContextFlow."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non vedi ✦? Tocca il pulsante con il pezzo di puzzle accanto all’indirizzo, poi ContextFlow."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦が見当たらない場合は、アドレスの横にあるパズルピースのボタンをタップし、「ContextFlow」をタップします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦가 안 보이면 주소 옆의 퍼즐 조각 버튼을 탭한 다음 ContextFlow를 탭하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não vê o ✦? Toque no botão de peça de quebra-cabeça ao lado do endereço e depois em ContextFlow."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет ✦? Нажмите кнопку с кусочком пазла рядом с адресом, затем ContextFlow."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ yok mu? Adresin yanındaki yapboz parçası düğmesine, ardından ContextFlow'a dokunun."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Немає ✦? Торкніться кнопки з елементом пазла поруч з адресою, потім ContextFlow."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thấy ✦? Chạm vào nút mảnh ghép cạnh địa chỉ, rồi chạm vào ContextFlow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "看不到 ✦？轻点地址旁的拼图按钮，然后轻点“ContextFlow”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "看不到 ✦？點一下網址旁的拼圖按鈕，然後點一下「ContextFlow」。"
+          }
+        }
+      }
+    },
+    "In Safari, tap the puzzle-piece button next to the address, then ContextFlow.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "في Safari، اضغط على زر قطعة البازل بجانب العنوان، ثم ContextFlow."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe in Safari neben der Adresse auf die Taste mit dem Puzzleteil und dann auf „ContextFlow“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En Safari, toca el botón de la pieza de puzle junto a la dirección y luego ContextFlow."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dans Safari, touchez le bouton en forme de pièce de puzzle à côté de l’adresse, puis ContextFlow."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Safari, tocca il pulsante con il pezzo di puzzle accanto all’indirizzo, poi ContextFlow."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safariで、アドレスの横にあるパズルピースのボタンをタップし、「ContextFlow」をタップします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari에서 주소 옆의 퍼즐 조각 버튼을 탭한 다음 ContextFlow를 탭하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Safari, toque no botão de peça de quebra-cabeça ao lado do endereço e depois em ContextFlow."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В Safari нажмите кнопку с кусочком пазла рядом с адресом, затем ContextFlow."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari’de adresin yanındaki yapboz parçası düğmesine, ardından ContextFlow'a dokunun."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У Safari торкніться кнопки з елементом пазла поруч з адресою, потім ContextFlow."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trong Safari, chạm vào nút mảnh ghép cạnh địa chỉ, rồi chạm vào ContextFlow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 Safari 中，轻点地址旁的拼图按钮，然后轻点“ContextFlow”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 Safari 中，點一下網址旁的拼圖按鈕，然後點一下「ContextFlow」。"
+          }
+        }
+      }
+    },
+    "Tap Open Settings, then Apps on the left → Safari (not ContextFlow) → Extensions → ContextFlow.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اضغط على «فتح الإعدادات»، ثم «التطبيقات» على اليمين ← Safari (وليس ContextFlow) ← «الامتدادات» ← ContextFlow."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe auf „Einstellungen öffnen“, dann links auf „Apps“ → „Safari“ (nicht „ContextFlow“) → „Erweiterungen“ → „ContextFlow“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca Abrir Ajustes y luego Apps a la izquierda → Safari (no ContextFlow) → Extensiones → ContextFlow."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez Ouvrir Réglages, puis Apps à gauche → Safari (pas ContextFlow) → Extensions → ContextFlow."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca Apri Impostazioni, poi App a sinistra → Safari (non ContextFlow) → Estensioni → ContextFlow."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「設定を開く」をタップし、左側の「アプリ」→「Safari」（ContextFlowではなく）→「機能拡張」→「ContextFlow」と進みます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정 열기를 탭한 다음 왼쪽의 앱 → Safari(ContextFlow 아님) → 확장 프로그램 → ContextFlow로 이동하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque em Abrir Ajustes e depois em Apps à esquerda → Safari (não o ContextFlow) → Extensões → ContextFlow."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите «Открыть Настройки», затем «Приложения» слева → Safari (не ContextFlow) → «Расширения» → ContextFlow."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Ayarlar'ı aç” düğmesine, ardından soldaki Uygulamalar → Safari (ContextFlow değil) → Uzantılar → ContextFlow’a dokunun."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Торкніться «Відкрити Параметри», потім «Програми» ліворуч → Safari (не ContextFlow) → «Розширення» → ContextFlow."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chạm vào Mở Cài đặt, rồi Ứng dụng ở bên trái → Safari (không phải ContextFlow) → Tiện ích mở rộng → ContextFlow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "轻点“打开设置”，然后轻点左侧的“App”→“Safari”（不是 ContextFlow）→“扩展”→“ContextFlow”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "點一下「打開設定」，然後點一下左側的「App」→「Safari」（不是 ContextFlow）→「延伸功能」→「ContextFlow」。"
+          }
+        }
+      }
+    },
+    "Tap Open Settings and go to Apps → Safari (not ContextFlow) → Extensions → ContextFlow.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اضغط على «فتح الإعدادات» وانتقل إلى التطبيقات ← Safari (وليس ContextFlow) ← الامتدادات ← ContextFlow."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe auf „Einstellungen öffnen“ und wähle „Apps“ → „Safari“ (nicht „ContextFlow“) → „Erweiterungen“ → „ContextFlow“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca Abrir Ajustes y ve a Apps → Safari (no ContextFlow) → Extensiones → ContextFlow."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez Ouvrir Réglages et accédez à Apps → Safari (pas ContextFlow) → Extensions → ContextFlow."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca Apri Impostazioni e vai su App → Safari (non ContextFlow) → Estensioni → ContextFlow."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「設定を開く」をタップし、「アプリ」→「Safari」（ContextFlowではなく）→「機能拡張」→「ContextFlow」と進みます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정 열기를 탭하고 앱 → Safari(ContextFlow 아님) → 확장 프로그램 → ContextFlow로 이동하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque em Abrir Ajustes e acesse Apps → Safari (não o ContextFlow) → Extensões → ContextFlow."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите «Открыть Настройки» и перейдите в «Приложения» → Safari (не ContextFlow) → «Расширения» → ContextFlow."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Ayarlar'ı aç” düğmesine dokunun ve Uygulamalar → Safari (ContextFlow değil) → Uzantılar → ContextFlow bölümüne gidin."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Торкніться «Відкрити Параметри» й перейдіть у «Програми» → Safari (не ContextFlow) → «Розширення» → ContextFlow."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chạm vào Mở Cài đặt và đi tới Ứng dụng → Safari (không phải ContextFlow) → Tiện ích mở rộng → ContextFlow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "轻点“打开设置”，然后前往“App”→“Safari”（不是 ContextFlow）→“扩展”→“ContextFlow”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "點一下「打開設定」，然後前往「App」→「Safari」（不是 ContextFlow）→「延伸功能」→「ContextFlow」。"
+          }
+        }
+      }
+    },
+    "No ✦ on the page? ContextFlow isn't allowed on websites yet.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا يظهر ✦ في الصفحة؟ لم يُسمح لـ ContextFlow بالعمل على مواقع الويب بعد."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kein ✦ auf der Seite? ContextFlow ist auf Websites noch nicht erlaubt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿No aparece ✦ en la página? ContextFlow todavía no tiene permiso en los sitios web."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas de ✦ sur la page ? ContextFlow n’est pas encore autorisé sur les sites web."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessun ✦ sulla pagina? ContextFlow non è ancora consentito sui siti web."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページに✦が表示されませんか？ ContextFlowはまだWebサイトで許可されていません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지에 ✦가 없나요? ContextFlow가 아직 웹 사이트에서 허용되지 않았어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não aparece o ✦ na página? O ContextFlow ainda não tem permissão nos sites."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет ✦ на странице? ContextFlow ещё не разрешён на веб-сайтах."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sayfada ✦ yok mu? ContextFlow’a web sitelerinde henüz izin verilmedi."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Немає ✦ на сторінці? ContextFlow ще не дозволено на вебсайтах."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thấy ✦ trên trang? ContextFlow chưa được cho phép trên các trang web."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "页面上没有 ✦？ContextFlow 还没有在网站上获得许可。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "頁面上沒有 ✦？ContextFlow 還沒有在網站上獲得許可。"
+          }
+        }
+      }
+    },
+    "Tap the ✦ button on the page — or tap the puzzle-piece button next to the address and choose ContextFlow.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اضغط على زر ✦ في الصفحة، أو اضغط على زر قطعة البازل بجانب العنوان واختر ContextFlow."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe auf der Seite auf ✦ – oder tippe neben der Adresse auf die Taste mit dem Puzzleteil und wähle „ContextFlow“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca el botón ✦ en la página, o toca el botón de la pieza de puzle junto a la dirección y elige ContextFlow."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez le bouton ✦ sur la page, ou touchez le bouton en forme de pièce de puzzle à côté de l’adresse et choisissez ContextFlow."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca il pulsante ✦ sulla pagina, oppure tocca il pulsante con il pezzo di puzzle accanto all’indirizzo e scegli ContextFlow."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページ上の✦ボタンをタップするか、アドレスの横にあるパズルピースのボタンをタップして「ContextFlow」を選択します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지의 ✦ 버튼을 탭하거나, 주소 옆의 퍼즐 조각 버튼을 탭하고 ContextFlow를 선택하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque no botão ✦ na página, ou toque no botão de peça de quebra-cabeça ao lado do endereço e escolha ContextFlow."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите кнопку ✦ на странице — или нажмите кнопку с кусочком пазла рядом с адресом и выберите ContextFlow."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sayfadaki ✦ düğmesine dokunun ya da adresin yanındaki yapboz parçası düğmesine dokunup ContextFlow'u seçin."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Торкніться кнопки ✦ на сторінці — або торкніться кнопки з елементом пазла поруч з адресою й виберіть ContextFlow."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chạm vào nút ✦ trên trang, hoặc chạm vào nút mảnh ghép cạnh địa chỉ rồi chọn ContextFlow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "轻点页面上的 ✦ 按钮，或轻点地址旁的拼图按钮并选择“ContextFlow”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "點一下頁面上的 ✦ 按鈕，或點一下網址旁的拼圖按鈕並選擇「ContextFlow」。"
+          }
+        }
+      }
+    },
+    "Open any page and tap ✦ — or tap the puzzle-piece button next to the address and choose ContextFlow.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "افتح أي صفحة واضغط على ✦، أو اضغط على زر قطعة البازل بجانب العنوان واختر ContextFlow."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffne eine beliebige Seite und tippe auf ✦ – oder tippe neben der Adresse auf die Taste mit dem Puzzleteil und wähle „ContextFlow“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre cualquier página y toca ✦, o toca el botón de la pieza de puzle junto a la dirección y elige ContextFlow."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrez une page et touchez ✦, ou touchez le bouton en forme de pièce de puzzle à côté de l’adresse et choisissez ContextFlow."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri una pagina qualsiasi e tocca ✦, oppure tocca il pulsante con il pezzo di puzzle accanto all’indirizzo e scegli ContextFlow."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "任意のページを開いて✦をタップするか、アドレスの横にあるパズルピースのボタンをタップして「ContextFlow」を選択します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아무 페이지나 열고 ✦를 탭하거나, 주소 옆의 퍼즐 조각 버튼을 탭하고 ContextFlow를 선택하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abra qualquer página e toque em ✦, ou toque no botão de peça de quebra-cabeça ao lado do endereço e escolha ContextFlow."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Откройте любую страницу и нажмите ✦ — или нажмите кнопку с кусочком пазла рядом с адресом и выберите ContextFlow."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Herhangi bir sayfayı açıp ✦ düğmesine dokunun ya da adresin yanındaki yapboz parçası düğmesine dokunup ContextFlow'u seçin."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відкрийте будь-яку сторінку й торкніться ✦ — або торкніться кнопки з елементом пазла поруч з адресою й виберіть ContextFlow."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở trang bất kỳ và chạm vào ✦, hoặc chạm vào nút mảnh ghép cạnh địa chỉ rồi chọn ContextFlow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开任意网页并轻点 ✦，或轻点地址旁的拼图按钮并选择“ContextFlow”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開任何頁面並點一下 ✦，或點一下網址旁的拼圖按鈕並選擇「ContextFlow」。"
+          }
+        }
+      }
+    },
+    "Under Permissions, set All Websites to Allow. If you see a list of websites there instead, set every row in it to Allow.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ضمن «الأذونات»، اضبط «كل مواقع الويب» على «سماح». إذا ظهرت هناك قائمة بمواقع الويب بدلًا من ذلك، فاضبط كل صف فيها على «سماح»."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setze unter „Berechtigungen“ die Option „Alle Websites“ auf „Erlauben“. Siehst du dort stattdessen eine Liste von Websites, setze jede Zeile darin auf „Erlauben“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En Permisos, ajusta “Todos los sitios web” en “Permitir”. Si en su lugar ves una lista de sitios web, ajusta cada fila en “Permitir”."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sous Autorisations, réglez « Tous les sites web » sur « Autoriser ». Si vous y voyez plutôt une liste de sites web, réglez chaque ligne sur « Autoriser »."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Permessi, imposta “Tutti i siti web” su “Consenti”. Se invece vedi un elenco di siti web, imposta ogni riga su “Consenti”."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「アクセス権」で「すべてのWebサイト」を「許可」に設定します。代わりにWebサイトの一覧が表示されている場合は、一覧のすべての行を「許可」に設定します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "권한에서 '모든 웹 사이트'를 '허용'으로 설정하세요. 대신 웹 사이트 목록이 보이면 목록의 모든 항목을 '허용'으로 설정하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em Permissões, ajuste “Todos os Sites” para “Permitir”. Se, em vez disso, aparecer uma lista de sites, ajuste cada linha para “Permitir”."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В разделе «Разрешения» для параметра «Все веб-сайты» выберите «Разрешить». Если вместо него там список сайтов, выберите «Разрешить» для каждой строки списка."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İzinler bölümünde “Tüm Web Siteleri” seçeneğini “İzin Ver” yapın. Bunun yerine bir web sitesi listesi görürseniz listedeki her satırı “İzin Ver” yapın."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У розділі «Дозволи» для параметра «Усі вебсайти» виберіть «Дозволити». Якщо натомість там список вебсайтів, виберіть «Дозволити» для кожного рядка списку."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trong Quyền, đặt Tất cả trang web thành Cho phép. Nếu thay vào đó bạn thấy danh sách trang web, hãy đặt từng dòng trong danh sách thành Cho phép."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在“权限”下，将“所有网站”设为“允许”。如果那里显示的是网站列表，请将列表中的每一行都设为“允许”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在「權限」下方，將「所有網站」設為「允許」。如果那裡顯示的是網站列表，請將列表中的每一列都設為「允許」。"
+          }
+        }
+      }
+    },
+    "Tap ◀ ContextFlow at the top left, then Open Safari, and tap ✦ on the page.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اضغط على «ContextFlow» في أعلى اليمين، ثم «فتح Safari»، واضغط على ✦ في الصفحة."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe oben links auf „◀ ContextFlow“, dann auf „Safari öffnen“, und tippe auf der Seite auf ✦."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca “◀ ContextFlow” arriba a la izquierda, luego “Abrir Safari”, y toca ✦ en la página."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez « ◀ ContextFlow » en haut à gauche, puis « Ouvrir Safari », et touchez ✦ sur la page."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca “◀ ContextFlow” in alto a sinistra, poi “Apri Safari”, e tocca ✦ sulla pagina."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左上の「◀ ContextFlow」をタップし、「Safariを開く」をタップしてから、ページ上の✦をタップします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "왼쪽 상단의 '◀ ContextFlow'를 탭한 다음 'Safari 열기'를 탭하고, 페이지에서 ✦를 탭하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque em “◀ ContextFlow” no canto superior esquerdo, depois em “Abrir Safari”, e toque em ✦ na página."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите «◀ ContextFlow» в левом верхнем углу, затем «Открыть Safari» и нажмите ✦ на странице."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sol üstteki ◀ ContextFlow'a dokunun, ardından “Safari'yi aç” düğmesine ve sayfadaki ✦ düğmesine dokunun."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Торкніться «◀ ContextFlow» у лівому верхньому куті, потім «Відкрити Safari» і торкніться ✦ на сторінці."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chạm vào ◀ ContextFlow ở góc trên bên trái, rồi Mở Safari, và chạm vào ✦ trên trang."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "轻点左上角的“◀ ContextFlow”，然后轻点“打开 Safari”，再轻点页面上的 ✦。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "點一下左上角的「◀ ContextFlow」，然後點一下「打開 Safari」，再點一下頁面上的 ✦。"
+          }
+        }
+      }
+    },
+    "Tap the puzzle-piece button next to the address → ContextFlow → “Always Allow…” → “Always Allow on Every Website”.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اضغط على زر قطعة البازل بجانب العنوان ← ContextFlow ← «السماح دومًا…» ← «السماح دائمًا على كل موقع إلكتروني»."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe neben der Adresse auf die Taste mit dem Puzzleteil → „ContextFlow“ → „Immer erlauben …“ → „Auf jeder Website immer erlauben“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca el botón de la pieza de puzle junto a la dirección → ContextFlow → “Permitir siempre…” → “Permitir siempre en todos los sitios web”."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez le bouton en forme de pièce de puzzle à côté de l’adresse → ContextFlow → « Toujours autoriser… » → « Toujours autoriser sur chaque site web »."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca il pulsante con il pezzo di puzzle accanto all’indirizzo → ContextFlow → “Consenti sempre…” → “Consenti sempre su tutti i siti web”."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アドレスの横にあるパズルピースのボタン →「ContextFlow」→「常に許可…」→「すべてのWebサイトで常に許可」の順にタップします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "주소 옆의 퍼즐 조각 버튼 → ContextFlow → '항상 허용…' → '모든 웹사이트에서 항상 허용' 순서로 탭하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque no botão de peça de quebra-cabeça ao lado do endereço → ContextFlow → “Sempre Permitir…” → “Sempre Permitir em Todos os Sites”."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите кнопку с кусочком пазла рядом с адресом → ContextFlow → «Разрешать всегда…» → «Разрешать всегда на каждом сайте»."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresin yanındaki yapboz parçası düğmesine dokunun → ContextFlow → “Her Zaman İzin Ver…” → “Her Web Sitesinde Her Zaman İzin Ver”."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Торкніться кнопки з елементом пазла поруч з адресою → ContextFlow → «Дозволяти завжди…» → «Завжди дозволяти на кожному вебсайті»."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chạm vào nút mảnh ghép cạnh địa chỉ → ContextFlow → “Luôn Cho phép…” → “Luôn luôn cho phép trên mọi trang web”."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "轻点地址旁的拼图按钮 →“ContextFlow”→“始终允许…”→“在每个网站上始终允许”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "點一下網址旁的拼圖按鈕 →「ContextFlow」→「永遠允許⋯」→「一律在每個網站允許」。"
+          }
+        }
+      }
+    },
+    "Open the page menu in the address bar → ContextFlow → “Always Allow…” → “Always Allow on Every Website”.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "افتح قائمة الصفحة في شريط العناوين ← ContextFlow ← «السماح دومًا…» ← «السماح دائمًا على كل موقع إلكتروني»."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffne in der Adressleiste das Seitenmenü → „ContextFlow“ → „Immer erlauben …“ → „Auf jeder Website immer erlauben“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre el menú de la página en la barra de direcciones → ContextFlow → “Permitir siempre…” → “Permitir siempre en todos los sitios web”."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrez le menu de la page dans la barre d’adresse → ContextFlow → « Toujours autoriser… » → « Toujours autoriser sur chaque site web »."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri il menu della pagina nella barra degli indirizzi → ContextFlow → “Consenti sempre…” → “Consenti sempre su tutti i siti web”."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アドレスバーのページメニュー →「ContextFlow」→「常に許可…」→「すべてのWebサイトで常に許可」の順にタップします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "주소 막대의 페이지 메뉴 → ContextFlow → '항상 허용…' → '모든 웹사이트에서 항상 허용' 순서로 탭하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abra o menu da página na barra de endereço → ContextFlow → “Sempre Permitir…” → “Sempre Permitir em Todos os Sites”."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Откройте меню страницы в адресной строке → ContextFlow → «Разрешать всегда…» → «Разрешать всегда на каждом сайте»."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adres çubuğundaki sayfa menüsünü açın → ContextFlow → “Her Zaman İzin Ver…” → “Her Web Sitesinde Her Zaman İzin Ver”."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відкрийте меню сторінки в адресному рядку → ContextFlow → «Дозволяти завжди…» → «Завжди дозволяти на кожному вебсайті»."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở menu trang trên thanh địa chỉ → ContextFlow → “Luôn Cho phép…” → “Luôn luôn cho phép trên mọi trang web”."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开地址栏中的页面菜单 →“ContextFlow”→“始终允许…”→“在每个网站上始终允许”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開網址列中的頁面選單 →「ContextFlow」→「永遠允許⋯」→「一律在每個網站允許」。"
+          }
+        }
+      }
+    },
+    "No ✦? Tap the puzzle-piece button next to the address → ContextFlow → “Always Allow…” → “Always Allow on Every Website”.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا ترى ✦؟ اضغط على زر قطعة البازل بجانب العنوان ← ContextFlow ← «السماح دومًا…» ← «السماح دائمًا على كل موقع إلكتروني»."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kein ✦ zu sehen? Tippe neben der Adresse auf die Taste mit dem Puzzleteil → „ContextFlow“ → „Immer erlauben …“ → „Auf jeder Website immer erlauben“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿No ves ✦? Toca el botón de la pieza de puzle junto a la dirección → ContextFlow → “Permitir siempre…” → “Permitir siempre en todos los sitios web”."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas de ✦ ? Touchez le bouton en forme de pièce de puzzle à côté de l’adresse → ContextFlow → « Toujours autoriser… » → « Toujours autoriser sur chaque site web »."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non vedi ✦? Tocca il pulsante con il pezzo di puzzle accanto all’indirizzo → ContextFlow → “Consenti sempre…” → “Consenti sempre su tutti i siti web”."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦が見当たらない場合は、アドレスの横にあるパズルピースのボタン →「ContextFlow」→「常に許可…」→「すべてのWebサイトで常に許可」の順にタップします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦가 안 보이면 주소 옆의 퍼즐 조각 버튼 → ContextFlow → '항상 허용…' → '모든 웹사이트에서 항상 허용' 순서로 탭하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não vê o ✦? Toque no botão de peça de quebra-cabeça ao lado do endereço → ContextFlow → “Sempre Permitir…” → “Sempre Permitir em Todos os Sites”."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет ✦? Нажмите кнопку с кусочком пазла рядом с адресом → ContextFlow → «Разрешать всегда…» → «Разрешать всегда на каждом сайте»."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ yok mu? Adresin yanındaki yapboz parçası düğmesine dokunun → ContextFlow → “Her Zaman İzin Ver…” → “Her Web Sitesinde Her Zaman İzin Ver”."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Немає ✦? Торкніться кнопки з елементом пазла поруч з адресою → ContextFlow → «Дозволяти завжди…» → «Завжди дозволяти на кожному вебсайті»."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thấy ✦? Chạm vào nút mảnh ghép cạnh địa chỉ → ContextFlow → “Luôn Cho phép…” → “Luôn luôn cho phép trên mọi trang web”."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "看不到 ✦？轻点地址旁的拼图按钮 →“ContextFlow”→“始终允许…”→“在每个网站上始终允许”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "看不到 ✦？點一下網址旁的拼圖按鈕 →「ContextFlow」→「永遠允許⋯」→「一律在每個網站允許」。"
+          }
+        }
+      }
+    },
+    "No ✦? Open the page menu in the address bar → ContextFlow → “Always Allow…” → “Always Allow on Every Website”.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا ترى ✦؟ افتح قائمة الصفحة في شريط العناوين ← ContextFlow ← «السماح دومًا…» ← «السماح دائمًا على كل موقع إلكتروني»."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kein ✦ zu sehen? Öffne in der Adressleiste das Seitenmenü → „ContextFlow“ → „Immer erlauben …“ → „Auf jeder Website immer erlauben“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿No ves ✦? Abre el menú de la página en la barra de direcciones → ContextFlow → “Permitir siempre…” → “Permitir siempre en todos los sitios web”."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas de ✦ ? Ouvrez le menu de la page dans la barre d’adresse → ContextFlow → « Toujours autoriser… » → « Toujours autoriser sur chaque site web »."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non vedi ✦? Apri il menu della pagina nella barra degli indirizzi → ContextFlow → “Consenti sempre…” → “Consenti sempre su tutti i siti web”."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦が見当たらない場合は、アドレスバーのページメニュー →「ContextFlow」→「常に許可…」→「すべてのWebサイトで常に許可」の順にタップします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦가 안 보이면 주소 막대의 페이지 메뉴 → ContextFlow → '항상 허용…' → '모든 웹사이트에서 항상 허용' 순서로 탭하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não vê o ✦? Abra o menu da página na barra de endereço → ContextFlow → “Sempre Permitir…” → “Sempre Permitir em Todos os Sites”."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет ✦? Откройте меню страницы в адресной строке → ContextFlow → «Разрешать всегда…» → «Разрешать всегда на каждом сайте»."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ yok mu? Adres çubuğundaki sayfa menüsünü açın → ContextFlow → “Her Zaman İzin Ver…” → “Her Web Sitesinde Her Zaman İzin Ver”."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Немає ✦? Відкрийте меню сторінки в адресному рядку → ContextFlow → «Дозволяти завжди…» → «Завжди дозволяти на кожному вебсайті»."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thấy ✦? Mở menu trang trên thanh địa chỉ → ContextFlow → “Luôn Cho phép…” → “Luôn luôn cho phép trên mọi trang web”."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "看不到 ✦？打开地址栏中的页面菜单 →“ContextFlow”→“始终允许…”→“在每个网站上始终允许”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "看不到 ✦？打開網址列中的頁面選單 →「ContextFlow」→「永遠允許⋯」→「一律在每個網站允許」。"
+          }
+        }
+      }
+    },
+    "Not “Allow for One Day”: with it, ✦ is gone again tomorrow.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ليس «السماح ليوم واحد»: معه يختفي ✦ مجددًا غدًا."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht „Einen Tag lang erlauben“: Damit ist ✦ morgen wieder weg."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No “Permitir durante un día”: con eso, ✦ desaparece mañana."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas « Autoriser pendant un jour » : avec ce choix, ✦ disparaît dès demain."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non “Consenti per un giorno”: così ✦ sparisce già domani."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「1日だけ許可」は選ばないでください。翌日には✦が消えてしまいます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'1일 동안 허용'은 고르지 마세요. 내일이면 ✦가 다시 사라져요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não “Permitir por Um Dia”: com ele, ✦ some de novo amanhã."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не «Разрешить на 1 день»: с ним ✦ завтра снова пропадёт."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Bir Gün İzin Ver” değil: onunla ✦ yarın yine kaybolur."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не «Дозволити на один день»: з ним ✦ завтра знову зникне."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đừng chọn “Cho phép trong một ngày”: như vậy ✦ sẽ biến mất vào ngày mai."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不要选“允许1天”：那样明天 ✦ 又会消失。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不要選「允許一天」：這樣明天 ✦ 又會消失。"
+          }
+        }
+      }
+    },
+    "Or in Settings:": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أو من الإعدادات:"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oder in den Einstellungen:"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O en Ajustes:"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ou dans Réglages :"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oppure in Impostazioni:"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "または「設定」で："
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "또는 설정에서:"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ou nos Ajustes:"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Или в Настройках:"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ya da Ayarlar’da:"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Або в Параметрах:"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoặc trong Cài đặt:"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "或者在“设置”中："
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "或在「設定」中："
+          }
+        }
+      }
+    },
+    "If it opens somewhere else, start from Apps → Safari (not ContextFlow) → Extensions.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إذا فُتحت في مكان آخر، فابدأ من التطبيقات ← Safari (وليس ContextFlow) ← الامتدادات."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffnen sie sich woanders, beginne bei „Apps“ → „Safari“ (nicht „ContextFlow“) → „Erweiterungen“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si se abre en otro sitio, empieza por Apps → Safari (no ContextFlow) → Extensiones."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "S’il s’ouvre ailleurs, commencez par Apps → Safari (pas ContextFlow) → Extensions."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se si apre altrove, parti da App → Safari (non ContextFlow) → Estensioni."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "別の画面で開いた場合は、「アプリ」→「Safari」（ContextFlowではなく）→「機能拡張」から始めます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다른 화면에서 열리면 앱 → Safari(ContextFlow 아님) → 확장 프로그램에서 시작하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se abrirem em outro lugar, comece por Apps → Safari (não o ContextFlow) → Extensões."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Если они откроются в другом месте, начните с «Приложения» → Safari (не ContextFlow) → «Расширения»."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Başka bir yerde açılırsa Uygulamalar → Safari (ContextFlow değil) → Uzantılar ile başlayın."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Якщо вони відкриються деінде, почніть із «Програми» → Safari (не ContextFlow) → «Розширення»."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nếu mở ở chỗ khác, hãy bắt đầu từ Ứng dụng → Safari (không phải ContextFlow) → Tiện ích mở rộng."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "如果打开的是别处，请从“App”→“Safari”（不是 ContextFlow）→“扩展”开始。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "如果打開的是別處，請從「App」→「Safari」（不是 ContextFlow）→「延伸功能」開始。"
+          }
+        }
+      }
+    },
+    "Tap Open Settings: it opens on ContextFlow. If not, go to Apps → Safari (not ContextFlow) → Extensions → ContextFlow.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اضغط على «فتح الإعدادات»: ستُفتح على ContextFlow. وإن لم يحدث ذلك، فانتقل إلى التطبيقات ← Safari (وليس ContextFlow) ← الامتدادات ← ContextFlow."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe auf „Einstellungen öffnen“: Sie öffnen sich bei ContextFlow. Falls nicht, wähle „Apps“ → „Safari“ (nicht „ContextFlow“) → „Erweiterungen“ → „ContextFlow“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca Abrir Ajustes: se abre en ContextFlow. Si no, ve a Apps → Safari (no ContextFlow) → Extensiones → ContextFlow."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez Ouvrir Réglages : Réglages s’ouvre sur ContextFlow. Sinon, accédez à Apps → Safari (pas ContextFlow) → Extensions → ContextFlow."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca Apri Impostazioni: si apre su ContextFlow. Se no, vai su App → Safari (non ContextFlow) → Estensioni → ContextFlow."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「設定を開く」をタップすると、ContextFlow の画面で開きます。開かない場合は、「アプリ」→「Safari」（ContextFlowではなく）→「機能拡張」→「ContextFlow」と進みます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정 열기를 탭하면 ContextFlow 화면에서 열려요. 그렇지 않으면 앱 → Safari(ContextFlow 아님) → 확장 프로그램 → ContextFlow로 이동하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque em Abrir Ajustes: eles abrem no ContextFlow. Se não, acesse Apps → Safari (não o ContextFlow) → Extensões → ContextFlow."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите «Открыть Настройки»: они откроются на ContextFlow. Если нет, перейдите в «Приложения» → Safari (не ContextFlow) → «Расширения» → ContextFlow."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Ayarlar'ı aç” düğmesine dokunun: Ayarlar ContextFlow sayfasında açılır. Açılmazsa Uygulamalar → Safari (ContextFlow değil) → Uzantılar → ContextFlow bölümüne gidin."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Торкніться «Відкрити Параметри»: вони відкриються на ContextFlow. Якщо ні, перейдіть у «Програми» → Safari (не ContextFlow) → «Розширення» → ContextFlow."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chạm vào Mở Cài đặt: Cài đặt sẽ mở đúng mục ContextFlow. Nếu không, hãy đi tới Ứng dụng → Safari (không phải ContextFlow) → Tiện ích mở rộng → ContextFlow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "轻点“打开设置”：会直接打开 ContextFlow。如果没有，请前往“App”→“Safari”（不是 ContextFlow）→“扩展”→“ContextFlow”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "點一下「打開設定」：會打開在 ContextFlow 頁面。如果沒有，請前往「App」→「Safari」（不是 ContextFlow）→「延伸功能」→「ContextFlow」。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

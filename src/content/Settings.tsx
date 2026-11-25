@@ -6,6 +6,8 @@ import { t, uiDirection, uiLang } from "../shared/i18n"
 import { OWN_KEY_PATTERN } from "../shared/models"
 import { hasPro, isUltra, periodOfProduct, productOf } from "../shared/plan"
 import type { Platform, Settings, StatusInfo, Usage } from "../shared/types"
+import type { PlansFeature } from "./Plans"
+import { TasteLine, tasteOf } from "./Taste"
 import * as Icon from "./icons"
 import { deleteAllChats, hideYearly, yearlyHiddenNow } from "./store"
 import { InsertSettingsGroup } from "./insert/InsertSettings"
@@ -32,6 +34,8 @@ interface Props {
   onUpgrade: () => void
   // 2.6: the plans sheet (Own key, Pro, Ultra; monthly or yearly).
   onPlans?: () => void
+  // 2.8 (В7.4): Pro's tastes of Ultra: «In Ultra: …» opens the plans on that feature.
+  onTaste?: (feature: PlansFeature) => void
   // Build 90: a monthly Pro or Ultra subscriber switches to the yearly plan (the app takes the payment).
   onYearly?: (plan: "pro" | "ultra") => void
   // The Own key plan's button: "Upgrade to Pro", at the discount when there is one.
@@ -124,6 +128,10 @@ export function SettingsView(props: Props): VNode {
       {speak && (
         <p class="cf-hint">{t("listenLeft", String(Math.max(0, Math.floor((speak.limit - speak.used) / 60))), String(Math.round(speak.limit / 60)))}</p>
       )}
+      {TARGET === "safari" && props.onTaste && (["listen", "similar"] as const).map((feature) => {
+        const usage = tasteOf(status, feature)
+        return usage ? <TasteLine key={feature} feature={feature} usage={usage} facts={status?.plans} onUltra={() => props.onTaste?.(feature)} /> : null
+      })}
       {renews && plan !== "free" && <p class="cf-hint">{status?.store?.autoRenew === false ? t("planEnds", renews) : t("planRenews", renews)}</p>}
       {TARGET === "safari" && (
         <div class="cf-row buttons">
@@ -138,6 +146,21 @@ export function SettingsView(props: Props): VNode {
           {plan === "free" && <button type="button" class="cf-link" onClick={props.onManage}>{t("restorePurchases")}</button>}
           {props.onPlans && <button type="button" class={isUltra(plan) ? "cf-link" : "cf-secondary"} onClick={props.onPlans}>{isUltra(plan) ? t("plansCompare") : plan === "free" ? t("plansCompare") : t("seeUltra")}</button>}
         </div>
+      )}
+      {/* 2.8: the opt-out (and opt-in) for a Pro discount in the answers-back reminder (App Review 4.5.4). Free only:
+          no one else is offered one. */}
+      {TARGET === "safari" && plan === "free" && (
+        <>
+          <label class="cf-row toggle">
+            <span class="cf-label">{t("setOfferNotify")}</span>
+            <input type="checkbox" checked={settings.offerNotify} onChange={(e) => {
+              const on = e.currentTarget.checked
+              onChange({ offerNotify: on })
+              void sendBackground({ type: "useEvent", f: "chat_plans", a: on ? "offer_notify_on" : "offer_notify_off", via: "settings" })
+            }} />
+          </label>
+          <p class="cf-hint">{t("setOfferNotifyHint")}</p>
+        </>
       )}
       {TARGET === "safari" && monthlyPaid && yearlySave && yearlyPercent && yearlyHidden === false && props.onYearly && (
         <div class="cf-yearly" role="note">

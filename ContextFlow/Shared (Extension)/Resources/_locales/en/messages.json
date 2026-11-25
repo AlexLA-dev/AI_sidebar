@@ -1004,9 +1004,6 @@
  "limitFreeBack_other": {
   "message": "{0} new free answers at {1}, in {2}."
  },
- "limitFreePro": {
-  "message": "Pro gives you up to {0} answers a week, videos and PDFs on the page, AI search and questions across all your chats."
- },
  "limitNotes": {
   "message": "Notes stay free and unlimited: write down what matters now, ask AI about it later."
  },
@@ -1022,11 +1019,8 @@
  "errKeyRate": {
   "message": "{0} is holding back requests from your key right now: your account's rate limit. Wait a minute and ask again. Your limits are at {1}."
  },
- "offerLimit": {
-  "message": "Or get Pro with {0}% off your first month: up to {1} answers a week, deeper and more detailed. Cancel any time."
- },
  "offerButton": {
-  "message": "Get Pro {0}% off"
+  "message": "Get the first month {0}% off"
  },
  "offerShort": {
   "message": "Pro −{0}%"
@@ -2305,9 +2299,6 @@
  },
  "offerMemoryLong": {
   "message": "This chat has more than the {0} answers and notes a free answer remembers. With Pro the AI remembers all of it: every message, your notes and the pages you asked about."
- },
- "offerRetryAt": {
-  "message": "Answers are back at {0}."
  },
  "similarWhere": {
   "message": "Where to look"
@@ -3799,6 +3790,126 @@
  },
  "agentRecapTerms": {
   "message": "Cancelling, as the page says: {0}"
+ },
+ "tasteListenLeft": {
+  "message": "Listen in Pro: {0} of {1} min left this week"
+ },
+ "tasteSimilarLeft": {
+  "message": "Full search in Pro: {0} of {1} left this week"
+ },
+ "tasteUltraListen": {
+  "message": "In Ultra: {0} min a week"
+ },
+ "tasteUltraSimilar": {
+  "message": "In Ultra: {0} full searches a week"
+ },
+ "tasteListenUsed": {
+  "message": "This week's {0} minutes of listening in Pro are used up. They come back on {1}."
+ },
+ "tasteSimilarUsed": {
+  "message": "This week's full search in Pro is used. It comes back on {0}; the quick search still works."
+ },
+ "tasteSimilarDone": {
+  "message": "A full search, as in Ultra: Pro gets one a week."
+ },
+ "boughtPro": {
+  "message": "Pro is on: up to {0} answers a week. Ask away."
+ },
+ "boughtUltra": {
+  "message": "Ultra is on: Listen, the full Find similar and everything in Pro."
+ },
+ "boughtByok": {
+  "message": "Own key is on. Add your API key in Settings."
+ },
+ "answersBackAsk": {
+  "message": "Remind me when my {0} answers are back"
+ },
+ "answersBackSet": {
+  "message": "I'll remind you at {0}, when your answers are back."
+ },
+ "answersBackOff": {
+  "message": "Notifications are off for ContextFlow. Your answers are back at {0}."
+ },
+ "answersBackFailed": {
+  "message": "The reminder couldn't be set. Your answers are back at {0}."
+ },
+ "answersBackBody": {
+  "message": "Your {0} free answers are back. Ask about any page."
+ },
+ "answersBackInApp": {
+  "message": "Set it in the ContextFlow app"
+ },
+ "hoursMinutes": {
+  "message": "{0} h {1} min"
+ },
+ "offerByCode": {
+  "message": "Applied with a code in the App Store."
+ },
+ "limitBuyOffer": {
+  "message": "Get Pro — first month {0}% off"
+ },
+ "limitBuyPrice": {
+  "message": "Get Pro — {0} a month"
+ },
+ "answersBackAt": {
+  "message": "Remind me at {0}"
+ },
+ "limitMore": {
+  "message": "More"
+ },
+ "moreYearly": {
+  "message": "Yearly: {0} a year"
+ },
+ "moreYearlySave": {
+  "message": "Yearly: {0} a year, save {1}%"
+ },
+ "moreUltra": {
+  "message": "Ultra: {0} a month, everything in Pro plus Listen and Find similar"
+ },
+ "moreUltraNoPrice": {
+  "message": "Ultra: everything in Pro plus Listen and Find similar"
+ },
+ "moreChoose": {
+  "message": "Choose"
+ },
+ "moreNotes": {
+  "message": "Notes stay free and unlimited"
+ },
+ "moreOwnKey": {
+  "message": "Have an API key?"
+ },
+ "moreOwnKeyLink": {
+  "message": "Use my own"
+ },
+ "limitProLine": {
+  "message": "Up to {0} answers a week"
+ },
+ "limitCancel": {
+  "message": "Cancel anytime in the App Store."
+ },
+ "limitCardTitle": {
+  "message": "You've used today's free answers"
+ },
+ "limitCardBack": {
+  "message": "They're back at {0}, in {1}."
+ },
+ "answersBackOfferAsk": {
+  "message": "Also tell me about a Pro discount in this reminder"
+ },
+ "answersBackOfferBody": {
+  "message": "Your {0} free answers are back. And if you'd like more, your first month of Pro is {1}% off."
+ },
+ "setOfferNotify": {
+  "message": "Pro discounts in reminders"
+ },
+ "setOfferNotifyHint": {
+  "message": "Only in the one reminder you set when your free answers run out. Off unless you turn it on."
+ },
+ "limitCardBackNow": {
+  "message": "Your free answers are back."
+ },
+ "limitCardTitleBack": {
+  "message": "Your free answers are back"
  },
  "tip_4cf1b54b00": {
   "message": "Tips"
