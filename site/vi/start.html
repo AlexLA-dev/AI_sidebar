@@ -62,6 +62,8 @@
   .box ol { padding-left: 22px; }
   [dir="rtl"] .box ol { padding-left: 0; padding-right: 22px; }
   .box.warn { border: 2px solid #f59e0b; }
+  .box .note { font-size: 15px; color: var(--text-2); margin-top: -4px; }
+  .box .or { font-weight: 600; margin-bottom: 4px; }
   .reload { margin-top: 10px; font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 9px 16px; background: var(--blue); color: #fff; }
   .try { border: 1px solid var(--border); border-radius: 18px; padding: 6px 20px 14px; margin: 8px 0 18px; }
   .try .kicker { font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--blue); margin: 14px 0 0; }
@@ -106,17 +108,27 @@
 
   <div class="box warn" id="turn-on" hidden>
     <h2>Không thấy ✦ trên trang? ContextFlow chưa được cho phép trên các trang web.</h2>
+    <!-- The app's own card (2.8 setup, Setup.swift safariStep), word for word, with Safari's button names in each language
+         (tests/fixtures/safari-permission-labels.json). Safari's own question first: seen granting at once on the owner's
+         iPad. Settings second: the way seen working every time in the simulators. iPhone: the page menu in the address
+         bar; iPad: the puzzle-piece button. Which one shows is chosen from the device (the script below), not the window. -->
     <div data-device="iphone">
+      <p>Mở menu trang trên thanh địa chỉ → ContextFlow → “Luôn Cho phép…” → “Luôn luôn cho phép trên mọi trang web”.</p>
+      <p class="note">Đừng chọn “Cho phép trong một ngày”: như vậy ✦ sẽ biến mất vào ngày mai.</p>
+      <p class="or">Hoặc trong Cài đặt:</p>
       <ol>
         <li>Mở ứng dụng Cài đặt và đi tới Ứng dụng → Safari (không phải ContextFlow) → Tiện ích mở rộng → ContextFlow.</li>
-        <li>Trong Quyền, đặt Tất cả trang web thành Cho phép.</li>
+        <li>Trong Quyền, đặt Tất cả trang web thành Cho phép. Nếu thay vào đó bạn thấy danh sách trang web, hãy đặt từng dòng trong danh sách thành Cho phép.</li>
         <li>Quay lại Safari, tải lại trang và chạm vào ✦.</li>
       </ol>
     </div>
     <div data-device="ipad" hidden>
+      <p>Chạm vào nút mảnh ghép cạnh địa chỉ → ContextFlow → “Luôn Cho phép…” → “Luôn luôn cho phép trên mọi trang web”.</p>
+      <p class="note">Đừng chọn “Cho phép trong một ngày”: như vậy ✦ sẽ biến mất vào ngày mai.</p>
+      <p class="or">Hoặc trong Cài đặt:</p>
       <ol>
         <li>Mở Cài đặt, rồi Ứng dụng ở bên trái → Safari (không phải ContextFlow) → Tiện ích mở rộng → ContextFlow.</li>
-        <li>Trong Quyền, đặt Tất cả trang web thành Cho phép.</li>
+        <li>Trong Quyền, đặt Tất cả trang web thành Cho phép. Nếu thay vào đó bạn thấy danh sách trang web, hãy đặt từng dòng trong danh sách thành Cho phép.</li>
         <li>Quay lại Safari, tải lại trang và chạm vào ✦.</li>
       </ol>
     </div>

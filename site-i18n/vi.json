@@ -723,5 +723,9 @@
   "9cf76ea2ed86": "Mở Cài đặt, rồi Ứng dụng ở bên trái → Safari (không phải ContextFlow) → Tiện ích mở rộng → ContextFlow.",
   "07b51faeeeef": "Quay lại Safari, tải lại trang và chạm vào ✦.",
   "6c05410141f9": "Chọn “Luôn cho phép”. ContextFlow chỉ đọc một trang khi bạn hỏi nó điều gì đó.",
-  "abbe3a8e83ad": "Trong Quyền, đặt Tất cả trang web thành Cho phép."
+  "393d79f8b457": "Mở menu trang trên thanh địa chỉ → ContextFlow → “Luôn Cho phép…” → “Luôn luôn cho phép trên mọi trang web”.",
+  "ca4ea310de90": "Đừng chọn “Cho phép trong một ngày”: như vậy ✦ sẽ biến mất vào ngày mai.",
+  "0b43319f282d": "Hoặc trong Cài đặt:",
+  "2c91c2a977f2": "Trong Quyền, đặt Tất cả trang web thành Cho phép. Nếu thay vào đó bạn thấy danh sách trang web, hãy đặt từng dòng trong danh sách thành Cho phép.",
+  "661d6fcb9cf1": "Chạm vào nút mảnh ghép cạnh địa chỉ → ContextFlow → “Luôn Cho phép…” → “Luôn luôn cho phép trên mọi trang web”."
 }

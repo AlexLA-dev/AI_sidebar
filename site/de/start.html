@@ -62,6 +62,8 @@
   .box ol { padding-left: 22px; }
   [dir="rtl"] .box ol { padding-left: 0; padding-right: 22px; }
   .box.warn { border: 2px solid #f59e0b; }
+  .box .note { font-size: 15px; color: var(--text-2); margin-top: -4px; }
+  .box .or { font-weight: 600; margin-bottom: 4px; }
   .reload { margin-top: 10px; font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 9px 16px; background: var(--blue); color: #fff; }
   .try { border: 1px solid var(--border); border-radius: 18px; padding: 6px 20px 14px; margin: 8px 0 18px; }
   .try .kicker { font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--blue); margin: 14px 0 0; }
@@ -106,17 +108,27 @@
 
   <div class="box warn" id="turn-on" hidden>
     <h2>Kein ✦ auf der Seite? ContextFlow ist auf Websites noch nicht erlaubt.</h2>
+    <!-- The app's own card (2.8 setup, Setup.swift safariStep), word for word, with Safari's button names in each language
+         (tests/fixtures/safari-permission-labels.json). Safari's own question first: seen granting at once on the owner's
+         iPad. Settings second: the way seen working every time in the simulators. iPhone: the page menu in the address
+         bar; iPad: the puzzle-piece button. Which one shows is chosen from the device (the script below), not the window. -->
     <div data-device="iphone">
+      <p>Öffne in der Adressleiste das Seitenmenü → „ContextFlow“ → „Immer erlauben&#160;…“ → „Auf jeder Website immer erlauben“.</p>
+      <p class="note">Nicht „Einen Tag lang erlauben“: Damit ist ✦ morgen wieder weg.</p>
+      <p class="or">Oder in den Einstellungen:</p>
       <ol>
         <li>Öffne die App „Einstellungen“ und wähle „Apps“ → „Safari“ (nicht „ContextFlow“) → „Erweiterungen“ → „ContextFlow“.</li>
-        <li>Setze unter „Berechtigungen“ die Option „Alle Websites“ auf „Erlauben“.</li>
+        <li>Setze unter „Berechtigungen“ die Option „Alle Websites“ auf „Erlauben“. Siehst du dort stattdessen eine Liste von Websites, setze jede Zeile darin auf „Erlauben“.</li>
         <li>Zurück in Safari: Lade die Seite neu und tippe auf ✦.</li>
       </ol>
     </div>
     <div data-device="ipad" hidden>
+      <p>Tippe neben der Adresse auf die Taste mit dem Puzzleteil → „ContextFlow“ → „Immer erlauben&#160;…“ → „Auf jeder Website immer erlauben“.</p>
+      <p class="note">Nicht „Einen Tag lang erlauben“: Damit ist ✦ morgen wieder weg.</p>
+      <p class="or">Oder in den Einstellungen:</p>
       <ol>
         <li>Öffne „Einstellungen“, dann links „Apps“ → „Safari“ (nicht „ContextFlow“) → „Erweiterungen“ → „ContextFlow“.</li>
-        <li>Setze unter „Berechtigungen“ die Option „Alle Websites“ auf „Erlauben“.</li>
+        <li>Setze unter „Berechtigungen“ die Option „Alle Websites“ auf „Erlauben“. Siehst du dort stattdessen eine Liste von Websites, setze jede Zeile darin auf „Erlauben“.</li>
         <li>Zurück in Safari: Lade die Seite neu und tippe auf ✦.</li>
       </ol>
     </div>

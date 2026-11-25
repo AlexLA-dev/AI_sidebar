@@ -5999,6 +5999,30 @@
   ]
  },
  {
+  "key": "393d79f8b457",
+  "kind": "html",
+  "en": "Open the page menu in the address bar → ContextFlow → “Always Allow…” → “Always Allow on Every Website”.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "ca4ea310de90",
+  "kind": "html",
+  "en": "Not “Allow for One Day”: with it, ✦ is gone again tomorrow.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "0b43319f282d",
+  "kind": "html",
+  "en": "Or in Settings:",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
   "key": "b805da32b11a",
   "kind": "html",
   "en": "Open Settings and go to Apps → Safari (not ContextFlow) → Extensions → ContextFlow.",
@@ -6007,9 +6031,9 @@
   ]
  },
  {
-  "key": "abbe3a8e83ad",
+  "key": "2c91c2a977f2",
   "kind": "html",
-  "en": "Under Permissions, set All Websites to Allow.",
+  "en": "Under Permissions, set All Websites to Allow. If you see a list of websites there instead, set every row in it to Allow.",
   "pages": [
    "start.html"
   ]
@@ -6018,6 +6042,14 @@
   "key": "07b51faeeeef",
   "kind": "html",
   "en": "Back in Safari, reload the page and tap ✦.",
+  "pages": [
+   "start.html"
+  ]
+ },
+ {
+  "key": "661d6fcb9cf1",
+  "kind": "html",
+  "en": "Tap the puzzle-piece button next to the address → ContextFlow → “Always Allow…” → “Always Allow on Every Website”.",
   "pages": [
    "start.html"
   ]

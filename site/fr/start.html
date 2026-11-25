@@ -62,6 +62,8 @@
   .box ol { padding-left: 22px; }
   [dir="rtl"] .box ol { padding-left: 0; padding-right: 22px; }
   .box.warn { border: 2px solid #f59e0b; }
+  .box .note { font-size: 15px; color: var(--text-2); margin-top: -4px; }
+  .box .or { font-weight: 600; margin-bottom: 4px; }
   .reload { margin-top: 10px; font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 9px 16px; background: var(--blue); color: #fff; }
   .try { border: 1px solid var(--border); border-radius: 18px; padding: 6px 20px 14px; margin: 8px 0 18px; }
   .try .kicker { font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--blue); margin: 14px 0 0; }
@@ -106,17 +108,27 @@
 
   <div class="box warn" id="turn-on" hidden>
     <h2>Pas de ✦ sur la page&#160;? ContextFlow n’est pas encore autorisé sur les sites web.</h2>
+    <!-- The app's own card (2.8 setup, Setup.swift safariStep), word for word, with Safari's button names in each language
+         (tests/fixtures/safari-permission-labels.json). Safari's own question first: seen granting at once on the owner's
+         iPad. Settings second: the way seen working every time in the simulators. iPhone: the page menu in the address
+         bar; iPad: the puzzle-piece button. Which one shows is chosen from the device (the script below), not the window. -->
     <div data-device="iphone">
+      <p>Ouvrez le menu de la page dans la barre d’adresse → ContextFlow → « Toujours autoriser… » → « Toujours autoriser sur chaque site web ».</p>
+      <p class="note">Pas « Autoriser pendant un jour » : avec ce choix, ✦ disparaît dès demain.</p>
+      <p class="or">Ou dans Réglages :</p>
       <ol>
         <li>Ouvrez l’app Réglages et accédez à Apps → Safari (pas ContextFlow) → Extensions → ContextFlow.</li>
-        <li>Sous Autorisations, réglez «&#160;Tous les sites web&#160;» sur «&#160;Autoriser&#160;».</li>
+        <li>Sous Autorisations, réglez «&#160;Tous les sites web&#160;» sur «&#160;Autoriser&#160;». Si vous y voyez plutôt une liste de sites web, réglez chaque ligne sur « Autoriser ».</li>
         <li>De retour dans Safari, rechargez la page et touchez ✦.</li>
       </ol>
     </div>
     <div data-device="ipad" hidden>
+      <p>Touchez le bouton en forme de pièce de puzzle à côté de l’adresse → ContextFlow → « Toujours autoriser… » → « Toujours autoriser sur chaque site web ».</p>
+      <p class="note">Pas « Autoriser pendant un jour » : avec ce choix, ✦ disparaît dès demain.</p>
+      <p class="or">Ou dans Réglages :</p>
       <ol>
         <li>Ouvrez Réglages, puis Apps à gauche → Safari (pas ContextFlow) → Extensions → ContextFlow.</li>
-        <li>Sous Autorisations, réglez «&#160;Tous les sites web&#160;» sur «&#160;Autoriser&#160;».</li>
+        <li>Sous Autorisations, réglez «&#160;Tous les sites web&#160;» sur «&#160;Autoriser&#160;». Si vous y voyez plutôt une liste de sites web, réglez chaque ligne sur « Autoriser ».</li>
         <li>De retour dans Safari, rechargez la page et touchez ✦.</li>
       </ol>
     </div>

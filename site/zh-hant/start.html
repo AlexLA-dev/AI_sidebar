@@ -62,6 +62,8 @@
   .box ol { padding-left: 22px; }
   [dir="rtl"] .box ol { padding-left: 0; padding-right: 22px; }
   .box.warn { border: 2px solid #f59e0b; }
+  .box .note { font-size: 15px; color: var(--text-2); margin-top: -4px; }
+  .box .or { font-weight: 600; margin-bottom: 4px; }
   .reload { margin-top: 10px; font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 9px 16px; background: var(--blue); color: #fff; }
   .try { border: 1px solid var(--border); border-radius: 18px; padding: 6px 20px 14px; margin: 8px 0 18px; }
   .try .kicker { font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--blue); margin: 14px 0 0; }
@@ -106,17 +108,27 @@
 
   <div class="box warn" id="turn-on" hidden>
     <h2>頁面上沒有 ✦？ContextFlow 還沒有獲准在網站上執行。</h2>
+    <!-- The app's own card (2.8 setup, Setup.swift safariStep), word for word, with Safari's button names in each language
+         (tests/fixtures/safari-permission-labels.json). Safari's own question first: seen granting at once on the owner's
+         iPad. Settings second: the way seen working every time in the simulators. iPhone: the page menu in the address
+         bar; iPad: the puzzle-piece button. Which one shows is chosen from the device (the script below), not the window. -->
     <div data-device="iphone">
+      <p>打開網址列中的頁面選單 →「ContextFlow」→「永遠允許⋯」→「一律在每個網站允許」。</p>
+      <p class="note">不要選「允許一天」：這樣明天 ✦ 又會消失。</p>
+      <p class="or">或在「設定」中：</p>
       <ol>
         <li>打開「設定」App，然後前往「App」→「Safari」（不是 ContextFlow）→「延伸功能」→「ContextFlow」。</li>
-        <li>在「權限」下方，將「所有網站」設為「允許」。</li>
+        <li>在「權限」下方，將「所有網站」設為「允許」。如果那裡顯示的是網站列表，請將列表中的每一列都設為「允許」。</li>
         <li>回到 Safari，重新載入頁面，然後點一下 ✦。</li>
       </ol>
     </div>
     <div data-device="ipad" hidden>
+      <p>點一下網址旁的拼圖按鈕 →「ContextFlow」→「永遠允許⋯」→「一律在每個網站允許」。</p>
+      <p class="note">不要選「允許一天」：這樣明天 ✦ 又會消失。</p>
+      <p class="or">或在「設定」中：</p>
       <ol>
         <li>打開「設定」，然後前往左側的「App」→「Safari」（不是 ContextFlow）→「延伸功能」→「ContextFlow」。</li>
-        <li>在「權限」下方，將「所有網站」設為「允許」。</li>
+        <li>在「權限」下方，將「所有網站」設為「允許」。如果那裡顯示的是網站列表，請將列表中的每一列都設為「允許」。</li>
         <li>回到 Safari，重新載入頁面，然後點一下 ✦。</li>
       </ol>
     </div>
