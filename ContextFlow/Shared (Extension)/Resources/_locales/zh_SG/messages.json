@@ -3480,7 +3480,7 @@
   "message": "用“我的信息”填写：{0}"
  },
  "agentLineFilled": {
-  "message": "已用“我的信息”填写：{0}"
+  "message": "已填写：{0}"
  },
  "agentPermConsent": {
   "message": "勾选同意 {0} 的条款"

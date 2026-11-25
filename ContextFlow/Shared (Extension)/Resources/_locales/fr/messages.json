@@ -3480,7 +3480,7 @@
   "message": "Remplir avec « Mes infos » : {0}"
  },
  "agentLineFilled": {
-  "message": "Rempli avec « Mes infos » : {0}"
+  "message": "Rempli : {0}"
  },
  "agentPermConsent": {
   "message": "Cocher l'acceptation des conditions de {0}"

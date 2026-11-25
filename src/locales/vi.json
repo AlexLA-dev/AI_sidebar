@@ -1190,7 +1190,7 @@
   "agentPlanNow": "Ngay",
   "agentPermPersonal": "Nhập thông tin bạn đã cho trong yêu cầu: {0}",
   "agentPermFill": "Điền từ “Thông tin của tôi”: {0}",
-  "agentLineFilled": "Đã điền từ “Thông tin của tôi”: {0}",
+  "agentLineFilled": "Đã điền: {0}",
   "agentPermConsent": "Đánh dấu đồng ý với điều khoản của {0}",
   "agentPermReminder": "Thêm vào Lời nhắc: “{0}”",
   "agentPermReminderDone": "Đánh dấu xong trong Lời nhắc: “{0}”",

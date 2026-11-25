@@ -3480,7 +3480,7 @@
   "message": "Điền từ “Thông tin của tôi”: {0}"
  },
  "agentLineFilled": {
-  "message": "Đã điền từ “Thông tin của tôi”: {0}"
+  "message": "Đã điền: {0}"
  },
  "agentPermConsent": {
   "message": "Đánh dấu đồng ý với điều khoản của {0}"

@@ -1190,7 +1190,7 @@
   "agentPlanNow": "Agora",
   "agentPermPersonal": "Digitar seus dados do pedido: {0}",
   "agentPermFill": "Preencher com “Meus dados”: {0}",
-  "agentLineFilled": "Preenchido com “Meus dados”: {0}",
+  "agentLineFilled": "Preenchido: {0}",
   "agentPermConsent": "Marcar a concordância com os termos de {0}",
   "agentPermReminder": "Adicionar aos Lembretes: “{0}”",
   "agentPermReminderDone": "Marcar como concluído nos Lembretes: “{0}”",

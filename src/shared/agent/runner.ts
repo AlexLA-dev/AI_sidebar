@@ -797,14 +797,20 @@ async function slotRefusal(state: AgentState, io: RunnerIO, call: ToolCall, labe
   const date = /^\d{4}-\d{2}-\d{2}$/.test(call.date ?? "") ? call.date! : ""
   const time = /^([01]\d|2[0-3]):[0-5]\d$/.test(call.time ?? "") ? call.time! : ""
   if (!date || !time) return "a time slot: say its date (YYYY-MM-DD) and time (HH:MM) in date and time when you press it, so the device can check it"
-  state.picked = { date, time }
+  const why = await slotWhy(state, io, b, date, time, map, call, item)
+  // Only a slot that went through is the booking's (127: 19:30 refused after 20:00 was chosen, and the recap said 19:30).
+  if (!why) state.picked = { date, time }
+  return why
+}
+
+async function slotWhy(state: AgentState, io: RunnerIO, b: PlanBooking, date: string, time: string, map?: PageMap, call?: ToolCall, item?: MapItem): Promise<string | null> {
   // The request's window (its time widened by the rules), checked with or without the Calendar (a restaurant, 121 sweep:
   // 13:15 pressed for «17:30»).
   if (b.from && b.until && (time < b.from || time > b.until)) return `${time} is outside the time the request and the rules allow (${b.from}–${b.until}): choose a slot inside it, or ask with the page's nearest real slots`
   // The nearest free time to the one the request names is the device's sum, not the model's (127: 19:30 booked for
   // «19:10» with 19:00 free, 19:30 for «20:10» with 20:00 free): a nearer one the page offers is chosen instead.
   if (b.at && map) {
-    let nearer = nearerTimes(b.at, time, freeTimes(map, call, item), b.from, b.until)
+    let nearer = nearerTimes(b.at, time, freeTimes(map, call!, item), b.from, b.until)
     if (nearer.length && state.calendar && io.slotFree) {
       const fits: string[] = []
       for (const t of nearer.slice(0, 3)) {

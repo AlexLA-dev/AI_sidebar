@@ -1190,7 +1190,7 @@
   "agentPlanNow": "الآن",
   "agentPermPersonal": "كتابة بياناتك من الطلب: {0}",
   "agentPermFill": "الملء من «بياناتي»: {0}",
-  "agentLineFilled": "تمت التعبئة من «بياناتي»: {0}",
+  "agentLineFilled": "تمت التعبئة: {0}",
   "agentPermConsent": "وضع علامة الموافقة على شروط موقع {0}",
   "agentPermReminder": "إضافة إلى التذكيرات: «{0}»",
   "agentPermReminderDone": "وضع علامة «تم» في التذكيرات: «{0}»",

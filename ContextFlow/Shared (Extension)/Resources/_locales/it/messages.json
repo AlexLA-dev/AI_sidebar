@@ -3480,7 +3480,7 @@
   "message": "Compilare con «I miei dati»: {0}"
  },
  "agentLineFilled": {
-  "message": "Compilato con «I miei dati»: {0}"
+  "message": "Compilato: {0}"
  },
  "agentPermConsent": {
   "message": "Spuntare l'accettazione dei termini di {0}"

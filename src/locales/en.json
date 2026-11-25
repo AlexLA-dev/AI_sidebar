@@ -1190,7 +1190,7 @@
   "agentPlanNow": "Now",
   "agentPermPersonal": "Type in your details from the request: {0}",
   "agentPermFill": "Fill in from My details: {0}",
-  "agentLineFilled": "Filled in from My details: {0}",
+  "agentLineFilled": "Filled in: {0}",
   "agentPermConsent": "Tick the box agreeing to {0}'s terms",
   "agentPermReminder": "Add to Reminders: “{0}”",
   "agentPermReminderDone": "Mark done in Reminders: “{0}”",

@@ -3480,7 +3480,7 @@
   "message": "“Bilgilerim” ile doldurmak: {0}"
  },
  "agentLineFilled": {
-  "message": "“Bilgilerim” ile dolduruldu: {0}"
+  "message": "Dolduruldu: {0}"
  },
  "agentPermConsent": {
   "message": "{0} sitesinin koşullarını kabul kutusunu işaretlemek"

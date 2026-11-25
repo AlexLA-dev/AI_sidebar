@@ -1190,7 +1190,7 @@
   "agentPlanNow": "Jetzt",
   "agentPermPersonal": "Ihre Angaben aus der Bitte eintragen: {0}",
   "agentPermFill": "Aus „Meine Daten“ ausfüllen: {0}",
-  "agentLineFilled": "Aus „Meine Daten“ ausgefüllt: {0}",
+  "agentLineFilled": "Ausgefüllt: {0}",
   "agentPermConsent": "Zustimmung zu den Bedingungen von {0} ankreuzen",
   "agentPermReminder": "Zu Erinnerungen hinzufügen: „{0}“",
   "agentPermReminderDone": "In Erinnerungen als erledigt markieren: „{0}“",

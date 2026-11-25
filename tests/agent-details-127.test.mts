@@ -118,6 +118,18 @@ test("3: the nearest free time is the device's sum; a tie is either", async () =
   assert.deepEqual(x.acted.map((c) => c.option), ["20:00"])
 })
 
+test("3: a refused slot isn't the booking's: the recap keeps the one chosen (127 iPad: 20:00 chosen, 19:30 refused, recap said 19:30)", async () => {
+  const s = running("Book a table tomorrow at 20:10 for 4 people", { booking: { kind: "table", date: "2026-11-26", at: "20:10", from: "19:10", until: "21:10", minutes: 90 } as never })
+  const x = io([
+    step({ tool: "select", id: "5", option: "20:00", date: "2026-11-26", time: "20:00" }, "free", "select"),
+    step({ tool: "select", id: "5", option: "19:30", date: "2026-11-26", time: "19:30" }, "free", "select"),
+    step({ tool: "done", summary: "ok" }, "free", "read")
+  ])
+  const after = await drive(s, x)
+  assert.deepEqual(x.acted.map((c) => c.option), ["20:00"])
+  assert.deepEqual(after.picked, { date: "2026-11-26", time: "20:00" })
+})
+
 test("3: a nearer time the page shows as taken isn't offered", async () => {
   const map = { ...FORM, items: FORM.items.map((i) => (i.id === "5" ? { ...i, options: ["19:00", "19:30", "20:00 [unavailable]"] } : i)) } as PageMap
   const s = running("Book a table tomorrow at 20:10 for 4 people", { booking: { kind: "table", date: "2026-11-26", at: "20:10", from: "19:10", until: "21:10", minutes: 90 } as never })

@@ -3480,7 +3480,7 @@
   "message": "Fill in from My details: {0}"
  },
  "agentLineFilled": {
-  "message": "Filled in from My details: {0}"
+  "message": "Filled in: {0}"
  },
  "agentPermConsent": {
   "message": "Tick the box agreeing to {0}'s terms"

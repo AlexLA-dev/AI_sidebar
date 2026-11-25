@@ -1190,7 +1190,7 @@
   "agentPlanNow": "现在",
   "agentPermPersonal": "填入你在请求里给出的信息：{0}",
   "agentPermFill": "用“我的信息”填写：{0}",
-  "agentLineFilled": "已用“我的信息”填写：{0}",
+  "agentLineFilled": "已填写：{0}",
   "agentPermConsent": "勾选同意 {0} 的条款",
   "agentPermReminder": "添加到提醒事项：“{0}”",
   "agentPermReminderDone": "在提醒事项中标为完成：“{0}”",

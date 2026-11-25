@@ -1190,7 +1190,7 @@
   "agentPlanNow": "現在",
   "agentPermPersonal": "填入你在請求中提供的資料：{0}",
   "agentPermFill": "用「我的資料」填寫：{0}",
-  "agentLineFilled": "已用「我的資料」填寫：{0}",
+  "agentLineFilled": "已填寫：{0}",
   "agentPermConsent": "勾選同意 {0} 的條款",
   "agentPermReminder": "加入提醒事項：「{0}」",
   "agentPermReminderDone": "在提醒事項中標為完成：「{0}」",

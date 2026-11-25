@@ -3480,7 +3480,7 @@
   "message": "Aus „Meine Daten“ ausfüllen: {0}"
  },
  "agentLineFilled": {
-  "message": "Aus „Meine Daten“ ausgefüllt: {0}"
+  "message": "Ausgefüllt: {0}"
  },
  "agentPermConsent": {
   "message": "Zustimmung zu den Bedingungen von {0} ankreuzen"
