@@ -867,7 +867,6 @@
   "b805da32b11a": "Apri l’app Impostazioni e vai su App → Safari (non ContextFlow) → Estensioni → ContextFlow.",
   "9cf76ea2ed86": "Apri Impostazioni, poi App a sinistra → Safari (non ContextFlow) → Estensioni → ContextFlow.",
   "07b51faeeeef": "Torna in Safari, ricarica la pagina e tocca ✦.",
-  "abbe3a8e83ad": "In Permessi, imposta “Tutti i siti web” su “Consenti”.",
   "251e7f817a8c": "Prova ContextFlow su questa pagina — ContextFlow",
   "c0dc9525754b": "Un breve articolo per provare ContextFlow: tocca ✦ e fai una domanda.",
   "24f837f22822": "Prova ContextFlow su questa pagina",
@@ -893,7 +892,6 @@
   "270760321fc9": "Seleziona «La sua curva ha un punto debole» e chiedi: «È vero?»",
   "896f51d1cdab": "«Cosa hanno scoperto le ricerche successive su questo?»",
   "4ec1ebf7c590": "Nessun ✦ sulla pagina? ContextFlow non è ancora consentito sui siti web.",
-  "6c05410141f9": "Scegli «Consenti sempre». ContextFlow legge una pagina solo quando gli chiedi qualcosa.",
   "6d90d5d0fc5c": "<strong>iPhone.</strong> Apri il menu della pagina nella barra degli indirizzi → ContextFlow → “Consenti sempre…” → “Consenti sempre su tutti i siti web”.",
   "94ed35173be3": "<strong>iPad.</strong> Tocca il pulsante con il pezzo di puzzle accanto all’indirizzo → ContextFlow → “Consenti sempre…” → “Consenti sempre su tutti i siti web”.",
   "ca4ea310de90": "Non “Consenti per un giorno”: così ✦ sparisce già domani.",
@@ -910,5 +908,6 @@
   "c27425609fb6": "<strong>Con una tua chiave:</strong> gratis e senza limiti, con chiavi di Anthropic, OpenAI, Google, OpenRouter, Groq o Mistral, e qualsiasi modello a cui la chiave dà accesso.",
   "f202491f0a07": "Safari mostra lo stesso avviso per ogni estensione, perché non può sapere cosa fa. Il testo della pagina viene inviato solo quando chiedi qualcosa e non viene usato per addestrare modelli. Puoi anche consentirlo sito per sito; in quel caso ✦ compare solo su quei siti.",
   "00d4db45c1ce": "Sì, Pro e Ultra",
-  "932a1fd2c1fe": "Trova e verifica. Non compra niente al posto tuo: a pagare sei sempre tu."
+  "932a1fd2c1fe": "Trova e verifica. Non compra niente al posto tuo: a pagare sei sempre tu.",
+  "f6a68fb273c4": "Scegli «Consenti sempre». Il testo della pagina viene inviato solo quando chiedi qualcosa e non viene usato per addestrare modelli."
 }

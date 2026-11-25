@@ -5026,7 +5026,8 @@
   "en": "Not “Allow for One Day”: with it, ✦ is gone again tomorrow.",
   "pages": [
    "support.html",
-   "turn-on-safari-extension-iphone.html"
+   "turn-on-safari-extension-iphone.html",
+   "start.html"
   ]
  },
  {
@@ -7382,7 +7383,8 @@
   "kind": "html",
   "en": "Open the page menu in the address bar → ContextFlow → “Always Allow…” → “Always Allow on Every Website”.",
   "pages": [
-   "turn-on-safari-extension-iphone.html"
+   "turn-on-safari-extension-iphone.html",
+   "start.html"
   ]
  },
  {
@@ -7390,7 +7392,8 @@
   "kind": "html",
   "en": "Or in Settings:",
   "pages": [
-   "turn-on-safari-extension-iphone.html"
+   "turn-on-safari-extension-iphone.html",
+   "start.html"
   ]
  },
  {
@@ -7407,7 +7410,8 @@
   "kind": "html",
   "en": "Under Permissions, set All Websites to Allow. If you see a list of websites there instead, set every row in it to Allow.",
   "pages": [
-   "turn-on-safari-extension-iphone.html"
+   "turn-on-safari-extension-iphone.html",
+   "start.html"
   ]
  },
  {
@@ -7432,7 +7436,8 @@
   "kind": "html",
   "en": "Tap the puzzle-piece button next to the address → ContextFlow → “Always Allow…” → “Always Allow on Every Website”.",
   "pages": [
-   "turn-on-safari-extension-iphone.html"
+   "turn-on-safari-extension-iphone.html",
+   "start.html"
   ]
  },
  {
@@ -7621,14 +7626,6 @@
   ]
  },
  {
-  "key": "abbe3a8e83ad",
-  "kind": "html",
-  "en": "Under Permissions, set All Websites to Allow.",
-  "pages": [
-   "start.html"
-  ]
- },
- {
   "key": "549e89fb27a3",
   "kind": "html",
   "en": "Turn ContextFlow on in Safari: Safari › Settings › Extensions, tick ContextFlow, and allow it on every website. Then click ContextFlow in the toolbar.",
@@ -7653,9 +7650,9 @@
   ]
  },
  {
-  "key": "6c05410141f9",
+  "key": "f6a68fb273c4",
   "kind": "html",
-  "en": "Choose Always Allow. ContextFlow reads a page only when you ask it something.",
+  "en": "Choose Always Allow. Page text is sent only when you ask something and is not used to train models.",
   "pages": [
    "start.html"
   ]

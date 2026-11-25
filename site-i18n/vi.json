@@ -867,7 +867,6 @@
   "b805da32b11a": "Mở ứng dụng Cài đặt và đi tới Ứng dụng → Safari (không phải ContextFlow) → Tiện ích mở rộng → ContextFlow.",
   "9cf76ea2ed86": "Mở Cài đặt, rồi Ứng dụng ở bên trái → Safari (không phải ContextFlow) → Tiện ích mở rộng → ContextFlow.",
   "07b51faeeeef": "Quay lại Safari, tải lại trang và chạm vào ✦.",
-  "abbe3a8e83ad": "Trong Quyền, đặt Tất cả trang web thành Cho phép.",
   "251e7f817a8c": "Thử ContextFlow trên trang này — ContextFlow",
   "c0dc9525754b": "Một bài viết ngắn để thử ContextFlow: chạm vào ✦ và hỏi về bài viết.",
   "24f837f22822": "Thử ContextFlow trên trang này",
@@ -893,7 +892,6 @@
   "270760321fc9": "Bôi đen câu “Đường cong của ông có một điểm yếu” rồi hỏi: “Điều này có đúng không?”",
   "896f51d1cdab": "“Các nghiên cứu sau này phát hiện gì về chuyện này?”",
   "4ec1ebf7c590": "Không thấy ✦ trên trang? ContextFlow chưa được cho phép trên các trang web.",
-  "6c05410141f9": "Chọn “Luôn cho phép”. ContextFlow chỉ đọc một trang khi bạn hỏi nó điều gì đó.",
   "6d90d5d0fc5c": "<strong>iPhone.</strong> Mở menu trang trên thanh địa chỉ → ContextFlow → “Luôn Cho phép…” → “Luôn luôn cho phép trên mọi trang web”.",
   "94ed35173be3": "<strong>iPad.</strong> Chạm vào nút mảnh ghép cạnh địa chỉ → ContextFlow → “Luôn Cho phép…” → “Luôn luôn cho phép trên mọi trang web”.",
   "ca4ea310de90": "Đừng chọn “Cho phép trong một ngày”: như vậy ✦ sẽ biến mất vào ngày mai.",
@@ -910,5 +908,6 @@
   "c27425609fb6": "<strong>Khóa của riêng bạn:</strong> miễn phí và không giới hạn, với khóa từ Anthropic, OpenAI, Google, OpenRouter, Groq hoặc Mistral, và mọi mô hình mà khóa đó dùng được.",
   "f202491f0a07": "Safari hiện cùng một cảnh báo cho mọi tiện ích, vì nó không thể biết một tiện ích làm gì. Văn bản của trang chỉ được gửi khi bạn hỏi và không được dùng để huấn luyện mô hình. Bạn cũng có thể cho phép theo từng trang web; khi đó ✦ chỉ hiện trên những trang đó.",
   "00d4db45c1ce": "Có, Pro và Ultra",
-  "932a1fd2c1fe": "Nó tìm và kiểm tra. Nó không mua gì thay bạn: việc thanh toán luôn do bạn tự làm."
+  "932a1fd2c1fe": "Nó tìm và kiểm tra. Nó không mua gì thay bạn: việc thanh toán luôn do bạn tự làm.",
+  "f6a68fb273c4": "Chọn “Luôn cho phép”. Văn bản của trang chỉ được gửi khi bạn hỏi và không được dùng để huấn luyện mô hình."
 }

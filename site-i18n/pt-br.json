@@ -867,7 +867,6 @@
   "b805da32b11a": "Abra o app Ajustes e acesse Apps → Safari (não o ContextFlow) → Extensões → ContextFlow.",
   "9cf76ea2ed86": "Abra os Ajustes, depois Apps à esquerda → Safari (não o ContextFlow) → Extensões → ContextFlow.",
   "07b51faeeeef": "De volta ao Safari, recarregue a página e toque em ✦.",
-  "abbe3a8e83ad": "Em Permissões, ajuste “Todos os Sites” para “Permitir”.",
   "251e7f817a8c": "Experimente o ContextFlow nesta página — ContextFlow",
   "c0dc9525754b": "Um artigo curto para experimentar o ContextFlow: toque em ✦ e pergunte sobre ele.",
   "24f837f22822": "Experimente o ContextFlow nesta página",
@@ -893,7 +892,6 @@
   "270760321fc9": "Selecione “A curva dele tem um porém” e pergunte: “Isso é verdade?”",
   "896f51d1cdab": "“O que pesquisas posteriores descobriram sobre isso?”",
   "4ec1ebf7c590": "Não aparece o ✦ na página? O ContextFlow ainda não tem permissão nos sites.",
-  "6c05410141f9": "Escolha “Sempre Permitir”. O ContextFlow só lê uma página quando você pergunta algo.",
   "6d90d5d0fc5c": "<strong>iPhone.</strong> Abra o menu da página na barra de endereço → ContextFlow → “Sempre Permitir…” → “Sempre Permitir em Todos os Sites”.",
   "94ed35173be3": "<strong>iPad.</strong> Toque no botão de peça de quebra-cabeça ao lado do endereço → ContextFlow → “Sempre Permitir…” → “Sempre Permitir em Todos os Sites”.",
   "ca4ea310de90": "Não “Permitir por Um Dia”: com ele, ✦ some de novo amanhã.",
@@ -910,5 +908,6 @@
   "c27425609fb6": "<strong>Com sua própria chave:</strong> grátis e ilimitado, com chaves da Anthropic, OpenAI, Google, OpenRouter, Groq ou Mistral, e qualquer modelo a que a chave dê acesso.",
   "f202491f0a07": "O Safari mostra o mesmo aviso para toda extensão, porque não tem como saber o que cada uma faz. O texto da página só é enviado quando você pergunta algo e não é usado para treinar modelos. Você também pode permitir site por site; nesse caso o ✦ só aparece nesses sites.",
   "00d4db45c1ce": "Sim, no Pro e no Ultra",
-  "932a1fd2c1fe": "Ele encontra e verifica. Não compra nada por você: o pagamento é sempre com você."
+  "932a1fd2c1fe": "Ele encontra e verifica. Não compra nada por você: o pagamento é sempre com você.",
+  "f6a68fb273c4": "Escolha “Sempre Permitir”. O texto da página só é enviado quando você pergunta algo e não é usado para treinar modelos."
 }
