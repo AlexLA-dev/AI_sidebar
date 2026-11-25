@@ -12,6 +12,7 @@ import { controlChanged } from "../../shared/agent/expect"
 import type { StepResult, ToolCall } from "../../shared/agent/types"
 import { readText, replaceText } from "../insert/fieldtext"
 import { elementOf, markFilled, nameOf, roleOf } from "./map"
+import { catchNewTab } from "./newtab"
 import { hostOf, sameSite } from "../../shared/agent/sites"
 import { fieldLock } from "../../shared/agent/fields"
 
@@ -90,38 +91,6 @@ function inView(el: Element): boolean {
 
 function reveal(el: Element): void {
   if (!inView(el)) (el as HTMLElement).scrollIntoView?.({ block: "center", inline: "nearest" })
-}
-
-/**
- * Watches the page's own window.open during one tap (its world, through a script element): what address it asked for,
- * and whether the page's world could be reached at all (a strict content policy blocks the script). Put back after.
- */
-export function catchNewTab(doc: Document): { done(): { url: string; reached: boolean } } {
-  const root = doc.documentElement
-  root.removeAttribute("data-cf-open")
-  let reached = false
-  try {
-    const s = doc.createElement("script")
-    s.setAttribute("data-cf-shim", "")
-    s.textContent = `(()=>{const d=document.documentElement,o=window.open;d.setAttribute("data-cf-win","1");window.open=function(u){try{d.setAttribute("data-cf-open",new URL(String(u==null?"":u),location.href).href)}catch(e){}return null};document.addEventListener("cf-win-off",()=>{window.open=o;d.removeAttribute("data-cf-win")},{once:true})})()`
-    ;(doc.head ?? root).appendChild(s)
-    s.remove()
-    reached = root.getAttribute("data-cf-win") === "1"
-  } catch {
-    reached = false
-  }
-  return {
-    done() {
-      const url = root.getAttribute("data-cf-open") ?? ""
-      root.removeAttribute("data-cf-open")
-      try {
-        doc.dispatchEvent(new (doc.defaultView ?? window).CustomEvent("cf-win-off"))
-      } catch {
-        // (The page is gone: nothing to put back.)
-      }
-      return { url: /^https?:\/\//.test(url) ? url : "", reached }
-    }
-  }
 }
 
 /** A change that is only the agent's own: its watching script added or removed, or one of its data-cf- attributes. */
@@ -348,9 +317,16 @@ async function actOnly(call: ToolCall, doc: Document): Promise<StepResult> {
       // (128, the iPad: the stand's card got the test line «the new tab was blocked»). During this tap only, the page's
       // window.open keeps the address instead; the runner sends the task there through the same checks as any «go».
       const win = toggle ? null : catchNewTab(el!.ownerDocument)
-      press(el!)
-      const settled = await stepSettle()
-      const tab = win?.done() ?? null
+      let settled: { changed: boolean; navigated: boolean }
+      let tab: { url: string; reached: boolean } | null = null
+      // (Put back however the tap ends: a settle that throws, a task stopped mid-tap. The script's own timer covers a
+      // content script torn down before this runs.)
+      try {
+        press(el!)
+        settled = await stepSettle()
+      } finally {
+        tab = win?.done() ?? null
+      }
       const result: StepResult = { ok: true, note: settled.navigated ? "the page went on" : settled.changed ? "the page changed" : "nothing changed on the page", changed: settled.changed, navigated: settled.navigated }
       if (tab?.url && !settled.navigated) {
         result.opened = tab.url

@@ -117,8 +117,8 @@ test("5: the page's world unreachable and the tap did nothing: the person taps i
   assert.match(bg, /const theirs = st\?\.status === "self" && st\.pending\?\.verdict\.reason === "new_tab"/)
   const hands = readFileSync(new URL("../src/content/agent/hands.ts", import.meta.url), "utf8")
   // Only during the agent's own tap, and put back after it.
-  assert.match(hands, /const win = toggle \? null : catchNewTab\(el!\.ownerDocument\)\n\s+press\(el!\)\n\s+const settled = await stepSettle\(\)\n\s+const tab = win\?\.done\(\) \?\? null/)
-  assert.match(hands, /document\.addEventListener\("cf-win-off",\(\)=>\{window\.open=o/)
+  assert.match(hands, /const win = toggle \? null : catchNewTab\(el!\.ownerDocument\)/)
+  // (Put back after the tap: tests/agent-newtab.test.mts runs the page-side script itself.)
 })
 
 test("2: a tap that changed nothing gets no ✓, and its place isn't offered again", async () => {
@@ -161,6 +161,6 @@ test("6: a press line with no words says what was pressed", () => {
 test("the tap's own watching script isn't a page change («nothing changed» stays true)", () => {
   const hands = readFileSync(new URL("../src/content/agent/hands.ts", import.meta.url), "utf8")
   assert.match(hands, /if \(records\.every\(ownMark\)\) return/)
-  assert.match(hands, /s\.setAttribute\("data-cf-shim", ""\)/)
+  assert.match(readFileSync(new URL("../src/content/agent/newtab.ts", import.meta.url), "utf8"), /s\.setAttribute\("data-cf-shim", ""\)/)
   assert.match(hands, /if \(r\.type === "attributes"\) return !!r\.attributeName\?\.startsWith\("data-cf-"\)/)
 })
