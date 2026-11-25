@@ -302,3 +302,8 @@ test("G: an emptied line shows its control's name; a table's day pressed on a st
   const panel = readFileSync(new URL("../src/content/agent/AgentPanel.tsx", import.meta.url), "utf8")
   assert.match(panel, /l\.text \? localWhen\(l\.text\) : l\.tool === "fill" && l\.target \? t\("agentLineFilled", nameOf\(l\.target\)\) : nameOf\(l\.target\)/)
 })
+
+test("4 (iPad): the plan card starts a permission unticked when the plan does", () => {
+  const panel = readFileSync(new URL("../src/content/agent/AgentPanel.tsx", import.meta.url), "utf8")
+  assert.match(panel, /useState<Set<string>>\(\(\) => new Set\(plan\.perms\.filter\(\(p\) => p\.on === false\)\.map\(\(p\) => p\.id\)\)\)/)
+})

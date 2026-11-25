@@ -254,7 +254,9 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
   // «Запомнить» under each question about the person and each contact detail: on by default.
   // (Never which place: that's this booking's choice, not the person's details.)
   const [keep, setKeep] = useState<boolean[]>(() => plan.questions.map((q) => keepable(q) && (q.kind !== "contact" || !q.once)))
-  const [off, setOff] = useState<Set<string>>(() => new Set())
+  // (A permission the plan starts unticked stays so on the card: someone else's booking and the person's own saved
+  // contacts, 128 — the card ticked every box, whatever the plan said.)
+  const [off, setOff] = useState<Set<string>>(() => new Set(plan.perms.filter((p) => p.on === false).map((p) => p.id)))
   const [mode, setMode] = useState<"now" | "later">("now")
   const [laterChoice, setLaterChoice] = useState<LaterChoice | null>(null)
   const answered = answers.every((a) => a.trim())
