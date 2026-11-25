@@ -3504,7 +3504,7 @@
   "message": "Bei der Website anmelden"
  },
  "agentPriceChanged": {
-  "message": "Der Preis auf der Seite ist nicht mehr der aus dem Plan ({0})."
+  "message": "Der Preis hier ist ein anderer als vorhin ({0}). Prüf ihn, bevor es weitergeht."
  },
  "agentMarkPaused": {
   "message": "Pausiert"

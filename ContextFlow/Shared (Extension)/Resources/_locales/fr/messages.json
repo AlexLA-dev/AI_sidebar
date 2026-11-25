@@ -3504,7 +3504,7 @@
   "message": "Se connecter au site"
  },
  "agentPriceChanged": {
-  "message": "Le prix sur la page n'est plus celui du plan ({0})."
+  "message": "Le prix ici n'est plus celui affiché plus tôt ({0}). Vérifiez-le avant de continuer."
  },
  "agentMarkPaused": {
   "message": "En pause"

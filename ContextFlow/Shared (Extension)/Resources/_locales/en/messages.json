@@ -3504,7 +3504,7 @@
   "message": "Sign in to the site"
  },
  "agentPriceChanged": {
-  "message": "The price on the page isn't the one in the plan ({0})."
+  "message": "The price here differs from the one shown earlier ({0}). Check it before going on."
  },
  "agentMarkPaused": {
   "message": "Paused"

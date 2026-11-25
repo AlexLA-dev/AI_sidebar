@@ -1198,7 +1198,7 @@
   "agentPlanSelfPay": "الدفع أو إتمام الطلب: «{0}»",
   "agentPlanSelfSend": "الإرسال: «{0}»",
   "agentPlanSelfAuth": "تسجيل الدخول إلى الموقع",
-  "agentPriceChanged": "السعر في الصفحة ليس كما كان في الخطة ({0}).",
+  "agentPriceChanged": "السعر هنا يختلف عمّا ظهر سابقًا ({0}). تحقّق منه قبل المتابعة.",
   "agentMarkPaused": "متوقف مؤقتًا",
   "agentMarkStopped": "أُوقف",
   "agentMarkFailed": "لم ينجح",

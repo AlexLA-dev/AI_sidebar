@@ -1198,7 +1198,7 @@
   "agentPlanSelfPay": "Оплатити або оформити замовлення: «{0}»",
   "agentPlanSelfSend": "Надіслати: «{0}»",
   "agentPlanSelfAuth": "Увійти на сайт",
-  "agentPriceChanged": "Ціна на сторінці не та, що була в плані ({0}).",
+  "agentPriceChanged": "Ціна тут не та, що була раніше ({0}). Перевірте її, перш ніж продовжити.",
   "agentMarkPaused": "На паузі",
   "agentMarkStopped": "Зупинено",
   "agentMarkFailed": "Не вийшло",

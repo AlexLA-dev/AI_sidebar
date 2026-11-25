@@ -1198,7 +1198,7 @@
   "agentPlanSelfPay": "Pagar o hacer el pedido: «{0}»",
   "agentPlanSelfSend": "Enviar: «{0}»",
   "agentPlanSelfAuth": "Iniciar sesión en el sitio",
-  "agentPriceChanged": "El precio de la página ya no es el del plan ({0}).",
+  "agentPriceChanged": "El precio aquí no es el que se vio antes ({0}). Revísalo antes de seguir.",
   "agentMarkPaused": "En pausa",
   "agentMarkStopped": "Detenido",
   "agentMarkFailed": "No salió",

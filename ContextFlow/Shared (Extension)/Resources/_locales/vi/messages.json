@@ -3504,7 +3504,7 @@
   "message": "Đăng nhập vào trang"
  },
  "agentPriceChanged": {
-  "message": "Giá trên trang không còn như trong kế hoạch ({0})."
+  "message": "Giá ở đây khác với giá đã thấy trước đó ({0}). Hãy kiểm tra trước khi tiếp tục."
  },
  "agentMarkPaused": {
   "message": "Tạm dừng"

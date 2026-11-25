@@ -3504,7 +3504,7 @@
   "message": "サイトにログイン"
  },
  "agentPriceChanged": {
-  "message": "ページの価格が計画時と違います（{0}）。"
+  "message": "ここの価格は先ほど表示された価格（{0}）と違います。続ける前に確認してください。"
  },
  "agentMarkPaused": {
   "message": "一時停止中"

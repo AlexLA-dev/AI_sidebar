@@ -3504,7 +3504,7 @@
   "message": "Iniciar sesión en el sitio"
  },
  "agentPriceChanged": {
-  "message": "El precio de la página ya no es el del plan ({0})."
+  "message": "El precio aquí no es el que se vio antes ({0}). Revísalo antes de seguir."
  },
  "agentMarkPaused": {
   "message": "En pausa"

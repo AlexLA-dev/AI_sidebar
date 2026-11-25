@@ -3504,7 +3504,7 @@
   "message": "사이트에 로그인"
  },
  "agentPriceChanged": {
-  "message": "페이지의 가격이 계획 때와 달라요({0})."
+  "message": "여기 가격이 앞서 본 가격({0})과 달라요. 계속하기 전에 확인하세요."
  },
  "agentMarkPaused": {
   "message": "일시 정지"

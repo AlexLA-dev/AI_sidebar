@@ -1198,7 +1198,7 @@
   "agentPlanSelfPay": "付款或下单：“{0}”",
   "agentPlanSelfSend": "发送：“{0}”",
   "agentPlanSelfAuth": "登录网站",
-  "agentPriceChanged": "页面上的价格和计划时不一样（{0}）。",
+  "agentPriceChanged": "这里的价格和之前显示的（{0}）不一样。继续前请先核对。",
   "agentMarkPaused": "已暂停",
   "agentMarkStopped": "已停止",
   "agentMarkFailed": "没成功",

@@ -1198,7 +1198,7 @@
   "agentPlanSelfPay": "Ödemek veya siparişi vermek: “{0}”",
   "agentPlanSelfSend": "Göndermek: “{0}”",
   "agentPlanSelfAuth": "Siteye giriş yapmak",
-  "agentPriceChanged": "Sayfadaki fiyat plandaki fiyat değil ({0}).",
+  "agentPriceChanged": "Buradaki fiyat daha önce görünenden farklı ({0}). Devam etmeden önce kontrol edin.",
   "agentMarkPaused": "Duraklatıldı",
   "agentMarkStopped": "Durduruldu",
   "agentMarkFailed": "Olmadı",

@@ -7,7 +7,8 @@ import type { VNode } from "preact"
 import { useEffect, useRef, useState } from "preact/hooks"
 
 import type { Answer, AgentState, PlanApproval, Recap } from "../../shared/agent/runner"
-import { factLabel, isCancelChoice, savedAnswers, type Perm, type PlanSelf, type TaskPlan } from "../../shared/agent/taskplan"
+import { factLabel, isCancelChoice, keepable, savedAnswers, type Perm, type PlanSelf, type TaskPlan } from "../../shared/agent/taskplan"
+import { daysAsIso } from "../../shared/agent/dates"
 import { AMAZON_TEXT } from "../../shared/amazon"
 import { TEST_PLAN } from "../../shared/config"
 import type { FormKey } from "../../shared/agent/formdata"
@@ -49,7 +50,8 @@ interface Props {
 /** The control's name out of the server's "button \"Add to cart\"". */
 function nameOf(target: string | null | undefined): string {
   const m = /"(.*)"$/.exec(target ?? "")
-  return (m ? m[1] : target ?? "").slice(0, 80)
+  // (Without the page's required-field mark: «Filled in: Phone», not «Phone *».)
+  return (m ? m[1] : target ?? "").replace(/\s*[*＊]+\s*$/u, "").slice(0, 80)
 }
 
 /** A day and time as the person reads them ("Sat, 5 Dec, 19:30"), in the panel's language. */
@@ -82,14 +84,20 @@ export function clock(time: string): string {
  */
 export function localWhen(text: string): string {
   if (!text) return text
-  return text
+  // (A day the model wrote in words, «Thursday 26 November», shows as the ISO ones do: one format in a task, 128.)
+  return daysAsIso(text, todayIso())
     .replace(/(?<![\d:./-])(\d{4})-(\d{2})-(\d{2})(?![\d:])/g, (m, y: string, mo: string, d: string) => (Number(mo) >= 1 && Number(mo) <= 12 && Number(d) >= 1 && Number(d) <= 31 ? when(`${y}-${mo}-${d}`) : m))
     .replace(/(?<![\d:.,])([01]?\d|2[0-3]):([0-5]\d)(?![\d:])(?!\s?[aApP]\.?[mM])/g, (m, h: string, mi: string) => clock(`${h}:${mi}`))
 }
 
+function todayIso(): string {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+}
+
 /** The recap's booking in a line: «Cutter, Sun 27 Dec, 09:00». */
 export function recapWhat(r: Recap): string {
-  return [r.place, r.date ? when(r.date, r.time) : ""].filter(Boolean).join(", ")
+  return [r.place, r.date ? (r.dateEnd ? `${when(r.date)} – ${when(r.dateEnd)}` : when(r.date, r.time)) : ""].filter(Boolean).join(", ")
 }
 
 /** What the recap says besides it: what was asked, another place, the page's cancellation terms. */
@@ -244,7 +252,8 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
   const optNote = (q: TaskPlan["questions"][number], j: number) => (q.notes?.[j] === "@last" ? t("agentPlanLastTime") : q.notes?.[j] ?? "")
   const [own, setOwn] = useState<boolean[]>(() => plan.questions.map((q, i) => q.kind === "contact" || (!!pre[i] && !optsOf(q).includes(pre[i]))))
   // «Запомнить» under each question about the person and each contact detail: on by default.
-  const [keep, setKeep] = useState<boolean[]>(() => plan.questions.map((q) => !!q.fact || (q.kind === "contact" && !q.once)))
+  // (Never which place: that's this booking's choice, not the person's details.)
+  const [keep, setKeep] = useState<boolean[]>(() => plan.questions.map((q) => keepable(q) && (q.kind !== "contact" || !q.once)))
   const [off, setOff] = useState<Set<string>>(() => new Set())
   const [mode, setMode] = useState<"now" | "later">("now")
   const [laterChoice, setLaterChoice] = useState<LaterChoice | null>(null)
@@ -268,7 +277,7 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
     // A choice on this site («pref:Мастер») is kept under the site's name, for this site only.
     const facts = plan.questions.flatMap((q, i): Array<{ fact: string; value: string; key?: FormKey }> => {
       if (q.kind === "contact") return q.key && keep[i] && answers[i].trim() ? [{ fact: "", value: answers[i].trim(), key: q.key as FormKey }] : []
-      const label = q.fact ? factLabel(q.fact, plan.site) : ""
+      const label = q.fact && keepable(q) ? factLabel(q.fact, plan.site) : ""
       // («I'll choose on the place's page» is this time's answer, never one to keep.)
       return label && keep[i] && answers[i].trim() && answers[i].trim() !== pre[i] && answers[i].trim() !== "@page" ? [{ fact: label, value: answers[i].trim() }] : []
     })
@@ -325,7 +334,7 @@ function PlanCard({ plan, host, onPlan, later, onStop, failed, saved, onRemember
               onKeyUp={(e) => e.stopPropagation()}
             />
           )}
-          {((q.fact && factLabel(q.fact, plan.site)) || q.kind === "contact") && (
+          {keepable(q) && (q.kind === "contact" || !!factLabel(q.fact ?? "", plan.site)) && (
             <label class="cf-row toggle cf-agent-remember">
               <input type="checkbox" checked={keep[i]} onChange={(e) => setKeep(keep.map((k, j) => (j === i ? (e.target as HTMLInputElement).checked : k)))} />
               <span>{remembered[i] ? t("agentPlanFromSaved") : t("agentPlanRemember")}</span>
@@ -464,14 +473,15 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
               the person (the card below says what for). */}
           <span class="cf-agent-step">
             <b>{busy ? (state.step === 0 ? t("agentPlanReading") : t("agentWorking", String(Math.max(1, state.step)))) : t("agentWaitingStep", String(Math.max(1, state.step)))}</b>
-            {busy && lines.length > 0 && lines[lines.length - 1].text && <span dir="auto">{lines[lines.length - 1].text}</span>}
+            {busy && lines.length > 0 && lines[lines.length - 1].text && <span dir="auto">{localWhen(lines[lines.length - 1].text)}</span>}
           </span>
           <button type="button" class="cf-secondary cf-agent-stop" onClick={() => onAnswer("stop")}><Icon.Stop /> {t("stop")}</button>
         </div>
       )}
       {!finished && <p class="cf-agent-request" dir="auto">{state.request}</p>}
       {/* Started without the card: what it took as known (2.7.1: «Бронирую… · Стоп»; Stop is on the strip). */}
-      {busy && state.plan?.auto && <p class="cf-agent-meta" dir="auto">{t("agentAutoLine", (state.plan.answers ?? []).map((a) => a.a).filter(Boolean).join(" · ") || "—")}</p>}
+      {/* (Nothing taken as known: no line, never «…: —».) */}
+      {busy && state.plan?.auto && (state.plan.answers ?? []).some((a) => !!a.a) && <p class="cf-agent-meta" dir="auto">{t("agentAutoLine", (state.plan.answers ?? []).map((a) => a.a).filter(Boolean).map(localWhen).join(" · "))}</p>}
       {planning && state.plan && onPlan && <PlanCard key={`${state.id}-${planFailed ?? ""}-${Object.keys(saved ?? {}).length}`} plan={state.plan} host={hostName(state.url)} onPlan={onPlan} later={later} onStop={() => onAnswer("stop")} failed={planFailed} saved={saved} onRemember={onRemember} />}
       {/* The plan's lines while it works by it (what it said it would do). */}
       {(busy || waiting) && state.plan?.approved && state.plan.steps.length > 0 && lines.length === 0 && (
@@ -495,8 +505,10 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
 
       {state.status === "confirm" && state.pending && (
         <div class="cf-agent-ask">
-          <strong>{t(state.pending.recap ? "agentRecapTitle" : "agentConfirmTitle")}</strong>
-          <p dir="auto">{state.pending.recap ? t("agentRecapWhat", recapWhat(state.pending.recap) || nameOf(state.pending.target)) : stepText(state)}</p>
+          <strong>{t(state.pending.recap && !state.pending.recap.press ? "agentRecapTitle" : "agentConfirmTitle")}</strong>
+          <p dir="auto">{state.pending.recap && !state.pending.recap.press ? t("agentRecapWhat", recapWhat(state.pending.recap) || nameOf(state.pending.target)) : stepText(state)}</p>
+          {/* A booking's last press the plan didn't allow: what it books, under the press (128: «next Friday» read as 4 Dec). */}
+          {state.pending.recap?.press && recapWhat(state.pending.recap) && <p class="cf-agent-meta" dir="auto">{t("agentRecapWhat", recapWhat(state.pending.recap))}</p>}
           {state.pending.recap && recapNotes(state.pending.recap).map((n) => <p key={n} class="cf-agent-meta" dir="auto">{n}</p>)}
           {state.pending.offRequest && <p class="cf-agent-warn" dir="auto"><Icon.Alert /> {t("agentOffRequest", state.pending.offRequest)}</p>}
           {state.pending.price && <p class="cf-agent-warn" dir="auto"><Icon.Alert /> {t("agentPriceChanged", state.pending.price)}</p>}
@@ -640,7 +652,7 @@ export function AgentStrip({ state, onOpen, onStop, onAnswer }: { state: PanelAg
         <span class="cf-agent-dot on" aria-hidden="true" />
         <span class="cf-agent-float-text">
           <b>{t("agentWorking", String(Math.max(1, state.step)))}</b>
-          {last?.text && <span dir="auto">{last.text}</span>}
+          {last?.text && <span dir="auto">{localWhen(last.text)}</span>}
         </span>
       </button>
       <button type="button" class="cf-secondary cf-agent-stop" onClick={onStop}><Icon.Stop /> {t("stop")}</button>

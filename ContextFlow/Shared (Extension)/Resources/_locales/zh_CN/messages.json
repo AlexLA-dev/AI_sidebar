@@ -3504,7 +3504,7 @@
   "message": "登录网站"
  },
  "agentPriceChanged": {
-  "message": "页面上的价格和计划时不一样（{0}）。"
+  "message": "这里的价格和之前显示的（{0}）不一样。继续前请先核对。"
  },
  "agentMarkPaused": {
   "message": "已暂停"

@@ -1198,7 +1198,7 @@
   "agentPlanSelfPay": "Pay or place the order: “{0}”",
   "agentPlanSelfSend": "Send: “{0}”",
   "agentPlanSelfAuth": "Sign in to the site",
-  "agentPriceChanged": "The price on the page isn't the one in the plan ({0}).",
+  "agentPriceChanged": "The price here differs from the one shown earlier ({0}). Check it before going on.",
   "agentMarkPaused": "Paused",
   "agentMarkStopped": "Stopped",
   "agentMarkFailed": "Didn't work",

@@ -3504,7 +3504,7 @@
   "message": "Siteye giriş yapmak"
  },
  "agentPriceChanged": {
-  "message": "Sayfadaki fiyat plandaki fiyat değil ({0})."
+  "message": "Buradaki fiyat daha önce görünenden farklı ({0}). Devam etmeden önce kontrol edin."
  },
  "agentMarkPaused": {
   "message": "Duraklatıldı"

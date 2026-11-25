@@ -3504,7 +3504,7 @@
   "message": "Entrar no site"
  },
  "agentPriceChanged": {
-  "message": "O preço na página não é o do plano ({0})."
+  "message": "O preço aqui é diferente do que apareceu antes ({0}). Confira antes de continuar."
  },
  "agentMarkPaused": {
   "message": "Em pausa"
