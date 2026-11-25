@@ -1327,5 +1327,9 @@
   "limitProLine": "주당 최대 {0}개 답변",
   "limitCancel": "App Store에서 언제든 해지할 수 있어요.",
   "limitCardTitle": "무료 답변을 모두 사용했어요",
-  "limitCardBack": "{0}({1} 후)에 다시 제공돼요."
+  "limitCardBack": "{0}({1} 후)에 다시 제공돼요.",
+  "answersBackOfferAsk": "이 알림에서 Pro 할인도 알려 주기",
+  "answersBackOfferBody": "무료 답변 {0}개가 돌아왔어요. 더 필요하다면 Pro 첫 달이 {1}% 할인이에요.",
+  "setOfferNotify": "알림에서 Pro 할인 알려 주기",
+  "setOfferNotifyHint": "무료 답변을 다 썼을 때 설정하는 알림 하나에만 해당돼요. 켜기 전까지는 꺼져 있어요."
 }

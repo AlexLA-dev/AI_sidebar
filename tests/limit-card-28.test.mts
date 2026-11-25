@@ -71,7 +71,8 @@ function mount(props: Record<string, unknown>) {
 test("no offer: one box (Pro, monthly price), one buy button with the price, the renewal said, More closed", async () => {
   const card = mount({})
   await tick(150)
-  assert.deepEqual(card.events, [["shown", { plan: "pro", period: "monthly" }]])
+  // Shown in its full-price state (the first time at the limit, 2.8: the owner).
+  assert.deepEqual(card.events, [["shown", { plan: "pro", period: "monthly" }, "full"]])
   // Three controls: the buy button and More (the reminder is passed in by the panel; Retry waits for the answers).
   assert.equal(card.buttons().length, 2)
   assert.equal(card.el.querySelectorAll(".cf-seg").length, 0)
@@ -166,7 +167,7 @@ test("the panel: free people get this card, a Pro subscriber keeps Ultra in thei
   // Its title and when-line, each one line on the smallest iPhone (the director on #263).
   assert.match(app, /<LimitCard[\s\S]{0,200}title=\{long \? t\("limitLongTitle"\) : t\("limitCardTitle"\)\}[\s\S]{0,200}answersBackShort\(clockTime\(resetsAt\), timeUntil\(resetsAt\)\)/)
   const usage = read("src/shared/usage.ts")
-  assert.match(usage, /chat_plans: \{[\s\S]*?"remind_app", "more"\][\s\S]*?from: \["more"\]/)
+  assert.match(usage, /chat_plans: \{[\s\S]*?"remind_app", "more", "offer_notify_on", "offer_notify_off", "later"\][\s\S]*?from: \["more"\], state: \["full", "discount"\]/)
   assert.match(read("src/content/ux/LimitCard.tsx"), /export const LIMIT_BUY: OfferChoice = \{ plan: "pro", period: "monthly" \}/)
 })
 

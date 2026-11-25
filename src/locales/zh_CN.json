@@ -1327,5 +1327,9 @@
   "limitProLine": "每周最多 {0} 次回答",
   "limitCancel": "可随时在 App Store 中取消。",
   "limitCardTitle": "免费回答已用完",
-  "limitCardBack": "{0}（{1}后）恢复。"
+  "limitCardBack": "{0}（{1}后）恢复。",
+  "answersBackOfferAsk": "在这条提醒里也告诉我 Pro 的优惠",
+  "answersBackOfferBody": "{0} 次免费回答已恢复。如果需要更多，Pro 首月优惠 {1}%。",
+  "setOfferNotify": "在提醒中告知 Pro 优惠",
+  "setOfferNotifyHint": "仅限免费回答用完时你设置的那一条提醒。在你开启之前保持关闭。"
 }

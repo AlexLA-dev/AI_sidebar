@@ -38,12 +38,13 @@ export function LimitCard({ status, title, body, offer, remind, retryAt, ownKey,
   onNote: () => void
   onOwnKey: () => void
   // `from` is "more" for what was tapped inside «More».
-  onEvent: (action: LimitEvent, choice?: OfferChoice, from?: "more") => void
+  onEvent: (action: LimitEvent, choice?: OfferChoice, from?: "more", state?: "full" | "discount") => void
 }): VNode {
   const prices = usePrices(status)
   const facts = status?.plans
   const [more, setMore] = useState(false)
-  useEffect(() => onEvent("shown", LIMIT_BUY), [])
+  // Which card it was: the full price (the first time at the limit), or the discount (on return; 2.8, the owner).
+  useEffect(() => onEvent("shown", LIMIT_BUY, undefined, offer ? "discount" : "full"), [])
   // The whole closed card in view as it comes (the director on #263, SE in German: the panel scrolled to the chat's end
   // when it opened, before the card was back from storage and its prices in, and its last row was cut off). Only while
   // it settles, never once the person scrolls on their own.

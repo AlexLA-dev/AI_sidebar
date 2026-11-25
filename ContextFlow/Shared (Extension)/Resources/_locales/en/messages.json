@@ -3890,6 +3890,18 @@
  "limitCardBack": {
   "message": "They're back at {0}, in {1}."
  },
+ "answersBackOfferAsk": {
+  "message": "Also tell me about a Pro discount in this reminder"
+ },
+ "answersBackOfferBody": {
+  "message": "Your {0} free answers are back. And if you'd like more, your first month of Pro is {1}% off."
+ },
+ "setOfferNotify": {
+  "message": "Pro discounts in reminders"
+ },
+ "setOfferNotifyHint": {
+  "message": "Only in the one reminder you set when your free answers run out. Off unless you turn it on."
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

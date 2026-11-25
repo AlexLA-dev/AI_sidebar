@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from "preact/hooks"
 import { t, uiLang } from "../../shared/i18n"
 import { sendBackground } from "../insert/store"
 import { followLink } from "../page"
+import { withOfferMark } from "./offerReturn"
 
 const KEY = "cf:answersBack"
 // Sent to the app's notification ask for this reset: on coming back, the reminder is set again.
@@ -35,8 +36,8 @@ const outcomeOf = (reply: { outcome?: string } | null): AnswersBackOutcome => {
  * never comes back. No answer, then: asked again without the question (the same reminder, so it is set once at most),
  * which finds the permission just given and sets it.
  */
-export async function askAnswersBack(at: number, count: number, url: string, ask = true, send: Send = sendBackground, pause = 1_500): Promise<AnswersBackOutcome> {
-  const message = { type: "remind", ...ANSWERS_BACK, at, title: "ContextFlow", body: t("answersBackBody", String(count)), url }
+export async function askAnswersBack(at: number, count: number, url: string, ask = true, send: Send = sendBackground, pause = 1_500, body = t("answersBackBody", String(count))): Promise<AnswersBackOutcome> {
+  const message = { type: "remind", ...ANSWERS_BACK, at, title: "ContextFlow", body, url }
   // The background waits for the system's answer up to 90 s; one try, no resend of a question already on screen.
   const first = outcomeOf(await send({ ...message, ask }, { timeoutMs: 100_000, tries: 1 }).catch(() => null))
   if (first !== "failed") return first
@@ -67,7 +68,7 @@ export function notifyLink(page: string): string {
   return `contextflow://notifications?why=answers_back${/^https?:\/\//.test(page) ? `&page=${encodeURIComponent(page.split("#")[0])}` : ""}`
 }
 
-export function AnswersBack({ resetsAt, count, url, short, onEvent }: {
+export function AnswersBack({ resetsAt, count, url, short, offer, offerOn, onOfferOn, onEvent }: {
   // When the free answers come back (ms).
   resetsAt: number
   // The simpler limit card (2.8, Р19): «Remind me at 2:00 AM», a link beside «More».
@@ -75,11 +76,22 @@ export function AnswersBack({ resetsAt, count, url, short, onEvent }: {
   count: number
   // The page the notification opens.
   url: string
-  onEvent: (action: "remind" | "remind_set" | "remind_off" | "remind_notify" | "remind_app") => void
+  // 2.8 (the owner: the discount when someone comes back): the code's discount when the reminder fires on a return
+  // (offerReturn.ts), else null. It goes into this one notification only for someone who opted in (offerOn; App Review
+  // 4.5.4): the checkbox under the reminder once it's set, or Settings. Never a second notification.
+  offer?: number | null
+  offerOn?: boolean
+  onOfferOn?: (on: boolean) => void
+  onEvent: (action: "remind" | "remind_set" | "remind_off" | "remind_notify" | "remind_app", state?: "full" | "discount") => void
 }): VNode | null {
   const [state, setState] = useState<State>("idle")
   const stateRef = useRef<State>("idle")
   stateRef.current = state
+  // What the one notification says, and where its tap lands: with the discount only for someone who opted in.
+  const carries = Boolean(offer && offerOn)
+  const body = carries ? t("answersBackOfferBody", String(count), String(offer)) : t("answersBackBody", String(count))
+  const link = carries ? withOfferMark(url) : url
+  const said = useRef(carries)
   useEffect(() => {
     void chrome.storage.local.get(KEY).then((kept) => {
       if (kept[KEY] === resetsAt) setState("set")
@@ -103,15 +115,24 @@ export function AnswersBack({ resetsAt, count, url, short, onEvent }: {
       window.removeEventListener("focus", back)
     }
   }, [resetsAt])
+  // Turned on or off once the reminder is set: the same reminder again (one per reset), with or without the discount.
+  useEffect(() => {
+    if (stateRef.current !== "set" || said.current === carries) return
+    said.current = carries
+    void askAnswersBack(resetsAt, count, link, false, sendBackground, 1_500, body).then((outcome) => {
+      if (outcome === "scheduled") onEvent("remind_set", carries ? "discount" : "full")
+    })
+  }, [carries])
   if (resetsAt <= Date.now()) return null
 
   const ask = async (tapped = true) => {
     setState("asking")
     if (tapped) onEvent("remind")
-    const outcome = await askAnswersBack(resetsAt, count, url, tapped)
+    const outcome = await askAnswersBack(resetsAt, count, link, tapped, sendBackground, 1_500, body)
     if (outcome === "scheduled") {
+      said.current = carries
       setState("set")
-      onEvent("remind_set")
+      onEvent("remind_set", carries ? "discount" : "full")
       void chrome.storage.local.set({ [KEY]: resetsAt }).catch(() => undefined)
     } else if (outcome === "denied" || outcome === "not-asked") {
       setState("off")
@@ -124,7 +145,16 @@ export function AnswersBack({ resetsAt, count, url, short, onEvent }: {
   return (
     <p class="cf-answers-back" role="status">
       {state === "set" ? (
-        <span>{t("answersBackSet", clock(resetsAt))}</span>
+        <>
+          <span>{t("answersBackSet", clock(resetsAt))}</span>
+          {/* The opt-in, in so many words, off until ticked (App Review 4.5.4); Settings has the same switch. */}
+          {offer && onOfferOn && (
+            <label class="cf-answers-offer">
+              <input type="checkbox" checked={Boolean(offerOn)} onChange={(e) => onOfferOn(e.currentTarget.checked)} />
+              <span>{t("answersBackOfferAsk")}</span>
+            </label>
+          )}
+        </>
       ) : state === "off" ? (
         <>
           <span>{t("answersBackOff", clock(resetsAt))}</span>{" "}

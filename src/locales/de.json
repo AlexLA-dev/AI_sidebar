@@ -1327,5 +1327,9 @@
   "limitProLine": "Bis zu {0} Antworten pro Woche",
   "limitCancel": "Jederzeit im App Store kündbar.",
   "limitCardTitle": "Gratis-Antworten aufgebraucht",
-  "limitCardBack": "Wieder da um {0}, in {1}."
+  "limitCardBack": "Wieder da um {0}, in {1}.",
+  "answersBackOfferAsk": "In dieser Erinnerung auch über einen Pro-Rabatt informieren",
+  "answersBackOfferBody": "Deine {0} Gratis-Antworten sind zurück. Und wenn du mehr willst: Der erste Monat Pro ist {1} % günstiger.",
+  "setOfferNotify": "Pro-Rabatte in Erinnerungen",
+  "setOfferNotifyHint": "Nur in der einen Erinnerung, die du stellst, wenn deine Gratis-Antworten aufgebraucht sind. Aus, bis du es einschaltest."
 }

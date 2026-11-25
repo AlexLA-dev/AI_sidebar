@@ -3890,6 +3890,18 @@
  "limitCardBack": {
   "message": "Wieder da um {0}, in {1}."
  },
+ "answersBackOfferAsk": {
+  "message": "In dieser Erinnerung auch über einen Pro-Rabatt informieren"
+ },
+ "answersBackOfferBody": {
+  "message": "Deine {0} Gratis-Antworten sind zurück. Und wenn du mehr willst: Der erste Monat Pro ist {1} % günstiger."
+ },
+ "setOfferNotify": {
+  "message": "Pro-Rabatte in Erinnerungen"
+ },
+ "setOfferNotifyHint": {
+  "message": "Nur in der einen Erinnerung, die du stellst, wenn deine Gratis-Antworten aufgebraucht sind. Aus, bis du es einschaltest."
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

@@ -3890,6 +3890,18 @@
  "limitCardBack": {
   "message": "{0}（{1}後）恢復。"
  },
+ "answersBackOfferAsk": {
+  "message": "在這則提醒中也告訴我 Pro 的優惠"
+ },
+ "answersBackOfferBody": {
+  "message": "{0} 次免費回答已恢復。如果需要更多，Pro 首月省 {1}%。"
+ },
+ "setOfferNotify": {
+  "message": "在提醒中告知 Pro 優惠"
+ },
+ "setOfferNotifyHint": {
+  "message": "僅限免費回答用完時你設定的那一則提醒。在你開啟之前保持關閉。"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

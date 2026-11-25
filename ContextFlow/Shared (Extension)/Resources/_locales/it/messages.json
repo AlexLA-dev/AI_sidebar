@@ -3890,6 +3890,18 @@
  "limitCardBack": {
   "message": "Tornano tra {1} ({0})."
  },
+ "answersBackOfferAsk": {
+  "message": "Avvisami in questo promemoria anche di uno sconto su Pro"
+ },
+ "answersBackOfferBody": {
+  "message": "Le tue {0} risposte gratuite sono tornate. E se ne vuoi di più, il primo mese di Pro è scontato del {1}%."
+ },
+ "setOfferNotify": {
+  "message": "Sconti su Pro nei promemoria"
+ },
+ "setOfferNotifyHint": {
+  "message": "Solo nel promemoria che imposti quando finiscono le risposte gratuite. Disattivato finché non lo attivi."
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },

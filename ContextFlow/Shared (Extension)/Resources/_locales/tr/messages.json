@@ -3890,6 +3890,18 @@
  "limitCardBack": {
   "message": "{1} sonra yenilenir (saat {0})."
  },
+ "answersBackOfferAsk": {
+  "message": "Bu hatırlatmada Pro indirimini de bildir"
+ },
+ "answersBackOfferBody": {
+  "message": "{0} ücretsiz yanıtınız geri geldi. Daha fazlasını isterseniz Pro'nun ilk ayı %{1} indirimli."
+ },
+ "setOfferNotify": {
+  "message": "Hatırlatmalarda Pro indirimleri"
+ },
+ "setOfferNotifyHint": {
+  "message": "Yalnızca ücretsiz yanıtlarınız bittiğinde kurduğunuz tek hatırlatmada. Siz açana kadar kapalı."
+ },
  "tip_4cf1b54b00": {
   "message": "İpuçları"
  },

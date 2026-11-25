@@ -147,6 +147,21 @@ export function SettingsView(props: Props): VNode {
           {props.onPlans && <button type="button" class={isUltra(plan) ? "cf-link" : "cf-secondary"} onClick={props.onPlans}>{isUltra(plan) ? t("plansCompare") : plan === "free" ? t("plansCompare") : t("seeUltra")}</button>}
         </div>
       )}
+      {/* 2.8: the opt-out (and opt-in) for a Pro discount in the answers-back reminder (App Review 4.5.4). Free only:
+          no one else is offered one. */}
+      {TARGET === "safari" && plan === "free" && (
+        <>
+          <label class="cf-row toggle">
+            <span class="cf-label">{t("setOfferNotify")}</span>
+            <input type="checkbox" checked={settings.offerNotify} onChange={(e) => {
+              const on = e.currentTarget.checked
+              onChange({ offerNotify: on })
+              void sendBackground({ type: "useEvent", f: "chat_plans", a: on ? "offer_notify_on" : "offer_notify_off", via: "settings" })
+            }} />
+          </label>
+          <p class="cf-hint">{t("setOfferNotifyHint")}</p>
+        </>
+      )}
       {TARGET === "safari" && monthlyPaid && yearlySave && yearlyPercent && yearlyHidden === false && props.onYearly && (
         <div class="cf-yearly" role="note">
           <span>{t("yearlyNudge", monthlyPaid === "ultra" ? t("planUltra") : t("planPro"), yearlySave, yearlyPercent)}</span>

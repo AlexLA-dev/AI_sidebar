@@ -3890,6 +3890,18 @@
  "limitCardBack": {
   "message": "Có lại lúc {0}, sau {1} nữa."
  },
+ "answersBackOfferAsk": {
+  "message": "Trong lời nhắc này, báo cả ưu đãi giảm giá Pro"
+ },
+ "answersBackOfferBody": {
+  "message": "{0} câu trả lời miễn phí đã quay lại. Nếu bạn cần nhiều hơn, tháng đầu Pro được giảm {1}%."
+ },
+ "setOfferNotify": {
+  "message": "Giảm giá Pro trong lời nhắc"
+ },
+ "setOfferNotifyHint": {
+  "message": "Chỉ trong lời nhắc bạn đặt khi hết câu trả lời miễn phí. Tắt cho đến khi bạn bật."
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

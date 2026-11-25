@@ -336,7 +336,7 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
     })
     if (!res.ok) throw new Error(`status ${res.status}`)
     const body = (await res.json()) as {
-      plan: Plan; usage: Usage | null; limitedBefore?: boolean; offer?: ProOffer | null; upgradeOffer?: { discount: number } | null
+      plan: Plan; usage: Usage | null; limitedBefore?: boolean; offer?: ProOffer | null; returnOffer?: { discount?: unknown } | null; upgradeOffer?: { discount: number } | null
       limits?: { freeDaily?: number; proWeekly?: number; ultraWeekly?: number; searchFreeDaily?: number; searchProWeekly?: number; speakWeeklySeconds?: number; similarWeekly?: number; watch?: Record<Plan, number> }
       organize?: { on?: unknown; space?: unknown; config?: unknown }
       ultra?: { speak?: Usage | null; similar?: Usage | null } | null
@@ -347,6 +347,7 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
     value = {
       plan: body.plan,
       ...(typeof body.country === "string" && /^[A-Z]{2}$/.test(body.country) ? { country: body.country } : {}), usage: body.usage, limitedBefore: body.limitedBefore === true, offer: body.offer ?? null,
+      ...(typeof body.returnOffer?.discount === "number" ? { returnOffer: { discount: body.returnOffer.discount } } : {}),
       upgradeOffer: body.upgradeOffer ?? null,
       ultra: body.ultra ? { speak: body.ultra.speak ?? null, similar: body.ultra.similar ?? null } : null,
       // 2.8 (В7.4): Pro's tastes of Ultra (the server sends only those that are on).

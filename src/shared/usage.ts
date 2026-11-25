@@ -153,7 +153,7 @@ export const FEATURES: Record<string, Feature> = {
   // "similar": Find similar's "found" notification (the search ended after the person left Safari); "panel": the page
   // its tap opened showed the panel on that chat (the chat named in the page's address, the panel's step).
   // "when" (2.8): which reminder to finish setup was tapped.
-  notif: { since: "2.4", on: "app", actions: ["tap", "panel"], fields: { what: ["remind", "remind_page", "setup", "watch", "similar"], when: ["15m", "24h"] } },
+  notif: { since: "2.4", on: "app", actions: ["tap", "panel"], fields: { what: ["remind", "remind_page", "setup", "watch", "similar", "offer"], when: ["15m", "24h"] } },
   app: {
     since: "2.4", tracked: "2.4", on: "app", actions: ["open"], via: ["icon", "deeplink", "notif"],
     fields: { what: ["subscribe", "manage", "tips", "chats", "chat", "templates", "open"] }
@@ -198,9 +198,12 @@ export const FEATURES: Record<string, Feature> = {
     // 2.8 (В7.1): «Remind me when my answers are back» tapped, set, or notifications off.
     // 2.8 (Р19, the simpler limit card): "more" opened; what was tapped inside it is its own action (choose with the
     // plan and period, note, own_key) with from "more".
-    since: "2.6", tracked: "2.6", on: "ext", actions: ["shown", "choose", "discount", "note", "own_key", "retry", "close", "remind", "remind_set", "remind_off", "remind_notify", "remind_app", "more"],
-    via: ["limit", "memory", "pro_only", "ultra_only"],
-    fields: { plan: ["pro", "ultra"], period: ["monthly", "yearly"], from: ["more"] }
+    // 2.8 (the owner: full price first, the code on return): `state` on shown, and on remind_set (what the reminder
+    // will say); the opt-in to a discount in that reminder turned on or off, on the card or in Settings; the «once
+    // more» card on return ("return": shown, discount, later).
+    since: "2.6", tracked: "2.6", on: "ext", actions: ["shown", "choose", "discount", "note", "own_key", "retry", "close", "remind", "remind_set", "remind_off", "remind_notify", "remind_app", "more", "offer_notify_on", "offer_notify_off", "later"],
+    via: ["limit", "memory", "pro_only", "ultra_only", "return", "settings"],
+    fields: { plan: ["pro", "ultra"], period: ["monthly", "yearly"], from: ["more"], state: ["full", "discount"] }
   },
   // 2.7: the page translated in place (src/content/translate): the pill by the circle shown on a page in another
   // language, tapped, the consent asked from it, the translation shown, "Original", × (hidden on that site), the

@@ -93,8 +93,8 @@ test("events: the purchase's source, plan, period and offer are registered; the 
 test("«Remind me when my answers are back»: at the free limit only, at the moment they're back, through the reminder path", () => {
   const app = read("src/content/App.tsx")
   // 2.8 (Р19): in the free card only (a Pro subscriber's card has none), as «Remind me at …» beside «More».
-  assert.match(app, /<LimitCard[\s\S]*?remind=\{TARGET === "safari" && resetsAt\s*\? <AnswersBack short resetsAt=\{Date\.parse\(resetsAt\)\} count=\{back\}/)
-  assert.equal((app.match(/<AnswersBack /g) ?? []).length, 1)
+  assert.match(app, /<LimitCard[\s\S]*?remind=\{TARGET === "safari" && resetsAt\s*\? <AnswersBack\s+short\s+resetsAt=\{Date\.parse\(resetsAt\)\}\s+count=\{back\}/)
+  assert.equal((app.match(/<AnswersBack\b/g) ?? []).length, 1)
   const card = read("src/content/ux/AnswersBack.tsx")
   assert.match(card, /type: "remind", \.\.\.ANSWERS_BACK, at,/)
   assert.match(card, /send\(\{ \.\.\.message, ask \}/)

@@ -3890,6 +3890,18 @@
  "limitCardBack": {
   "message": "تعود عند {0}، بعد {1}."
  },
+ "answersBackOfferAsk": {
+  "message": "أخبرني في هذا التذكير أيضًا بخصم على Pro"
+ },
+ "answersBackOfferBody": {
+  "message": "عادت إجاباتك المجانية ({0}). وإن أردت المزيد، فالشهر الأول من Pro بخصم {1}%."
+ },
+ "setOfferNotify": {
+  "message": "خصومات Pro في التذكيرات"
+ },
+ "setOfferNotifyHint": {
+  "message": "فقط في التذكير الذي تضبطه عند نفاد إجاباتك المجانية. متوقف إلى أن تشغّله."
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

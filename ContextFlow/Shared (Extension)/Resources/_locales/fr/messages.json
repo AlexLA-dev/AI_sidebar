@@ -3890,6 +3890,18 @@
  "limitCardBack": {
   "message": "De retour à {0}, dans {1}."
  },
+ "answersBackOfferAsk": {
+  "message": "M’informer aussi d’une réduction sur Pro dans ce rappel"
+ },
+ "answersBackOfferBody": {
+  "message": "Vos {0} réponses gratuites sont de retour. Et si vous en voulez plus, le premier mois de Pro est à −{1} %."
+ },
+ "setOfferNotify": {
+  "message": "Réductions Pro dans les rappels"
+ },
+ "setOfferNotifyHint": {
+  "message": "Seulement dans le rappel que vous programmez quand vos réponses gratuites sont épuisées. Désactivé tant que vous ne l’activez pas."
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

@@ -425,3 +425,7 @@ mark.cf-mark-last { border-start-end-radius: 2px; border-end-end-radius: 2px; }
 .cf-asked-cite.long:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 .cf-asked-cite-more { display: inline-flex; margin-top: 1px; color: var(--text-3); transition: transform 0.15s; }
 .cf-asked-cite.open .cf-asked-cite-more { transform: rotate(180deg); }
+
+/* 2.8: the opt-in to a Pro discount in the answers-back reminder, under its confirmation. */
+.cf-answers-back .cf-answers-offer { display: flex; align-items: center; gap: 8px; margin-top: 6px; color: var(--text-2); cursor: pointer; min-height: 36px; }
+.cf-answers-back .cf-answers-offer input { width: 18px; height: 18px; flex: none; accent-color: var(--accent); margin: 0; }

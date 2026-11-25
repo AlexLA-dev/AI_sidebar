@@ -93,6 +93,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             }
             return
         }
+        // 2.8: the answers-back reminder that also said there's a Pro discount (only for someone who opted in): its page
+        // has #cf-offer=1, and the panel opens there on the discount.
+        if let open = info["open"] as? String, open.contains("cf-offer=1") {
+            await MainActor.run { ChatAI.reportOrganize("use", ["f": "notif", "a": "tap", "what": "offer", "s": "notif"]) }
+        }
         await MainActor.run { ChatAI.reportUx("ux_remind", info["open"] != nil ? ["action": "opened", "what": "page"] : ["action": "opened"]) }
         if let open = info["open"] as? String, let page = URL(string: open) {
             await MainActor.run { UIApplication.shared.open(page) }

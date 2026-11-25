@@ -81,6 +81,7 @@ import { openWatchSheet } from "./watch/WatchSheet"
 import { PlansSheet, type PlansFeature } from "./Plans"
 import { TasteLine, tasteOf, tasteUsedLead, ultraLine } from "./Taste"
 import { LimitCard } from "./ux/LimitCard"
+import { clearFullAt, isReturn, loadFullAt, noteFullAt, returnBy, takeOfferMark } from "./ux/offerReturn"
 import { PlanOffer, type OfferChoice, type OfferPlace } from "./ux/PlanOffer"
 import { ListenBar, SpeakerIcon, useListen, VoicedIcon } from "./listen/useListen"
 import { listenMark, markClock, voicedId, type MadeList } from "../shared/voiced"
@@ -2636,17 +2637,31 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // An install that ran out of free answers before is offered Pro with the first month off once more: the card
   // shows in up to three page visits, until it's answered (asking a question just hides it for now).
+  // 2.8 (the owner): the code only on return (offerReturn.ts). When this device first showed the full-price card;
+  // undefined until read.
+  const [fullAt, setFullAt] = useState<number | null | undefined>(undefined)
+  useEffect(() => void loadFullAt().then(setFullAt), [])
   const offerCardAsked = useRef(false)
   useEffect(() => {
-    if (TARGET !== "safari" || !open || offerCardAsked.current || !status) return
-    if (!status.limitedBefore || !status.offer || status.plan !== "free" || status.hasOwnKey) return
+    if (TARGET !== "safari" || !open || offerCardAsked.current || !status || fullAt === undefined) return
+    if (!isReturn(status.limitedBefore, fullAt) || !status.offer || status.plan !== "free" || status.hasOwnKey) return
     offerCardAsked.current = true
     void offerCardCount().then((count) => {
       if (count < 0 || count >= 3) return
       setOfferCard(true)
       void setOfferCardCount(count + 1)
+      void sendBackground({ type: "useEvent", f: "chat_plans", a: "shown", via: "return", state: "discount" })
     })
-  }, [open, status])
+  }, [open, status, fullAt])
+  // Bought (here, in the app or on another device): the answers-back reminder goes, with whatever it would have said,
+  // and the full-price mark with it.
+  const boughtSeen = useRef(false)
+  useEffect(() => {
+    if (TARGET !== "safari" || !status || status.plan === "free" || boughtSeen.current) return
+    boughtSeen.current = true
+    void sendBackground({ type: "remind", chat: "cf-limit", message: "answers-back", at: null })
+    void clearFullAt()
+  }, [status])
   // It comes after the chat: bring it into view.
   useEffect(() => {
     if (offerCard) requestAnimationFrame(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }))
@@ -3187,6 +3202,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const closeOfferCard = useCallback((code: string | null) => {
     setOfferCard(false)
     void setOfferCardCount(-1)
+    void sendBackground({ type: "useEvent", f: "chat_plans", a: code ? "discount" : "later", via: "return", state: "discount" })
     if (code) redeemOffer(code)
   }, [redeemOffer])
 
@@ -3250,6 +3266,23 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // чтобы сайдбар открывался там сразу и на том чате и месте, где кликнули на страницу»: any link in the app names its
   // chat and message (#cf-chat=…&cf-at=…), a link in the panel leaves a note (src/shared/linkOpen.ts), and a tab already
   // showing the page is told; each opens the panel on that chat, at that message.
+  // 2.8: the answers-back reminder that said there's a discount (for someone who opted in) opens its page with
+  // #cf-offer=1: the panel opens on the discount («once more»), whatever its count of visits; the mark leaves the
+  // address at once.
+  useEffect(() => {
+    if (popup || TARGET !== "safari") return
+    const take = () => {
+      if (!takeOfferMark()) return
+      void sendBackground({ type: "useEvent", f: "notif", a: "panel", what: "offer" })
+      offerCardAsked.current = true
+      setOfferCard(true)
+      void sendBackground({ type: "useEvent", f: "chat_plans", a: "shown", via: "return", state: "discount" })
+      if (!openNowRef.current) show()
+    }
+    take()
+    window.addEventListener("hashchange", take)
+    return () => window.removeEventListener("hashchange", take)
+  }, [popup, show])
   const openThreadRef = useRef(openThread)
   openThreadRef.current = openThread
   const threadListRef = useRef(threadList)
@@ -3702,8 +3735,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     openAppFromTap(touch, { target: "subscribe", plan: chosen, period, feature: chosen === "ultra" ? "listen" : undefined, via, back: source.href() })
   }
   // `from`: "more" for what was tapped inside the limit card's «More» (2.8, Р19).
-  const offerEvent = (place: OfferPlace) => (action: string, choice?: OfferChoice, from?: "more") =>
-    void sendBackground({ type: "useEvent", f: "chat_plans", a: action, via: place, ...(choice ? { plan: choice.plan, period: choice.period } : {}), ...(from ? { from } : {}) })
+  // `state`: the card's (full price, or the discount on return), on shown; what the reminder will say, on remind_set.
+  const offerEvent = (place: OfferPlace) => (action: string, choice?: OfferChoice, from?: "more", state?: "full" | "discount") =>
+    void sendBackground({ type: "useEvent", f: "chat_plans", a: action, via: place, ...(choice ? { plan: choice.plan, period: choice.period } : {}), ...(from ? { from } : {}), ...(state ? { state } : {}) })
   const panelOpenRef = useRef(open)
   panelOpenRef.current = open
   // 2.8 (В7.4): Pro's weekly taste of Listen (null: none).
@@ -3809,7 +3843,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const memoryAllowed = hasPro(plan) || ownKeyActive
   const memoryOn = memoryAllowed && settings.chatMemory !== false
   // The App Store offer code for Pro, once this install has run out of free answers (Safari only).
-  const offer = TARGET === "safari" && plan === "free" && !ownKeyActive ? error?.offer ?? status?.offer ?? null : null
+  // The code the server gave (at the limit, or for someone who ran out before), shown only on return (2.8, the owner:
+  // full price first). What a return would bring: for the one notification that may say it.
+  const offerGiven = TARGET === "safari" && plan === "free" && !ownKeyActive ? error?.offer ?? status?.offer ?? null : null
+  const offer = offerGiven && fullAt !== undefined && isReturn(status?.limitedBefore, fullAt) ? offerGiven : null
+  const returnDiscount = TARGET === "safari" && plan === "free" && !ownKeyActive ? status?.returnOffer?.discount ?? offerGiven?.discount ?? null : null
   // Videos and PDFs on the page are read for Pro (and the user's own key); free answers say they skipped them.
   const mediaOn = readsMedia(status, TARGET)
   const tryPro = (kinds: MediaKind[]) => {
@@ -5616,7 +5654,19 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         </>}
                         offer={offer ? { code: offer.code, discount: offer.discount } : null}
                         remind={TARGET === "safari" && resetsAt
-                          ? <AnswersBack short resetsAt={Date.parse(resetsAt)} count={back} url={source.href()} onEvent={(a) => event(a)} />
+                          ? <AnswersBack
+                              short
+                              resetsAt={Date.parse(resetsAt)}
+                              count={back}
+                              url={source.href()}
+                              offer={returnDiscount && fullAt !== undefined && returnBy(Date.parse(resetsAt), fullAt) ? returnDiscount : null}
+                              offerOn={settings.offerNotify}
+                              onOfferOn={(on) => {
+                                updateSettings({ offerNotify: on })
+                                event(on ? "offer_notify_on" : "offer_notify_off")
+                              }}
+                              onEvent={(a, state) => event(a, undefined, undefined, state)}
+                            />
                           : undefined}
                         retryAt={resetsAt ? Date.parse(resetsAt) : "unknown"}
                         ownKey={TARGET === "safari"}
@@ -5625,7 +5675,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         onRedeem={redeemOffer}
                         onNote={writeNote}
                         onOwnKey={() => openSettingsAt("ownKey")}
-                        onEvent={event}
+                        onEvent={(action, choice, from, state) => {
+                          if (action === "shown" && state === "full") void noteFullAt().then(setFullAt)
+                          event(action, choice, from, state)
+                        }}
                       />
                     )
                   }

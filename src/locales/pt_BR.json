@@ -1327,5 +1327,9 @@
   "limitProLine": "Até {0} respostas por semana",
   "limitCancel": "Cancele quando quiser na App Store.",
   "limitCardTitle": "Suas respostas grátis acabaram",
-  "limitCardBack": "Voltam em {1} ({0})."
+  "limitCardBack": "Voltam em {1} ({0}).",
+  "answersBackOfferAsk": "Avisar também sobre um desconto no Pro neste lembrete",
+  "answersBackOfferBody": "Suas {0} respostas grátis voltaram. E, se quiser mais, o primeiro mês do Pro tem {1}% de desconto.",
+  "setOfferNotify": "Descontos do Pro nos lembretes",
+  "setOfferNotifyHint": "Só no lembrete que você define quando as respostas grátis acabam. Desligado até você ligar."
 }

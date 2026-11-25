@@ -3890,6 +3890,18 @@
  "limitCardBack": {
   "message": "{0}（{1}後）に戻ります。"
  },
+ "answersBackOfferAsk": {
+  "message": "このお知らせで Pro の割引も知らせる"
+ },
+ "answersBackOfferBody": {
+  "message": "無料の回答{0}回分が戻りました。もっと使いたいときは、Pro の最初の1か月が {1}% オフです。"
+ },
+ "setOfferNotify": {
+  "message": "お知らせで Pro の割引を伝える"
+ },
+ "setOfferNotifyHint": {
+  "message": "無料回答を使い切ったときに設定する1件のお知らせだけです。オンにするまでオフです。"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

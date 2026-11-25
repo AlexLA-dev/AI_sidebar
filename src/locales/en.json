@@ -1327,5 +1327,9 @@
   "limitProLine": "Up to {0} answers a week",
   "limitCancel": "Cancel anytime in the App Store.",
   "limitCardTitle": "You've used today's free answers",
-  "limitCardBack": "They're back at {0}, in {1}."
+  "limitCardBack": "They're back at {0}, in {1}.",
+  "answersBackOfferAsk": "Also tell me about a Pro discount in this reminder",
+  "answersBackOfferBody": "Your {0} free answers are back. And if you'd like more, your first month of Pro is {1}% off.",
+  "setOfferNotify": "Pro discounts in reminders",
+  "setOfferNotifyHint": "Only in the one reminder you set when your free answers run out. Off unless you turn it on."
 }
