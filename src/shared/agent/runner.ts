@@ -195,6 +195,7 @@ export interface AgentState {
   // The address the last tap's page tried to open in a new tab (shown as a link, gone to through the usual checks), and
   // what the tap was on; places whose tap changed nothing (never offered again as a choice).
   openedLink?: { url: string; from: string; page?: string }
+  placeOpened?: string
   dead?: string[]
   // Pages whose own search was asked for once before a place was opened from them (128).
   searchNudged?: string[]
@@ -363,6 +364,8 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
   state.lineCheck = state.lines.length - 1
   const pressed = /"(.*)"$/.exec(target ?? "")?.[1] ?? ""
   if (idle && pressed && !state.dead?.includes(pressed)) state.dead = [...(state.dead ?? []), pressed]
+  // (The place a tap opened from a list, by its card's name: the recap names it when the page doesn't.)
+  if (!idle && pressed && (state.venues?.list.some((v) => v.name === pressed) || result.opened)) state.placeOpened = pressed
   if (result.opened) {
     state.openedLink = { url: result.opened, from: pressed }
     state.log[state.log.length - 1].result = `the page tried to open ${result.opened} in a new tab, which the browser keeps the task out of: to open it here, go to link #${NEW_TAB_ID}`
@@ -393,6 +396,13 @@ function mapHref(url: string, page: string): string {
 
 /** The map item the address a tap tried to open in a new tab stands as (the model goes to it like any link). */
 export const NEW_TAB_ID = "newtab"
+
+// The request pointing into the chat it came from, in the panel's languages: an ordinal, «that one», «the one you
+// suggested», «there» (a place the chat named). Without one, a place only the chat names isn't the person's.
+const POINT_WORDS = /(?<!\p{L})(that|those|the (first|second|third|last|same|one you)|one you (found|suggested|recommended)|you (found|suggested|recommended)|your (suggestion|pick)|there|тот|та|того|ту|этот|эту|этого|там|туда|перв\p{L}*|втор\p{L}*|трет\p{L}*|последн\p{L}*|предложенн\p{L}*|найденн\p{L}*|т(ой|ом) же|той|цей|цю|той самий|там|перш\p{L}*|друг(ий|а|е|ого|у)|остан\p{L}*|запропонован\p{L}*|знайден\p{L}*|diese[nmrs]?|dort|ersten?|zweiten?|dritten?|letzten?|vorgeschlagen|celui|celle|là|premier|première|deuxième|second|troisième|dernier|proposé|ese|esa|ese mismo|allí|ahí|primer[oa]?|segund[oa]|tercer[oa]?|últim[oa]|sugerid[oa]|quell[oaie]|lì|là|prim[oa]|second[oa]|terz[oa]|ultim[oa]|suggerit[oa]|aquel[ae]?|lá|sugerid[oa]|şu|o otel|orada|ilk|ikinci|üçüncü|en son|önerdiğin|ذلك|تلك|هناك|الأول|الثاني|الثالث|الأخير|المقترح|đó|ấy|thứ nhất|thứ hai|thứ ba|cuối|bạn gợi ý)(?!\p{L})/iu
+// (Chinese, Japanese and Korean words sit between other letters: no word edges there.)
+const POINT_CJK = /その|あの|そこ|最初|[2２二]番目|[3３三]番目|最後|おすすめ|거기|첫\s*번째|두\s*번째|세\s*번째|마지막|추천한|그\s*(곳|숙소|호텔|식당)|那个|那個|那家|那裡|那里|第[一二三]|最后|最後|推荐的|推薦的/u
+export const POINTS = { test: (text: string) => POINT_WORDS.test(text) || POINT_CJK.test(text) }
 
 const squashName = (s: string) => s.toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, "")
 
@@ -548,6 +558,16 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   for (const q of plan.questions) if (q.fact === "venue" || q.options.filter((o) => listed.has(squashName(o))).length >= 2) q.place = true
   // A place the request (or the chat it came from) doesn't name isn't the model's to pick on the plan (124, the director:
   // a home page's first «Featured» salon taken silently): the place is asked on the card or chosen by the rules.
+  // The chat counts only where the person's own words point into it («the second one», «that hotel»): a place the
+  // assistant suggested there isn't their choice (129: «From the chat: … Old Town Guesthouse» for a request naming none) —
+  // it's asked, the suggestion first among the options when the page lists it.
+  let chatPick = ""
+  if (plan.booking?.venue && plan.fromChat && namedIn(plan.booking.venue, plan.fromChat) && !namedIn(plan.booking.venue, state.request) && !(subject?.kind === "place" && subject.name === plan.booking.venue) && !POINTS.test(state.request)) {
+    chatPick = plan.booking.venue
+    delete plan.booking.venue
+    // (Nor does the card's «From the chat» line say it: that line is what the person's words took from the chat.)
+    if (plan.fromChat) plan.fromChat = plan.fromChat.replace(new RegExp(`\\s*[,;·—–-]?\\s*${chatPick.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "iu"), "").replace(/^[\s,;·—–-]+|[\s,;·—–-]+$/gu, "")
+  }
   if (plan.booking?.venue && !(subject?.kind === "place" && subject.name === plan.booking.venue) && !namedIn(plan.booking.venue, `${state.request} ${plan.fromChat ?? ""}`)) delete plan.booking.venue
   // On one place's page, a booking that names no other is there: no choosing, no «I'll pick the place».
   if (subject?.kind === "place" && plan.booking && !plan.booking.venue) plan.booking.venue = subject.name
@@ -601,7 +621,8 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
     const personal = plan.booking.personal ?? plan.booking.kind === "appointment"
     const saidLast = savedFacts(entries)[factKey(factLabel("pref:place", plan.site ?? site))] ?? ""
     const last = saidLast.startsWith("@") ? "" : saidLast
-    const names = ranked.map((v) => v.name)
+    const fromChat = chatPick && venuesOn(seen, []).some((v) => squashName(v.name) === squashName(chatPick)) ? venuesOn(seen, []).find((v) => squashName(v.name) === squashName(chatPick))!.name : ""
+    const names = [...(fromChat ? [fromChat] : []), ...ranked.map((v) => v.name).filter((n) => n !== fromChat)].slice(0, 3)
     const options = [...(last && !names.includes(last) ? [last] : []), ...names, "@auto"]
     const notes = options.map((o) => (o === last ? "@last" : o === "@auto" ? "" : venueNote(ranked.find((v) => v.name === o)!, cards)))
     placesListed = ranked.length > 0
@@ -779,7 +800,10 @@ export function recapOf(state: AgentState, map: PageMap, always = false): Recap 
   const vague = weekdayOnly(state.request ?? "", todayIso())
   if (!otherDay && !otherTime && !otherPlace && !terms && !vague && !always) return null
   const tried = state.venues?.tried.at(-1)
-  const place = (tried && state.venues?.list.find((v) => v.url === tried)?.name) || b.venue || ""
+  // (Whatever way the place was chosen: the list's, the request's, the page's own name, the card the agent opened — 129:
+  // «Booking: Fri, Dec 4 – Sun, Dec 6» with no place after the stay was opened from a script-opened card.)
+  const subject = pageSubject(map)
+  const place = (tried && state.venues?.list.find((v) => v.url === tried)?.name) || b.venue || (subject?.kind === "place" ? subject.name : "") || state.placeOpened || ""
   return {
     ...(place ? { place: place.slice(0, 80) } : {}),
     ...(p.date || b.date ? { date: p.date || b.date } : {}),
@@ -1254,6 +1278,17 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (wants && call.key && (wants.includes(".") ? wants !== call.key : wants !== keyKind(call.key))) {
       const has = liveEntries(entries).some((e) => (wants.includes(".") ? modelKey(e) === wants : keyKind(modelKey(e)) === wants))
       const why = `the field "${seenItem!.label}" asks for the ${wants}, not ${call.key}${has ? `: fill it with the saved ${wants}` : `; <saved> has no ${wants}: ask the person for it once (ask_user naming it)`}`
+      state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
+      state.refused = why
+      continue
+    }
+    // A saved contact only into a field of its own kind (129: «Fill in from My details? Destination ← Alex Test» on a stay's
+    // search box): refused to the model, never put to the person. A field with no contact kind takes no saved contact.
+    const fillKind = call.tool === "fill" && call.key && seenItem ? contactKind(call.key) : null
+    // (A long label — «Your full name as in your passport» — read by its words when the page marks the field personal.)
+    const fieldIs = seenItem ? contactField(seenItem) ?? (seenItem.lock === "personal" ? contactKind(fieldKind(seenItem, null) ?? contactAsked(seenItem.label) ?? "") : null) : null
+    if (fillKind && fieldIs !== fillKind) {
+      const why = `the field "${seenItem!.label.slice(0, 60)}" isn't a ${fillKind} field: a saved ${fillKind} never goes into it. If it's the page's search or another field the request answers, type the request's own words there (type)`
       state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
       state.refused = why
       continue

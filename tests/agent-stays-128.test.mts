@@ -133,7 +133,8 @@ test("12: a day named only by its weekday is in front of the person before the l
   assert.equal(weekdayOnly("Book a table tomorrow at 19:30", "2026-11-25"), false)
   assert.equal(weekdayOnly("Book Friday 4 December", "2026-11-25"), false)
   const plain = { ...DATES, text: "Harbour View Suites\n2026-12-04 – 2026-12-06" } as PageMap
-  assert.deepEqual(recapOf(stay(), plain), { date: "2026-12-04", dateEnd: "2026-12-06" })
+  // (130: with the place, the page's own name.)
+  assert.deepEqual(recapOf(stay(), plain), { place: "Harbour View Suites", date: "2026-12-04", dateEnd: "2026-12-06" })
   assert.equal(recapOf(stay("Book a stay from 4 to 6 December"), plain), null, "the request's own dates: no recap")
   // The press the plan didn't allow: the «Do it?» carries what it books.
   const panel = readFileSync(new URL("../src/content/agent/AgentPanel.tsx", import.meta.url), "utf8")
