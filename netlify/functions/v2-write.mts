@@ -5,7 +5,7 @@ import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, refund, touchInstall, type ConsumeResult, type Counter } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
 import { askHaiku, InsertAiError, insertCost, type AiCall } from "../shared/insert.mts"
-import { blockReason, countersFor, evalAccess, hasPro, proOffer, resolveAccess, visibleUsage, withUse, type Access, type Usage } from "../shared/plan.mts"
+import { blockReason, countersFor, evalAccess, hasPro, offerOnReturn, resolveAccess, visibleUsage, withUse, type Access, type Usage } from "../shared/plan.mts"
 import { inviteExtra } from "../shared/invite.mts"
 import { checkWrite, readAsk, tooLong, writeMessage, writeTask } from "../shared/writing.mts"
 import { clipPage, diffWords, LIVE } from "../../src/shared/writing.ts"
@@ -76,7 +76,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
       const reason = safety ? "busy" : blockReason(result.blocked)
       context.waitUntil(logEvent("limit", installId, { plan: access.plan, reason, mode: live ? "write_live" : "write", platform, version, ...test }))
       if (reason === "busy") return json({ code: "BUSY" }, 503)
-      return json({ code: "LIMIT_REACHED", plan: access.plan, usage: visibleUsage(access, result.counters), offer: proOffer(access) }, 402)
+      return json({ code: "LIMIT_REACHED", plan: access.plan, usage: visibleUsage(access, result.counters), offer: await offerOnReturn(access, installId) }, 402)
     }
     charged = [...counters.answer, ...counters.safety]
     usage = visibleUsage(access, result.counters)

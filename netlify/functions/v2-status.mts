@@ -3,7 +3,7 @@ import type { Config, Context } from "@netlify/functions"
 import { config as settings } from "../shared/config.mts"
 import { limitedBefore, logEvent, peek, touchInstall } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
-import { countersFor, evalAccess, isUltra, proOffer, resolveAccess, similarCountersFor, speakCountersFor, ultraUsage, useBreakdown, useCountersFor, visibleUsage } from "../shared/plan.mts"
+import { countersFor, evalAccess, isUltra, offerOnReturn, proOffer, resolveAccess, similarCountersFor, speakCountersFor, ultraUsage, useBreakdown, useCountersFor, visibleUsage } from "../shared/plan.mts"
 import { WATCH_LIMITS } from "../../src/shared/plan.ts"
 import { vectorSpace } from "../shared/organize.mts"
 import { promoConfigured } from "../shared/promo.mts"
@@ -53,7 +53,11 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   if (invite && invite.new_active > 0) context.waitUntil(logEvent("invite_active", installId, { n: invite.new_active, platform: clip(client.platform, 20), version: clip(client.version, 20), s: "panel" }))
   const usage = { ...visibleUsage(access, state), by: useBreakdown(state, counters) }
-  const offer = limited === true || usage.used >= usage.limit ? proOffer(access) : null
+  // The code only on return (2.8, the owner): an install that ran out on an earlier day. Today's first time at the limit
+  // shows the plans at full price. `returnOffer`: what such a return would bring (the 2.8 panel says it in the one
+  // notification it may send at the moment the answers are back, to someone who asked for it); older panels ignore it.
+  const offer = await offerOnReturn(access, installId, limited === true)
+  const later = proOffer(access)
 
   return json({
     plan: access.plan,
@@ -68,6 +72,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
     usage,
     limitedBefore: limited === true,
     offer,
+    returnOffer: later ? { discount: later.discount } : null,
     upgradeOffer: access.plan === "byok" && promoConfigured() ? { discount: settings.promoDiscount } : null,
     ultra: isUltra(access.plan) ? { speak: ultraUsage(ultraState, "speak:"), similar: ultraUsage(ultraState, "similar:") } : null,
     limits: {

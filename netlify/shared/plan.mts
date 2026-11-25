@@ -2,7 +2,7 @@ import { createPublicKey, verify } from "node:crypto"
 
 import { toEntitlement, verifyTransactionCached, type Entitlement } from "./apple.mts"
 import { config, PRODUCTS, type Plan } from "./config.mts"
-import { logEvent, upsertEntitlement, type Counter } from "./db.mts"
+import { limitedBefore, logEvent, upsertEntitlement, type Counter } from "./db.mts"
 import { hasPro, isUltra, PLAN_RANK } from "../../src/shared/plan.ts"
 import { USE_KINDS, useSubject, type UseKind } from "../../src/shared/spent.ts"
 
@@ -73,11 +73,23 @@ export async function resolveAccess(jws: unknown, installId: string | null): Pro
   return { plan: entitlement.plan, entitlement: { ...entitlement, expiresAt } }
 }
 
-/** The App Store offer code shown to a free user who ran out of answers (null when switched off). */
+/** The App Store offer code for a free user (null when switched off). Shown only on return: see offerOnReturn. */
 export function proOffer(access: Access): { code: string; discount: number } | null {
   const code = config.proOfferCode
   if (access.plan !== "free" || !code || code.toLowerCase() === "off") return null
   return { code, discount: config.proOfferDiscount }
+}
+
+/**
+ * The code at the free limit, only to someone coming back (the owner, 2.8: «сперва кнопку купить по полной цене … при
+ * возвращении — скидку»): an install that ran out of free answers on an earlier UTC day (cf_limited_before). The first
+ * time at the limit there's none: the plans at full price. `before`: already known (status reads it anyway).
+ */
+export async function offerOnReturn(access: Access, installId: string, before?: boolean): Promise<{ code: string; discount: number } | null> {
+  const offer = proOffer(access)
+  if (!offer) return null
+  const back = before ?? (await limitedBefore(installId).catch(() => false))
+  return back === true ? offer : null
 }
 
 /**

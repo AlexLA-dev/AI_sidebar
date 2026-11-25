@@ -163,7 +163,14 @@ test("free answers used up: LIMIT_REACHED with the Pro offer, nothing translated
   assert.equal(out.res.status, 402)
   assert.equal(out.json!.code, "LIMIT_REACHED")
   assert.equal(out.json!.usage.used, 5)
-  assert.equal(out.json!.offer.code, "CONTEXTFLOW50")
+  // The first time at the limit: full price, no code; on return (an earlier day's limit), the code (2.8, the owner).
+  assert.equal(out.json!.offer, null)
+  rpc.cf_limited_before = () => true
+  try {
+    assert.equal((await call({ page: "e".repeat(32) })).json!.offer.code, "CONTEXTFLOW50")
+  } finally {
+    delete rpc.cf_limited_before
+  }
   assert.equal(counters.get(`trpage:install:${INSTALL}:${"c".repeat(32)}`) ?? 0, 0, "the page wasn't counted")
   assert.ok(events.some((e) => e.kind === "limit" && e.data.mode === "translate"))
   const before = await call({ first: false })
