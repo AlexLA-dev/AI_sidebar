@@ -204,7 +204,8 @@ test("Settings: every group is still there, in its section; the own-key links op
   assert.match(ui, /data-set-at="ownKey"/)
   assert.match(ui, /data-set-at="access"/)
   const app = read("src/content/App.tsx")
-  assert.equal((app.match(/openSettingsAt\("ownKey"\)/g) ?? []).length, 4)
+  // The free limit card's «More» (2.8, Р19), an own key's limit card, a bad key.
+  assert.equal((app.match(/openSettingsAt\("ownKey"\)/g) ?? []).length, 3)
   assert.match(app, /<SettingsView\n\s+key=\{settingsAt \?\? "settings"\}\n\s+at=\{settingsAt\}/)
 })
 

@@ -92,7 +92,9 @@ test("events: the purchase's source, plan, period and offer are registered; the 
 
 test("«Remind me when my answers are back»: at the free limit only, at the moment they're back, through the reminder path", () => {
   const app = read("src/content/App.tsx")
-  assert.match(app, /!hasPro\(plan\) && TARGET === "safari" && resetsAt && \(\s*<AnswersBack resetsAt=\{Date\.parse\(resetsAt\)\} count=\{back\}/)
+  // 2.8 (Р19): in the free card only (a Pro subscriber's card has none), as «Remind me at …» beside «More».
+  assert.match(app, /<LimitCard[\s\S]*?remind=\{TARGET === "safari" && resetsAt\s*\? <AnswersBack\s+short\s+resetsAt=\{Date\.parse\(resetsAt\)\}\s+count=\{back\}/)
+  assert.equal((app.match(/<AnswersBack\b/g) ?? []).length, 1)
   const card = read("src/content/ux/AnswersBack.tsx")
   assert.match(card, /type: "remind", \.\.\.ANSWERS_BACK, at,/)
   assert.match(card, /send\(\{ \.\.\.message, ask \}/)
@@ -124,7 +126,8 @@ test("acceptance 2: the limit card shows no made-up time and no live Retry befor
   assert.match(app, /const backFree = resetsAt \? freeAnswersBack\(back, clockTime\(resetsAt\), timeUntil\(resetsAt\)\) : ""/)
   assert.match(app, /retryAt=\{resetsAt \? Date\.parse\(resetsAt\) : "unknown"\}/)
   const offer = read("src/content/ux/PlanOffer.tsx")
-  assert.match(offer, /const canRetry = Boolean\(onRetry\) && retryAt !== "unknown"/)
+  assert.match(offer, /return at !== "unknown" && \(!at \|\| at <= now\)/)
+  for (const card of [offer, read("src/content/ux/LimitCard.tsx")]) assert.match(card, /const canRetry = Boolean\(onRetry\) && (answersBack|back)\n/)
   assert.match(app, /if \(firstDay \|\| done\.includes\(chat\) \|\| threadRef\.current !== chat\) return/)
 })
 

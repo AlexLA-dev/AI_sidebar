@@ -1004,9 +1004,6 @@
  "limitFreeBack_other": {
   "message": "{0} neue Gratis-Antworten um {1}, in {2}."
  },
- "limitFreePro": {
-  "message": "Mit Pro bekommst du bis zu {0} Antworten pro Woche, Videos und PDFs auf der Seite, KI-Suche und Fragen über alle deine Chats."
- },
  "limitNotes": {
   "message": "Notizen bleiben gratis und unbegrenzt: Schreib jetzt auf, was zählt, und frag die KI später danach."
  },
@@ -1021,9 +1018,6 @@
  },
  "errKeyRate": {
   "message": "{0} bremst gerade die Anfragen mit deinem Schlüssel: Das ist das Limit deines Kontos. Warte eine Minute und frag noch mal. Deine Limits findest du unter {1}."
- },
- "offerLimit": {
-  "message": "Oder hol dir Pro mit {0} % Rabatt im ersten Monat: bis zu {1} Antworten pro Woche, ausführlicher und gründlicher. Jederzeit kündbar."
  },
  "offerButton": {
   "message": "Erster Monat mit {0} % Rabatt"
@@ -3847,6 +3841,69 @@
  },
  "offerByCode": {
   "message": "Wird mit einem Code im App Store eingelöst."
+ },
+ "limitBuyOffer": {
+  "message": "Pro holen – erster Monat −{0} %"
+ },
+ "limitBuyPrice": {
+  "message": "Pro holen – {0} pro Monat"
+ },
+ "answersBackAt": {
+  "message": "Um {0} erinnern"
+ },
+ "limitMore": {
+  "message": "Mehr"
+ },
+ "moreYearly": {
+  "message": "Jährlich: {0} pro Jahr"
+ },
+ "moreYearlySave": {
+  "message": "Jährlich: {0} pro Jahr, {1} % sparen"
+ },
+ "moreUltra": {
+  "message": "Ultra: {0} pro Monat – alles aus Pro, dazu „Anhören“ und „Ähnliches finden“"
+ },
+ "moreUltraNoPrice": {
+  "message": "Ultra: alles aus Pro, dazu „Anhören“ und „Ähnliches finden“"
+ },
+ "moreChoose": {
+  "message": "Wählen"
+ },
+ "moreNotes": {
+  "message": "Notizen bleiben gratis und unbegrenzt"
+ },
+ "moreOwnKey": {
+  "message": "Eigener API-Schlüssel?"
+ },
+ "moreOwnKeyLink": {
+  "message": "Verwenden"
+ },
+ "limitProLine": {
+  "message": "Bis zu {0} Antworten pro Woche"
+ },
+ "limitCancel": {
+  "message": "Jederzeit im App Store kündbar."
+ },
+ "limitCardTitle": {
+  "message": "Gratis-Antworten aufgebraucht"
+ },
+ "limitCardBack": {
+  "message": "Wieder da um {0}, in {1}."
+ },
+ "answersBackOfferAsk": {
+  "message": "In dieser Erinnerung auch über einen Pro-Rabatt informieren"
+ },
+ "answersBackOfferBody": {
+  "message": "Deine {0} Gratis-Antworten sind zurück. Und wenn du mehr willst: Der erste Monat Pro ist {1} % günstiger."
+ },
+ "setOfferNotify": {
+  "message": "Pro-Rabatte in Erinnerungen"
+ },
+ "setOfferNotifyHint": {
+  "message": "Nur in der einen Erinnerung, die du stellst, wenn deine Gratis-Antworten aufgebraucht sind. Aus, bis du es einschaltest."
+ },
+ "limitCardBackNow": {
+  "message": "Deine Gratis-Antworten sind wieder da."
  },
  "tip_4cf1b54b00": {
   "message": "Tipps"

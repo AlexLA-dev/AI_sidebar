@@ -36,6 +36,9 @@ export interface StatusInfo {
   // A free install that ran out of free answers on an earlier day, and the offer for it (from the server).
   limitedBefore: boolean
   offer: ProOffer | null
+  // 2.8 (the server with the code only on return): what a return would bring, for the one notification that may carry
+  // it (to someone who opted in). Absent from older servers: the panel then goes by the offer it was given.
+  returnOffer?: { discount: number } | null
   // An Own key subscriber can move to Pro at this discount (the app asks the server to sign the offer).
   upgradeOffer: { discount: number } | null
   // Google search allowances (free a day, Pro a week), for what the panel tells Own key subscribers.
@@ -281,6 +284,8 @@ export type BackgroundRequest =
   // { outcome: "scheduled" | "denied" | "not-asked" | "failed" | "unavailable" }. `at` null: cancel it.
   | { type: "remind"; chat: string; message: string; at: number | null; title?: string; body?: string; url?: string; ask?: boolean }
   | { type: "remindPending"; chat: string; message: string }
+  // 2.8: the discount reminder's tap, as the app noted it (seconds ago), taken once; none: the mark isn't ours.
+  | { type: "offerTapTake" }
   // 2.7, Calendar and Reminders (appleItems.ts): whether this device can add them and with what access ("appleStatus");
   // a reminder or an event written on the device, or handed to the app with `handoff` (its id, the link the page already
   // followed) when the extension can't write it ("appleAdd" → { outcome: "saved" | "app" | "denied" | "failed" |
@@ -296,7 +301,7 @@ export type BackgroundRequest =
   // The cookie closer in a consent platform's own frame (2.7.1).
   | { type: "cookieFrameInject" }
   | { type: "cookieFrameDone"; via: string; accepted?: boolean }
-  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate" | "apple" | "space" | "match" | "write" | "shot" | "similar" | "collect" | "cookies"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number; val?: string; spaces?: number; match?: number; where?: string; screens?: number; cards?: number; count?: number }
+  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate" | "apple" | "space" | "match" | "write" | "shot" | "similar" | "collect" | "cookies"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; from?: string; state?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number; val?: string; spaces?: number; match?: number; where?: string; screens?: number; cards?: number; count?: number }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =
@@ -474,6 +479,10 @@ export interface Settings {
   // nothing shows while there's one space. Off: no switcher, colours or site bindings, every chat in one list; the
   // spaces and which chat is in which stay, for when it's on again. Shared with the app, like the rest.
   spaces: boolean
+  // 2.8: the answers-back reminder may also say there's a Pro discount (App Review 4.5.4: promotions in notifications
+  // only after an explicit opt-in in the app, and a way to opt out). Off until the person turns it on, by the reminder
+  // or in Settings.
+  offerNotify: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -493,7 +502,8 @@ export const DEFAULT_SETTINGS: Settings = {
   shareMarks: false,
   insertButton: true,
   keepCopied: COPIED_DEFAULT_ON,
-  spaces: true
+  spaces: true,
+  offerNotify: false
 }
 
 /** AI search's answer: the matching chats with a reason, or why there are none. */

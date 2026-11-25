@@ -27,6 +27,26 @@ export function savingOf(prices: Record<string, string>, plan: PaidPlan): number
   return Number(prices[`${yearly}#percent`]) || yearlySaving(prices[productOf(plan, "monthly")], prices[yearly])
 }
 
+/** The App Store's prices, or the last ones this device had (build 92: "Choose Pro" came with no price at all). */
+export function usePrices(status: StatusInfo | null): Record<string, string> {
+  const [keptPrices, setKeptPrices] = useState<Record<string, string>>({})
+  useEffect(() => void lastPrices().then(setKeptPrices), [])
+  const given = status?.store?.prices ?? {}
+  return Object.keys(given).length ? given : keptPrices
+}
+
+/** Whether the answers are back (Retry shows up then): from `at` (ms) on; null is now; "unknown" while the server hasn't
+ *  said when (2.8: no made-up time, Retry waits). Turns true by itself at that moment. */
+export function useAnswersBack(at: number | null | "unknown" | undefined): boolean {
+  const [now, setNow] = useState(Date.now())
+  useEffect(() => {
+    if (!at || at === "unknown" || at <= now) return
+    const timer = setTimeout(() => setNow(Date.now()), Math.min(at - now + 500, 2_147_000_000))
+    return () => clearTimeout(timer)
+  }, [at, now])
+  return at !== "unknown" && (!at || at <= now)
+}
+
 export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "ultra"], focus, extra, retryAt, onRetry, onChoose, onEvent, onClose }: {
   place: OfferPlace
   status: StatusInfo | null
@@ -47,25 +67,15 @@ export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "
   onEvent: (action: "shown" | "choose" | "retry" | "close", choice?: OfferChoice) => void
   onClose?: () => void
 }): VNode {
-  // The App Store's prices, or the last ones this device had (build 92: "Choose Pro" came with no price at all).
-  const [keptPrices, setKeptPrices] = useState<Record<string, string>>({})
-  useEffect(() => void lastPrices().then(setKeptPrices), [])
-  const given = status?.store?.prices ?? {}
-  const prices = Object.keys(given).length ? given : keptPrices
+  const prices = usePrices(status)
   const facts = status?.plans
   const [plan, setPlan] = useState<OfferChoice["plan"]>(focus && plans.includes(focus) ? focus : plans[0])
   // Monthly first (DEFAULT_PERIOD); a subscriber's own period when they're changing plan.
   const [period, setPeriod] = useState<Period>(startPeriod(status?.store?.active ? status.store.productId : null))
   // Shown once per message.
   useEffect(() => onEvent("shown", { plan, period }), [])
-  // Retry shows up when the answers are back.
-  const [now, setNow] = useState(Date.now())
-  useEffect(() => {
-    if (!retryAt || retryAt === "unknown" || retryAt <= now) return
-    const timer = setTimeout(() => setNow(Date.now()), Math.min(retryAt - now + 500, 2_147_000_000))
-    return () => clearTimeout(timer)
-  }, [retryAt, now])
-  const canRetry = Boolean(onRetry) && retryAt !== "unknown" && (!retryAt || retryAt <= now)
+  const answersBack = useAnswersBack(retryAt)
+  const canRetry = Boolean(onRetry) && answersBack
 
   const monthly = prices[productOf(plan, "monthly")]
   const yearly = prices[productOf(plan, "yearly")]

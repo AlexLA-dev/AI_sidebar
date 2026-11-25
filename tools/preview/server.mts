@@ -4,6 +4,9 @@
 //
 //   node --experimental-strip-types tools/preview/server.mts   (port 8787)
 //   CF_API_BASE=http://localhost:8787 npm run build:chrome      (extension pointing at it)
+//   PREVIEW_RESET_IN_S=180 …                                   (2.8: the free answers come back 3 minutes after the stand
+//                                                              starts, as resetsAt says; past it, an install that hit the
+//                                                              limit ran out «on an earlier day»)
 //   LIMITED_BEFORE=1 …                                         (every install ran out of free answers before:
 //                                                              the panel offers the Pro code)
 //   PREVIEW_PLAN=byok …                                        (the same with the Own key plan)
@@ -68,6 +71,10 @@ let lastChatRequest: unknown = null
 let lastWriteRequest: unknown = null
 // How /api/v2/write answers from now on (GET /set-write?delay=<ms>&mode=ok|hang|fail, 2.7 (107): the owner's Check that
 // hung for a minute): after a delay, never (the socket stays open), or with a 502. Live checks only when live=1.
+// PREVIEW_RESET_IN_S=N (2.8): the free answers come back N seconds after the stand starts, as the server would say it
+// (resetsAt in status and in a 402), so a reminder set at the limit fires within minutes. The counters don't reset.
+const fakeReset = Number(process.env.PREVIEW_RESET_IN_S) > 0 ? new Date(Date.now() + Number(process.env.PREVIEW_RESET_IN_S) * 1000).toISOString() : null
+let limitHit = false
 let writeMode: { delay: number; mode: "ok" | "hang" | "fail"; live: boolean } = { delay: Number(process.env.WRITE_DELAY_MS ?? 0), mode: "ok", live: false }
 // Every /api/v2/write since /reset: when it came, whether it was a live check, how it ended ("ok", "hang", "fail", "aborted").
 const writeLog: Array<{ at: number; live: boolean; action: string; chars: number; end: string; ms: number }> = []
@@ -94,12 +101,15 @@ const rpc: Record<string, (a: any) => unknown> = {
   cf_touch_install: () => null,
   cf_log: ({ p_kind, p_data }) => {
     if (p_kind === "chat") lastAnswerEvent = p_data
+    if (p_kind === "limit") limitHit = true
     return null
   },
   cf_entitlement_upsert: ({ p }) => p,
   cf_entitlement_get: () => null,
   cf_entitlement_by_token: () => null,
-  cf_limited_before: () => process.env.LIMITED_BEFORE === "1",
+  // PREVIEW_RESET_IN_S: an install that hit the free limit counts as one that ran out on an earlier day once the
+  // stand's own reset time has passed (2.8's return, watched on a device without waiting for midnight UTC).
+  cf_limited_before: () => process.env.LIMITED_BEFORE === "1" || (fakeReset !== null && limitHit && Date.now() >= Date.parse(fakeReset)),
   cf_tour_take: ({ p_install, p_max }) => {
     const n = tours.get(p_install) ?? 0
     if (n >= p_max) return false
@@ -1011,6 +1021,12 @@ createServer(async (req, res) => {
     })
     const t0 = Date.now()
     const response = await handler(request, { ip: "127.0.0.1", waitUntil: () => undefined } as any)
+    if (fakeReset && /^\/api\/v2\/(status|chat|write|translate)$/.test(url.pathname) && (response.headers.get("Content-Type") ?? "").includes("application/json")) {
+      const text = (await response.text()).replace(/"resetsAt":"[^"]*"/g, `"resetsAt":"${fakeReset}"`)
+      res.writeHead(response.status, { ...Object.fromEntries(response.headers), "content-length": String(Buffer.byteLength(text)) })
+      res.end(text)
+      return
+    }
     res.writeHead(response.status, Object.fromEntries(response.headers))
     let bytes = 0
     // Read aloud's minutes as the server counts them (build 92: what's heard), for the stand's log.

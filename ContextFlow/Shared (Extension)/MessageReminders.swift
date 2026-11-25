@@ -117,3 +117,22 @@ enum MessageReminders {
         #endif
     }
 }
+
+/// 2.8: the answers-back reminder that said there's a Pro discount (only for someone who opted in) was tapped. The app
+/// notes the moment in the App Group; the panel on the page that opens takes it once (`offer_tap_take`) and acts on its
+/// address's #cf-offer=1 only with a fresh note. The mark alone does nothing: any page or link can put it there.
+enum OfferTap {
+    private static let key = "cf.offerTapAt"
+    private static var defaults: UserDefaults? { UserDefaults(suiteName: SharedDefaults.suiteName) }
+
+    static func record() {
+        defaults?.set(Date().timeIntervalSince1970, forKey: key)
+    }
+
+    /// Seconds since the tap, taken once (the note is cleared); nil when there is none.
+    static func take() -> Double? {
+        guard let defaults, let at = defaults.object(forKey: key) as? Double else { return nil }
+        defaults.removeObject(forKey: key)
+        return Date().timeIntervalSince1970 - at
+    }
+}
