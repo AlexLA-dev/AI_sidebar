@@ -968,6 +968,8 @@
   "phCalendar": "Takvime eklensin mi?",
   "phAgent": "Sizin için doldurayım mı?",
   "googleOffer": "Bunu Google'da ara",
+  "googleOfferFree": "Ücretsiz yanıtlarınızı kullanmaz: günde {0} Google yanıtından biri.",
+  "googleOfferPro": "Bu haftaki {0} Google yanıtınızdan biri.",
   "collectTip": "Kopyaladığınız yanıtları tek yerde tutun: bunu bir koleksiyona ekleyin.",
   "collectTipAdd": "Koleksiyona ekle",
   "phClose": "Bu ipucunu gizle",

@@ -968,6 +968,8 @@
   "phCalendar": "カレンダーに追加しますか？",
   "phAgent": "代わりに入力しましょうか？",
   "googleOffer": "Googleで調べる",
+  "googleOfferFree": "無料の回答は使いません：Google回答は1日{0}回まで。",
+  "googleOfferPro": "今週のGoogle回答{0}回のうち1回。",
   "collectTip": "コピーした回答はまとめておけます：この回答をコレクションに追加。",
   "collectTipAdd": "コレクションに追加",
   "phClose": "ヒントを隠す",

@@ -865,11 +865,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       coachRef.current?.panelOpened()
       coachRef.current?.done("fab_pulse")
       openingRef.current = { at: Date.now(), did: "none" }
-      // What the first screen showed, once the panel has settled on it (the guide starts 450 ms in).
+      // What the first screen showed, once the panel has settled on it (the guide starts 450 ms after the panel is in
+      // view; on a device that was over 0.7 s after the tap).
       setTimeout(() => {
         if (!openingRef.current) return
         void sendBackground({ type: "useEvent", f: "panel", a: "open", via, lay: layoutRef.current, page: pageKindNow(), screen: screenNowRef.current(), ...(first ? { first: 1 } : {}) })
-      }, 700)
+      }, 1500)
     }
     pageChatRef.current = Boolean(how?.pageChat && !captured)
     if (captured) {
@@ -4893,21 +4894,22 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // ✦ seen (events-2.8 rung 7): once a device day, with the page's kind (and `first` the first time ever).
   useEffect(() => {
-    if (!fabVisible || popup) return
+    if (!fabVisible || popup || !coach.ready) return
     const today = dayKey(Date.now())
     void chrome.storage.local.get(FAB_SHOWN_KEY).then((got) => {
       const last = got[FAB_SHOWN_KEY] as string | undefined
       if (last === today) return
       void chrome.storage.local.set({ [FAB_SHOWN_KEY]: today })
-      void sendBackground({ type: "useEvent", f: "fab", a: "shown", page: pageKindNow(), ...(last ? {} : { first: 1 }) })
+      // `first`: the first time ever for someone who never opened the panel (an update from 2.7 has no mark yet).
+      void sendBackground({ type: "useEvent", f: "fab", a: "shown", page: pageKindNow(), ...(!last && coachRef.current?.panelOpens === 0 ? { first: 1 } : {}) })
     }).catch(() => undefined)
-  }, [fabVisible])
+  }, [fabVisible, coach.ready])
 
   // ------------------------------------------------------------ never an empty panel (2.8, В4.1, В4.2, В6.2)
   // Ready questions about this page in the empty chat: the "ask" arm from its first opening, everyone once they've had an
   // answer (the returner's panel). Not over the guide, the tour or an agent task's card.
   const showReady = !popup && !historyMode && messages.length === 0 && partial === null && !agentCardShown && contextKind === "page" &&
-    guide === null && !touring && arm !== null && coach.ready && (arm === "ask" || coach.answers > 0 || coach.day >= 2)
+    guide === null && !touring && arm !== null && coach.ready && (arm === "ask" || (tourSeen && (coach.answers > 0 || coach.day >= 2)))
   const readyQuestions = showReady ? readyFor(pageKind(document, location.href), mediaOn) : []
   // The chat the person was in last, when this one is new: «Continue «…»» (with an answer in it, the last two weeks).
   const lastChat = showReady && coach.answers > 0
@@ -4982,7 +4984,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   wantIf("google_offer", open && view === "chat" && webFor)
   wantIf("collect_tip", open && view === "chat" && collectOffer !== null && collectOffer < messages.length && !picked)
   // What the person is in the middle of holds every hint: the consent, the guide or the tour, the plans, the limit.
-  const coachFlow = guide !== null || touring || (open && (pending !== null || findConsent !== null || plansOpen !== null || memoryOffer !== null || error?.code === "LIMIT_REACHED"))
+  // (Ready questions that carry the consent are the consent too: nothing beside them until it's given.)
+  const coachFlow = guide !== null || touring || (open && (pending !== null || findConsent !== null || plansOpen !== null || memoryOffer !== null || error?.code === "LIMIT_REACHED" || (showReady && consent !== "ok")))
   const slot = coach.pick(coachWants, coachFlow)
   const pulse = slot === "fab_pulse"
   // What the first screen of an opening shows (panel.open's screen).
@@ -5649,7 +5652,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {/* (Not while an agent task's card is there: the card comes first, the director on the real-Safari shots.) */}
                 {!historyMode && messages.length === 0 && partial === null && !agentCardShown && (
                   <div class="cf-empty">
-                    <div class="cf-empty-icon"><Icon.Sparkle size={28} /></div>
+                    {/* 2.8: with ready questions the icon goes (on an iPhone's sheet it was cut off at the top). */}
+                    {!showReady && <div class="cf-empty-icon"><Icon.Sparkle size={28} /></div>}
                     <h2>{t("emptyTitle")}</h2>
                     {!showReady && <p>{t(contextKind === "selection" ? "emptySelection" : contextKind === "page" ? (source.kind() === "video" ? (mediaOn ? "emptyVideo" : "emptyVideoFree") : source.kind() === "pdf" ? (mediaOn ? "emptyPdf" : "emptyPdfFree") : "emptyPage") : "emptyNone")}</p>}
                     {/* 2.8: ready questions about this page, «Continue «…»», the consent in the same tap (ready/). */}
@@ -5736,6 +5740,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                           coach.done("google_offer")
                           ask(webFor.content, { mode: "google" })
                         }}><Icon.Search size={13} /> {t("googleOffer")}</button>
+                      )}
+                      {/* What it costs, said before the tap (the director: Free's Google answers are apart from the five). */}
+                      {!picked && idx === messages.length - 1 && slot === "google_offer" && webFor && (
+                        <p class="cf-google-cost">{hasPro(plan) ? t("googleOfferPro", search.proWeekly) : t("googleOfferFree", search.freeDaily)}</p>
                       )}
                       {/* 2.8 (В5.8): the second answer copied: keeping them in a collection, one tap. */}
                       {!picked && idx === collectOffer && slot === "collect_tip" && (

@@ -2822,6 +2822,12 @@
  "googleOffer": {
   "message": "Bei Google danach suchen"
  },
+ "googleOfferFree": {
+  "message": "Verbraucht keine Gratis-Antworten: eine von {0} Google-Antworten pro Tag."
+ },
+ "googleOfferPro": {
+  "message": "Eine deiner {0} Google-Antworten diese Woche."
+ },
  "collectTip": {
   "message": "Kopierte Antworten an einem Ort behalten: diese zu einer Sammlung hinzufügen."
  },

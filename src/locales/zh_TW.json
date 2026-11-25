@@ -968,6 +968,8 @@
   "phCalendar": "加入行事曆？",
   "phAgent": "幫你填寫？",
   "googleOffer": "用 Google 搜尋",
+  "googleOfferFree": "不占用免費回答：每天可用 {0} 次 Google 回答。",
+  "googleOfferPro": "本週 {0} 次 Google 回答中的一次。",
   "collectTip": "把複製的回答放在一處：將這則加入合集。",
   "collectTipAdd": "加入合集",
   "phClose": "隱藏提示",

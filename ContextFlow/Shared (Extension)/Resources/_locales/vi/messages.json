@@ -2822,6 +2822,12 @@
  "googleOffer": {
   "message": "Tìm trên Google"
  },
+ "googleOfferFree": {
+  "message": "Không dùng lượt trả lời miễn phí: một trong {0} câu trả lời Google mỗi ngày."
+ },
+ "googleOfferPro": {
+  "message": "Một trong {0} câu trả lời Google của bạn tuần này."
+ },
  "collectTip": {
   "message": "Giữ các câu trả lời bạn sao chép ở một chỗ: thêm câu này vào bộ sưu tập."
  },

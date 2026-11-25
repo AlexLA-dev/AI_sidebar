@@ -968,6 +968,8 @@
   "phCalendar": "¿Añadir al calendario?",
   "phAgent": "¿Lo relleno por ti?",
   "googleOffer": "Buscar esto en Google",
+  "googleOfferFree": "No gasta tus respuestas gratis: una de {0} respuestas con Google al día.",
+  "googleOfferPro": "Una de tus {0} respuestas con Google esta semana.",
   "collectTip": "Guarda en un sitio las respuestas que copias: añade esta a una colección.",
   "collectTipAdd": "Añadir a una colección",
   "phClose": "Ocultar consejo",

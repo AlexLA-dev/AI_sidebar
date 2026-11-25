@@ -2822,6 +2822,12 @@
  "googleOffer": {
   "message": "用 Google 搜索"
  },
+ "googleOfferFree": {
+  "message": "不占用免费回答：每天可用 {0} 次 Google 回答。"
+ },
+ "googleOfferPro": {
+  "message": "本周 {0} 次 Google 回答中的一次。"
+ },
  "collectTip": {
   "message": "把复制的回答放在一处：将这条加入合集。"
  },

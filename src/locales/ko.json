@@ -968,6 +968,8 @@
   "phCalendar": "캘린더에 추가할까요?",
   "phAgent": "대신 작성해 드릴까요?",
   "googleOffer": "Google에서 찾아보기",
+  "googleOfferFree": "무료 답변을 쓰지 않아요: Google 답변은 하루 {0}회까지.",
+  "googleOfferPro": "이번 주 Google 답변 {0}회 중 1회.",
   "collectTip": "복사한 답변을 한곳에 모아 두세요: 이 답변을 컬렉션에 추가하기.",
   "collectTipAdd": "컬렉션에 추가",
   "phClose": "팁 숨기기",

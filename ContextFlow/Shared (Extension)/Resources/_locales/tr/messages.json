@@ -2822,6 +2822,12 @@
  "googleOffer": {
   "message": "Bunu Google'da ara"
  },
+ "googleOfferFree": {
+  "message": "Ücretsiz yanıtlarınızı kullanmaz: günde {0} Google yanıtından biri."
+ },
+ "googleOfferPro": {
+  "message": "Bu haftaki {0} Google yanıtınızdan biri."
+ },
  "collectTip": {
   "message": "Kopyaladığınız yanıtları tek yerde tutun: bunu bir koleksiyona ekleyin."
  },

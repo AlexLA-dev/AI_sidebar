@@ -61,8 +61,8 @@ export const HINTS: Record<CoachHint, HintSpec> = {
   google_offer: hint(65, 11, 2, { cap: true }),
   collect_tip: hint(58, 11, 2, { cap: true }),
   write_tip: hint(55, 11, 2, { cap: true }),
-  // How-tos once the first answer is in.
-  note_tip: hint(50, 11, 1),
+  // How-tos once the first answer is in, from the second day (the simulator pass: the note tip on day 1 isn't a rung).
+  note_tip: hint(50, 11, 2),
   media_tip: hint(50, 11, 2),
   chats_tip: hint(50, 11, 2),
   side: hint(45, 11, 2),

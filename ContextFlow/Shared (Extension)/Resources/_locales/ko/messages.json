@@ -2822,6 +2822,12 @@
  "googleOffer": {
   "message": "Google에서 찾아보기"
  },
+ "googleOfferFree": {
+  "message": "무료 답변을 쓰지 않아요: Google 답변은 하루 {0}회까지."
+ },
+ "googleOfferPro": {
+  "message": "이번 주 Google 답변 {0}회 중 1회."
+ },
  "collectTip": {
   "message": "복사한 답변을 한곳에 모아 두세요: 이 답변을 컬렉션에 추가하기."
  },

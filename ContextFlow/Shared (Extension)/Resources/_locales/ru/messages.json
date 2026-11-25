@@ -2822,6 +2822,12 @@
  "googleOffer": {
   "message": "Найти это в Google"
  },
+ "googleOfferFree": {
+  "message": "Не тратит бесплатные ответы: один из {0} ответов с Google в день."
+ },
+ "googleOfferPro": {
+  "message": "Один из {0} ответов с Google на этой неделе."
+ },
  "collectTip": {
   "message": "Храните скопированные ответы в одном месте: добавьте этот в подборку."
  },

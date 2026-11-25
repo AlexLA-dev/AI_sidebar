@@ -2822,6 +2822,12 @@
  "googleOffer": {
   "message": "Googleで調べる"
  },
+ "googleOfferFree": {
+  "message": "無料の回答は使いません：Google回答は1日{0}回まで。"
+ },
+ "googleOfferPro": {
+  "message": "今週のGoogle回答{0}回のうち1回。"
+ },
  "collectTip": {
   "message": "コピーした回答はまとめておけます：この回答をコレクションに追加。"
  },

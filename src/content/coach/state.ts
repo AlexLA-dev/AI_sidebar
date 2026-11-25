@@ -29,11 +29,20 @@ export async function saveCoach(state: CoachState): Promise<void> {
   await chrome.storage.local.set({ [COACH_KEY]: state }).catch(() => undefined)
 }
 
-/** Read, change, write: the stored copy is the one changed (another tab may have written since). */
-export async function changeCoach(change: (s: CoachState) => CoachState, now = Date.now()): Promise<CoachState> {
-  const next = change(await loadCoach(now))
-  await saveCoach(next)
-  return next
+// This tab's changes, one after another: two at once (the first opening counts itself and ends the ✦ pulse in the same
+// tap) each read the same stored copy and the second write lost the first's change (the simulator pass, 2.8).
+let lane: Promise<unknown> = Promise.resolve()
+
+/** Read, change, write: the stored copy is the one changed (another tab may have written since), this tab's changes
+ *  in turn. */
+export function changeCoach(change: (s: CoachState) => CoachState, now = Date.now()): Promise<CoachState> {
+  const run = lane.then(async () => {
+    const next = change(await loadCoach(now))
+    await saveCoach(next)
+    return next
+  })
+  lane = run.catch(() => undefined)
+  return run
 }
 
 /** Calls `listener` when another tab changed the state. */

@@ -51,7 +51,7 @@ test("day 1 is quiet: only what leads to the next rung", () => {
   const s = fresh()
   const all = lib.HINT_IDS
   const shown = all.filter((id: string) => lib.allowed(s, id, moment(at(1, 2), 11)))
-  assert.deepEqual(shown.sort(), ["agent_offer", "cookie_line", "fab_pulse", "note_tip", "sel_ask"].sort())
+  assert.deepEqual(shown.sort(), ["agent_offer", "cookie_line", "fab_pulse", "sel_ask"].sort())
   for (const id of ["organize_mess", "organize_tags", "organize_consent", "invite", "pro_offer", "whatsnew", "translate_pill", "page_similar"]) {
     assert.equal(lib.allowed(s, id, moment(at(1, 2), 13)), false, `${id} waits for day 2`)
     assert.equal(lib.allowed(s, id, moment(at(2), 11)), true, `${id} on day 2`)
@@ -235,6 +235,6 @@ test("a scripted first week: no session ever shows two hints, the first day stay
     }
     for (const [session, set] of bySession) assert.ok(set.size <= 1, `run ${run}, session ${session}: ${[...set].join(", ")}`)
     for (const [day, set] of capDays) assert.ok(set.size <= 1, `run ${run}, day ${day}: capabilities ${[...set].join(", ")}`)
-    for (const e of shownLog) if (e.day === 1) assert.ok(["fab_pulse", "sel_ask", "note_tip"].includes(e.id), `day 1: ${e.id}`)
+    for (const e of shownLog) if (e.day === 1) assert.ok(["fab_pulse", "sel_ask"].includes(e.id), `day 1: ${e.id}`)
   }
 })

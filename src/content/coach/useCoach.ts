@@ -112,8 +112,15 @@ export function useCoach({ consent, paid }: { consent: boolean; paid: boolean })
   }, [])
 
   const tap = useCallback((id: CoachHint) => {
+    // Tapped within its first second on screen (the iPad pass: the line came as the finger landed): it was seen, and
+    // it is this session's one thing.
+    if (!here.current.has(id)) {
+      here.current.add(id)
+      change((s) => afterShown(s, id, Date.now()))
+      if (HINTS[id].kind !== "notice") send("shown", id, rungRef.current, dayRef.current)
+    }
     if (HINTS[id].kind !== "notice") send("tap", id, rungRef.current, dayRef.current)
-  }, [])
+  }, [change])
   const dismiss = useCallback((id: CoachHint) => {
     if (HINTS[id].kind !== "notice") send("dismiss", id, rungRef.current, dayRef.current)
     if (current.current === id) current.current = null
