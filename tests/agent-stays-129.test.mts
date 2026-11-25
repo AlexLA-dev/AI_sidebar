@@ -157,3 +157,10 @@ test("6: a press line with no words says what was pressed", () => {
     assert.ok(m.agentLinePressed && m.agentSelfNewTab, loc)
   }
 })
+
+test("the tap's own watching script isn't a page change («nothing changed» stays true)", () => {
+  const hands = readFileSync(new URL("../src/content/agent/hands.ts", import.meta.url), "utf8")
+  assert.match(hands, /if \(records\.every\(ownMark\)\) return/)
+  assert.match(hands, /s\.setAttribute\("data-cf-shim", ""\)/)
+  assert.match(hands, /if \(r\.type === "attributes"\) return !!r\.attributeName\?\.startsWith\("data-cf-"\)/)
+})

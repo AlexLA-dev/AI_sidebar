@@ -38,7 +38,10 @@ export function watch(doc: Document = document): Watch {
   let changed = false
   let gone = false
   let last = Date.now()
-  const observer = new view.MutationObserver(() => {
+  // (Not the agent's own marks: the script and the attributes that watch a page's new tab during a tap, 129 — with them
+  // every tap read «the page changed».)
+  const observer = new view.MutationObserver((records) => {
+    if (records.every(ownMark)) return
     changed = true
     last = Date.now()
   })
@@ -99,6 +102,7 @@ export function catchNewTab(doc: Document): { done(): { url: string; reached: bo
   let reached = false
   try {
     const s = doc.createElement("script")
+    s.setAttribute("data-cf-shim", "")
     s.textContent = `(()=>{const d=document.documentElement,o=window.open;d.setAttribute("data-cf-win","1");window.open=function(u){try{d.setAttribute("data-cf-open",new URL(String(u==null?"":u),location.href).href)}catch(e){}return null};document.addEventListener("cf-win-off",()=>{window.open=o;d.removeAttribute("data-cf-win")},{once:true})})()`
     ;(doc.head ?? root).appendChild(s)
     s.remove()
@@ -118,6 +122,14 @@ export function catchNewTab(doc: Document): { done(): { url: string; reached: bo
       return { url: /^https?:\/\//.test(url) ? url : "", reached }
     }
   }
+}
+
+/** A change that is only the agent's own: its watching script added or removed, or one of its data-cf- attributes. */
+export function ownMark(r: MutationRecord): boolean {
+  if (r.type === "attributes") return !!r.attributeName?.startsWith("data-cf-")
+  if (r.type !== "childList") return false
+  const nodes = [...Array.from(r.addedNodes), ...Array.from(r.removedNodes)]
+  return nodes.length > 0 && nodes.every((n) => (n as Element).hasAttribute?.("data-cf-shim"))
 }
 
 /** A press the way a page hears a finger or a mouse: pointer and mouse down and up, then the click itself. */
