@@ -722,6 +722,10 @@
   "b805da32b11a": "Ayarlar uygulamasını açın ve Uygulamalar → Safari (ContextFlow değil) → Uzantılar → ContextFlow bölümüne gidin.",
   "9cf76ea2ed86": "Ayarlar’ı açın, ardından soldaki Uygulamalar → Safari (ContextFlow değil) → Uzantılar → ContextFlow’a gidin.",
   "07b51faeeeef": "Safari’ye dönün, sayfayı yeniden yükleyin ve ✦ düğmesine dokunun.",
-  "6c05410141f9": "“Her Zaman İzin Ver”i seçin. ContextFlow bir sayfayı yalnızca ona bir şey sorduğunuzda okur.",
-  "abbe3a8e83ad": "İzinler bölümünde “Tüm Web Siteleri” seçeneğini “İzin Ver” yapın."
+  "393d79f8b457": "Adres çubuğundaki sayfa menüsünü açın → ContextFlow → “Her Zaman İzin Ver…” → “Her Web Sitesinde Her Zaman İzin Ver”.",
+  "ca4ea310de90": "“Bir Gün İzin Ver” değil: onunla ✦ yarın yine kaybolur.",
+  "0b43319f282d": "Ya da Ayarlar’da:",
+  "2c91c2a977f2": "İzinler bölümünde “Tüm Web Siteleri” seçeneğini “İzin Ver” yapın. Bunun yerine bir web sitesi listesi görürseniz listedeki her satırı “İzin Ver” yapın.",
+  "661d6fcb9cf1": "Adresin yanındaki yapboz parçası düğmesine dokunun → ContextFlow → “Her Zaman İzin Ver…” → “Her Web Sitesinde Her Zaman İzin Ver”.",
+  "f6a68fb273c4": "“Her Zaman İzin Ver”i seçin. Sayfa metni yalnızca bir şey sorduğunuzda gönderilir ve model eğitmek için kullanılmaz."
 }

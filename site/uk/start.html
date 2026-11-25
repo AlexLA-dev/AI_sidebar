@@ -62,6 +62,8 @@
   .box ol { padding-left: 22px; }
   [dir="rtl"] .box ol { padding-left: 0; padding-right: 22px; }
   .box.warn { border: 2px solid #f59e0b; }
+  .box .note { font-size: 15px; color: var(--text-2); margin-top: -4px; }
+  .box .or { font-weight: 600; margin-bottom: 4px; }
   .reload { margin-top: 10px; font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 9px 16px; background: var(--blue); color: #fff; }
   .try { border: 1px solid var(--border); border-radius: 18px; padding: 6px 20px 14px; margin: 8px 0 18px; }
   .try .kicker { font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--blue); margin: 14px 0 0; }
@@ -106,17 +108,27 @@
 
   <div class="box warn" id="turn-on" hidden>
     <h2>Немає ✦ на сторінці? ContextFlow ще не дозволено на вебсайтах.</h2>
+    <!-- The app's own card (2.8 setup, Setup.swift safariStep), word for word, with Safari's button names in each language
+         (tests/fixtures/safari-permission-labels.json). Safari's own question first: seen granting at once on the owner's
+         iPad. Settings second: the way seen working every time in the simulators. iPhone: the page menu in the address
+         bar; iPad: the puzzle-piece button. Which one shows is chosen from the device (the script below), not the window. -->
     <div data-device="iphone">
+      <p>Відкрийте меню сторінки в адресному рядку → ContextFlow → «Дозволяти завжди…» → «Завжди дозволяти на кожному вебсайті».</p>
+      <p class="note">Не «Дозволити на один день»: з ним ✦ завтра знову зникне.</p>
+      <p class="or">Або в Параметрах:</p>
       <ol>
         <li>Відкрийте програму «Параметри» й перейдіть у «Програми» → Safari (не ContextFlow) → «Розширення» → ContextFlow.</li>
-        <li>У розділі «Дозволи» для параметра «Усі вебсайти» виберіть «Дозволити».</li>
+        <li>У розділі «Дозволи» для параметра «Усі вебсайти» виберіть «Дозволити». Якщо натомість там список вебсайтів, виберіть «Дозволити» для кожного рядка списку.</li>
         <li>Поверніться в Safari, перезавантажте сторінку й торкніться ✦.</li>
       </ol>
     </div>
     <div data-device="ipad" hidden>
+      <p>Торкніться кнопки з елементом пазла поруч з адресою → ContextFlow → «Дозволяти завжди…» → «Завжди дозволяти на кожному вебсайті».</p>
+      <p class="note">Не «Дозволити на один день»: з ним ✦ завтра знову зникне.</p>
+      <p class="or">Або в Параметрах:</p>
       <ol>
         <li>Відкрийте «Параметри», потім «Програми» ліворуч → Safari (не ContextFlow) → «Розширення» → ContextFlow.</li>
-        <li>У розділі «Дозволи» для параметра «Усі вебсайти» виберіть «Дозволити».</li>
+        <li>У розділі «Дозволи» для параметра «Усі вебсайти» виберіть «Дозволити». Якщо натомість там список вебсайтів, виберіть «Дозволити» для кожного рядка списку.</li>
         <li>Поверніться в Safari, перезавантажте сторінку й торкніться ✦.</li>
       </ol>
     </div>
@@ -128,7 +140,7 @@
 
   <div class="box">
     <h2>Якщо Safari запитає про цей вебсайт</h2>
-    <p>Виберіть «Завжди дозволяти». ContextFlow читає сторінку, лише коли ви щось у нього запитуєте.</p>
+    <p>Виберіть «Завжди дозволяти». Текст сторінки надсилається лише тоді, коли ви щось запитуєте, і не використовується для навчання моделей.</p>
   </div>
   </aside>
 
