@@ -62,6 +62,12 @@ test("N2: a place only the chat suggested isn't the person's: asked, the suggest
   const sq = script.plan!.questions.find((x) => x.kind === "venue")
   assert.deepEqual(sq?.options, ["Old Town Guesthouse", "Harbour View Suites", "Olive Grove Apartments", "@auto"])
   assert.ok(!script.plan!.steps.some((l) => /Old Town/.test(l)), "no plan step choosing it")
+  // The plan's own place question (its options are the page's places): no «I'll pick the place» beside it.
+  const own = { ...RAW("x"), booking: { ...RAW("x").booking, venue: "" }, fromChat: "4–6 Dec", questions: [{ q: "Which place?", options: ["Harbour View Suites", "Olive Grove Apartments", "Old Town Guesthouse"], fact: "Place", pick: "" }] }
+  const mkOwn = (): RunnerIO => { const io = mk("x"); const r: any[] = [{ ok: true, plan: own, token: "t" }]; return { ...io, ask: async () => r.shift() ?? { ok: true, call: { tool: "done", summary: "x" }, verdict: { cls: "free", reason: "read" } } } }
+  const asksOwn = await drive(newState("n2d", "Book a stay for 2 nights from next Friday", "en", LIST.url), mkOwn())
+  assert.equal(asksOwn.plan!.how?.rating ?? 0, 0)
+  assert.equal(asksOwn.plan!.questions.filter((q) => q.kind === "venue" || q.place).length, 1, "one place question, not two")
   const pointed = await drive(newState("n2b", "Book the one you suggested for 2 nights from next Friday", "en", LIST.url), mk("x"))
   assert.equal(pointed.plan!.booking!.venue, "Old Town Guesthouse")
 })

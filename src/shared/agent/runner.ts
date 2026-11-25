@@ -606,7 +606,7 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
     return options.length >= 2 ? [{ ...q, options, ...(q.pick && options.includes(q.pick) ? {} : { pick: undefined }) }] : []
   })
   let placesListed = false
-  if (plan.booking && !plan.booking.venue && rules.chooseVenue && !plan.questions.some((q) => q.kind === "venue" || q.fact === "venue")) {
+  if (plan.booking && !plan.booking.venue && rules.chooseVenue && !plan.questions.some((q) => q.kind === "venue" || q.fact === "venue" || q.place)) {
     // A results list whose cards come after the first part of the map (restaurant and salon sites' filters and map first,
     // 124): the next parts are read on the device for the places (never sent to the model).
     let seen = map
@@ -636,7 +636,7 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   }
   // The chat's suggestion, dropped as the place, comes back as the question's first option even where the page's places
   // aren't links the device can rank (129, the iPad: the stand's script-opened cards; no question was asked at all).
-  if (chatPick && plan.booking && !plan.booking.venue && !plan.questions.some((q) => q.kind === "venue" || q.fact === "venue")) {
+  if (chatPick && plan.booking && !plan.booking.venue && !plan.questions.some((q) => q.kind === "venue" || q.fact === "venue" || q.place)) {
     const own = (i: MapItem) => i.role === "link" && (!!i.card || !i.href) && i.label.trim().length >= 3 && i.label.trim().length <= 80
     const labels = [...new Set(map.items.filter(own).map((i) => i.label.trim()))]
     const first = labels.find((l) => squashName(l) === squashName(chatPick)) ?? (shown.includes(chatPick.toLocaleLowerCase()) ? chatPick : "")
@@ -650,7 +650,9 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   // choose, so no «I'll pick the place» (the director on 126, a stand's one-form page).
   if (plan.booking && plan.how && !placesListed && !venuesOn(map).length && plan.perms.some((p) => p.kind === "press" && p.reason === "submit" && !!p.ids?.length && p.path === pathOf(map.url))) plan.how.rating = 0
   // A place that's the person's to choose isn't «I'll pick the place»: the agent asks once it has a real list.
-  if (plan.booking?.personal && !plan.booking.venue && plan.how && !plan.questions.some((q) => q.kind === "venue" || q.fact === "venue")) plan.how.rating = 0
+  if (plan.booking?.personal && !plan.booking.venue && plan.how && !plan.questions.some((q) => q.kind === "venue" || q.fact === "venue" || q.place)) plan.how.rating = 0
+  // (A question about the place — the device's or the plan's own — is the choice: no «I'll pick the place» beside it, 130.)
+  if (plan.how && plan.questions.some((q) => q.kind === "venue" || q.fact === "venue" || q.place)) plan.how.rating = 0
   // A personal service's open choices, asked on the card unless the request names them (the owner on 123: «переуточнять
   // … если эта деталь не была уточнена»): the specialist («any» first, then the page's names) and the service when more
   // than one fits; a remembered answer pre-fills them. Built on the device from the plan's fields, so they're never
@@ -1692,7 +1694,7 @@ export function namedIn(name: string, words: string): boolean {
 const fold2 = (s: string) => s.toLocaleLowerCase().normalize("NFKD").replace(/\p{M}/gu, "")
 
 function placeFromAnswers(state: AgentState, plan: TaskPlan, answers: string[]): void {
-  const where = plan.questions.findIndex((q) => q.kind === "venue" || q.fact === "venue")
+  const where = plan.questions.findIndex((q) => q.kind === "venue" || q.fact === "venue" || q.place)
   const place = where >= 0 ? (answers[where] ?? "").trim() : ""
   // (The rules' own pick left as it was stays the rules': when it has no fitting slot, the next place is tried; «pick for
   // me» leaves it to the rules; a place of the page's, last time's or the person's own words is that place.)
