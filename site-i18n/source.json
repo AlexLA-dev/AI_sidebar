@@ -6794,17 +6794,17 @@
   ]
  },
  {
-  "key": "461dc656f017",
+  "key": "76c13fee094b",
   "kind": "title",
-  "en": "ContextFlow, Zeki or SurfMind: three AI sidebars for Safari compared — ContextFlow",
+  "en": "ContextFlow, Zeki or SurfMind: three AI sidebars compared — ContextFlow",
   "pages": [
    "contextflow-vs-zeki-surfmind.html"
   ]
  },
  {
-  "key": "b4b3f3c3ecbc",
+  "key": "1335ad7d692b",
   "kind": "meta",
-  "en": "Zeki, SurfMind and ContextFlow all put AI next to the page in Safari. What each one does without your own key, with it, on which devices, and which one fits what you do. From the developer of ContextFlow, with the other two as their App Store pages describe them.",
+  "en": "Zeki, SurfMind and ContextFlow all put an AI chat next to the page you're reading. What each one does without your own key, with it, on which devices, and which one fits what you do. From the developer of ContextFlow, with the other two as their App Store pages describe them.",
   "pages": [
    "contextflow-vs-zeki-surfmind.html"
   ]
@@ -6818,17 +6818,17 @@
   ]
  },
  {
-  "key": "b5264f444bd9",
+  "key": "2adbba1801d5",
   "kind": "meta",
-  "en": "Three AI sidebars for Safari: models and keys, devices, and what each does beyond chat.",
+  "en": "Three AI sidebars next to the page: models and keys, devices, and what each does beyond chat.",
   "pages": [
    "contextflow-vs-zeki-surfmind.html"
   ]
  },
  {
-  "key": "4e73559d974d",
+  "key": "dd0f395bda55",
   "kind": "ld",
-  "en": "ContextFlow, Zeki or SurfMind: three AI sidebars for Safari",
+  "en": "ContextFlow, Zeki or SurfMind: three AI sidebars next to the page",
   "pages": [
    "contextflow-vs-zeki-surfmind.html"
   ]
@@ -6890,17 +6890,17 @@
   ]
  },
  {
-  "key": "e6f0d85bde22",
+  "key": "095c2a50886f",
   "kind": "ld",
-  "en": "Yes. All three are free to start in the App Store, and Safari lets you turn extensions on and off one by one.",
+  "en": "Yes. All three are free to start in the App Store.",
   "pages": [
    "contextflow-vs-zeki-surfmind.html"
   ]
  },
  {
-  "key": "ad1beb4cbd0a",
+  "key": "af61a24dc3fd",
   "kind": "html",
-  "en": "All three put an AI chat next to the page you're reading in Safari, and all three can summarize it, answer questions about it and work with selected text. They differ in what comes on top. I make ContextFlow, so I'm not neutral. Zeki and SurfMind are described here as their App Store pages describe them, in November 2026.",
+  "en": "All three put an AI chat next to the page you're reading, and all three can summarize it and work with text you select. ContextFlow and Zeki work in Safari; SurfMind's App Store page speaks of “your browser” and doesn't name one. They differ in what comes on top. I make ContextFlow, so I'm not neutral. Zeki and SurfMind are described here as their App Store pages describe them, in November 2026.",
   "pages": [
    "contextflow-vs-zeki-surfmind.html"
   ]
@@ -6922,9 +6922,9 @@
   ]
  },
  {
-  "key": "9fc5d7569575",
+  "key": "c27425609fb6",
   "kind": "html",
-  "en": "<strong>Your own key:</strong> free and unlimited, with keys from Anthropic, OpenAI, Google, OpenRouter, Groq or Mistral, and any model they offer.",
+  "en": "<strong>Your own key:</strong> free and unlimited, with keys from Anthropic, OpenAI, Google, OpenRouter, Groq or Mistral, and any model the key can reach.",
   "pages": [
    "contextflow-vs-zeki-surfmind.html"
   ]
@@ -7101,38 +7101,6 @@
   "key": "539a0d8edeb8",
   "kind": "html",
   "en": "iPhone, Mac",
-  "pages": [
-   "contextflow-vs-zeki-surfmind.html"
-  ]
- },
- {
-  "key": "85dfa32c97d8",
-  "kind": "html",
-  "en": "Account",
-  "pages": [
-   "contextflow-vs-zeki-surfmind.html"
-  ]
- },
- {
-  "key": "6eef6648406c",
-  "kind": "html",
-  "en": "None",
-  "pages": [
-   "contextflow-vs-zeki-surfmind.html"
-  ]
- },
- {
-  "key": "2ba14efb5fbe",
-  "kind": "html",
-  "en": "Sign in with Apple for a subscription",
-  "pages": [
-   "contextflow-vs-zeki-surfmind.html"
-  ]
- },
- {
-  "key": "c092c44522aa",
-  "kind": "html",
-  "en": "Not stated",
   "pages": [
    "contextflow-vs-zeki-surfmind.html"
   ]
@@ -7469,14 +7437,6 @@
   ]
  },
  {
-  "key": "6fa21dbedd8b",
-  "kind": "html",
-  "en": "Pick Safari in the Apps list, not ContextFlow: ContextFlow is listed there too, and its own page has no extension switch.",
-  "pages": [
-   "turn-on-safari-extension-iphone.html"
-  ]
- },
- {
   "key": "ddf55cc21579",
   "kind": "html",
   "en": "Turned on, but no button?",
@@ -7541,9 +7501,9 @@
   ]
  },
  {
-  "key": "c9104b5972e1",
+  "key": "f202491f0a07",
   "kind": "html",
-  "en": "Safari shows the same warning for every extension, because it can't know what one does. ContextFlow reads a page only when you ask it something, and page text isn't kept on my server. You can also allow it site by site instead; then ✦ shows only on those sites.",
+  "en": "Safari shows the same warning for every extension, because it can't know what one does. Page text is sent only when you ask something and is not used to train models. You can also allow it site by site instead; then ✦ shows only on those sites.",
   "pages": [
    "turn-on-safari-extension-iphone.html"
   ]
