@@ -7,7 +7,7 @@ import { ActError, cost, MAX_DATA_CHARS, MAX_REQUEST_CHARS, needsStrong, nextSte
 import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, refund, touchInstall, type Counter } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
-import { agentDaily, evalAccess, hasPro, resolveAccess, type Access } from "../shared/plan.mts"
+import { agentDaily, evalAccess, hasPro, resolveAccess, stepCap, type Access } from "../shared/plan.mts"
 import { requestLanguage } from "../../src/shared/agent/lang.ts"
 import { hostOf } from "../../src/shared/agent/sites.ts"
 
@@ -54,6 +54,9 @@ export default async (req: Request, context: Context): Promise<Response> => {
   // Pro and Ultra only (deploy previews: a request signed with the measuring key counts as Ultra).
   const measuring = evalAccess(req, installId, context)
   const access = measuring ?? (await resolveAccess(body.entitlement, installId))
+  // The task's step cap: the configured one; a measuring request (the same gate as the named driver below) may ask for
+  // up to 60, to measure whether the cap is the limit. Only the step count reads it.
+  const maxSteps = stepCap(measuring, body.maxSteps, a.maxSteps)
   if (!hasPro(access.plan)) return json({ code: "PRO_ONLY", plan: access.plan }, 402)
   const otid = access.entitlement!.originalTransactionId
 
@@ -70,7 +73,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
     return json({ code: "TOKEN" }, 403)
   }
   counters.push(
-    { subject: `agentstep:${taskId}`, period: "day", limit: a.maxSteps },
+    { subject: `agentstep:${taskId}`, period: "day", limit: maxSteps },
     { subject: "global:agentstep", period: "day", limit: a.globalDailySteps }
   )
   let quota
@@ -91,7 +94,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
     const blocked = quota.blocked ?? ""
     context.waitUntil(logEvent("limit", installId, { plan: access.plan, reason: blocked.split(":")[0], platform, version, mode: "agent" }))
     if (blocked.startsWith("agent:tx:")) return json({ code: "AGENT_LIMIT", plan: access.plan, left: 0, limit: counters[0].limit }, 402)
-    if (blocked.startsWith("agentstep:")) return json({ code: "STEP_LIMIT", limit: a.maxSteps }, 409)
+    if (blocked.startsWith("agentstep:")) return json({ code: "STEP_LIMIT", limit: maxSteps }, 409)
     return json({ code: "BUSY" }, 503)
   }
 
@@ -118,7 +121,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
         }),
         touchInstall(installId, platform, version, locale, 0).catch(() => undefined)
       ]))
-      return json({ ok: true, plan: p.plan, token, left, stepsLeft: Math.max(0, a.maxSteps - stepsUsed), ...(measuring ? { model: named ?? a.planModel, cost: Math.round(spent * 1e6) / 1e6 } : {}) })
+      return json({ ok: true, plan: p.plan, token, left, stepsLeft: Math.max(0, maxSteps - stepsUsed), ...(measuring ? { model: named ?? a.planModel, cost: Math.round(spent * 1e6) / 1e6 } : {}) })
     }
     out = await nextStep(input, { model, startHost, confirmedHere: task.confirmedHere === true, signal: req.signal, fallback: a.strongModel })
   } catch (err) {
@@ -153,7 +156,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
     ...(out.offRequest ? { offRequest: out.offRequest } : {}),
     ...(step === 0 ? { token, left } : {}),
     strong,
-    stepsLeft: Math.max(0, a.maxSteps - stepsUsed),
+    stepsLeft: Math.max(0, maxSteps - stepsUsed),
     // Measuring only: what the step cost and which model drove it.
     ...(measuring ? { model, cost: Math.round(spent * 1e6) / 1e6, tokens } : {})
   })

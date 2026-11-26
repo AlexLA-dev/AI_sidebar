@@ -107,6 +107,17 @@ export function evalAccess(req: Request, installId: string, context?: { deploy?:
   return evalCheck(req, installId, context).access
 }
 
+// A measuring run's step cap (round 138: whether 30 steps is too few on marketplace pages): a request that evalAccess
+// lets through (signed with the measuring key, deploy previews only) may ask for more steps, up to this. Nothing else
+// reads it: it relaxes the step count only, never a guard. The shipped panel never sends it.
+export const MEASURED_STEPS_MAX = 60
+
+/** The step cap for one request: the configured cap; a measuring request may raise it (never lower it), up to 60. */
+export function stepCap(measuring: Access | null, asked: unknown, cap: number): number {
+  if (!measuring || typeof asked !== "number" || !Number.isInteger(asked)) return cap
+  return Math.max(cap, Math.min(MEASURED_STEPS_MAX, asked))
+}
+
 /** evalAccess and, when it says no to a request that tried, why ("context", "token"): never the token itself. */
 export function evalCheck(req: Request, installId: string, context?: { deploy?: { context?: string } }): { access: Access | null; refused?: "context" | "token" } {
   if (!req.headers.has("x-cf-eval")) return { access: null }
