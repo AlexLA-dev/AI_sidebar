@@ -95,7 +95,9 @@ export function weekdayIn(text: string): boolean {
 }
 
 // A day's number on its own (not part of a time «12:30», a price «€18» or a year).
-const DAY_NUMBER = /(?<![\d:.,€$£¥])(0?[1-9]|[12]\d|3[01])(?![\d:])/u
+// (Never the number of a month or a year written with its sign, «11月», «11월», «2026年»: «Friday, 11月 27» is the 27th, and
+// a calendar's header «11月 2026» names no day.)
+const DAY_NUMBER = /(?<![\d:.,€$£¥])(0?[1-9]|[12]\d|3[01])(?![\d:])(?!\s*[月월年년])/u
 // «26.12», «05.01», «5.1.» — a month of two digits or a closing dot (a rating «9.1» or «4.8» is neither).
 const DOTTED = /(?<![\d.,])(0?[1-9]|[12]\d|3[01])[./](0[1-9]|1[0-2]|[1-9]\.)(?![\d:])/
 

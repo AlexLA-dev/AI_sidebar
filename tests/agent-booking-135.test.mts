@@ -163,3 +163,18 @@ test("C: a press that changed nothing names the choices beside it still at their
   const entry = st.log.find((e) => e.call.id === "r9")!
   assert.match(entry.result, /^nothing changed on the page; beside it, still at their first option: «Select rooms» \(0\) — set the one the request needs/)
 })
+
+test("smaller (10eed066): a 12-hour time the model wrote shows in the request's form; the person's details are «your»", async () => {
+  const { clockFrom, twelveToClock } = await import("../src/content/agent/clockform.ts")
+  clockFrom("Book a table at Harbour Grill for 2 tomorrow at 19:00")
+  assert.equal(twelveToClock("You can pick Fri, Nov 27 for 2 people at 7:00 PM on the page"), "You can pick Fri, Nov 27 for 2 people at 19:00 on the page")
+  assert.equal(twelveToClock("at 7 pm, or 12:30 a.m."), "at 19:00, or 00:30")
+  assert.equal(twelveToClock("Room 7 Pmax and 10 apples"), "Room 7 Pmax and 10 apples")
+  clockFrom("Book a table at 7:30 pm")
+  assert.match(twelveToClock("at 7:00 PM"), /7:00\s?PM/i)
+  const panel = readFileSync(new URL("../src/content/agent/AgentPanel.tsx", import.meta.url), "utf8")
+  assert.match(panel, /return twelveToClock\(daysAsIso\(text, todayIso\(\)\)\)/)
+  const act = readFileSync(new URL("../netlify/shared/act.mts", import.meta.url), "utf8")
+  assert.match(act, /«Filling in your e-mail», never «my e-mail» or «my saved e-mail»/)
+  assert.match(act, /the person's details are theirs \("Filling in your e-mail", never "my e-mail"\)/)
+})

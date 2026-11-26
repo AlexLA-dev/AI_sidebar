@@ -9,7 +9,7 @@
 //   never reaches it.
 
 import { amounts } from "../../shared/agent/taskplan"
-import { isDateLabel } from "../../shared/agent/dates"
+import { isDateLabel, monthIn } from "../../shared/agent/dates"
 import { wordKind, wordTest } from "../../shared/agent/match"
 import { looksLikeSlot } from "../../shared/agent/rules"
 import { CLOSE_WORDS, PROMO_WORDS, UNAVAILABLE_WORDS } from "../../shared/agent/words"
@@ -205,8 +205,33 @@ function textBefore(el: Element): string {
   return ""
 }
 
-/** The element's name as a person reads it (an approximation of its accessible name). */
+/** The element's name as a person reads it (an approximation of its accessible name); a calendar's bare day number
+ *  with its month and year (the director's real-site run on 10eed066: a grid of «26»s whose month was only in its header,
+ *  so neither the device nor the model knew which month a day was in). */
 export function nameOf(el: Element, role: Role): string {
+  const own = ownName(el, role)
+  return /^\s*(0?[1-9]|[12]\d|3[01])\s*$/.test(own) ? `${own.trim()} ${monthOfCell(el)}`.trim() : own
+}
+
+// A month's name with a four-digit year («November 2026», «noviembre de 2026», «2026年11月»).
+const MONTH_YEAR = (t: string) => /(?<!\d)(19|20)\d{2}(?!\d)/.test(t) && monthIn(t) >= 0
+
+/** The month and year of the calendar a day cell is in: the nearest enclosing part that names exactly one («» for none). */
+function monthOfCell(el: Element): string {
+  let at: Element | null = el.parentElement
+  for (let depth = 0; at && depth < 8; depth++, at = at.parentElement) {
+    const own = squash(at.getAttribute("aria-label"))
+    if (own && own.length <= 40 && MONTH_YEAR(own)) return own
+    const heads = Array.from(at.querySelectorAll("caption, h1, h2, h3, h4, h5, h6, [role=heading], [aria-live], legend, strong, [class*=month i], [class*=caption i], [class*=title i]"))
+      .map((h) => squash(h.textContent))
+      .filter((t, i, all) => t.length <= 40 && MONTH_YEAR(t) && all.indexOf(t) === i)
+    if (heads.length === 1) return heads[0]
+    if (heads.length > 1) return ""
+  }
+  return ""
+}
+
+function ownName(el: Element, role: Role): string {
   const labelled = byIds(el, "aria-labelledby")
   if (labelled) return labelled
   const aria = squash(el.getAttribute("aria-label"))
@@ -257,6 +282,9 @@ function stateOf(el: Element, role: Role): string[] {
     s.push(checked ? "checked" : "unchecked")
   }
   if (a("aria-selected") === "true") s.push("selected")
+  // (A control that opens a popup — a date picker's button showing today's date — says so: it isn't the choice itself.)
+  const popup = a("aria-haspopup")
+  if (popup && popup !== "false") s.push("popup")
   if (a("aria-expanded") === "true") s.push("expanded")
   if (a("aria-expanded") === "false") s.push("collapsed")
   if (tag(el) === "summary") s.push((el.parentElement as HTMLDetailsElement | null)?.open ? "expanded" : "collapsed")

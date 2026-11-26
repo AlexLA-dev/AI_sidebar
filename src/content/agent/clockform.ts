@@ -28,3 +28,12 @@ export function clock(time: string): string {
     return time
   }
 }
+
+/** A 12-hour time the model wrote in words («7:00 PM», «7 pm», «12:30 a.m.») in the task's form, as a 24-hour one is
+ *  (the director on 10eed066: «7:00 PM» in the end text for a request that said 19:00). */
+export function twelveToClock(text: string): string {
+  return text.replace(/(?<![\d:.])(1[0-2]|0?[1-9])(?::([0-5]\d))?\s?([aApP])\.?\s?[mM]\.?(?![\p{L}])/gu, (_m, h: string, mi: string | undefined, ap: string) => {
+    const hour = (Number(h) % 12) + (/[pP]/.test(ap) ? 12 : 0)
+    return clock(`${String(hour).padStart(2, "0")}:${mi ?? "00"}`)
+  })
+}

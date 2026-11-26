@@ -15,7 +15,7 @@ export { dayItems, isDateLabel }
 import { classify } from "./classify.ts"
 import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, withNameParts, type FormEntry } from "./formdata.ts"
 import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
-import { pageSubject, subjectLine } from "./subject.ts"
+import { pageSubject, subjectLine, titleName } from "./subject.ts"
 import { cardsOf, onVenue, rankVenues, venueNote, venueOf, venuesOn, type Venue } from "./venues.ts"
 import { freeLineIn, honestChoices, looksLikeSlot, nearerTimes, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
 import { pageKind } from "./events.ts"
@@ -200,6 +200,8 @@ export interface AgentState {
   // No booking press recorded, but a sign of a booking at the end (the done's confirmed day, a confirmation on the page):
   // neither «booked» nor «nothing was booked» is said.
   bookUnseen?: boolean
+  // The control the last counted date step pressed (a press of it that changed nothing gives the step back).
+  lastDateId?: string
   bookAgain?: number
   // The place the person chose on the plan card: a later question about the place is the model's, refused (one question,
   // once), and how many times.
@@ -380,6 +382,13 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
   state.lineCheck = state.lines.length - 1
   const pressed = /"(.*)"$/.exec(target ?? "")?.[1] ?? ""
   if (idle && pressed && !state.dead?.includes(pressed)) state.dead = [...(state.dead ?? []), pressed]
+  // A day pressed that changed nothing (a calendar showing each day twice, one copy dead) isn't a date step that «went
+  // nowhere»: the count and the «pressed already» mark go back, so the day's other copy can be pressed.
+  if (idle && call.id && state.lastDateId === call.id) {
+    state.dateSteps = Math.max(0, (state.dateSteps ?? 0) - 1)
+    state.lastDate = undefined
+    state.lastDateId = undefined
+  }
   // A press that changed nothing, beside a choice still at its first option or 0 (the director on ffb2b665: a room table's
   // «I'll reserve» with «Select rooms» at 0 — pressed, then three reads and the task ended): the log says which, so the
   // model sets it and presses again.
@@ -543,6 +552,20 @@ export function confirmedOnPage(map: PageMap): boolean {
 /** The last step the task did, as its line says (for «how far it got»). */
 export function lastDone(s: Pick<AgentState, "lines">): string {
   return [...(s.lines ?? [])].reverse().find((l) => l.ok && l.text)?.text ?? ""
+}
+
+/** One place's own booking page: its title names it (as the page shows it), no list of places, and the booking's own
+ *  controls (days, times, a date field, a details form). A page titled by its action («Book») is no place's own. */
+export function ownBookingPage(map: PageMap): boolean {
+  if (venuesOn(map).length || !titleName(map)) return false
+  return detailsForm(map) || map.items.some((i) => i.type === "date" || isDateLabel(i.label) || looksLikeSlot(i.label))
+}
+
+/** A date control that opens the page's date picker rather than choosing a day in it: it says it opens a popup or a list,
+ *  or it's a date field. */
+export function opensPicker(_map: PageMap, item: MapItem): boolean {
+  if (item.state?.some((x) => x === "popup" || x === "collapsed" || x === "expanded")) return true
+  return item.role === "combobox" || item.role === "textbox" || item.type === "date"
 }
 
 /** Why another booking press is refused, or null: the booking's press went already, and the page asked for nothing
@@ -979,6 +1002,10 @@ export function dateStep(state: AgentState, map: PageMap, item: MapItem, call?: 
     return null
   }
   if (!isDateLabel(item.label)) return null
+  // A control that opens the picker isn't a day chosen (the director's real-site run on 10eed066: a picker's button showing
+  // «26 Nov 2026» refused six times as «before the asked day»): one that says it opens a popup or a list, a date field, or
+  // Day cells in a calendar or a strip are still checked.
+  if (opensPicker(map, item)) return null
   const greyed = greyedItem
   if (greyed(item)) {
     // The day asked for, greyed: pressed once, the page's answer is what counts (a strip greys days not loaded yet).
@@ -1020,6 +1047,7 @@ export function dateStep(state: AgentState, map: PageMap, item: MapItem, call?: 
   if (steps > 2) return "two date steps went nowhere: don't press more dates. ask_user once now, with the page's real nearest options: the next free day the page names, another specialist on the asked day, another place"
   state.dateSteps = steps
   state.lastDate = item.label
+  state.lastDateId = item.id
   return null
 }
 
@@ -1288,14 +1316,20 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     const part = state.readPart
     state.readPart = undefined
     const opts = { money, ...(part ? { part } : {}) }
-    let map = await io.map(opts).catch(() => null)
+    // (An empty map — the page between two documents after «back» — is no map: read again, never sent to the server, which
+    // refused it, the director's real-site run on 10eed066.)
+    const read = async () => {
+      const m = await io.map(opts).catch(() => null)
+      return m && (m.items.length || m.text.trim()) ? m : null
+    }
+    let map = await read()
     if (!map) {
       await io.waitPage().catch(() => {})
-      map = await io.map(opts).catch(() => null)
+      map = await read()
     }
     if (!map) {
       await io.waitPage().catch(() => {})
-      map = await io.map(opts).catch(() => null)
+      map = await read()
     }
     if (!map) {
       state.status = "error"
@@ -1451,7 +1485,10 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       state.venueNudges = (state.venueNudges ?? 0) + 1
       continue
     }
-    if (call.tool === "ask_user" && !details && state.plan?.booking && !state.plan.booking.venue && state.chooseVenue && (state.venueNudges ?? 0) < 2 && !state.venues) {
+    // (Not on a page that is one place's own booking page — it lists no places and has the booking's own controls: days,
+    // times, a date field, a details form — the director's real-site run on 10eed066: a restaurant's, a salon's and a
+    // hotel's own pages refused every question.)
+    if (call.tool === "ask_user" && !details && state.plan?.booking && !state.plan.booking.venue && state.chooseVenue && (state.venueNudges ?? 0) < 2 && !state.venues && !ownBookingPage(map)) {
       state.venueNudges = (state.venueNudges ?? 0) + 1
       // No list was ever seen (a home page, an error page with a search box, one featured place): the site's own search
       // finds the places, never «back» to a list that isn't there (a salon marketplace, 121 sweep: it went back to nothing and
@@ -1810,7 +1847,10 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       if (call.tool === "fill") {
         const item = map.items.find((i) => i.id === call.id) ?? null
         // Only the details the plan named (the same form's others, with their own keys, when they're named too).
-        const fill = fillLines(call, item, entries, map.lang || state.lang, map).filter((l) => perm.keys?.includes(l.key) && (!perm.ids || perm.ids.includes(l.id)) && own(l.key, l.value))
+        // (A first or last name is the saved full name's part: allowed where the full name is — the director's real-site run
+        // on 10eed066: «First name» and «名» refused as «doesn't fit» on two booking forms.)
+        const allowed = (k: string) => !!perm.keys?.includes(k) || ((k === "name.given" || k === "name.family") && !!perm.keys?.includes("name.full"))
+        const fill = fillLines(call, item, entries, map.lang || state.lang, map).filter((l) => allowed(l.key) && (!perm.ids || perm.ids.includes(l.id)) && own(l.key, l.value))
         if (!fill.length) {
           state.log.push({ call: { tool: "fill", id: call.id, key: call.key, why: call.why }, target: target ?? undefined, result: "failed: that detail doesn't fit this field" })
           continue
@@ -2100,6 +2140,22 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
     }
     // Answered: the plan no longer says to ask (a «choose by my rules» answer leaves it to the rules).
     if (state.plan?.askPlace && state.placeAsked) state.plan.askPlace = false
+    // Days the person gives in their answer («1 night, 2026-11-27 to 2026-11-28», the director's real-site run on
+    // 10eed066: the rule then refused the new day as «not a day of this stay»): the booking's days from now on.
+    const b = state.plan?.booking
+    const given = b ? daysInText(text, b.date).sort() : []
+    if (b && given.length) {
+      const nights = b.dateEnd ? Math.round((Date.parse(b.dateEnd) - Date.parse(b.date)) / 86_400_000) : 0
+      b.date = given[0]
+      // (A stay's or a rental's last day: the answer's last, or as many nights on as before.)
+      if (DAY_KINDS.has(b.kind)) {
+        if (given.length > 1) b.dateEnd = given[given.length - 1]
+        else if (nights > 0) b.dateEnd = new Date(Date.parse(`${b.date}T12:00:00Z`) + nights * 86_400_000).toISOString().slice(0, 10)
+      }
+      state.picked = undefined
+      state.sawDate = false
+      state.pressedTarget = false
+    }
     // A place the person chose in their answer, whatever the question was (the director on 11f0c58b: «Book The Palm
     // Suites instead», then «Do it?» with «not what you asked: you asked to book Pefkos City Hotel»): the booking's place
     // from now on — the plan's answer the server's check reads, the card's place, the venue.
