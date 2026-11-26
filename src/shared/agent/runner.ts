@@ -192,6 +192,15 @@ export interface AgentState {
   dateRefusals?: number
   bookedDays?: { date: string; dateEnd?: string }
   daysAtPress?: { date: string; dateEnd?: string }
+  // The booking's press that went (the director on d05b60bb: «Your stay is booked», then «Do it? Press "Reserve"» again):
+  // the one the person said yes to on the recap card, or the plan's permission that stood for that card. From it on, no
+  // other booking press, unless the page asked for more details since (a form after the first press); how many refused.
+  bookPress?: { target: string; at: number; yes: boolean }
+  bookAgain?: number
+  // The place the person chose on the plan card: a later question about the place is the model's, refused (one question,
+  // once), and how many times.
+  cardPlace?: string
+  placeAgain?: number
   // The address the last tap's page tried to open in a new tab (shown as a link, gone to through the usual checks), and
   // what the tap was on; places whose tap changed nothing (never offered again as a choice).
   openedLink?: { url: string; from: string; page?: string }
@@ -326,7 +335,7 @@ export function fillLines(call: ToolCall, item: MapItem | null, entries: FormEnt
 }
 
 /** Does a step on the page and writes it down. A fill types its value in; the log keeps only the key. */
-async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict: StepVerdict, target: string | null, value?: string, byPlan?: boolean): Promise<StepResult | null> {
+async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict: StepVerdict, target: string | null, value?: string, byPlan?: boolean, booking?: boolean): Promise<StepResult | null> {
   const doing: ToolCall = call.tool === "fill" ? { ...call, text: value ?? "" } : call
   // Calendar and Reminders: on the device, not on the page (what they read goes to the next step, like extract).
   if (APPLE_TOOLS.has(call.tool)) {
@@ -379,6 +388,7 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
   }
   // The booking's last press went: what it booked is the days the page showed then (the «done» may leave them out).
   if (verdict.cls === "confirm" && verdict.reason === "submit" && result.ok && state.daysAtPress) state.bookedDays = state.daysAtPress
+  if (booking && result.ok && call.tool !== "fill" && state.plan?.booking) state.bookPress = { target: target ?? call.id ?? "", at: state.log.length, yes: !byPlan }
   return result
 }
 
@@ -421,6 +431,42 @@ export function chatSuggestion(chat: string, fromChat: string, places: string[])
   const last = (answers.at(-1) ?? "").toLocaleLowerCase()
   const at = places.map((n) => ({ n, i: last.indexOf(n.toLocaleLowerCase()) })).filter((x) => x.i >= 0).sort((a, b) => a.i - b.i)
   return at[0]?.n ?? ""
+}
+
+/** Why another booking press is refused, or null: the booking's press went already, and the page asked for nothing
+ *  more since (no detail typed, filled or chosen after it). */
+export function pressedAlready(state: AgentState, map: PageMap): string | null {
+  const b = state.bookPress
+  if (!b) return null
+  const more = state.log.slice(b.at).some((e) => (e.call.tool === "fill" || e.call.tool === "type" || e.call.tool === "select") && !/^(failed|refused|the person)/.test(e.result))
+  if (more) return null
+  const shows = `${map.title ? `${map.title}: ` : ""}${map.text.replace(/\s+/g, " ").trim()}`.slice(0, 220)
+  return `the booking's press already went: ${b.target} was pressed ${b.yes ? "with the person's yes" : "as the plan allows"}, and this page now shows: "${shows}". Never press it or another booking button again (the person would book twice): call done saying what was booked, or, if the page shows the booking failed, call done and say in the summary what is wrong`
+}
+
+/** Why a question about which place is refused, or null: the person chose the place on the card, the question offers
+ *  places again (two or more of them, or that one among its choices), and doesn't say what's wrong with the chosen one
+ *  (it names it outside its choices) — a place whose tap did nothing may always be asked about. */
+export function askedPlaceAgain(state: AgentState, call: ToolCall, map: PageMap): string | null {
+  const chosen = state.cardPlace
+  if (!chosen || state.dead?.some((d) => namedIn(chosen, d))) return null
+  const choices = call.choices ?? []
+  const places = [...new Set([...pagePlaces(map), ...(state.venues?.list.map((v) => v.name) ?? []), chosen])]
+  const offered = places.filter((n) => choices.some((c) => namedIn(n, c)) || namedIn(n, call.question ?? ""))
+  const chosenOffered = choices.some((c) => namedIn(chosen, c))
+  if (offered.length < 2 && !chosenOffered) return null
+  // (Saying why: the chosen place named in the question, not offered again as a choice.)
+  if (!chosenOffered && namedIn(chosen, call.question ?? "")) return null
+  return `the person already chose the place on the plan card: «${chosen}». Don't ask which place again: open it and book there. Ask about the place only if it can't be opened or has nothing free for the days — then say so about «${chosen}» in the question and offer the other places, not it`
+}
+
+/** Whether a plan step is the asking of a question (most of the question's words, two or more, are in the step). */
+export function asksSame(step: string, question: string): boolean {
+  const words = (t: string) => new Set((t.toLocaleLowerCase().match(/[\p{L}\p{N}]{3,}/gu) ?? []))
+  const q = words(question)
+  const st = words(step)
+  const shared = [...q].filter((w) => st.has(w)).length
+  return shared >= 2 && shared >= Math.ceil(q.size * 0.6)
 }
 
 /** The chat's suggested place as a place question's first option (moved there, or added with the page's own spelling),
@@ -723,6 +769,9 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   if (plan.booking?.personal && !plan.booking.venue && plan.how && !plan.questions.some((q) => q.kind === "venue" || q.fact === "venue" || q.place)) plan.how.rating = 0
   // (A question about the place — the device's or the plan's own — is the choice: no «I'll pick the place» beside it, 130.)
   if (plan.how && plan.questions.some((q) => q.kind === "venue" || q.fact === "venue" || q.place)) plan.how.rating = 0
+  // Nor a step saying the agent will ask it (run 4 on d05b60bb: «Asking you which stay to book», then asked again after
+  // the card): the plan's own place question's words, mostly in a step, make it that step.
+  for (const q of plan.questions.filter((x) => (x.kind === "venue" || x.fact === "venue" || x.place) && x.q.trim())) plan.steps = plan.steps.filter((l) => !asksSame(l, q.q))
   // A personal service's open choices, asked on the card unless the request names them (the owner on 123: «переуточнять
   // … если эта деталь не была уточнена»): the specialist («any» first, then the page's names) and the service when more
   // than one fits; a remembered answer pre-fills them. Built on the device from the plan's fields, so they're never
@@ -1243,7 +1292,9 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (call.tool === "done") {
       // A press the plan lists as the agent's own hasn't happened: one more step for it, or «done» again with the
       // reason in the summary (the stand: a cart «done» before its «Add to cart»).
-      const missing = missingPress(state.plan, state.log)
+      // (Not once the booking's press went: run 1 on d05b60bb pressed «Reserve» again for a planned «Book now» the page
+      // never had, after «Your stay is booked».)
+      const missing = state.bookPress ? null : missingPress(state.plan, state.log)
       if (missing && !state.doneNudged) {
         state.doneNudged = true
         state.log.push({ call: { tool: "done" }, result: `refused: the plan's press "${missing.label}" hasn't happened yet — do it now, or call done again and say in the summary why it is left` })
@@ -1341,6 +1392,15 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
         : `the page hasn't shown ${day} yet, so whether it's free isn't known: go to that day first — when the page shows no dates yet, choose what the request asks to reach them (the closest fitting service's own choose or book button; a near name is fine), then the page's calendar or date button and its «next month» arrow, or the date strip scrolled — read it, then go on; ask only with days the page showed as free`
       state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: `refused: ${why}` })
       state.refused = why
+      continue
+    }
+    // The place was the person's answer on the card: a question about the place again is refused with that answer (one
+    // question, once) — unless the chosen place couldn't be opened or has nothing for the days, and the question says so.
+    const placeAgain = call.tool === "ask_user" && !chosenAsk && !placeAsk ? askedPlaceAgain(state, call, map) : null
+    if (placeAgain && (state.placeAgain ?? 0) < 2) {
+      state.placeAgain = (state.placeAgain ?? 0) + 1
+      state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: `refused: ${placeAgain}` })
+      state.refused = placeAgain
       continue
     }
     if (call.tool === "ask_user") {
@@ -1512,6 +1572,22 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       }
       state.slotRefusals = 0
     }
+    // The booking's press went already (the person's yes on its recap, or the plan's permission for it): no second one,
+    // by the plan or as «Do it?» — the model hears it went and what the page shows; it ends with done or says in words
+    // what is wrong. A form that asked for more since (details typed after the first press) is the booking going on.
+    const again = verdict.cls === "confirm" && verdict.reason === "submit" && call.tool !== "fill" && state.plan?.booking ? pressedAlready(state, map) : null
+    if (again) {
+      state.log.push({ call, target: target ?? undefined, result: `refused: ${again}` })
+      state.lines.push(line(call, verdict, target, false))
+      state.refused = again
+      state.bookAgain = (state.bookAgain ?? 0) + 1
+      if (state.bookAgain >= 3) {
+        state.status = "done"
+        state.summary = state.summary || lastWords(state)
+        break
+      }
+      continue
+    }
     // The booking's last press goes only with its days set on the page (128); three refusals in a row end the task, not
     // finished, never a loop.
     if (verdict.cls === "confirm" && verdict.reason === "submit" && state.plan?.booking) {
@@ -1577,7 +1653,8 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     // The booking's last press, allowed by the plan: said first when it isn't what the person asked, or when it's the
     // first booking on this site and the page shows its cancellation terms (B2); otherwise it goes as approved.
-    const recap = verdict.cls === "confirm" && perm && verdict.reason === "submit" && !state.recapShown ? recapOf(state, map) : null
+    const standsFor = verdict.cls === "confirm" && !!perm && verdict.reason === "submit" && !state.recapShown && !!state.plan?.booking
+    const recap = standsFor ? recapOf(state, map) : null
     if (recap) {
       state.recapShown = true
       state.status = "confirm"
@@ -1595,7 +1672,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
           continue
         }
         for (const l of fill) await perform(state, io, { tool: "fill", id: l.id, key: l.key, why: l.id === call.id ? call.why : "" }, verdict, l.id === call.id ? target : `field "${l.label}"`, l.value, true)
-      } else await perform(state, io, call, verdict, target, undefined, true)
+      } else await perform(state, io, call, verdict, target, undefined, true, standsFor)
       await io.save(state)
       continue
     }
@@ -1776,6 +1853,9 @@ function placeFromAnswers(state: AgentState, plan: TaskPlan, answers: string[]):
     plan.booking.venue = place
     state.chooseVenue = false
   }
+  // A place the person named on the card: theirs, asked once (the director on d05b60bb, run 4: «Which stay should I
+  // book…» again after the card, other options and prices).
+  if (plan.booking && place && !place.startsWith("@")) state.cardPlace = place
 }
 
 export async function approvePlan(state: AgentState, io: RunnerIO, a: PlanApproval): Promise<AgentState> {
@@ -1873,7 +1953,8 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
       if (!lines.length) state.log.push({ call: { tool: "fill", id: call.id, key: call.key, why: call.why }, target: target ?? undefined, result: "the person chose not to fill it" })
       for (const l of lines) await perform(state, io, { tool: "fill", id: l.id, key: l.key, why: l.id === call.id ? call.why : "" }, verdict, l.id === call.id ? target : `field "${l.label}"`, l.value)
     } else {
-      await perform(state, io, call, verdict, target)
+      // (Yes to the booking's recap — the last «Do it?» saying what it books: that is the booking's press.)
+      await perform(state, io, call, verdict, target, undefined, undefined, !!pending.recap && verdict.reason === "submit")
     }
   } else if (verdict.cls === "self") {
     const did = a === "did" || a === "yes"
