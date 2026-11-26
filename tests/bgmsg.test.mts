@@ -100,10 +100,12 @@ test("a silent tab (no answer at all after another app): the quiet watchdog trea
   // the background (6 s quiet) still asks again once.
   // F1: the silence is checked first — the background answering «alive» means the question went astray (asked again
   // once); no answer in PROBE_MS means the link is gone.
-  assert.match(app, /if \(probing \|\| !quiet\(SILENT_MS\)\) return/)
+  assert.match(app, /const check = \(ms: number\) => \{\s*if \(probing \|\| !quiet\(ms\)\) return/)
+  assert.match(app, /setInterval\(\(\) => check\(SILENT_MS\), 5_000\)/)
   assert.match(app, /sendBackground<boolean>\(\{ type: "alive" \}, \{ tries: 1, timeoutMs: PROBE_MS \}\)/)
   assert.match(app, /if \(portRef\.current !== port \|\| heardRef\.current !== heard\) return[\s\S]{0,160}quietRef\.current\(alive === null\)/)
-  assert.match(app, /if \(document\.visibilityState === "visible" && quiet\(6_000\)\) quietRef\.current\(\)/)
+  // The director's review of #268: coming back checks the link too (no resend into a dead tab).
+  assert.match(app, /if \(document\.visibilityState === "visible"\) check\(6_000\)/)
   assert.match(app, /const quietRef = useRef\(\(silent = false\) => \{\s*const p = pendingAskRef\.current\s*if \(p\) undeliveredRef\.current\(p\.history, p\.content, silent \? \{ \.\.\.p\.opts, resent: true \} : p\.opts\)\s*else lostRef\.current\(\)/)
   // A resent question is the error at once: no second fresh connection.
   assert.match(app, /if \(!opts\.resent\) \{[\s\S]{0,260}?return\s*\}\s*setLinkLost\(true\)\s*finish\(history, "", \{ code: "LINK" \}\)/)
@@ -120,7 +122,7 @@ test("a silent tab (no answer at all after another app): the quiet watchdog trea
 
 test("a tab whose link is gone: saving the consent ends in the lost-link card after a few seconds, brought into view (2.8.1)", () => {
   const app = readFileSync("src/content/App.tsx", "utf8")
-  assert.match(app, /const consentSaved = \(\): Promise<boolean> =>\n\s+Promise\.race\(\[giveConsent\(\)\.then\(\(\) => true, \(\) => false\), new Promise<boolean>\(\(done\) => setTimeout\(\(\) => done\(false\), 6_000\)\)\]\)/)
+  assert.match(app, /const consentSaved = \(\): Promise<boolean> => \{[\s\S]{0,80}?Promise\.race\(\[giveConsent\(\)\.then\(\(\) => true, \(\) => false\), new Promise<boolean>\(\(done\) => setTimeout\(\(\) => done\(false\), 6_000\)\)\]\)/)
   assert.match(app, /if \(!\(await consentSaved\(\)\)\) \{\s*setPending\(null\)\s*setLinkLost\(true\)\s*return\s*\}/)
   assert.match(app, /void consentSaved\(\)\.then\(\(saved\) => \{\s*if \(!saved\) return setLinkLost\(true\)/)
   assert.match(app, /if \(linkLost\) requestAnimationFrame\(\(\) => listRef\.current\?\.scrollTo/)

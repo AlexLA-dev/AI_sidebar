@@ -112,3 +112,21 @@ test("F7 (2.8.1): after «Start as a new user» the install is a new one to the 
   assert.ok(store.items[STORAGE.threads])
   assert.deepEqual(store.items["cf:trAuto"], ["d.example"])
 })
+
+test("the director's review of #268, point 5: the selection tip, the offer card's count, a waiting rating moment and the stored openings go too", async () => {
+  const now = 1_800_000_000_000
+  const store = storeOf({
+    ...used(),
+    [STORAGE.threads]: { t1: { m: [] } },
+    "cf:selIconsTip": true,
+    [STORAGE.offerCard]: -1,
+    "cf:reviewWaiting": 3,
+    "cf:droppedAsks": { q1: now },
+    "cf:openings": { o1: now - 60_000, o2: now - 120_000 },
+    "cf:opening:o1": { at: now - 60_000, last: now, seen: 60_000, did: "chip" },
+    "cf:opening:o2": { at: now - 120_000, last: now - 100_000, seen: 20_000, did: "none", closed: now - 90_000 }
+  })
+  assert.equal(await firstRunAgain(now, store, now), true)
+  for (const key of ["cf:selIconsTip", STORAGE.offerCard, "cf:reviewWaiting", "cf:droppedAsks", "cf:openings", "cf:opening:o1", "cf:opening:o2"]) assert.equal(key in store.items, false, key)
+  assert.ok(store.items[STORAGE.threads])
+})

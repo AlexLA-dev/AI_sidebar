@@ -176,7 +176,7 @@ test("the panel: the code only on return everywhere it shows; full price noted; 
   assert.doesNotMatch(app, /takeOfferMark/)
   assert.match(app, /what: "offer" \}\)[\s\S]{0,300}setView\("chat"\)[\s\S]{0,120}if \(limitUpRef\.current\) return/)
   // The limit card says which state it was shown in.
-  assert.match(read("src/content/ux/LimitCard.tsx"), /onEvent\("shown", LIMIT_BUY, undefined, offer \? "discount" : "full"\)/)
+  assert.match(read("src/content/ux/LimitCard.tsx"), /onEvent\("shown", LIMIT_BUY, undefined, offerNow\.current \? "discount" : "full"\)/)
   // Off by default; the opt-out in Settings, for free people.
   assert.match(read("src/shared/types.ts"), /offerNotify: false\n\}/)
   assert.match(read("src/content/Settings.tsx"), /TARGET === "safari" && plan === "free" && \([\s\S]{0,300}t\("setOfferNotify"\)[\s\S]{0,200}onChange\(\{ offerNotify: on \}\)/)

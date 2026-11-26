@@ -154,3 +154,36 @@ test("the panel: closes go only through the openings (once), with the time on sc
   // The time on screen stops while the page is out of view.
   assert.match(app, /o\.seen \+= now - o\.since\s*o\.since = null/)
 })
+
+test("the director's review of #268: two tabs adding openings at once, and a cleanup against an add, lose no id", async () => {
+  const s = store()
+  const a = await tab("idx-a")
+  const b = await tab("idx-b")
+  const t0 = clock
+  // A day-old tombstone, so the cleanup rewrites the index while the two tabs add theirs.
+  s.items["cf:opening:old"] = { ...rec(t0 - 2 * 24 * 60 * MIN, t0 - 2 * 24 * 60 * MIN, 0), closed: t0 - 2 * 24 * 60 * MIN }
+  s.items[a.INDEX_KEY] = { old: t0 - 2 * 24 * 60 * MIN }
+  const c = await tab("idx-c")
+  await Promise.all([a.keepOpening("oa", rec(t0, t0, 0), "A", s, now, noWait), b.keepOpening("ob", rec(t0, t0, 0), "B", s, now, noWait), c.flushOpenings(null, "C", s, now, noWait)])
+  // Whatever the interleaving, each tab's next keep (15 s on) puts its id back if it was taken out.
+  clock += 15_000
+  await Promise.all([a.keepOpening("oa", rec(t0, clock, 15_000), "A", s, now, noWait), b.keepOpening("ob", rec(t0, clock, 15_000), "B", s, now, noWait)])
+  const ids = s.items[a.INDEX_KEY] as Record<string, number>
+  assert.equal(typeof ids.oa, "number")
+  assert.equal(typeof ids.ob, "number")
+  // Both tabs go away for good: a later page closes both, once each.
+  await a.keepOpening("oa", rec(t0, clock, 15_000, { gone: 1 }), "A", s, now, noWait)
+  await b.keepOpening("ob", rec(t0, clock, 15_000, { gone: 1 }), "B", s, now, noWait)
+  const d = await tab("idx-d")
+  assert.equal((await d.flushOpenings(null, "D", s, now, noWait)).length, 2)
+  // An old id a tab wrote back with its own (its record already forgotten) is forgotten by the next cleanup.
+  assert.equal("old" in (s.items[a.INDEX_KEY] as Record<string, number>), false)
+  assert.equal("cf:opening:old" in s.items, false)
+})
+
+test("the director's review of #268: a panel left open on a page put away for over half an hour starts a new opening when seen again", () => {
+  const app = readFileSync("src/content/App.tsx", "utf8")
+  assert.match(app, /if \(openingRef\.current === o && document\.visibilityState === "visible" && !gone\) startOpeningRef\.current\("back", false\)/)
+  assert.match(app, /if \(o\.closed\) return again\(\)/)
+  assert.match(app, /if \(kept\.state === "ended"\) void sendBackground\([^\n]+\)\n\s+again\(\)/)
+})

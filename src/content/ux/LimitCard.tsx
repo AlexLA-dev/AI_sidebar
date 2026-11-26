@@ -20,7 +20,10 @@ import { savingOf, useAnswersBack, usePrices, type OfferChoice } from "./PlanOff
 export const LIMIT_BUY: OfferChoice = { plan: "pro", period: "monthly" }
 export type LimitEvent = "shown" | "choose" | "discount" | "retry" | "more" | "note" | "own_key"
 
-export function LimitCard({ status, title, backTitle, body, offer, remind, retryAt, ownKey, onRetry, onChoose, onRedeem, onNote, onOwnKey, onEvent }: {
+/** How long the limit card waits to know which it is before it says it was shown anyway. */
+const SHOWN_WAIT_MS = 6_000
+
+export function LimitCard({ status, title, backTitle, body, offer, settled = true, remind, retryAt, ownKey, onRetry, onChoose, onRedeem, onNote, onOwnKey, onEvent }: {
   status: StatusInfo | null
   title: string
   // Once the answers are back (the card kept, Retry there): this title, and no line under it (the director on #263:
@@ -29,6 +32,8 @@ export function LimitCard({ status, title, backTitle, body, offer, remind, retry
   body?: ComponentChildren
   // The −50 % code for this person, when they have it (the first month, through the App Store's code page).
   offer: { code: string; discount: number } | null
+  // Whether the card knows yet which it is (the plan's status and this device's full-price time are in).
+  settled?: boolean
   // «Remind me at …» (AnswersBack, short), when it can be set here.
   remind?: ComponentChildren
   // When the answers are back (ms); "unknown" while the server hasn't said.
@@ -47,7 +52,25 @@ export function LimitCard({ status, title, backTitle, body, offer, remind, retry
   const facts = status?.plans
   const [more, setMore] = useState(false)
   // Which card it was: the full price (the first time at the limit), or the discount (on return; 2.8, the owner).
-  useEffect(() => onEvent("shown", LIMIT_BUY, undefined, offer ? "discount" : "full"), [])
+  // Said once the card knows which it is (the director's review of #268, seen on the simulator: the panel reopened on a
+  // chat that ended at the limit, the card mounted before the plan's status came back and said «full», then showed the
+  // discount): when `settled`, or SHOWN_WAIT_MS on at the latest (no status: it says what it shows then).
+  // Gone before it knew (the panel closed sooner): it says what it showed.
+  const shownSent = useRef(false)
+  const offerNow = useRef(offer)
+  offerNow.current = offer
+  const sayShown = useRef(() => {
+    if (shownSent.current) return
+    shownSent.current = true
+    onEvent("shown", LIMIT_BUY, undefined, offerNow.current ? "discount" : "full")
+  })
+  useEffect(() => () => sayShown.current(), [])
+  useEffect(() => {
+    if (shownSent.current) return
+    if (settled) return sayShown.current()
+    const timer = setTimeout(() => sayShown.current(), SHOWN_WAIT_MS)
+    return () => clearTimeout(timer)
+  }, [settled])
   // The whole closed card in view as it comes (the director on #263, SE in German: the panel scrolled to the chat's end
   // when it opened, before the card was back from storage and its prices in, and its last row was cut off). Only while
   // it settles, never once the person scrolls on their own.

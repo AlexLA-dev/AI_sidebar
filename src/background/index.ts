@@ -30,6 +30,7 @@ import {
 } from "../shared/types"
 import { askServer, askWithOwnKey, reportOwnKeyUsage } from "./chat"
 import { postEvent } from "./events"
+import { wasDropped } from "../shared/droppedAsks"
 import { callNative, type NativeEntitlement } from "./native"
 import { isPdfUrl } from "../shared/pdf"
 import { daysLeft, type RenewalReason } from "../shared/renewal"
@@ -98,6 +99,10 @@ async function ownKey(): Promise<string> {
 // carries this install's id, so the app has it from the extension's first message, not only once the panel opens.
 let nativeAsk: Promise<{ build: string; app: string | null; test: boolean }> | null = null
 let nativeAppAskedAt = 0
+// The app's last answer (2.8.1, the director's review of #268): the build and the «ours» mark don't change in a
+// background's life, so a later ping that goes unanswered (the minute's ask for the app's id) keeps them; before, an
+// event sent during that ping went out without the build and the mark.
+let nativeKnown: { build: string; test: boolean } | null = null
 
 function nativeInfo(): Promise<{ build: string; app: string | null; test: boolean }> {
   if (TARGET !== "safari") return Promise.resolve({ build: "", app: null, test: false })
@@ -106,12 +111,16 @@ function nativeInfo(): Promise<{ build: string; app: string | null; test: boolea
   nativeAsk ??= installId()
     .then((id) => callNative<{ build?: string; app?: string; test?: boolean }>("ping", { installId: id }, 1500))
     .then((data) => {
-      // No answer: asked again by the next caller.
-      if (!data?.build) nativeAsk = null
-      const app = typeof data?.app === "string" ? data.app : null
-      nativeAppAskedAt = data?.build && !app ? Date.now() : 0
+      // No answer: asked again by the next caller; the last answer's build and mark stand meanwhile.
+      if (!data?.build) {
+        nativeAsk = null
+        return { build: nativeKnown?.build ?? "", app: null, test: nativeKnown?.test ?? false }
+      }
+      const app = typeof data.app === "string" ? data.app : null
+      nativeAppAskedAt = app ? 0 : Date.now()
       // 2.8 (В1.9): the app's side says it's a simulator or debug build (OurBuild): every request is marked as ours.
-      return { build: data?.build ?? "", app, test: data?.test === true }
+      nativeKnown = { build: data.build, test: data.test === true }
+      return { build: data.build, app, test: data.test === true }
     })
   return nativeAsk
 }
@@ -613,16 +622,24 @@ function servePort(port: chrome.runtime.Port, spec: JobSpec | null, run: Run): v
   // panel never takes a background that is still busy starting for a link that's gone.
   send({ type: "beat" })
   if (spec) {
-    const unfollow = startJob(spec, run, send)
+    let unfollow: (() => void) | null = null
+    let stopped = false
     port.onDisconnect.addListener(() => {
       closed = true
-      unfollow()
+      unfollow?.()
     })
     port.onMessage.addListener((message: { type?: string }) => {
       if (message?.type === "stop") {
+        stopped = true
         stopJob(spec.id)
         close()
       }
+    })
+    // The director's review of #268 (point 4): a question the panel gave up on before this background got to it (it was
+    // slow to start, the panel showed «lost its link» or asked again) isn't run: no second answer, no second count.
+    void wasDropped(spec.id).then((dropped) => {
+      if (dropped || stopped) return close()
+      unfollow = startJob(spec, run, send)
     })
     return
   }
@@ -1098,7 +1115,7 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
     case "organize":
       // Suggestions send text to the AI: only with the one consent too (it lists them), not the switch alone.
       Promise.all([status(), installId(), entitlement(), clientInfo(), settings(), consented()])
-        .then(([now, id, ent, client, prefs, agreed]) => organizeChat(message.chat, { status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize && agreed }))
+        .then(([now, id, ent, client, prefs, agreed]) => organizeChat(message.chat, { status: now, installId: id, jws: ent?.active ? ent.jws : null, client, eventClient: clientForEvent, on: prefs.organize && agreed }))
         .then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
       return true
     case "organizeName":

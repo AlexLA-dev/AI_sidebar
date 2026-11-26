@@ -167,3 +167,57 @@ test("F5 (2.8.1): the return discount's visit counts only with the chat on scree
   assert.match(app, /const offerOnScreen = open && view === "chat" && offerCard && !!offer && !error && partial === null/)
   assert.match(app, /if \(!offerOnScreen \|\| offerCounted\.current\) return/)
 })
+
+test("the director's review of #268, point 2: a slow send hands the lane on and is never sent twice; the lane is bounded", async () => {
+  const { build } = await import("esbuild")
+  const { mkdtempSync } = await import("node:fs")
+  const { tmpdir } = await import("node:os")
+  const { join } = await import("node:path")
+  const { pathToFileURL } = await import("node:url")
+  const out = join(mkdtempSync(join(tmpdir(), "cf-events-")), "events.mjs")
+  await build({ entryPoints: [new URL("../src/background/events.ts", import.meta.url).pathname], bundle: true, format: "esm", platform: "neutral", outfile: out, logLevel: "silent", define: { __API_BASE__: '"http://stand"', __VERSION__: '"0"', __TARGET__: '"safari"', __SHADOW_MODE__: '"closed"', __TEST_PLAN__: '""' } })
+  const { postEvent, HANDOFF_MS, MAX_QUEUED } = await import(pathToFileURL(out).href)
+  const g = globalThis as unknown as { fetch: unknown }
+  const saved = g.fetch
+  const sent: Array<{ a: string; at: number }> = []
+  const t0 = Date.now()
+  g.fetch = async (_url: string, init: { body: string; signal?: unknown }) => {
+    const a = JSON.parse(init.body).a
+    sent.push({ a, at: Date.now() - t0 })
+    assert.equal(init.signal, undefined, "no send is aborted by us")
+    // ext_on answers after HANDOFF_MS + 0.5 s (a slow server that does receive it).
+    if (a === "ext_on") await new Promise((done) => setTimeout(done, HANDOFF_MS + 500))
+    return { ok: true, status: 200 }
+  }
+  try {
+    const [slow, next] = await Promise.all([postEvent(() => ({ a: "ext_on" })), postEvent(() => ({ a: "shown" }))])
+    // The slow one ends with the server's answer (its caller clears «pending»: nothing is sent again).
+    assert.deepEqual(slow, { ok: true, status: 200 })
+    assert.deepEqual(next, { ok: true, status: 200 })
+    assert.deepEqual(sent.map((s) => s.a), ["ext_on", "shown"])
+    const handed = sent[1].at - sent[0].at
+    assert.ok(handed >= HANDOFF_MS - 50 && handed < HANDOFF_MS + 400, `handed on after ${handed} ms`)
+    // Bounded: with MAX_QUEUED waiting, one more is dropped at once.
+    let open!: () => void
+    const gate = new Promise<void>((done) => (open = done))
+    const waiting = Array.from({ length: MAX_QUEUED }, (_, i) => postEvent(async () => (await gate, { a: `q${i}` })))
+    assert.equal(await postEvent(() => ({ a: "over" })), null)
+    open()
+    await Promise.all(waiting)
+    assert.equal(sent.some((s) => s.a === "over"), false)
+    assert.equal(sent.filter((s) => s.a.startsWith("q")).length, MAX_QUEUED)
+    // And the lane takes events again.
+    assert.deepEqual(await postEvent(() => ({ a: "again" })), { ok: true, status: 200 })
+  } finally {
+    g.fetch = saved
+  }
+})
+
+test("the director's review of #268, point 1: the org scan waits for the mark; a later unanswered ping keeps the build and mark", () => {
+  const org = read("src/background/organize.ts")
+  assert.match(org, /client: ctx\.eventClient \? await ctx\.eventClient\(\) : ctx\.client, f: "org", a: "scan"/)
+  const bg = read("src/background/index.ts")
+  assert.match(bg, /organizeChat\(message\.chat, \{ [^}]*eventClient: clientForEvent/)
+  assert.match(bg, /if \(!data\?\.build\) \{\s*nativeAsk = null\s*return \{ build: nativeKnown\?\.build \?\? "", app: null, test: nativeKnown\?\.test \?\? false \}/)
+  assert.match(bg, /nativeKnown = \{ build: data\.build, test: data\.test === true \}/)
+})

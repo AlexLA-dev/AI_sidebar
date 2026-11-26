@@ -65,6 +65,7 @@ import { factKey, noticeLabel, sameTaskPage, type TaskPlan } from "../shared/age
 import { chatContext } from "../shared/agent/chatctx"
 import { onReturn, sendBackground, standTrace } from "./bgmsg"
 import { endOpening, flushOpenings, keepOpening, openSeconds, type OpeningRecord, type PanelDid } from "./openings"
+import { dropAsk } from "../shared/droppedAsks"
 import { refusedEntry, type FormEntry } from "../shared/agent/formdata"
 import { onTarget } from "./agent/hands"
 import { elementOf } from "./agent/map"
@@ -340,8 +341,14 @@ function offerUrl(code: string): string {
 // A question whose answer was lost while nobody followed it shows these as they were; anything else as "interrupted".
 const RESUMABLE = ["STREAM", "NETWORK", "UPSTREAM", "BUSY", "LIMIT_REACHED", "LINK"]
 /** The consent saved, or false when the storage doesn't answer in a few seconds (a tab whose link is gone). */
-const consentSaved = (): Promise<boolean> =>
-  Promise.race([giveConsent().then(() => true, () => false), new Promise<boolean>((done) => setTimeout(() => done(false), 6_000))])
+const consentSaved = (): Promise<boolean> => {
+  const asked = Date.now()
+  return Promise.race([giveConsent().then(() => true, () => false), new Promise<boolean>((done) => setTimeout(() => done(false), 6_000))]).then((saved) => {
+    // (Stand builds only, bgmsg.ts: how long the save took, against the 6 s bound.)
+    standTrace(`consent ${saved ? "saved" : "not saved"} after ${Date.now() - asked} ms`)
+    return saved
+  })
+}
 
 /**
  * A question's connection that has said nothing for this long is checked (2.8.1, F1). The background confirms a question
@@ -878,6 +885,21 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   type Opening = { at: number; did: PanelDid; id: string; sendOpen: (() => void) | null; seen: number; since: number | null; lastSeen: number; closed: boolean }
   const openingRef = useRef<Opening | null>(null)
   const screenNowRef = useRef<() => PanelScreen>(() => "empty")
+  // A new opening of the panel on screen: `via` how it came ("back": the person came back to a panel left open on a
+  // page put away for more than half an hour, whose opening had ended at its last sight — the director's review of #268).
+  const startOpeningRef = useRef((via: "toolbar" | "fab" | "bubble" | "hint" | "back", first: boolean) => {
+    const now = Date.now()
+    const opening: Opening = { at: now, did: "none", id: crypto.randomUUID(), sendOpen: null, seen: 0, since: now, lastSeen: now, closed: false }
+    // What the first screen showed, once the panel has settled on it (the guide starts 450 ms after the panel is in
+    // view; on a device that was over 0.7 s after the tap); a panel closed sooner sends its open as it closes.
+    opening.sendOpen = () => {
+      opening.sendOpen = null
+      void sendBackground({ type: "useEvent", f: "panel", a: "open", via, lay: layoutRef.current, page: pageKindNow(), screen: screenNowRef.current(), ...(first ? { first: 1 } : {}) })
+    }
+    openingRef.current = opening
+    keepRef.current()
+    setTimeout(() => opening.sendOpen?.(), 1500)
+  })
   const show = useCallback((captured?: SelectionInfo, how?: { pageChat?: true }, by?: "fab") => {
     openedAt.current = Date.now()
     // One opening per time the panel is on screen (R11): show() while it's open already (Ask AI by a selection, a
@@ -893,17 +915,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       const first = (coachRef.current?.panelOpens ?? 1) === 0 && coachRef.current?.armed === true
       coachRef.current?.panelOpened()
       coachRef.current?.done("fab_pulse")
-      const now = Date.now()
-      const opening: Opening = { at: now, did: "none", id: crypto.randomUUID(), sendOpen: null, seen: 0, since: now, lastSeen: now, closed: false }
-      // What the first screen showed, once the panel has settled on it (the guide starts 450 ms after the panel is in
-      // view; on a device that was over 0.7 s after the tap); a panel closed sooner sends its open as it closes.
-      opening.sendOpen = () => {
-        opening.sendOpen = null
-        void sendBackground({ type: "useEvent", f: "panel", a: "open", via, lay: layoutRef.current, page: pageKindNow(), screen: screenNowRef.current(), ...(first ? { first: 1 } : {}) })
-      }
-      openingRef.current = opening
-      keepRef.current()
-      setTimeout(() => opening.sendOpen?.(), 1500)
+      startOpeningRef.current(via, first)
     }
     pageChatRef.current = Boolean(how?.pageChat && !captured)
     if (captured) {
@@ -977,7 +989,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // page (openings.ts: one close per opening, only the time on screen).
   const keep = (gone = false) => {
     const o = openingRef.current
-    if (!o || o.closed) return
+    if (!o) return
+    // Its opening ended (or was closed by another page) while the page was away, and the panel is on screen again:
+    // what the person does from here is a new opening (the director's review of #268: it went untracked).
+    const again = () => {
+      if (openingRef.current === o && document.visibilityState === "visible" && !gone) startOpeningRef.current("back", false)
+    }
+    if (o.closed) return again()
     o.sendOpen?.()
     const rec = openingNow(o, gone)
     void keepOpening(o.id, rec, PAGE_TOKEN).then((kept) => {
@@ -985,6 +1003,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       o.closed = true
       // Not seen for half an hour: this page ends it at its last sight.
       if (kept.state === "ended") void sendBackground({ type: "useEvent", f: "panel", a: "close", open_s: openSeconds(kept.record), did: kept.record.did, cut: 1 })
+      again()
     }).catch(() => undefined)
   }
   const keepRef = useRef(keep)
@@ -1656,7 +1675,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     portRef.current = port
     // The background never got it (the tab's link went while Safari was away, 123): sent again once on its own, with
     // a fresh port; then an error with «Повторить», never a question that silently vanishes.
-    pendingAskRef.current = { history, content, opts }
+    pendingAskRef.current = { history, content, opts, job: job.id }
     if (linkLostRef.current && opts.resent === undefined) {
       // The link is known to be gone (seen on coming back): the error now, not after a silent wait.
       undeliveredRef.current(history, content, { ...opts, resent: true })
@@ -1713,6 +1732,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           ...(wholeChat ? { context: "chat" as const, pages } : {})
         }
       })
+      standTrace("chat ask posted")
     })
   }
 
@@ -1852,7 +1872,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const lostRef = useRef(lost)
   lostRef.current = lost
   // The question just sent, until anything comes back for it (then it reached the background).
-  const pendingAskRef = useRef<{ history: Turn[]; content: string; opts: { label?: string; action?: string; mode?: "google"; resent?: boolean; via?: AskVia } } | null>(null)
+  const pendingAskRef = useRef<{ history: Turn[]; content: string; opts: { label?: string; action?: string; mode?: "google"; resent?: boolean; via?: AskVia }; job: string } | null>(null)
   /**
    * A quiet or closed answer: a question that never got there is undelivered; one that did is followed again.
    * `silent`: the connection said nothing for the whole wait and the background didn't answer a check either. Then it
@@ -1876,6 +1896,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     } catch {
       // already closed
     }
+    // Given up on (asked again, or the error): noted, so a background that gets to it later doesn't run it too.
+    const given = pendingAskRef.current?.job
+    if (given) void dropAsk(given).catch(() => undefined)
     pendingAskRef.current = null
     standTrace(`chat undelivered resent=${!!opts.resent}`)
     if (!opts.resent) {
@@ -1902,8 +1925,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // connection silent for SILENT_MS is checked: the background answering means the question went astray (asked again
     // once); no answer in PROBE_MS more means the link is gone (Reload).
     let probing = false
-    const check = () => {
-      if (probing || !quiet(SILENT_MS)) return
+    const check = (ms: number) => {
+      if (probing || !quiet(ms)) return
       probing = true
       const port = portRef.current
       const heard = heardRef.current
@@ -1911,13 +1934,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         probing = false
         // Heard meanwhile (a background that just started), or another question by now.
         if (portRef.current !== port || heardRef.current !== heard) return
-        standTrace(`chat silent ${SILENT_MS / 1000}s, background ${alive === null ? "silent" : "answered"}`)
+        standTrace(`chat silent ${ms / 1000}s, background ${alive === null ? "silent" : "answered"}`)
         quietRef.current(alive === null)
       })
     }
-    const timer = setInterval(check, 5_000)
+    const timer = setInterval(() => check(SILENT_MS), 5_000)
+    // Back on screen (the page in the background, the phone locked) with the answer quiet for 6 s: the same check (the
+    // director's review of #268: this resend had none), so a tab whose link is gone gets its error, not a resend.
     const onVisible = () => {
-      if (document.visibilityState === "visible" && quiet(6_000)) quietRef.current()
+      if (document.visibilityState === "visible") check(6_000)
     }
     document.addEventListener("visibilitychange", onVisible)
     return () => {
@@ -6161,6 +6186,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                           {resetsAt ? (Date.parse(resetsAt) > Date.now() ? answersBackShort(clockTime(resetsAt), timeUntil(resetsAt)) : t("limitCardBackNow")) : ""}
                         </>}
                         offer={offer ? { code: offer.code, discount: offer.discount } : null}
+                        settled={status !== null && fullAt !== undefined}
                         remind={TARGET === "safari" && resetsAt
                           ? <AnswersBack
                               short

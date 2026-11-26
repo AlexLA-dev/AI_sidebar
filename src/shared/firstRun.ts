@@ -7,6 +7,8 @@
 // plan stay as they are.
 
 import { COACH_KEY, freshCoach } from "../content/coach/rules.ts"
+import { INDEX_KEY as OPENINGS_KEY, recordKey as openingKey } from "../content/openings.ts"
+import { DROPPED_KEY } from "./droppedAsks.ts"
 import { INSERT_STORAGE } from "./insert.ts"
 import { STORAGE } from "./types.ts"
 
@@ -22,7 +24,12 @@ export const FIRST_RUN_KEYS: readonly string[] = [
   // set to translate always (cf:trAuto) are a setting and stay.
   STORAGE.orgCards, "cf:trHidden", "cf:trAutoAsked",
   // The day the ✦ was last reported (App.tsx FAB_SHOWN_KEY): a new install's first `fab.shown` goes out again.
-  "cf:fabShownDay"
+  "cf:fabShownDay",
+  // The director's review of #268 (point 5): the selection icons' tip (content/ux/SelTip.tsx), the Pro offer card's
+  // count for those who ran out before (STORAGE.offerCard), a rating moment waiting from the first day
+  // (background/sync.ts REVIEW_WAITING), the questions given up on (droppedAsks.ts) and the panel's stored openings
+  // (content/openings.ts: the list here, each record below): a new install has none of them.
+  "cf:selIconsTip", STORAGE.offerCard, "cf:reviewWaiting", DROPPED_KEY, OPENINGS_KEY
 ]
 
 /** The last stamp the panel's first run started over for (ms). */
@@ -44,7 +51,9 @@ export async function firstRunAgain(stamp: unknown, store: KeyStore, now = Date.
   if (typeof stamp !== "number" || !Number.isFinite(stamp) || stamp <= 0) return false
   const done = Number((await store.get(FIRST_RUN_STAMP))[FIRST_RUN_STAMP] ?? 0)
   if (stamp <= done) return false
-  await store.remove([...FIRST_RUN_KEYS])
+  const openings = (await store.get(OPENINGS_KEY))[OPENINGS_KEY]
+  const records = openings && typeof openings === "object" ? Object.keys(openings).map(openingKey) : []
+  await store.remove([...FIRST_RUN_KEYS, ...records])
   // As a new install has it (background/index.ts markNewSeen): no «New in 2.7» card, the other hints not shown yet.
   await store.set({ [STORAGE.hintsSeen]: ["new27"], [COACH_KEY]: { ...freshCoach(now), seeded: true, armed: true }, [FIRST_RUN_STAMP]: stamp })
   return true

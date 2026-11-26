@@ -43,10 +43,11 @@ export const FEATURES: Record<string, Feature> = {
   // page's kind, what the first screen showed (the guide, ready questions, an empty chat, a chat, an agent task's card)
   // and `first` on the first opening ever; "close": seconds open (`open_s`) and what it came to (`did`). 2.8.1: a close
   // the page couldn't send (it went away, Safari was put away) is sent from the next page, `cut` 1, its seconds up to
-  // when it was last seen (kept every 15 s): every open has its close.
+  // when it was last seen (kept every 15 s): every open has its close. Via "back": the panel was left open on a page
+  // put away for over half an hour (that opening ended at its last sight) and the person came back to it.
   panel: {
     since: "2.0", tracked: "2.8.1", on: "ext", actions: ["open", "close"],
-    via: ["toolbar", "shortcut", "fab", "bubble", "note_open", "qi", "app", "hint"],
+    via: ["toolbar", "shortcut", "fab", "bubble", "note_open", "qi", "app", "hint", "back"],
     fields: { lay: ["side", "sheet", "popup"], page: PAGE_KINDS, screen: ["guide", "tour", "ask", "empty", "chat", "agent", "plans"], first: "int", open_s: "int", did: ["none", "chip", "ask", "tour", "settings", "other"], cut: "int" }
   },
   // Answers are logged by the server (/api/v2/chat with "ui"); the panel sends the rest.

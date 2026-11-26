@@ -209,3 +209,39 @@ test("15 languages: every string translated, placeholders kept, no «two taps» 
     for (const text of Object.values(d) as string[]) assert.doesNotMatch(text, /two taps|двух касани|два касани|zwei Tipp|deux touch/i, f)
   }
 })
+
+test("the director's review of #268: reopened before the plan's status, the card says «shown» once it knows it's the discount", async () => {
+  const el = dom.document.createElement("div")
+  dom.document.body.appendChild(el)
+  const events: unknown[][] = []
+  const props = (more: Record<string, unknown>) => ({
+    status: null, title: "Your free answers are back", body: "", offer: null, retryAt: Date.now() - 1_000, ownKey: true,
+    onRetry: () => undefined, onChoose: () => undefined, onRedeem: () => undefined, onNote: () => undefined, onOwnKey: () => undefined,
+    onEvent: (...args: unknown[]) => events.push(args.filter((a) => a !== undefined)),
+    ...more
+  })
+  ui.card(el, props({ settled: false }))
+  await tick(50)
+  assert.deepEqual(events, [], "nothing said before it knows")
+  ui.card(el, props({ status: STATUS, offer: OFFER, settled: true }))
+  await tick(50)
+  ui.card(el, props({ status: STATUS, offer: OFFER, settled: true }))
+  await tick(50)
+  assert.deepEqual(events, [["shown", { plan: "pro", period: "monthly" }, "discount"]])
+  ui.clear(el)
+})
+
+test("the director's review of #268: a card gone before it knew says what it showed, once", async () => {
+  const el = dom.document.createElement("div")
+  dom.document.body.appendChild(el)
+  const events: unknown[][] = []
+  ui.card(el, {
+    status: null, title: "x", body: "", offer: null, settled: false, retryAt: null, ownKey: false,
+    onRetry: () => undefined, onChoose: () => undefined, onRedeem: () => undefined, onNote: () => undefined, onOwnKey: () => undefined,
+    onEvent: (...args: unknown[]) => events.push(args.filter((a) => a !== undefined))
+  })
+  await tick(50)
+  ui.clear(el)
+  await tick(10)
+  assert.deepEqual(events, [["shown", { plan: "pro", period: "monthly" }, "full"]])
+})
