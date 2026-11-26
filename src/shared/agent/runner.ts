@@ -13,6 +13,7 @@ import { wordTest } from "./match.ts"
 import { BOOKING_WORDS, CANCEL_TERMS_WORDS, NEXT_FREE_WORDS } from "./words.ts"
 export { dayItems, isDateLabel }
 import { classify } from "./classify.ts"
+import { countRefusal } from "./counts.ts"
 import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, withNameParts, type FormEntry } from "./formdata.ts"
 import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
 import { pageSubject, subjectLine, titleName } from "./subject.ts"
@@ -152,6 +153,8 @@ export interface AgentState {
   // The map's part the model asked for (read_page), read at the next step only.
   readPart?: number
   slotRefusals?: number
+  // The person's standing rule for how many people (guests, tickets, seats) when the request doesn't say.
+  ruleParty?: number
   // Date presses without progress (a time to choose), the last date pressed, and whether a fully greyed strip was
   // tapped once to wake it.
   dateSteps?: number
@@ -756,6 +759,7 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   const book = site ? await io.playbook?.get(site).catch(() => null) : null
   if (book?.length) state.playbook = playbookLine(book)
   state.rules = rulesLine(rules, calendarOn)
+  state.ruleParty = rules.party
   state.chooseVenue = rules.chooseVenue
   state.minRating = rules.rating
   const subject = pageSubject(map)
@@ -1720,6 +1724,15 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       const said = words(state)
       if (typing && lines.length && lines.every((l) => saidInWords(said, l.value))) perm = { ...typing, keys: lines.map((l) => l.key), ids: lines.map((l) => l.id) }
     }
+    // A count that isn't the request's (people, tickets, rooms, children: report-137, a table «for 2» set to «12 people»
+    // from a large-party list): refused, with what the list offers; when the request's number isn't there, ask.
+    const countWhy = verdict.cls !== "blocked" && state.plan?.booking ? countRefusal(call, seenItem, map, words(state), state.ruleParty) : null
+    if (countWhy) {
+      rule(state, "count_other")
+      state.log.push({ call, target: target ?? undefined, result: `refused: ${countWhy}` })
+      state.refused = countWhy
+      continue
+    }
     // A time slot that clashes with the person's Calendar is never pressed (checked on the device).
     if (verdict.cls !== "blocked") {
       const busy = await slotRefusal(state, io, call, call.tool === "select" ? call.option ?? "" : seenItem?.label ?? "", map, seenItem)
@@ -2155,6 +2168,17 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
       state.picked = undefined
       state.sawDate = false
       state.pressedTarget = false
+    }
+    // A time the person agreed to in their answer («Am 2026-12-01 um 10:30 buchen», report-137: the window rule then
+    // refused 10:30 four times): the booking's time from now on, as for days. (Dates are taken out first: «2026.12.01»
+    // isn't 12:01.)
+    const agreed = b && !DAY_KINDS.has(b.kind) ? [...new Set(timesIn(text.replace(/\d{4}[-./]\d{1,2}[-./]\d{1,2}|\d{1,2}[./]\d{1,2}[./]\d{2,4}/g, " ")))] : []
+    if (b && agreed.length === 1) {
+      b.at = agreed[0]
+      b.from = agreed[0]
+      b.until = agreed[0]
+      state.picked = undefined
+      state.nearSaid = undefined
     }
     // A place the person chose in their answer, whatever the question was (the director on 11f0c58b: «Book The Palm
     // Suites instead», then «Do it?» with «not what you asked: you asked to book Pefkos City Hotel»): the booking's place

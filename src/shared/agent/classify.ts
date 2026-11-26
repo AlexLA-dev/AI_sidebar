@@ -94,6 +94,59 @@ function isConsentDialog(map: PageMap, item: MapItem): boolean {
   return item.where === "dialog" && (map.consent === true || !!anyWord(map.text.slice(0, 1500), CONSENT_DIALOG))
 }
 
+// A sign-in by a contact alone (the director's real-site set, report-137: a clinic booking's «Continue with your
+// e-mail… if it's your first booking, we'll create a free account» was pressed with the test e-mail, twice). Decided by
+// what the page is, never by the site: an e-mail or phone field with the press beside it and no other booking detail
+// asked there; or a page that says an account is made for that e-mail, or offers «continue with Google/Apple».
+const CONTACT_LABEL = /e-?mail|correo|courriel|почт|пошт|posta|メール|이메일|邮箱|郵箱|電子郵件|电子邮件|البريد|phone|mobile|handy|telefon|téléphone|teléfono|telefono|telefone|celular|телефон|мобильн|電話|携帯|전화|휴대폰|电话|手机|điện thoại|هاتف|جوال/i
+// A field beside a phone that only picks its country code («+44», «Country code», «Código de país»).
+const DIAL_CODE = /\+\d|country|code|código|codice|indicatif|vorwahl|код|kod|国番号|국가|区号|區號|mã|رمز/i
+// Text that says the e-mail makes or opens an account (15 languages): «we'll create an account», «create a free account»,
+// «linked to this e-mail», «sign in or create an account».
+const ACCOUNT_MADE = /(we('| wi)ll|will) create (an?|your)( free)? account|create an? (free )?account|sign in or (create|register)|linked to (this|your) e-?mail|crearemos una cuenta|crear (una )?cuenta|vinculadas? a (este|tu) correo|créerons un compte|créer un compte|wir erstellen (dir|ihnen) ein( kostenloses)? konto|konto (erstellen|anlegen)|creeremo un account|crea(re)? un account|criaremos uma conta|criar (uma )?conta|созда(дим|ть|м)( бесплатн\S*)? (аккаунт|учётн\S* запис|учетн\S* запис|профиль|личный кабинет)|створ(имо|ити) (акаунт|обліков\S* запис)|hesap oluştur|سننشئ حساب|إنشاء حساب|アカウントを?作成|계정(을|이)? (만들|생성)|创建(账户|帐户|账号)|建立(帳戶|帳號)|tạo tài khoản/i
+// «Continue with Google», «Sign in with Apple» in the panel's languages: a sign-in with another account.
+const SOCIAL_SIGNIN = /(continue|sign in|log in|sign up|weiter|fortfahren|anmelden|continuer|se connecter|continuar|iniciar sesión|continua|accedi|entrar|продолжить|войти|продовжити|увійти|devam|giriş|متابعة|تسجيل|続け|ログイン|계속|로그인|继续|繼續|登录|登入|tiếp tục|đăng nhập)\s*(with|mit|avec|con|com|через|с|з|ile|باستخدام|で|로|使用|bằng)?\s*(google|apple|facebook)|(google|apple|facebook)\s*(で|로|で続ける|ile)/i
+
+// A press that goes back or cancels, in the panel's languages.
+const BACKWARD = /^(back|go back|previous|cancel|zurück|abbrechen|retour|précédent|annuler|atrás|volver|anterior|cancelar|indietro|annulla|voltar|назад|отмена|отменить|скасувати|geri|iptal|رجوع|إلغاء|戻る|キャンセル|뒤로|취소|返回|取消|quay lại|hủy)$/i
+
+const FIELD_ROLES = new Set(["textbox", "textarea", "combobox", "select"])
+
+function isContactField(i: MapItem): boolean {
+  return i.type === "email" || i.type === "tel" || CONTACT_LABEL.test(i.label)
+}
+
+/** The fields the press goes with: its form's, or (no form) the fields just before it that are in no form either. */
+function fieldsOfPress(map: PageMap, item: MapItem): MapItem[] {
+  const field = (i: MapItem) => FIELD_ROLES.has(i.role) && i.type !== "search" && i.type !== "hidden" && i.lock !== "secret"
+  if (item.form !== undefined) return map.items.filter((i) => i.form === item.form && field(i))
+  // (No form: the fields just before the press, with only links or boxes between — the terms link under an e-mail.
+  // Another button between them is another control's press: a shop's «Show more» isn't the e-mail's.)
+  const at = map.items.indexOf(item)
+  const out: MapItem[] = []
+  for (let k = at - 1; k >= Math.max(0, at - 10); k--) {
+    const i = map.items[k]
+    if (i.form !== undefined) break
+    if (field(i)) out.unshift(i)
+    else if (i.role === "button" || i.role === "tab" || i.role === "option") break
+  }
+  return out
+}
+
+/** A press that signs in or makes an account by a contact alone (see ACCOUNT_MADE). */
+export function contactSignIn(map: PageMap, item: MapItem): boolean {
+  const fields = fieldsOfPress(map, item)
+  const contact = fields.filter(isContactField)
+  if (!contact.length) return false
+  // (A phone's country-code list beside it isn't another booking detail.)
+  const others = fields.filter((i) => !isContactField(i) && !((i.role === "select" || i.role === "combobox") && DIAL_CODE.test(`${i.label} ${(i.options ?? []).slice(0, 3).join(" ")}`)))
+  if (!others.length) return true
+  // Other fields beside it: only when the page says the e-mail makes an account and no name is asked (a booking's
+  // details form asks the name).
+  const named = others.some((i) => /name|nombre|nom\b|vorname|nachname|nome|имя|фамил|ім'я|прізвищ|isim|ad\b|soyad|الاسم|名前|氏名|なまえ|이름|姓名|名字|họ|tên/i.test(i.label) || /^\s*[氏名姓]\s*[*＊]?\s*(必須)?\s*$/.test(i.label))
+  return !named && (ACCOUNT_MADE.test(map.text) || map.items.some((i) => i.role === "link" && SOCIAL_SIGNIN.test(i.label)))
+}
+
 /** A «Send» is a message when it's on a mail or social site, or in a form (or a page) that's a message composer. */
 function isMessage(map: PageMap, item: MapItem, host: string): boolean {
   if (MESSAGING.test(host) || MESSAGING_EXACT.test(host)) return true
@@ -134,7 +187,22 @@ function clickClass(map: PageMap, item: MapItem, host: string): StepVerdict {
   const v = pressClass(map, item, host)
   // Only the press that commits, on the page where it commits (personal fields, a review / confirm page): a fee named
   // in a home page's text or a cookie banner's «Accept» isn't paying.
-  return map.deposit && v.cls === "confirm" && v.reason === "submit" && commitStage(map) && !isConsentDialog(map, item) ? verdict("self", "pay") : v
+  if (map.deposit && v.cls === "confirm" && v.reason === "submit" && commitStage(map) && !isConsentDialog(map, item)) return verdict("self", "pay")
+  return v.cls === "self" || v.cls === "blocked" || !signsIn(map, item) ? v : verdict("self", "account")
+}
+
+/**
+ * A press that sends a contact alone (an e-mail or a phone, nothing else of the booking beside it: «Continue», «Next»,
+ * «Send code», a wordless submit), or any press beside a contact field on a page that says the e-mail makes an account:
+ * signing in or making an account, the person's. A booking's own commit word («Book», «Reserve», «Confirm») beside a
+ * phone alone stays the booking's press, with its «Do it?». Not a link, a tab, an option, a refusal or a «Back».
+ */
+function signsIn(map: PageMap, item: MapItem): boolean {
+  if (item.role === "link" || item.role === "tab" || item.role === "option" || item.role === "summary" || item.role === "menuitem" || item.role === "checkbox" || item.role === "radio" || item.role === "switch") return false
+  const hit = wordKind(item.label)
+  if (hit?.kind === "reject" || BACKWARD.test(item.label.trim())) return false
+  if (!contactSignIn(map, item)) return false
+  return hit?.kind !== "submit" || ACCOUNT_MADE.test(map.text)
 }
 
 function pressClass(map: PageMap, item: MapItem, host: string): StepVerdict {
@@ -156,6 +224,8 @@ function pressClass(map: PageMap, item: MapItem, host: string): StepVerdict {
   const quiet = item.role === "tab" || item.role === "option" || item.role === "summary" || item.role === "menuitem" || hit?.kind === "nav" || hit?.kind === "reject"
   if (map.pay && !quiet && !(item.role === "link" && !form)) return verdict("self", "pay")
   if (form?.secret && (hit?.kind === "submit" || hit?.kind === "weak" || hit?.kind === "send")) return verdict("self", "auth")
+  // «Continue with Google / Apple»: a sign-in with another account, the person's.
+  if (SOCIAL_SIGNIN.test(item.label)) return verdict("self", "auth")
   if (hit) {
     if (hit.kind === "send") return isMessage(map, item, host) ? verdict("self", "send") : verdict("confirm", "submit")
     if (hit.kind === "consent" && isConsentDialog(map, item)) return verdict("self", "cookies_accept")
