@@ -11,7 +11,7 @@ import type { VNode } from "preact"
 import * as Icon from "../icons"
 import { t } from "../../shared/i18n"
 import { isCancelChoice } from "../../shared/agent/taskplan"
-import { errorText, isAccess, localWhen, NO_UNDO, recapNotes, recapWhat, selfText, stepText, type PanelAgent } from "./AgentPanel"
+import { clockFrom, errorText, isAccess, localWhen, NO_UNDO, recapNotes, recapWhat, selfText, stepText, type PanelAgent } from "./AgentPanel"
 
 export type BubbleKind = "ask" | "confirm" | "self" | "open" | "end"
 
@@ -29,10 +29,12 @@ export interface BubbleData {
   ok?: boolean
   // The task runs in this tab (else «Перейти к вкладке»).
   here: boolean
+  // The task's request: its times are shown in the form it wrote one in.
+  request?: string
 }
 
 // What the bubble reads: this tab's task, or another tab's notice (the same fields, kept by the background).
-export type BubbleSource = Pick<PanelAgent, "id" | "status" | "summary" | "choices" | "pending" | "error" | "askKey">
+export type BubbleSource = Pick<PanelAgent, "id" | "status" | "summary" | "choices" | "pending" | "error" | "askKey"> & { request?: string }
 
 /** A finished task's summary as one plain line: no Markdown marks, links as their words. */
 export function plainLine(md: string, max = 140): string {
@@ -57,7 +59,8 @@ function stepWords(s: BubbleSource): string {
 
 export function bubbleOf(s: BubbleSource, key: string, here: boolean): BubbleData | null {
   // (A plan card waits with no step key: its own, so «×» and the circle tell it apart.)
-  const base = { key: key || `${s.status}:${s.id}`, here, options: [] as string[], other: false }
+  clockFrom(s.request)
+  const base = { key: key || `${s.status}:${s.id}`, here, options: [] as string[], other: false, ...(s.request ? { request: s.request } : {}) }
   const p = s.pending
   switch (s.status) {
     case "asked": {
@@ -111,6 +114,7 @@ const real = (fn: () => void) => (e: Event) => {
 
 /** `low`: the circle is in the screen's lower half, so the bubble ends at its bottom edge (else it starts at its top). */
 export function AgentBubble({ data, side, top, low, act }: { data: BubbleData; side: "left" | "right"; top: string; low: boolean; act: BubbleActions }): VNode {
+  clockFrom(data.request)
   const open = data.here ? t("agentBubbleOpen") : t("agentGoToTab")
   const buttons: Array<{ label: string; on: () => void; primary?: boolean }> =
     data.kind === "ask"

@@ -19,11 +19,22 @@ interface Feature {
   /** How people got to it. */
   via?: readonly string[]
   /** Extra named values; "int" is a whole number 0–9999, "code" 2–3 capital letters (a currency, a country), "uuid" a
-   *  random id (an agent task's, never anything about the person). */
-  fields?: Record<string, readonly string[] | "int" | "code" | "uuid">
+   *  random id (an agent task's, never anything about the person), "rules" the agent's rule codes with counts
+   *  ("contact_kind:1,slot_time:2": codes from AGENT_RULES, counts 1–99). */
+  fields?: Record<string, readonly string[] | "int" | "code" | "uuid" | "rules">
   /** Sent as its own event kind (or logged by the server), never as "use": named here for prev and reports. */
   own?: true
 }
+
+/** The device's rules that refuse or hold an agent's step (runner.ts), as the end event names them: codes only, never
+ *  what was refused. */
+export const AGENT_RULES = [
+  "done_press", "place_find", "day_grey", "next_free", "date_field", "day_unseen", "place_again", "field_kind",
+  "contact_kind", "given_words", "other_person", "search_first", "list_open", "date_step", "link_dates", "place_ask",
+  "place_unfit", "made_up", "slot_time", "slot_window", "slot_nearer", "slot_busy", "book_again", "book_hold",
+  "days_unset", "blocked", "apple_access", "said_no"
+] as const
+export type AgentRule = (typeof AGENT_RULES)[number]
 
 const ENTRIES = ["list", "search", "ai_search", "move_bar", "reminder", "deeplink"] as const
 
@@ -44,7 +55,8 @@ export const FEATURES: Record<string, Feature> = {
       err: ["steps", "stuck", "page", "unbooked", "blocked", "upstream", "other"],
       recap: ["yes", "no"],
       did: ["answered", "dismissed", "show"],
-      steps: "int", secs: "int", calls: "int", options: "int"
+      steps: "int", secs: "int", calls: "int", options: "int",
+      rules: "rules"
     }
   },
   panel: {
@@ -404,10 +416,27 @@ export function useFields(body: Record<string, unknown>): Record<string, unknown
   if (has(spec.via, body.via)) out.via = body.via
   for (const [name, allowed] of Object.entries(spec.fields ?? {})) {
     const value = allowed === "int" ? count(body[name]) : body[name]
-    const ok = allowed === "int" ? whole(value, 9999) : allowed === "code" ? typeof value === "string" && /^[A-Z]{2,3}$/.test(value) : allowed === "uuid" ? typeof value === "string" && UUID.test(value) : has(allowed, value)
+    const ok = allowed === "int" ? whole(value, 9999) : allowed === "code" ? typeof value === "string" && /^[A-Z]{2,3}$/.test(value) : allowed === "uuid" ? typeof value === "string" && UUID.test(value) : allowed === "rules" ? rulesField(value) : has(allowed, value)
     if (ok) out[name] = allowed === "uuid" ? (value as string).toLowerCase() : value
   }
   return out
+}
+
+/** Whether a value is the agent's rule codes with their counts: "code:n" pairs from AGENT_RULES, each once, n 1–99. */
+export function rulesField(value: unknown): boolean {
+  if (typeof value !== "string" || !value || value.length > 400) return false
+  const seen = new Set<string>()
+  return value.split(",").every((pair) => {
+    const m = /^([a-z_]+):([1-9]\d?)$/.exec(pair)
+    if (!m || seen.has(m[1]) || !(AGENT_RULES as readonly string[]).includes(m[1])) return false
+    seen.add(m[1])
+    return true
+  })
+}
+
+/** The agent's rule counts as the end event's field ("" for none). */
+export function rulesValue(rules: Partial<Record<string, number>> | undefined): string {
+  return Object.entries(rules ?? {}).filter(([k, n]) => (AGENT_RULES as readonly string[]).includes(k) && (n ?? 0) > 0).sort(([a], [b]) => a.localeCompare(b)).map(([k, n]) => `${k}:${Math.min(99, n!)}`).join(",")
 }
 
 /** The entry point an AI request came through (ask, ai_search, ask_chats), for the server's own row. */

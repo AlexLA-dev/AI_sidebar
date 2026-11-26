@@ -21,6 +21,7 @@ import { freeLineIn, honestChoices, looksLikeSlot, nearerTimes, pageChoices, rea
 import { pageKind } from "./events.ts"
 import { addContactFill, NAME_SAID, bareLabel, buildPlan, contactField, contactKind, requestGives, pathOf, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, contactInWords, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type PlanQuestion, type TaskPlan, DAY_KINDS, sameTaskPage } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
+import type { AgentRule } from "../usage.ts"
 
 export type AgentStatus = "plan" | "running" | "confirm" | "fill" | "self" | "done" | "asked" | "stopped" | "error" | "blocked"
 
@@ -201,6 +202,9 @@ export interface AgentState {
   // once), and how many times.
   cardPlace?: string
   placeAgain?: number
+  // How many times each of the device's rules refused or held a step in this task, by code (the end event says so: codes and
+  // counts only, never what was refused).
+  ruleCounts?: Partial<Record<AgentRule, number>>
   // The address the last tap's page tried to open in a new tab (shown as a link, gone to through the usual checks), and
   // what the tap was on; places whose tap changed nothing (never offered again as a choice).
   openedLink?: { url: string; from: string; page?: string }
@@ -431,6 +435,16 @@ export function chatSuggestion(chat: string, fromChat: string, places: string[])
   const last = (answers.at(-1) ?? "").toLocaleLowerCase()
   const at = places.map((n) => ({ n, i: last.indexOf(n.toLocaleLowerCase()) })).filter((x) => x.i >= 0).sort((a, b) => a.i - b.i)
   return at[0]?.n ?? ""
+}
+
+/** One more refusal or hold by the device's rule `code` (counted for the task's end event). */
+function rule(state: AgentState, code: AgentRule): void {
+  state.ruleCounts = { ...state.ruleCounts, [code]: Math.min(99, (state.ruleCounts?.[code] ?? 0) + 1) }
+}
+
+/** Which slot rule a slot refusal is (the messages slotRefusal and slotWhy write). */
+export function slotCode(why: string): AgentRule {
+  return /^a time slot: say its date/.test(why) ? "slot_time" : / is outside the time /.test(why) ? "slot_window" : / is free on the page and /.test(why) ? "slot_nearer" : "slot_busy"
 }
 
 /** Why another booking press is refused, or null: the booking's press went already, and the page asked for nothing
@@ -1297,6 +1311,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       const missing = state.bookPress ? null : missingPress(state.plan, state.log)
       if (missing && !state.doneNudged) {
         state.doneNudged = true
+        rule(state, "done_press")
         state.log.push({ call: { tool: "done" }, result: `refused: the plan's press "${missing.label}" hasn't happened yet — do it now, or call done again and say in the summary why it is left` })
         await io.save(state)
         continue
@@ -1344,6 +1359,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       // finds the places, never «back» to a list that isn't there (a salon marketplace, 121 sweep: it went back to nothing and
       // then said it had checked several places).
       const box = map.items.find((i) => (i.role === "textbox" || i.role === "combobox") && !i.lock && (i.type === "search" || SEARCH_BOX.test(i.label)))
+      rule(state, "place_find")
       state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: box ? `refused: the request names no place, so it's yours to find: type what the request asks (the service or cuisine, and the area) into the site's search box #${box.id} "${box.label.slice(0, 60)}", search, then choose from the list by the rules` : "refused: the request names no place, so it's yours to find: open the site's own search or the category that fits (its search box, «Barbers», «Restaurants»), then choose from the list by the rules; ask only after two places didn't fit, with their real slots" })
       continue
     }
@@ -1357,6 +1373,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       state.pressedTarget = true
       state.sawDate = true
       await perform(state, io, { tool: "click", id: greyDay.id, why: `«${greyDay.label}» pressed once to read the page's answer for the asked day` }, { cls: "free", reason: "click" }, `button "${greyDay.label.slice(0, 60)}"`)
+      rule(state, "day_grey")
       state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: `held: the device pressed the asked day «${greyDay.label}» first (it showed greyed); read the page's answer for it, then go on or ask with what the page shows` })
       continue
     }
@@ -1368,6 +1385,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       if (said) {
         state.nextNudged = true
         const why = `the page names its next free day: «${said.text}»${said.button ? `, with its own control «${said.button}»` : ""}. Go there (that control, or that day) and choose by the rules and the request; ask only if that day doesn't fit them, offering it. Don't call days closed the page didn't say were`
+        rule(state, "next_free")
         state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: `refused: ${why}` })
         state.refused = why
         continue
@@ -1379,6 +1397,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (field) {
       state.widgetNudged = true
       const why = `the page's own date field «${field.label.slice(0, 40)}» shows ${field.value}, not ${dayWords(state.plan!.booking!.date)}: set it to the asked day first (and the party, then the time), read the page's slots for that day, then go on; ask only with what it shows then`
+      rule(state, "date_field")
       state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: `refused: ${why}` })
       state.refused = why
       continue
@@ -1390,6 +1409,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       const why = state.greyTarget
         ? `«${state.greyTarget}» shows greyed, which can mean the page hasn't loaded that day yet: press it once and read what the page says (its free times, or that it's full and its next free day), then go on; ask only with days and times the page showed as free`
         : `the page hasn't shown ${day} yet, so whether it's free isn't known: go to that day first — when the page shows no dates yet, choose what the request asks to reach them (the closest fitting service's own choose or book button; a near name is fine), then the page's calendar or date button and its «next month» arrow, or the date strip scrolled — read it, then go on; ask only with days the page showed as free`
+      rule(state, "day_unseen")
       state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: `refused: ${why}` })
       state.refused = why
       continue
@@ -1399,6 +1419,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     const placeAgain = call.tool === "ask_user" && !chosenAsk && !placeAsk ? askedPlaceAgain(state, call, map) : null
     if (placeAgain && (state.placeAgain ?? 0) < 2) {
       state.placeAgain = (state.placeAgain ?? 0) + 1
+      rule(state, "place_again")
       state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: `refused: ${placeAgain}` })
       state.refused = placeAgain
       continue
@@ -1424,6 +1445,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (wants && call.key && (wants.includes(".") ? wants !== call.key : wants !== keyKind(call.key))) {
       const has = liveEntries(entries).some((e) => (wants.includes(".") ? modelKey(e) === wants : keyKind(modelKey(e)) === wants))
       const why = `the field "${seenItem!.label}" asks for the ${wants}, not ${call.key}${has ? `: fill it with the saved ${wants}` : `; <saved> has no ${wants}: ask the person for it once (ask_user naming it)`}`
+      rule(state, "field_kind")
       state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
       state.refused = why
       continue
@@ -1435,6 +1457,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     const fieldIs = seenItem ? contactField(seenItem) ?? (seenItem.lock === "personal" ? contactKind(fieldKind(seenItem, null) ?? contactAsked(seenItem.label) ?? "") : null) : null
     if (fillKind && fieldIs !== fillKind) {
       const why = `the field "${seenItem!.label.slice(0, 60)}" isn't a ${fillKind} field: a saved ${fillKind} never goes into it. If it's the page's search or another field the request answers, type the request's own words there (type)`
+      rule(state, "contact_kind")
       state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
       state.refused = why
       continue
@@ -1448,6 +1471,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     const givenKind = call.tool === "fill" && call.key ? contactKind(call.key) : null
     if (givenKind && !own(call.key!, liveEntries(entries).find((e) => modelKey(e) === call.key)?.value)) {
       const why = `the request gives the ${givenKind} itself: type the request's own words into that field (type), never a saved ${givenKind}`
+      rule(state, "given_words")
       state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
       state.refused = why
       continue
@@ -1461,6 +1485,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (otherKind && !state.plan!.perms.some((p) => p.reason === "contact" && p.on && p.keys?.includes(call.key!)) && !state.oneTime?.some((o) => o.key === call.key)) {
       state.otherLeft = [...(state.otherLeft ?? []), seenItem!.id]
       const why = `this booking is for someone the request names: the saved ${otherKind} is the person's own, not theirs, and the page doesn't require this field — leave it empty and go on`
+      rule(state, "other_person")
       state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
       state.refused = why
       continue
@@ -1471,6 +1496,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     const unsearched = seenItem && (call.tool === "click" || call.tool === "go") && seenItem.role === "link" && call.id !== NEW_TAB_ID ? searchFirst(state, map) : null
     if (unsearched) {
       state.searchNudged = [...(state.searchNudged ?? []), map.url]
+      rule(state, "search_first")
       state.log.push({ call, target: target ?? undefined, result: `refused: ${unsearched}` })
       state.refused = unsearched
       continue
@@ -1484,12 +1510,14 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     const lastCall = state.log[state.log.length - 1]?.call
     if (seenItem && call.tool === "click" && seenItem.state?.includes("expanded") && lastCall?.tool === "click" && lastCall.id === call.id) {
       const why = `«${seenItem.label.slice(0, 60)}» is open now (its last press opened it): choose from the list it shows; pressing it again would close it`
+      rule(state, "list_open")
       state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
       state.refused = why
       continue
     }
     const dateRefusal = seenItem && (call.tool === "click" || call.tool === "select") && state.plan?.booking ? dateStep(state, map, seenItem, call) : null
     if (dateRefusal) {
+      rule(state, "date_step")
       state.log.push({ call, target: target ?? undefined, result: `refused: ${dateRefusal}` })
       state.refused = dateRefusal
       continue
@@ -1499,6 +1527,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     const stale = seenItem?.href && (call.tool === "click" || call.tool === "go") && state.plan?.approved ? staleDates(seenItem.href, state.plan.booking) : null
     if (stale) {
       const why = `that link carries other dates (${stale}) than the booking's: run the page's search again with the request's dates (its Search or Apply), then choose from the new list`
+      rule(state, "link_dates")
       state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
       state.refused = why
       continue
@@ -1513,12 +1542,14 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       const why = state.chooseVenue
         ? `which place is the person's choice: ask_user once now with the two best by the rules (${best}) and a third choice to let you choose by the rules; open one only after the answer`
         : `which place is the person's choice (their rules say not to choose one for them): ask_user once now with the first places the list shows (${best}); open one only after the answer`
+      rule(state, "place_ask")
       state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
       state.refused = why
       continue
     }
     if (place && state.venues && !state.venues.list.some((v) => v.url === place.url)) {
       const fit = state.venues.list.filter((v) => !state.venues!.tried.includes(v.url)).map((v) => `«${v.name}»`).slice(0, 4).join(", ")
+      rule(state, "place_unfit")
       state.log.push({ call, target: target ?? undefined, result: `refused: «${place.name}» doesn't fit the request or the rules${fit ? `; the ones that do: ${fit}` : ""}` })
       state.refused = "choose a place from <venues>"
       continue
@@ -1533,6 +1564,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (typedKind && !saidInWords(words(state), call.text ?? "") && !liveEntries(entries).some((e) => normalizeValue(e.value) === normalizeValue(call.text ?? ""))) {
       const has = liveEntries(entries).some((e) => contactKind(modelKey(e)) === typedKind)
       const why = `«${(call.text ?? "").slice(0, 40)}» isn't in the person's words, their answers or <saved>: never make up or derive a ${typedKind}; ${has ? `fill the saved ${typedKind} (fill with its key)` : `ask_user for their ${typedKind} once`}`
+      rule(state, "made_up")
       state.log.push({ call: { ...call, text: "" }, target: target ?? undefined, result: `refused: ${why}` })
       state.refused = why
       continue
@@ -1557,6 +1589,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (verdict.cls !== "blocked") {
       const busy = await slotRefusal(state, io, call, call.tool === "select" ? call.option ?? "" : seenItem?.label ?? "", map, seenItem)
       if (busy) {
+        rule(state, slotCode(busy))
         state.log.push({ call, target: target ?? undefined, result: `refused: ${busy}` })
         state.refused = busy
         // Three in a row: it can't be settled this way; the task stops, not finished, with what it got to (never a loop).
@@ -1577,6 +1610,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // what is wrong. A form that asked for more since (details typed after the first press) is the booking going on.
     const again = verdict.cls === "confirm" && verdict.reason === "submit" && call.tool !== "fill" && state.plan?.booking ? pressedAlready(state, map) : null
     if (again) {
+      rule(state, "book_again")
       state.log.push({ call, target: target ?? undefined, result: `refused: ${again}` })
       state.lines.push(line(call, verdict, target, false))
       state.refused = again
@@ -1593,6 +1627,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // the recap (the director on c874eefa: a plan-booked table, a field typed again, a ticked «Book» pressed silently).
     if (perm && state.bookPress && verdict.cls === "confirm" && verdict.reason === "submit" && call.tool !== "fill" && state.plan?.booking) {
       perm = null
+      rule(state, "book_hold")
       state.log.push({ call, target: target ?? undefined, result: `held for the person: the booking's press already went in this task (${state.bookPress.target}), so another booking press goes only with their yes` })
     }
     // The booking's last press goes only with its days set on the page (128); three refusals in a row end the task, not
@@ -1600,6 +1635,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (verdict.cls === "confirm" && verdict.reason === "submit" && state.plan?.booking) {
       const unset = unsetDays(state, map)
       if (unset) {
+        rule(state, "days_unset")
         state.log.push({ call, target: target ?? undefined, result: `refused: ${unset}` })
         state.refused = unset
         state.dateRefusals = (state.dateRefusals ?? 0) + 1
@@ -1619,6 +1655,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
         state.error = verdict.reason
         break
       }
+      rule(state, "blocked")
       state.log.push({ call, target: target ?? undefined, result: `refused: ${verdict.reason}` })
       state.lines.push(line(call, verdict, target, false))
       state.refused = `that step was refused (${verdict.reason})`
@@ -1643,6 +1680,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       // Asked once already in this task and still not given («Готово» without allowing): not asked again in a loop.
       const askedBefore = state.log.some((e) => e.call && APPLE_TOOLS.has(e.call.tool) && appleKind(e.call.tool) === kind && /asked to allow it/.test(e.result))
       if (access === "none" && askedBefore) {
+        rule(state, "apple_access")
         state.log.push({ call, result: `refused: ${kind} access still isn't given (the person can allow it in ContextFlow later)` })
         state.lines.push(line(call, verdict, null, false))
         continue
@@ -1653,6 +1691,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
         break
       }
       if (access !== "yes") {
+        rule(state, "apple_access")
         state.log.push({ call, result: access === "denied" ? `refused: ${kind} access is turned off in Settings → ContextFlow` : `refused: no ${kind} on this device` })
         state.lines.push(line(call, verdict, null, false))
         continue
@@ -1688,6 +1727,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       // «Do it?» came back right after «No»); the model hears it and asks or finishes instead.
       if (target && call.tool !== "fill" && state.log.some((l) => l.result === "the person said no" && l.target === target && l.call.tool === call.tool)) {
         const why = `the person said no to ${target} already: don't propose it again. Ask them how to go on (ask_user with what the page shows) or call done saying what you found`
+        rule(state, "said_no")
         state.log.push({ call, target, result: `refused: ${why}` })
         state.refused = why
         continue
@@ -1750,6 +1790,7 @@ async function pressAlso(state: AgentState, io: RunnerIO, also: NonNullable<Tool
     if (state.plan?.booking && isDateLabel(item.label)) {
       const why = dateStep(state, map, item, call)
       if (why) {
+        rule(state, "date_step")
         state.log.push({ call, target: `${item.role} "${item.label}"`, result: `refused: ${why}` })
         return
       }
