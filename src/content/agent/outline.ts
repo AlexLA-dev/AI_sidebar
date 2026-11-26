@@ -20,7 +20,9 @@ import { DENSE, weightedLength } from "../../shared/agent/length"
 export const OUTLINE_MAX = 9000
 const LINE_MAX = 400
 const OPEN_MAX = 4
-const SUMMARY_TOKENS = 3
+const SUMMARY_TOKENS = 2
+// The parts' own lines take at most this much; past it, the rest go ten parts to a line.
+const SUMMARY_MAX = 2500
 
 /** A text cut to a weighted length, at a character. */
 function clipWeighted(s: string, max: number): string {
@@ -113,6 +115,8 @@ export function buildOutline(input: OutlineInput): Outline {
     let block: Element | null = null
     let top = Infinity
     let bottom = -Infinity
+    // A card that is one link: everything in it is one line (its words and the controls inside, «Book» with its salon).
+    let card: Element | null = null
     const flush = () => {
       const text = squash(line.join(" "))
       if (text && /[\p{L}\p{N}]/u.test(text.replace(/\[#[^\]]*\]/g, "") + (ids.length ? "x" : ""))) {
@@ -125,7 +129,7 @@ export function buildOutline(input: OutlineInput): Outline {
       bottom = -Infinity
     }
     const put = (piece: string, at: Element, r?: { top: number; bottom: number }, id?: string) => {
-      const b = at.closest(BLOCKY)
+      const b = card && card.contains(at) ? card : at.closest(BLOCKY)
       if (b !== block) {
         flush()
         block = b
@@ -170,12 +174,20 @@ export function buildOutline(input: OutlineInput): Outline {
       if (item) {
         // In a site menu its links are folded into the menu's line (a link with the request's words is kept there).
         if (siteRegion && item.role === "link") return
-        put(token(item), el, r, item.id)
+        const isCardLink = item.role === "link" && el.children.length > 1 && weightedLength(item.label) >= 40
+        if (isCardLink && !card) card = el
+        put(isCardLink ? token({ ...item, label: clipWeighted(item.label, 24) }) : token(item), el, r, item.id)
         // A field's or an editor's own text is never read (the person's typing); a card that is one link keeps its words.
         const field = /^(textbox|textarea|editor|combobox|select|listbox|slider)$/.test(item.role)
         if (field) return
-        const card = item.role === "link" && el.children.length > 1 && weightedLength(item.label) >= 40
-        for (const c of Array.from(el.children)) visit(c, card && words, siteRegion)
+        const isCard = item.role === "link" && el.children.length > 1 && weightedLength(item.label) >= 40
+        if (isCard && card === el) {
+          for (const c of Array.from(el.children)) visit(c, words, siteRegion)
+          card = null
+          flush()
+          return
+        }
+        for (const c of Array.from(el.children)) visit(c, false, siteRegion)
         return
       }
       if (SKIP.test(t)) return
@@ -199,7 +211,7 @@ export function buildOutline(input: OutlineInput): Outline {
         flush()
         return
       }
-      const message = el.matches(MESSAGE)
+      const message = el.matches(MESSAGE) && !!squash(el.textContent)
       if (message) {
         flush()
         line.push("[message]")
@@ -233,13 +245,36 @@ export function buildOutline(input: OutlineInput): Outline {
     flush()
   }
 
-  const overBlocks: Block[] = []
-  for (const o of overlays) walk(o, overBlocks)
-  const blocks: Block[] = []
-  if (doc.body) walk(doc.body, blocks)
+  // Short neighbours in one line: a calendar's days, its weekday letters, a row of time slots (each its own block on the
+  // page) read as one line, not forty.
+  const TOKEN_ONLY = /^\[#[^\]]*\]$/
+  const small = (b: Block) => !b.heading && !b.menu && (TOKEN_ONLY.test(b.text) || weightedLength(b.text) <= 8)
+  const joined = (list: Block[]) => {
+    const out: Block[] = []
+    let run = false
+    for (const b of list) {
+      const prev = out[out.length - 1]
+      if (prev && run && small(b) && weightedLength(prev.text) + b.text.length < LINE_MAX) {
+        prev.text = `${prev.text} ${b.text}`
+        prev.top = Math.min(prev.top, b.top)
+        prev.bottom = Math.max(prev.bottom, b.bottom)
+        prev.ids = [...prev.ids, ...b.ids]
+        continue
+      }
+      out.push({ ...b })
+      run = small(b)
+    }
+    return out
+  }
+  const overRaw: Block[] = []
+  for (const o of overlays) walk(o, overRaw)
+  const overBlocks = joined(overRaw)
+  const raw: Block[] = []
+  if (doc.body) walk(doc.body, raw)
+  const blocks = joined(raw)
 
   // ---- parts: the screen, then §2… by headings (or a screen's height of the page when no heading comes)
-  interface Part { n: number; heading: string; blocks: Block[]; where: "above" | "below" | "screen" }
+  interface Part { n: number; heading: string; blocks: Block[]; where: "above" | "below" | "screen"; top: number }
   const onScreen = (b: Block) => b.bottom > 0 && b.top < height
   const screen: Block[] = []
   const parts: Part[] = []
@@ -251,9 +286,10 @@ export function buildOutline(input: OutlineInput): Outline {
       continue
     }
     const where = b.top >= height ? "below" : "above"
-    const span = cur && cur.blocks.length ? b.bottom - Math.min(...cur.blocks.map((x) => x.top)) : 0
-    if (!cur || cur.where !== where || b.heading || span > height) {
-      cur = { n: parts.length + 2, heading: b.heading ?? "", blocks: [], where }
+    // A part: about a screen and a half of the page, or from a heading once the part before has half a screen.
+    const span = cur ? b.bottom - cur.top : 0
+    if (!cur || cur.where !== where || (b.heading && span >= height / 2) || span > height * 1.5) {
+      cur = { n: parts.length + 2, heading: b.heading ?? "", blocks: [], where, top: b.top }
       parts.push(cur)
     }
     cur.blocks.push(b)
@@ -292,11 +328,26 @@ export function buildOutline(input: OutlineInput): Outline {
     return `§${p.n} ${JSON.stringify(firstWords)} (${p.where}; ${ids.length} controls${tokens.length ? `: ${tokens.join(" ")}${ids.length > tokens.length ? " …" : ""}` : ""})`
   }
   const lines: string[] = []
-  for (const p of parts) {
+  let summaries = 0
+  for (let k = 0; k < parts.length; k++) {
+    const p = parts[k]
     if (open.has(p.n)) {
       lines.push(`§${p.n} (opened):`)
       for (const b of p.blocks) lines.push(lineOf(b))
-    } else lines.push(summary(p))
+      continue
+    }
+    const one = summary(p)
+    if (summaries + one.length <= SUMMARY_MAX) {
+      lines.push(one)
+      summaries += one.length + 1
+      continue
+    }
+    // (Past the parts' share: ten closed parts to a line, by their first heading; each still opens by its number.)
+    const group = [p]
+    while (group.length < 10 && k + 1 < parts.length && !open.has(parts[k + 1].n) && parts[k + 1].where === p.where) group.push(parts[++k])
+    const controls = group.reduce((n, g) => n + g.blocks.reduce((m, b) => m + b.ids.length, 0), 0)
+    const head = group.map((g) => g.heading).find(Boolean) ?? ""
+    lines.push(`§${group[0].n}–§${group[group.length - 1].n}${head ? ` ${JSON.stringify(head)}` : ""} (${p.where}; ${controls} controls)`)
   }
   for (const s of lines) if (!add(s)) {
     add(`… ${parts.length} parts in all`, true)

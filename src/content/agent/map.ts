@@ -226,7 +226,9 @@ export function hintOf(el: Element): string {
   const named = squash(el.getAttribute("data-testid") ?? el.getAttribute("data-test") ?? el.getAttribute("data-qa") ?? el.getAttribute("name"), 40)
   const id = el.id && !/\d{3}|^[a-z0-9]{12,}$/i.test(el.id) ? squash(el.id, 40) : ""
   const cls = (el.getAttribute("class") ?? "").split(/\s+/).find((c) => /^[a-z][a-z-_]{3,30}$/i.test(c) && !/^(css|sc|jsx|style|flex|grid|btn|button|icon|link|item|wrapper|container|inner|outer|active|selected)$/i.test(c)) ?? ""
-  return (icon || named || id || src || cls).replace(/[\[\]"]/g, "").slice(0, 40)
+  // (A file name or an id that is a hash or a number says nothing: «0a63f0f6…_large» is no hint.)
+  const telling = (h: string) => !!h && !/[0-9a-f]{8,}|\d{4,}/i.test(h) && /\p{L}{3,}/u.test(h)
+  return ([icon, named, id, src, cls].find(telling) ?? "").replace(/[\[\]"]/g, "").slice(0, 40)
 }
 
 // A month's name with a four-digit year («November 2026», «noviembre de 2026», «2026年11月»).
