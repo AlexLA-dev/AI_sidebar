@@ -715,7 +715,7 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
 
   // Twins: two controls for one choice, one inside the other with the same words (or one with none) — a day's option
   // and its checkbox, a link and the button drawn in it. Taken once: the one a tap at the outer one's centre lands on
-  // (round 139, the director's Booking.com log: two presses on a day's option changed nothing before its checkbox did).
+  // (round 139, the director's log of a big stays site: two presses on a day's option changed nothing before its checkbox did).
   const twins = new Set<MapItem>()
   const byEl = new Map<Element, MapItem>()
   for (const it of items) byEl.set(elements.get(it)!, it)
