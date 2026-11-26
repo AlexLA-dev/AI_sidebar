@@ -15,7 +15,9 @@ struct PaidGallery: View {
     var startOnUltra = false
 
     enum Slide: Int, CaseIterable {
-        case media, search, organize, templates, watch, answers, listen, similar, watchMore
+        // 2.8: the agent first (the release's main feature, Pro and Ultra only); the slides after it moved up by one
+        // (-CFGallerySlide numbers too).
+        case agent, media, search, organize, templates, watch, answers, listen, similar, watchMore
         var ultra: Bool { rawValue >= Slide.listen.rawValue }
     }
 
@@ -23,7 +25,7 @@ struct PaidGallery: View {
     @State private var forward = true
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private var slide: Slide { Slide(rawValue: index) ?? .media }
+    private var slide: Slide { Slide(rawValue: index) ?? .agent }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -179,6 +181,7 @@ struct GallerySlide: View {
 
     private var title: Text {
         switch slide {
+        case .agent: return Text("It books for you, right on the page")
         case .media: return Text("Videos and PDFs")
         case .search: return Text("AI search and Ask your chats")
         case .organize: return Text("Sorts by topic")
@@ -193,6 +196,8 @@ struct GallerySlide: View {
 
     private var line: Text {
         switch slide {
+        // The approved What's New text's own two sentences (2.8): no claim beyond it.
+        case .agent: return Text("ContextFlow picks the time, fills in your name and contacts from My details and books. Paying and signing in stay yours, and Stop is always there.")
         case .media: return Text("Answers use the video's transcript and the PDF's pages.")
         case .search: return Text("Find a chat by describing it, or ask a question across all of them.")
         case .organize: return Text("Suggests the right chat for what you just asked, and your own tag for it.")
@@ -208,6 +213,7 @@ struct GallerySlide: View {
     @ViewBuilder
     private var sample: some View {
         switch slide {
+        case .agent: agent
         case .media: media
         case .search: search
         case .organize: EmptyView()
@@ -222,6 +228,30 @@ struct GallerySlide: View {
 
     private func price(_ value: Int, _ code: String = "USD") -> String {
         value.formatted(.currency(code: code).precision(.fractionLength(0)))
+    }
+
+    /// The request as said in Do (the approved example), and what the agent fills it from.
+    private var agent: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("a table for two tomorrow at 7 pm")
+                .font(.footnote)
+                .foregroundColor(.white)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(RoundedRectangle(cornerRadius: 14).fill(brandBlue))
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 6) { agentChips }
+                VStack(alignment: .leading, spacing: 6) { agentChips }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var agentChips: some View {
+        chip("sparkles", Text("Do"))
+        chip("person.text.rectangle", Text("My details"))
     }
 
     private var media: some View {

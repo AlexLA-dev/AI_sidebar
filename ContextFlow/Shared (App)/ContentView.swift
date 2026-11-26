@@ -1515,6 +1515,8 @@ struct ProView: View {
     private var features: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Everything in Pro").font(.headline)
+            // 2.8's main feature (Pro and Ultra only), in the approved What's New title's words.
+            Feature(systemImage: "calendar.badge.checkmark", text: "It books for you, right on the page")
             Feature(systemImage: "arrow.turn.down.right", text: "Sorts by topic: suggests the right chat and your own tag")
             Feature(systemImage: "sparkles", text: "AI search: find any chat by describing it in your own words")
             Feature(systemImage: "bubble.left.and.text.bubble.right", text: "Ask your chats: questions across everything you've read and asked")
