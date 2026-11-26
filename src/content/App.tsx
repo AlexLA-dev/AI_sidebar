@@ -166,6 +166,8 @@ const APP_ID = "6759115793"
 // the finished task whose end was seen, and how long an end is worth a bubble on this tab's pages.
 const AGENT_QUIET = "cf:agentQuiet"
 const AGENT_END_SEEN = "cf:agentEndSeen"
+// This page load, as the background tells our pages apart (a tab's old page saying «hidden» after its next one showed).
+const PAGE_DOC = `p${Math.random().toString(36).slice(2, 10)}`
 const END_BUBBLE_MS = 15 * 60_000
 
 interface ChatError {
@@ -2687,7 +2689,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => {
     if (agentTask?.status !== "running") return
     const ping = () => {
-      if (!document.hidden) void sendBackground({ type: "agentPing" })
+      if (!document.hidden) void sendBackground({ type: "agentPing", doc: PAGE_DOC })
     }
     const timer = setInterval(ping, 20_000)
     return () => clearInterval(timer)
@@ -2909,7 +2911,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (popup) return
     const onVis = () => {
       const visible = document.visibilityState === "visible"
-      void sendBackground({ type: "agentSeen", visible, ...(visible ? {} : { words: { title: "ContextFlow", paused: t("agentNotifPaused", "{0}"), done: t("agentNotifDone", "{0}"), needs: t("agentNotifNeeds", "{0}"), signIn: t("agentNeedSignIn"), pay: t("agentNeedPay"), answer: t("agentNeedAnswer") } }) })
+      void sendBackground({ type: "agentSeen", visible, doc: PAGE_DOC, ...(visible ? {} : { words: { title: "ContextFlow", paused: t("agentNotifPaused", "{0}"), done: t("agentNotifDone", "{0}"), needs: t("agentNotifNeeds", "{0}"), signIn: t("agentNeedSignIn"), pay: t("agentNeedPay"), answer: t("agentNeedAnswer") } }) })
     }
     document.addEventListener("visibilitychange", onVis)
     // A page that opens visible fires no change: it says so at once (a new tab otherwise left the background thinking

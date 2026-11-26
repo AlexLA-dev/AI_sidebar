@@ -20,6 +20,7 @@ import { agentDeferred, type Plan } from "../shared/plan"
 import { appleCall, appleDevice, calendarFreeLine, calendarSlotFree, deferredReminder, deferredReminderEnd } from "./agentApple"
 import { addMinutes, RULES_KEY } from "../shared/agent/rules"
 import { callNative } from "./native"
+import { PagesSeen } from "./pagesSeen"
 
 export interface AgentDeps {
   installId: () => Promise<string>
@@ -68,8 +69,8 @@ export type AgentRequest =
   | { type: "agentClose"; keep?: boolean }
   | { type: "agentForgetPast"; id: string }
   | { type: "agentNoticeGet" }
-  | { type: "agentSeen"; visible: boolean; words?: AwayWords }
-  | { type: "agentPing" }
+  | { type: "agentSeen"; visible: boolean; words?: AwayWords; doc?: string }
+  | { type: "agentPing"; doc?: string }
   | { type: "agentFocus"; id: string }
   | { type: "agentGoTab" }
   | { type: "agentNoticeClear" }
@@ -187,8 +188,16 @@ async function save(tab: number, state: AgentState): Promise<void> {
 const PAUSE_AFTER_MS = 30_000
 type AwayWords = { paused: string; done: string; needs: string; title: string; signIn?: string; pay?: string; answer?: string }
 let away: { words: AwayWords } | null = null
+// Counts each change of `away`: a note begun before Safari came back isn't sent after.
+let awayGen = 0
+// The schedule on its way to the app: the app reads its notification settings before adding it, so a cancel sent a
+// moment later used to land first and the schedule stayed (the iPad, 0475951b: «hidden» of a tab's old page, «visible» of
+// its next 130 ms on, the notification pending until the next page). Coming back waits for it, then cancels.
+let scheduling: Promise<unknown> = Promise.resolve()
 // A tab switch hides one page and shows another: not leaving Safari.
 let switchedAt = 0
+// Each page of ours, visible or hidden (away only while none is visible).
+const pagesSeen = new PagesSeen()
 
 function runId(state: AgentState): string {
   return `run_${state.id}`
@@ -196,12 +205,18 @@ function runId(state: AgentState): string {
 
 async function awayNote(tab: number, state: AgentState): Promise<void> {
   if (TARGET !== "safari" || !away) return
+  const gen = awayGen
   const tabUrl = await new Promise<string>((resolve) => chrome.tabs.get(tab, (t) => resolve(chrome.runtime.lastError ? state.url : t?.url ?? state.url)))
+  // Back in Safari while the tab was read (the iPad, 24f43d1b: a page's «hidden» set this going, its next page's «visible»
+  // cancelled first, and the schedule landed after the cancel and stayed): nothing is set.
+  if (!away || gen !== awayGen) return
   const base = { id: runId(state), url: tabUrl, title: away.words.title }
   // On a lock screen: the plan's name for the task and the site, never the request (it holds phones, e-mails, names).
   const what = noticeLabel(state.plan, hostOf(tabUrl))
   if (state.status === "running") {
-    await callNative("agent_schedule", { ...base, at: Date.now() + PAUSE_AFTER_MS, body: away.words.paused.replace("{0}", what) }, 6_000)
+    const sent = callNative("agent_schedule", { ...base, at: Date.now() + PAUSE_AFTER_MS, body: away.words.paused.replace("{0}", what) }, 6_000)
+    scheduling = sent.catch(() => undefined)
+    await sent
     return
   }
   const waiting = state.status === "plan" || state.status === "confirm" || state.status === "fill" || state.status === "self" || state.status === "asked"
@@ -237,20 +252,39 @@ function needWord(state: AgentState, w: AwayWords): string {
   return ""
 }
 
+/** Safari is in front again: the notification set for being away goes. */
+async function back(): Promise<void> {
+  if (!away) return
+  away = null
+  awayGen++
+  await scheduling
+  // (Away again meanwhile: that note stands.)
+  if (away) return
+  for (const [tab, state] of await activeTasks()) {
+    void tab
+    if (TARGET === "safari") void callNative("agent_cancel", { id: runId(state) }, 4_000)
+  }
+}
+
 /** A page of ours was hidden or seen: away from Safari (as far as we can tell) or back. */
-async function seen(visible: boolean, words?: AwayWords): Promise<void> {
+async function seen(visible: boolean, words?: AwayWords, from?: number, doc?: string): Promise<void> {
+  const fresh = from === undefined || pagesSeen.report(from, doc ?? "", visible)
+  trace(from ?? -1, `seen ${visible ? "visible" : "hidden"} doc=${doc ?? ""} fresh=${fresh} away=${!!away} pages=${pagesSeen}`)
+  // (A tab's old page saying «hidden» after its next page showed: Safari is in front.)
+  if (!fresh) return
   if (visible) {
     for (const [tab] of await activeTasks()) void resume(tab)
-    if (!away) return
-    away = null
-    for (const [tab, state] of await activeTasks()) {
-      void tab
-      if (TARGET === "safari") void callNative("agent_cancel", { id: runId(state) }, 4_000)
-    }
+    await back()
     return
   }
   if (!words || Date.now() - switchedAt < 1500) return
+  // Another page of ours is still in front (the tab's next page showed before its old one said «hidden»): not away.
+  const fronts = await new Promise<chrome.tabs.Tab[]>((resolve) => chrome.tabs.query({ active: true }, (t) => resolve(chrome.runtime.lastError ? [] : t ?? [])))
+  const front = new Set(fronts.flatMap((t) => (t.id === undefined ? [] : [t.id])))
+  trace(from ?? -1, `away? fronts=${[...front].join(",")} switched=${Date.now() - switchedAt}ms`)
+  if (pagesSeen.anyVisible(front)) return
   away = { words }
+  awayGen++
   for (const [tab, state] of await activeTasks()) if (state.status === "running") void awayNote(tab, state)
 }
 
@@ -837,10 +871,15 @@ export function startAgent(d: AgentDeps): void {
           return { state: s && forPanel(s), past: p }
         }))
       case "agentSeen":
-        return respond(seen(message.visible === true, message.words).then(() => ({ ok: true })))
+        return respond(seen(message.visible === true, message.words, tab, typeof message.doc === "string" ? message.doc.slice(0, 40) : "").then(() => ({ ok: true })))
       // The task's page, visible, says it's there every 20 s: a run with no step for 45 s is picked up again (TheFork:
       // a press opened a page and the run never heard back — Safari had paused the background mid-step).
       case "agentPing":
+        // (Only a visible page pings: Safari is in front, whatever an older page said.)
+        if (tab !== undefined) {
+          pagesSeen.report(tab, typeof message.doc === "string" ? message.doc.slice(0, 40) : "", true)
+          void back()
+        }
         return respond(tab === undefined ? Promise.resolve({ ok: false }) : resume(tab, PING_IDLE_MS).then(() => ({ ok: true })))
       case "agentFocus":
         return respond(focusTask(String(message.id ?? "").replace(/^run_/, ""), tab))
@@ -911,7 +950,9 @@ export function startAgent(d: AgentDeps): void {
     if (t.id === undefined || opener === undefined) return
     void (async () => {
       const st = await load(opener)
-      if (!st || st.status !== "running" || Date.now() - (st.touchedAt ?? 0) > 8_000) return
+      // (Or the person's own tap the task asked for: a page that opens its place in a new tab only for a real tap, 128.)
+      const theirs = st?.status === "self" && st.pending?.verdict.reason === "new_tab"
+      if (!st || (!theirs && (st.status !== "running" || Date.now() - (st.touchedAt ?? 0) > 8_000))) return
       const url = await new Promise<string>((resolve) => {
         const timer = setTimeout(() => done(t.pendingUrl ?? t.url ?? ""), 4_000)
         const done = (u: string) => {
@@ -934,6 +975,7 @@ export function startAgent(d: AgentDeps): void {
   })
   // A tab that closed takes its task with it.
   chrome.tabs.onRemoved.addListener((tab) => {
+    pagesSeen.drop(tab)
     void forget(tab)
     void chrome.storage.local.remove(PAST_KEY(tab))
   })

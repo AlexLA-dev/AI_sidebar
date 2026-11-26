@@ -3227,6 +3227,9 @@
  "agentSelfOther": {
   "message": "Fallo tu: «{0}»."
  },
+ "agentSelfNewTab": {
+  "message": "Tocca tu «{0}»: la pagina lo apre in una nuova scheda e solo il tuo tocco può farlo. Proseguo lì."
+ },
  "agentSelfFile": {
   "message": "Scegli tu il file."
  },
@@ -3479,6 +3482,12 @@
  "agentPermFill": {
   "message": "Compilare con «I miei dati»: {0}"
  },
+ "agentLineFilled": {
+  "message": "Compilato: {0}"
+ },
+ "agentLinePressed": {
+  "message": "Toccato: {0}"
+ },
  "agentPermConsent": {
   "message": "Spuntare l'accettazione dei termini di {0}"
  },
@@ -3501,7 +3510,7 @@
   "message": "Accedere al sito"
  },
  "agentPriceChanged": {
-  "message": "Il prezzo sulla pagina non è quello del piano ({0})."
+  "message": "Il prezzo qui è diverso da quello visto prima ({0}). Controllalo prima di continuare."
  },
  "agentMarkPaused": {
   "message": "In pausa"
@@ -3881,6 +3890,15 @@
  "tip_da5f7b74b1": {
   "message": "Andare a fondo"
  },
+ "tip_8f191972e8": {
+  "message": "Prenota per te, direttamente nella pagina"
+ },
+ "tip_363625547a": {
+  "message": "Devi prenotare un tavolo o un alloggio, o un appuntamento dal medico o dal parrucchiere? Sul sito di prenotazione apri il pannello, tocca + accanto al campo, scegli «Fai» e scrivi cosa ti serve: «un tavolo per due domani alle 19». ContextFlow sceglie l’orario, inserisce il tuo nome e i tuoi contatti da «I miei dati» e prenota. Puoi chiudere il pannello: una domanda o il risultato compare accanto a ✦. Pagare e accedere restano compito tuo, e «Interrompi» è sempre lì. Con Pro o Ultra."
+ },
+ "tip_232e049197": {
+  "message": "Devi prenotare un tavolo o un alloggio, o un appuntamento dal medico o dal parrucchiere? Sul sito di prenotazione apri il pannello, fai clic su + accanto al campo, scegli «Fai» e scrivi cosa ti serve: «un tavolo per due domani alle 19». ContextFlow sceglie l’orario, inserisce il tuo nome e i tuoi contatti da «I miei dati» e prenota. Puoi chiudere il pannello: una domanda o il risultato compare accanto a ✦. Pagare e accedere restano compito tuo, e «Interrompi» è sempre lì. Con Pro o Ultra."
+ },
  "tip_6ba198cbff": {
   "message": "Note tutte tue"
  },
@@ -4123,6 +4141,15 @@
  },
  "tip_6cc366173d": {
   "message": "Non ti serve ✦ su un sito? Nascondilo su quel sito o disattivalo ovunque nelle impostazioni dell’estensione. ContextFlow si apre comunque dal menu delle estensioni di Safari."
+ },
+ "tip_92470c1789": {
+  "message": "Le finestre dei cookie si chiudono da sole"
+ },
+ "tip_8534da4bd8": {
+  "message": "Ne hai abbastanza di toccare le finestre dei cookie una dopo l’altra? ContextFlow risponde per te con «solo necessari», e le prime volte te lo dice una breve riga accanto a ✦. Vuoi rivederle su un sito? Disattiva l’opzione per quel sito nelle impostazioni dell’estensione, in «Finestre dei cookie»."
+ },
+ "tip_fc1a61bcfa": {
+  "message": "Ne hai abbastanza di fare clic sulle finestre dei cookie una dopo l’altra? ContextFlow risponde per te con «solo necessari», e le prime volte te lo dice una breve riga accanto a ✦. Vuoi rivederle su un sito? Disattiva l’opzione per quel sito nelle impostazioni dell’estensione, in «Finestre dei cookie»."
  },
  "tip_cc54dd5946": {
   "message": "Suggerimenti accanto al pulsante ✦"

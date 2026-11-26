@@ -211,17 +211,15 @@ import { isNewTip } from "../src/content/tips/fresh.ts"
 
 test("F2: the cards of this version's features carry a quiet «New», in the app and the panel, gone with the next version", () => {
   const data = tipsData(fileURLToPath(new URL("..", import.meta.url))) as any
-  assert.equal(data.newIn, "2.7", "the version What's new is about (WhatsNew.version)")
+  assert.equal(data.newIn, "2.8", "the version What's new is about (WhatsNew.version)")
   const cards = data.groups.flatMap((g: any) => g.tips)
   const fresh = cards.filter((c: any) => isNewTip(c, data)).map((c: any) => c.title.en).sort()
-  assert.deepEqual(fresh, [
-    "A snapshot with your note", "Add to Calendar or Reminders", "Check or rewrite before you send", "Gather it in a collection", "Invite a friend",
-    "Mistakes underlined as you type", "Move ✦ out of the way", "Read a page in your language", "Spaces for work and home", "The chat for this page", "Tips by the ✦ button"
-  ])
+  // (2.8: the agent and cookie windows; 2.7's cards lost their «New» with this version.)
+  assert.deepEqual(fresh, ["Cookie windows close themselves", "It books for you, right on the page"])
   // Not the older cards, the lead, or a changed one (Find similar).
   assert.ok(!isNewTip(data.lead, data) && !isNewTip(cards.find((c: any) => c.title.en === "Find similar"), data))
   // The next version: its own cards only; no version named, nothing marked.
-  assert.equal(cards.filter((c: any) => isNewTip(c, { newIn: "2.8" })).length, 0)
+  assert.equal(cards.filter((c: any) => isNewTip(c, { newIn: "2.9" })).length, 0)
   assert.equal(cards.filter((c: any) => isNewTip(c, null)).length, 0)
   // The app marks by the same rule, on the card and on a folded block that holds one.
   const swift = read("ContextFlow/Shared (App)/ContentView.swift")

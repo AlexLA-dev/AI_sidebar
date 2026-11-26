@@ -69077,6 +69077,534 @@
           }
         }
       }
+    },
+    "It books for you, right on the page": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يحجز لك مباشرةً في الصفحة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es bucht für dich, direkt auf der Seite"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reserva por ti, en la misma página"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il réserve pour vous, directement sur la page"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prenota per te, direttamente nella pagina"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページ上でそのまま、代わりに予約します"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지에서 바로 대신 예약해 줘요"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ele reserva por você, direto na página"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Забронирует за вас прямо на странице"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sizin yerinize, sayfanın içinde rezervasyon yapar"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Забронює за вас просто на сторінці"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đặt chỗ giúp bạn, ngay trên trang"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "直接在网页上替你预订"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "直接在頁面上幫你預訂"
+          }
+        }
+      }
+    },
+    "Need a table or a stay booked, or a visit to a doctor or a stylist? On the booking site, open the panel, tap + by the field, choose Do and say what you need: “a table for two tomorrow at 7 pm”. ContextFlow picks the time, fills in your name and contacts from My details and books. You can close the panel: a question or the result shows up by ✦. Paying and signing in stay yours, and Stop is always there. With Pro or Ultra.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تحتاج إلى حجز طاولة أو مكان إقامة، أو موعد عند طبيب أو مصفف شعر؟ في موقع الحجز، افتح اللوحة، واضغط + بجانب الحقل، واختر «نفّذ» وقل ما تحتاج إليه: «طاولة لشخصين غدًا الساعة 7 مساءً». يختار ContextFlow الوقت، ويملأ اسمك وبيانات التواصل من «بياناتي» ثم يحجز. يمكنك إغلاق اللوحة: سيظهر السؤال أو النتيجة بجانب ✦. الدفع وتسجيل الدخول يبقيان لك، و«إيقاف» موجود دائمًا. مع Pro أو Ultra."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Musst du einen Tisch oder eine Unterkunft buchen oder einen Termin beim Arzt oder Friseur machen? Öffne auf der Buchungsseite das Panel, tippe auf + neben dem Feld, wähle „Erledigen“ und schreib, was du brauchst: „einen Tisch für zwei morgen um 19 Uhr“. ContextFlow wählt die Uhrzeit, trägt deinen Namen und deine Kontaktdaten aus „Meine Daten“ ein und bucht. Du kannst das Panel schließen: Eine Frage oder das Ergebnis erscheint bei ✦. Bezahlen und Anmelden übernimmst du selbst, und „Stopp“ ist immer da. Mit Pro oder Ultra."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Necesitas reservar una mesa o un alojamiento, o pedir cita con un médico o un estilista? En la web de reservas, abre el panel, toca + junto al campo, elige «Hacer» y di lo que necesitas: «mesa para dos mañana a las 19:00». ContextFlow elige la hora, rellena tu nombre y tus datos de contacto desde «Mis datos» y reserva. Puedes cerrar el panel: una pregunta o el resultado aparece junto a ✦. El pago y el inicio de sesión quedan en tus manos, y «Detener» siempre está a mano. Con Pro o Ultra."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Besoin de réserver une table ou un logement, ou de prendre rendez-vous chez le médecin ou le coiffeur ? Sur le site de réservation, ouvrez le panneau, touchez + à côté du champ, choisissez « Faire » et écrivez ce qu’il vous faut : « une table pour deux demain à 19 h ». ContextFlow choisit l’heure, remplit votre nom et vos coordonnées depuis « Mes infos » et réserve. Vous pouvez fermer le panneau : une question ou le résultat s’affiche près de ✦. Le paiement et la connexion restent entre vos mains, et « Arrêter » est toujours là. Avec Pro ou Ultra."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Devi prenotare un tavolo o un alloggio, o un appuntamento dal medico o dal parrucchiere? Sul sito di prenotazione apri il pannello, tocca + accanto al campo, scegli «Fai» e scrivi cosa ti serve: «un tavolo per due domani alle 19». ContextFlow sceglie l’orario, inserisce il tuo nome e i tuoi contatti da «I miei dati» e prenota. Puoi chiudere il pannello: una domanda o il risultato compare accanto a ✦. Pagare e accedere restano compito tuo, e «Interrompi» è sempre lì. Con Pro o Ultra."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "レストランの席や宿、病院や美容院の予約が必要ですか？予約サイトでパネルを開き、入力欄の横の＋をタップして「実行」を選び、してほしいことを書きます：「明日19時に2名で席を予約して」。ContextFlow が時間を選び、「自分の情報」から名前と連絡先を入力して予約します。パネルは閉じてもかまいません。質問や結果は ✦ の横に表示されます。支払いとサインインはご自身で行い、「停止」はいつでも押せます。Pro か Ultra で使えます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "식당이나 숙소, 병원이나 미용실 예약이 필요하세요? 예약 사이트에서 패널을 열고 입력란 옆의 +를 탭한 뒤 ‘실행’을 고르고, ‘내일 저녁 7시에 두 명 자리 예약해 줘’처럼 원하는 걸 적으세요. ContextFlow가 시간을 고르고 ‘내 정보’에서 이름과 연락처를 채워 예약해요. 패널은 닫아도 돼요. 질문이나 결과는 ✦ 옆에 나타나요. 결제와 로그인은 직접 하시고, ‘중지’는 언제든 누를 수 있어요. Pro나 Ultra에서 쓸 수 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Precisa reservar uma mesa ou uma hospedagem, ou marcar horário com um médico ou um cabeleireiro? No site de reservas, abra o painel, toque em + ao lado do campo, escolha “Fazer” e diga o que precisa: “mesa para dois amanhã às 19h”. O ContextFlow escolhe o horário, preenche seu nome e seus contatos a partir de “Meus dados” e faz a reserva. Você pode fechar o painel: uma pergunta ou o resultado aparece ao lado do ✦. Pagar e entrar na conta continuam com você, e “Parar” está sempre à mão. Com o Pro ou o Ultra."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нужно забронировать столик или жильё, записаться к врачу или мастеру? На сайте бронирования откройте панель, нажмите + у поля, выберите «Сделать» и напишите, что нужно: «столик на двоих завтра в 19:00». ContextFlow выберет время, подставит имя и контакты из «Моих данных» и забронирует. Панель можно закрыть: вопрос или итог появится у ✦. Оплата и вход остаются за вами, а «Стоп» всегда под рукой. С Pro или Ultra."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masa ya da konaklama ayırtmanız, doktordan ya da kuaförden randevu almanız mı gerekiyor? Rezervasyon sitesinde paneli açın, alanın yanındaki + düğmesine dokunun, “Yap” seçeneğini seçin ve ne istediğinizi yazın: “yarın saat 19.00'da iki kişilik masa”. ContextFlow saati seçer, adınızı ve iletişim bilgilerinizi “Bilgilerim” bölümünden doldurur ve rezervasyonu yapar. Paneli kapatabilirsiniz: bir soru ya da sonuç ✦ düğmesinin yanında görünür. Ödeme ve oturum açma sizde kalır, “Durdur” düğmesi ise her zaman elinizin altındadır. Pro veya Ultra ile."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Треба забронювати столик чи житло, записатися до лікаря чи майстра? На сайті бронювання відкрийте панель, натисніть + поруч із полем, виберіть «Зробити» й напишіть, що потрібно: «столик на двох завтра о 19:00». ContextFlow вибере час, підставить ім’я та контакти з розділу «Мої дані» й забронює. Панель можна закрити: запитання чи результат з’явиться біля ✦. Оплата й вхід лишаються за вами, а кнопка «Зупинити» завжди під рукою. З Pro або Ultra."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cần đặt bàn, đặt chỗ ở, hay hẹn lịch với bác sĩ hoặc thợ làm tóc? Trên trang đặt chỗ, mở bảng, chạm + cạnh ô nhập, chọn Làm và nói điều bạn cần: “bàn cho hai người lúc 19:00 ngày mai”. ContextFlow chọn giờ, điền tên và thông tin liên hệ của bạn từ Thông tin của tôi rồi đặt chỗ. Bạn có thể đóng bảng: câu hỏi hoặc kết quả sẽ hiện cạnh ✦. Thanh toán và đăng nhập vẫn do bạn tự làm, và Dừng luôn ở đó. Với Pro hoặc Ultra."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要订餐厅座位或住宿，或者预约医生、发型师？在预订网站上打开面板，轻点输入框旁的 +，选择“执行”，说出你要什么：“订明天晚上 7 点的两人桌”。ContextFlow 会选好时间，用“我的信息”填上你的姓名和联系方式，然后完成预订。面板可以关掉：有问题或结果时，会出现在 ✦ 旁边。付款和登录仍由你自己来，“停止”随时都在。需要 Pro 或 Ultra。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "想訂餐廳座位或住宿，或是預約看醫生、剪頭髮？在預訂網站上打開面板，點一下輸入欄旁的 +，選擇「執行」，說出你的需求：「訂明天晚上 7 點的兩人座位」。ContextFlow 會挑好時間，從「我的資料」填入你的姓名和聯絡方式，然後完成預訂。面板可以關掉：有問題或結果時，會出現在 ✦ 旁邊。付款和登入仍由你自己來，「停止」隨時都在。需搭配 Pro 或 Ultra。"
+          }
+        }
+      }
+    },
+    "Need a table or a stay booked, or a visit to a doctor or a stylist? On the booking site, open the panel, click + by the field, choose Do and say what you need: “a table for two tomorrow at 7 pm”. ContextFlow picks the time, fills in your name and contacts from My details and books. You can close the panel: a question or the result shows up by ✦. Paying and signing in stay yours, and Stop is always there. With Pro or Ultra.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تحتاج إلى حجز طاولة أو مكان إقامة، أو موعد عند طبيب أو مصفف شعر؟ في موقع الحجز، افتح اللوحة، وانقر + بجانب الحقل، واختر «نفّذ» وقل ما تحتاج إليه: «طاولة لشخصين غدًا الساعة 7 مساءً». يختار ContextFlow الوقت، ويملأ اسمك وبيانات التواصل من «بياناتي» ثم يحجز. يمكنك إغلاق اللوحة: سيظهر السؤال أو النتيجة بجانب ✦. الدفع وتسجيل الدخول يبقيان لك، و«إيقاف» موجود دائمًا. مع Pro أو Ultra."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Musst du einen Tisch oder eine Unterkunft buchen oder einen Termin beim Arzt oder Friseur machen? Öffne auf der Buchungsseite das Panel, klick auf + neben dem Feld, wähle „Erledigen“ und schreib, was du brauchst: „einen Tisch für zwei morgen um 19 Uhr“. ContextFlow wählt die Uhrzeit, trägt deinen Namen und deine Kontaktdaten aus „Meine Daten“ ein und bucht. Du kannst das Panel schließen: Eine Frage oder das Ergebnis erscheint bei ✦. Bezahlen und Anmelden übernimmst du selbst, und „Stopp“ ist immer da. Mit Pro oder Ultra."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Necesitas reservar una mesa o un alojamiento, o pedir cita con un médico o un estilista? En la web de reservas, abre el panel, haz clic en + junto al campo, elige «Hacer» y di lo que necesitas: «mesa para dos mañana a las 19:00». ContextFlow elige la hora, rellena tu nombre y tus datos de contacto desde «Mis datos» y reserva. Puedes cerrar el panel: una pregunta o el resultado aparece junto a ✦. El pago y el inicio de sesión quedan en tus manos, y «Detener» siempre está a mano. Con Pro o Ultra."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Besoin de réserver une table ou un logement, ou de prendre rendez-vous chez le médecin ou le coiffeur ? Sur le site de réservation, ouvrez le panneau, cliquez sur + à côté du champ, choisissez « Faire » et écrivez ce qu’il vous faut : « une table pour deux demain à 19 h ». ContextFlow choisit l’heure, remplit votre nom et vos coordonnées depuis « Mes infos » et réserve. Vous pouvez fermer le panneau : une question ou le résultat s’affiche près de ✦. Le paiement et la connexion restent entre vos mains, et « Arrêter » est toujours là. Avec Pro ou Ultra."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Devi prenotare un tavolo o un alloggio, o un appuntamento dal medico o dal parrucchiere? Sul sito di prenotazione apri il pannello, fai clic su + accanto al campo, scegli «Fai» e scrivi cosa ti serve: «un tavolo per due domani alle 19». ContextFlow sceglie l’orario, inserisce il tuo nome e i tuoi contatti da «I miei dati» e prenota. Puoi chiudere il pannello: una domanda o il risultato compare accanto a ✦. Pagare e accedere restano compito tuo, e «Interrompi» è sempre lì. Con Pro o Ultra."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "レストランの席や宿、病院や美容院の予約が必要ですか？予約サイトでパネルを開き、入力欄の横の＋をクリックして「実行」を選び、してほしいことを書きます：「明日19時に2名で席を予約して」。ContextFlow が時間を選び、「自分の情報」から名前と連絡先を入力して予約します。パネルは閉じてもかまいません。質問や結果は ✦ の横に表示されます。支払いとサインインはご自身で行い、「停止」はいつでも押せます。Pro か Ultra で使えます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "식당이나 숙소, 병원이나 미용실 예약이 필요하세요? 예약 사이트에서 패널을 열고 입력란 옆의 +를 클릭한 뒤 ‘실행’을 고르고, ‘내일 저녁 7시에 두 명 자리 예약해 줘’처럼 원하는 걸 적으세요. ContextFlow가 시간을 고르고 ‘내 정보’에서 이름과 연락처를 채워 예약해요. 패널은 닫아도 돼요. 질문이나 결과는 ✦ 옆에 나타나요. 결제와 로그인은 직접 하시고, ‘중지’는 언제든 누를 수 있어요. Pro나 Ultra에서 쓸 수 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Precisa reservar uma mesa ou uma hospedagem, ou marcar horário com um médico ou um cabeleireiro? No site de reservas, abra o painel, clique em + ao lado do campo, escolha “Fazer” e diga o que precisa: “mesa para dois amanhã às 19h”. O ContextFlow escolhe o horário, preenche seu nome e seus contatos a partir de “Meus dados” e faz a reserva. Você pode fechar o painel: uma pergunta ou o resultado aparece ao lado do ✦. Pagar e entrar na conta continuam com você, e “Parar” está sempre à mão. Com o Pro ou o Ultra."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нужно забронировать столик или жильё, записаться к врачу или мастеру? На сайте бронирования откройте панель, щёлкните + у поля, выберите «Сделать» и напишите, что нужно: «столик на двоих завтра в 19:00». ContextFlow выберет время, подставит имя и контакты из «Моих данных» и забронирует. Панель можно закрыть: вопрос или итог появится у ✦. Оплата и вход остаются за вами, а «Стоп» всегда под рукой. С Pro или Ultra."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masa ya da konaklama ayırtmanız, doktordan ya da kuaförden randevu almanız mı gerekiyor? Rezervasyon sitesinde paneli açın, alanın yanındaki + düğmesine tıklayın, “Yap” seçeneğini seçin ve ne istediğinizi yazın: “yarın saat 19.00'da iki kişilik masa”. ContextFlow saati seçer, adınızı ve iletişim bilgilerinizi “Bilgilerim” bölümünden doldurur ve rezervasyonu yapar. Paneli kapatabilirsiniz: bir soru ya da sonuç ✦ düğmesinin yanında görünür. Ödeme ve oturum açma sizde kalır, “Durdur” düğmesi ise her zaman elinizin altındadır. Pro veya Ultra ile."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Треба забронювати столик чи житло, записатися до лікаря чи майстра? На сайті бронювання відкрийте панель, клацніть + поруч із полем, виберіть «Зробити» й напишіть, що потрібно: «столик на двох завтра о 19:00». ContextFlow вибере час, підставить ім’я та контакти з розділу «Мої дані» й забронює. Панель можна закрити: запитання чи результат з’явиться біля ✦. Оплата й вхід лишаються за вами, а кнопка «Зупинити» завжди під рукою. З Pro або Ultra."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cần đặt bàn, đặt chỗ ở, hay hẹn lịch với bác sĩ hoặc thợ làm tóc? Trên trang đặt chỗ, mở bảng, bấm + cạnh ô nhập, chọn Làm và nói điều bạn cần: “bàn cho hai người lúc 19:00 ngày mai”. ContextFlow chọn giờ, điền tên và thông tin liên hệ của bạn từ Thông tin của tôi rồi đặt chỗ. Bạn có thể đóng bảng: câu hỏi hoặc kết quả sẽ hiện cạnh ✦. Thanh toán và đăng nhập vẫn do bạn tự làm, và Dừng luôn ở đó. Với Pro hoặc Ultra."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要订餐厅座位或住宿，或者预约医生、发型师？在预订网站上打开面板，点按输入框旁的 +，选择“执行”，说出你要什么：“订明天晚上 7 点的两人桌”。ContextFlow 会选好时间，用“我的信息”填上你的姓名和联系方式，然后完成预订。面板可以关掉：有问题或结果时，会出现在 ✦ 旁边。付款和登录仍由你自己来，“停止”随时都在。需要 Pro 或 Ultra。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "想訂餐廳座位或住宿，或是預約看醫生、剪頭髮？在預訂網站上打開面板，按一下輸入欄旁的 +，選擇「執行」，說出你的需求：「訂明天晚上 7 點的兩人座位」。ContextFlow 會挑好時間，從「我的資料」填入你的姓名和聯絡方式，然後完成預訂。面板可以關掉：有問題或結果時，會出現在 ✦ 旁邊。付款和登入仍由你自己來，「停止」隨時都在。需搭配 Pro 或 Ultra。"
+          }
+        }
+      }
+    },
+    "Cookie windows close themselves": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نوافذ ملفات تعريف الارتباط تُغلق وحدها"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cookie-Fenster schließen sich von selbst"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las ventanas de cookies se cierran solas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les fenêtres de cookies se ferment toutes seules"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le finestre dei cookie si chiudono da sole"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cookieの確認画面が自動で閉じます"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "쿠키 창이 알아서 닫혀요"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As janelas de cookies se fecham sozinhas"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Окна cookie закрываются сами"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Çerez pencereleri kendiliğinden kapanır"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вікна cookie закриваються самі"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cửa sổ cookie tự đóng"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cookie 窗口自动关闭"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cookie 視窗會自動關閉"
+          }
+        }
+      }
+    },
+    "Tired of tapping through cookie windows? ContextFlow answers them for you with “only necessary”, and the first few times a short line by ✦ says so. Want them back on a site? Turn it off for that site in the extension settings, under Cookie windows.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سئمت الضغط على نوافذ ملفات تعريف الارتباط؟ يرد ContextFlow عليها نيابةً عنك بـ«الضرورية فقط»، وفي المرات القليلة الأولى يخبرك بذلك سطر قصير بجانب ✦. تريد أن تظهر من جديد في موقع ما؟ أوقف ذلك لهذا الموقع من إعدادات الامتداد، ضمن «نوافذ ملفات تعريف الارتباط»."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Lust mehr, dich durch Cookie-Fenster zu tippen? ContextFlow beantwortet sie für dich mit „Nur notwendige“, und die ersten paar Male sagt dir eine kurze Zeile bei ✦ Bescheid. Willst du sie auf einer Website wieder sehen? Schalte das für diese Website in den Erweiterungseinstellungen unter „Cookie-Fenster“ aus."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Te cansa ir tocando ventanas de cookies? ContextFlow las responde por ti con «solo necesarias», y las primeras veces te lo dice una línea corta junto a ✦. ¿Quieres volver a verlas en un sitio? Desactívalo para ese sitio en los ajustes de la extensión, en «Ventanas de cookies»."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous en avez assez de toucher les fenêtres de cookies une à une ? ContextFlow y répond pour vous avec « uniquement nécessaires », et les premières fois, une courte ligne près de ✦ vous le signale. Vous voulez les revoir sur un site ? Désactivez cette fonction pour ce site dans les réglages de l’extension, sous « Fenêtres de cookies »."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne hai abbastanza di toccare le finestre dei cookie una dopo l’altra? ContextFlow risponde per te con «solo necessari», e le prime volte te lo dice una breve riga accanto a ✦. Vuoi rivederle su un sito? Disattiva l’opzione per quel sito nelle impostazioni dell’estensione, in «Finestre dei cookie»."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cookieの確認画面を毎回タップして閉じるのが面倒ですか？ContextFlow が代わりに「必須のみ」で答え、最初の数回は ✦ の横に短い一行でお知らせします。あるサイトでは表示させたいときは、拡張機能の設定の「Cookieの確認画面」で、そのサイトだけオフにします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "쿠키 창을 일일이 탭해서 닫기 지겨우세요? ContextFlow가 ‘필수만’으로 대신 답하고, 처음 몇 번은 ✦ 옆에 짧은 한 줄로 알려 줘요. 어떤 사이트에서는 다시 보고 싶다면 확장 프로그램 설정의 ‘쿠키 창’에서 그 사이트만 끄세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cansou de tocar em janela de cookies? O ContextFlow responde por você com “somente necessários”, e nas primeiras vezes uma linha curta ao lado do ✦ avisa. Quer vê-las de volta em um site? Desative para esse site nos ajustes da extensão, em “Janelas de cookies”."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Надоело закрывать окна cookie? ContextFlow отвечает на них сам — «только необходимые», а первые несколько раз об этом скажет короткая строка у ✦. Хотите видеть их на каком-то сайте — выключите для него в настройках расширения, в разделе «Окна cookie»."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Çerez pencerelerine dokunup durmaktan bıktınız mı? ContextFlow bunları sizin yerinize “yalnızca gerekli” ile yanıtlar; ilk birkaç seferde ✦ düğmesinin yanındaki kısa bir satır bunu söyler. Bir sitede yeniden görmek mi istiyorsunuz? Uzantı ayarlarındaki “Çerez pencereleri” bölümünden o site için kapatın."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Набридло щоразу натискати у вікнах cookie? ContextFlow відповідає на них сам — «лише необхідні», а перші кілька разів про це скаже короткий рядок біля ✦. Хочете бачити їх на якомусь сайті? Вимкніть це для нього в налаштуваннях розширення, у розділі «Вікна cookie»."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mệt vì phải chạm qua từng cửa sổ cookie? ContextFlow trả lời thay bạn bằng “chỉ cần thiết”, và vài lần đầu sẽ có một dòng ngắn cạnh ✦ báo cho bạn biết. Muốn chúng hiện lại trên một trang web? Tắt cho trang đó trong phần cài đặt tiện ích mở rộng, ở mục Cửa sổ cookie."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "厌倦了一个个轻点关闭 Cookie 窗口？ContextFlow 会替你选择“仅必要”，前几次 ✦ 旁会有一行简短提示。想在某个网站继续看到它们？在扩展设置的“Cookie 窗口”中，为该网站关闭这项功能。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "受夠了一直點掉 Cookie 視窗？ContextFlow 會幫你選擇「僅必要」，前幾次 ✦ 旁會有一行簡短說明。想在某個網站繼續看到它們？在延伸功能設定的「Cookie 視窗」中，為該網站關閉這項功能。"
+          }
+        }
+      }
+    },
+    "Tired of clicking through cookie windows? ContextFlow answers them for you with “only necessary”, and the first few times a short line by ✦ says so. Want them back on a site? Turn it off for that site in the extension settings, under Cookie windows.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سئمت النقر على نوافذ ملفات تعريف الارتباط؟ يرد ContextFlow عليها نيابةً عنك بـ«الضرورية فقط»، وفي المرات القليلة الأولى يخبرك بذلك سطر قصير بجانب ✦. تريد أن تظهر من جديد في موقع ما؟ أوقف ذلك لهذا الموقع من إعدادات الامتداد، ضمن «نوافذ ملفات تعريف الارتباط»."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Lust mehr, dich durch Cookie-Fenster zu klicken? ContextFlow beantwortet sie für dich mit „Nur notwendige“, und die ersten paar Male sagt dir eine kurze Zeile bei ✦ Bescheid. Willst du sie auf einer Website wieder sehen? Schalte das für diese Website in den Erweiterungseinstellungen unter „Cookie-Fenster“ aus."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Te cansa ir haciendo clic en ventanas de cookies? ContextFlow las responde por ti con «solo necesarias», y las primeras veces te lo dice una línea corta junto a ✦. ¿Quieres volver a verlas en un sitio? Desactívalo para ese sitio en los ajustes de la extensión, en «Ventanas de cookies»."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous en avez assez de cliquer dans les fenêtres de cookies une à une ? ContextFlow y répond pour vous avec « uniquement nécessaires », et les premières fois, une courte ligne près de ✦ vous le signale. Vous voulez les revoir sur un site ? Désactivez cette fonction pour ce site dans les réglages de l’extension, sous « Fenêtres de cookies »."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne hai abbastanza di fare clic sulle finestre dei cookie una dopo l’altra? ContextFlow risponde per te con «solo necessari», e le prime volte te lo dice una breve riga accanto a ✦. Vuoi rivederle su un sito? Disattiva l’opzione per quel sito nelle impostazioni dell’estensione, in «Finestre dei cookie»."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cookieの確認画面を毎回クリックして閉じるのが面倒ですか？ContextFlow が代わりに「必須のみ」で答え、最初の数回は ✦ の横に短い一行でお知らせします。あるサイトでは表示させたいときは、拡張機能の設定の「Cookieの確認画面」で、そのサイトだけオフにします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "쿠키 창을 일일이 클릭해서 닫기 지겨우세요? ContextFlow가 ‘필수만’으로 대신 답하고, 처음 몇 번은 ✦ 옆에 짧은 한 줄로 알려 줘요. 어떤 사이트에서는 다시 보고 싶다면 확장 프로그램 설정의 ‘쿠키 창’에서 그 사이트만 끄세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cansou de clicar em janela de cookies? O ContextFlow responde por você com “somente necessários”, e nas primeiras vezes uma linha curta ao lado do ✦ avisa. Quer vê-las de volta em um site? Desative para esse site nos ajustes da extensão, em “Janelas de cookies”."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Надоело закрывать окна cookie? ContextFlow отвечает на них сам — «только необходимые», а первые несколько раз об этом скажет короткая строка у ✦. Хотите видеть их на каком-то сайте — выключите для него в настройках расширения, в разделе «Окна cookie»."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Çerez pencerelerine tıklayıp durmaktan bıktınız mı? ContextFlow bunları sizin yerinize “yalnızca gerekli” ile yanıtlar; ilk birkaç seferde ✦ düğmesinin yanındaki kısa bir satır bunu söyler. Bir sitede yeniden görmek mi istiyorsunuz? Uzantı ayarlarındaki “Çerez pencereleri” bölümünden o site için kapatın."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Набридло щоразу клацати у вікнах cookie? ContextFlow відповідає на них сам — «лише необхідні», а перші кілька разів про це скаже короткий рядок біля ✦. Хочете бачити їх на якомусь сайті? Вимкніть це для нього в налаштуваннях розширення, у розділі «Вікна cookie»."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mệt vì phải bấm qua từng cửa sổ cookie? ContextFlow trả lời thay bạn bằng “chỉ cần thiết”, và vài lần đầu sẽ có một dòng ngắn cạnh ✦ báo cho bạn biết. Muốn chúng hiện lại trên một trang web? Tắt cho trang đó trong phần cài đặt tiện ích mở rộng, ở mục Cửa sổ cookie."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "厌倦了一个个点按关闭 Cookie 窗口？ContextFlow 会替你选择“仅必要”，前几次 ✦ 旁会有一行简短提示。想在某个网站继续看到它们？在扩展设置的“Cookie 窗口”中，为该网站关闭这项功能。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "受夠了一直按掉 Cookie 視窗？ContextFlow 會幫你選擇「僅必要」，前幾次 ✦ 旁會有一行簡短說明。想在某個網站繼續看到它們？在延伸功能設定的「Cookie 視窗」中，為該網站關閉這項功能。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

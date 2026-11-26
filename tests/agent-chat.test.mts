@@ -101,7 +101,10 @@ test("the chat can't close its quote, and an injection planted in an earlier ans
   const FORM: PageMap = { ...FORK, items: [...FORK.items, { id: "9", role: "textbox", label: "Email", type: "email", lock: "personal" }] }
   x.map = async () => FORM
   const after = await approvePlan(planned, x, { answers: [], off: [] })
-  assert.equal(after.status, "confirm", "typing the chat's e-mail asks «Сделать?»")
+  // (127: a contact field takes only what the person said, answered or saved — the chat's e-mail is refused outright.)
+  assert.ok(!x.acted.some((c) => c.text === "test@evil.example"), "the chat's e-mail is never typed")
+  assert.match(x.asked.at(-1)!.log.at(-1).result, /refused: «test@evil\.example» isn't in the person's words/)
+  assert.notEqual(after.status, "confirm")
   assert.ok(x.asked.slice(1).every((b) => !("chat" in b.task)), "steps never carry the chat")
 })
 

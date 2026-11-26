@@ -5,6 +5,8 @@
 // model hears them as a line and the plan doesn't ask what they decide. A rule never widens what's allowed: paying,
 // cards, codes, signing in, messages and Amazon stay the person's whatever the rules say (classify.ts decides those).
 
+import type { PageMap } from "./types.ts"
+
 export interface AgentRules {
   // A requested time may move this many minutes either way.
   window: number
@@ -163,7 +165,50 @@ export function timesIn(text: string): string[] {
   return out
 }
 
+/**
+ * The page's free times nearer to the asked one than the chosen one, inside the window, nearest first (127: «19:10» booked
+ * at 19:30 with 19:00 free). A tie isn't nearer: either is the nearest.
+ */
+export function nearerTimes(at: string, chosen: string, free: string[], from?: string, until?: string): string[] {
+  const min = (t: string) => {
+    const m = /^(\d{1,2}):(\d{2})$/.exec(t)
+    return m ? Number(m[1]) * 60 + Number(m[2]) : NaN
+  }
+  const d = (t: string) => Math.abs(min(t) - min(at))
+  if (Number.isNaN(d(chosen))) return []
+  return [...new Set(free)].filter((t) => !Number.isNaN(d(t)) && (!from || !until || (t >= from && t <= until)) && d(t) < d(chosen)).sort((a, b) => d(a) - d(b))
+}
+
 /** The question's choices that name times the page doesn't show (taken from the Calendar alone) are dropped. */
 export function pageChoices(choices: string[], pageTimes: Set<string>): string[] {
   return choices.filter((c) => timesIn(c).every((t) => pageTimes.has(t)))
+}
+
+const PRICE = /(?:[€$£¥₽₺₹]\s?\d[\d.,\s]*\d|[€$£¥₽₺₹]\s?\d|\d[\d.,\s]*\s?(?:€|EUR|USD|GBP|₽|руб\.?|TL|₺))/giu
+const squashPrice = (s: string) => s.replace(/\s+/g, "").toLowerCase()
+
+/**
+ * A question's choices as they may be offered (128): none naming a place whose tap did nothing («Try Harbour View Suites
+ * again» right after it didn't open), and a price in a choice only when the page shows that very price for that item
+ * (its card, else the page) — «Olive Grove Apartments ($74 per night)» where the page said €120 loses the price.
+ */
+export function honestChoices(choices: string[], map: PageMap, dead: string[] = []): string[] {
+  const deadOnes = dead.map((d) => d.toLocaleLowerCase()).filter((d) => d.length >= 4)
+  return choices
+    .filter((c) => !deadOnes.some((d) => c.toLocaleLowerCase().includes(d)))
+    .map((c) => {
+      const prices = c.match(PRICE) ?? []
+      if (!prices.length) return c
+      const cards = map.items.filter((i) => i.label.length >= 3 && c.toLocaleLowerCase().includes(i.label.toLocaleLowerCase()) && !!i.card).map((i) => `${i.label} ${i.card}`)
+      const where = squashPrice(cards.length ? cards.join(" ") : map.text)
+      let out = c
+      for (const p of prices) {
+        if (where.includes(squashPrice(p))) continue
+        // The bracket or the « · » piece it sits in goes with it; else the price alone.
+        const piece = new RegExp(`\\s*\\([^()]*${p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}[^()]*\\)|\\s*[·—–-]\\s*[^·—–-]*${p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}[^·—–-]*`, "u")
+        out = piece.test(out) ? out.replace(piece, "") : out.replace(p, "")
+      }
+      return out.replace(/\s{2,}/g, " ").trim()
+    })
+    .filter(Boolean)
 }

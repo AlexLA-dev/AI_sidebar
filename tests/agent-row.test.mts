@@ -30,7 +30,7 @@ test("«Позже» is a choice in the plan card; the row has no clock", () => 
 
 test("out of Safari mid-task: the paused notification only once steps stop, done or needs-you at once, gone on return", () => {
   const bg = read("src/background/agent.ts")
-  assert.match(bg, /if \(state\.status === "running"\) \{\s*await callNative\("agent_schedule", \{ \.\.\.base, at: Date\.now\(\) \+ PAUSE_AFTER_MS/)
+  assert.match(bg, /if \(state\.status === "running"\) \{\s*const sent = callNative\("agent_schedule", \{ \.\.\.base, at: Date\.now\(\) \+ PAUSE_AFTER_MS/)
   assert.match(bg, /await callNative\("agent_notify", \{ \.\.\.base, body \}/)
   assert.match(bg, /if \(!words \|\| Date\.now\(\) - switchedAt < 1500\) return/)
   // The notification's tap: the task's own tab to the front, the page it opened goes.
@@ -66,8 +66,9 @@ test("117 blocker: «Начать» is never silent; agent messages are tried ag
   assert.match(bg, /const stale = now\.status === "plan" \|\| \(now\.status === "running" && !now\.inflight && still > STALE_RUN_MS\)/)
   // A page that opens visible says so (no false «Дело на паузе» while the person is in Safari).
   assert.match(app, /if \(document\.visibilityState === "visible"\) onVis\(\)/)
-  // The extension's version is the app's (events said 2.5.0 from a 2.7.1 build).
-  assert.equal(JSON.parse(read("package.json")).version, "2.7.1")
+  // The extension's version is the app's (events said 2.5.0 from a 2.7.1 build); the release ships as 2.8 (the owner).
+  assert.equal(JSON.parse(read("package.json")).version, "2.8")
+  assert.equal(JSON.parse(read("ContextFlow/Shared (Extension)/Resources/manifest.json")).version, "2.8")
 })
 
 test("117: Do is the send button's own state (no chip); after a task ends the field asks again; no halo on send", () => {

@@ -3227,6 +3227,9 @@
  "agentSelfOther": {
   "message": "Mach das bitte selbst: „{0}“."
  },
+ "agentSelfNewTab": {
+  "message": "Tippe bitte selbst auf „{0}“: Die Seite öffnet das in einem neuen Tab, und das geht nur mit deinem eigenen Tippen. Ich mache dort weiter."
+ },
  "agentSelfFile": {
   "message": "Wähl die Datei bitte selbst aus."
  },
@@ -3479,6 +3482,12 @@
  "agentPermFill": {
   "message": "Aus „Meine Daten“ ausfüllen: {0}"
  },
+ "agentLineFilled": {
+  "message": "Ausgefüllt: {0}"
+ },
+ "agentLinePressed": {
+  "message": "Getippt: {0}"
+ },
  "agentPermConsent": {
   "message": "Zustimmung zu den Bedingungen von {0} ankreuzen"
  },
@@ -3501,7 +3510,7 @@
   "message": "Bei der Website anmelden"
  },
  "agentPriceChanged": {
-  "message": "Der Preis auf der Seite ist nicht mehr der aus dem Plan ({0})."
+  "message": "Der Preis hier ist ein anderer als vorhin ({0}). Prüf ihn, bevor es weitergeht."
  },
  "agentMarkPaused": {
   "message": "Pausiert"
@@ -3881,6 +3890,15 @@
  "tip_da5f7b74b1": {
   "message": "Tiefer einsteigen"
  },
+ "tip_8f191972e8": {
+  "message": "Es bucht für dich, direkt auf der Seite"
+ },
+ "tip_363625547a": {
+  "message": "Musst du einen Tisch oder eine Unterkunft buchen oder einen Termin beim Arzt oder Friseur machen? Öffne auf der Buchungsseite das Panel, tippe auf + neben dem Feld, wähle „Erledigen“ und schreib, was du brauchst: „einen Tisch für zwei morgen um 19 Uhr“. ContextFlow wählt die Uhrzeit, trägt deinen Namen und deine Kontaktdaten aus „Meine Daten“ ein und bucht. Du kannst das Panel schließen: Eine Frage oder das Ergebnis erscheint bei ✦. Bezahlen und Anmelden übernimmst du selbst, und „Stopp“ ist immer da. Mit Pro oder Ultra."
+ },
+ "tip_232e049197": {
+  "message": "Musst du einen Tisch oder eine Unterkunft buchen oder einen Termin beim Arzt oder Friseur machen? Öffne auf der Buchungsseite das Panel, klick auf + neben dem Feld, wähle „Erledigen“ und schreib, was du brauchst: „einen Tisch für zwei morgen um 19 Uhr“. ContextFlow wählt die Uhrzeit, trägt deinen Namen und deine Kontaktdaten aus „Meine Daten“ ein und bucht. Du kannst das Panel schließen: Eine Frage oder das Ergebnis erscheint bei ✦. Bezahlen und Anmelden übernimmst du selbst, und „Stopp“ ist immer da. Mit Pro oder Ultra."
+ },
  "tip_6ba198cbff": {
   "message": "Eigene Notizen"
  },
@@ -4123,6 +4141,15 @@
  },
  "tip_6cc366173d": {
   "message": "Brauchst du ✦ auf einer Website nicht? Blende die Taste dort aus oder schalte sie in den Erweiterungseinstellungen überall ab. ContextFlow öffnet sich weiterhin über das Erweiterungsmenü von Safari."
+ },
+ "tip_92470c1789": {
+  "message": "Cookie-Fenster schließen sich von selbst"
+ },
+ "tip_8534da4bd8": {
+  "message": "Keine Lust mehr, dich durch Cookie-Fenster zu tippen? ContextFlow beantwortet sie für dich mit „Nur notwendige“, und die ersten paar Male sagt dir eine kurze Zeile bei ✦ Bescheid. Willst du sie auf einer Website wieder sehen? Schalte das für diese Website in den Erweiterungseinstellungen unter „Cookie-Fenster“ aus."
+ },
+ "tip_fc1a61bcfa": {
+  "message": "Keine Lust mehr, dich durch Cookie-Fenster zu klicken? ContextFlow beantwortet sie für dich mit „Nur notwendige“, und die ersten paar Male sagt dir eine kurze Zeile bei ✦ Bescheid. Willst du sie auf einer Website wieder sehen? Schalte das für diese Website in den Erweiterungseinstellungen unter „Cookie-Fenster“ aus."
  },
  "tip_cc54dd5946": {
   "message": "Tipps an der ✦-Taste"
