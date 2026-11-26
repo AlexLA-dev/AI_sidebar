@@ -131,4 +131,8 @@ test("P2: the background asks the pages before calling Safari away; a ping (only
   const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
   assert.match(app, /type: "agentPing", doc: PAGE_DOC/)
   assert.match(app, /type: "agentSeen", visible, doc: PAGE_DOC/)
+  // A note begun before Safari came back isn't sent after the cancel (the iPad: schedule landed 44 ms after it, stayed 21 s).
+  assert.match(bg, /const gen = awayGen\n\s+const tabUrl = await[^\n]+\n(\s*\/\/[^\n]*\n)*\s+if \(!away \|\| gen !== awayGen\) return/)
+  assert.match(bg, /away = null\n\s+awayGen\+\+/)
+  assert.match(bg, /away = \{ words \}\n\s+awayGen\+\+/)
 })

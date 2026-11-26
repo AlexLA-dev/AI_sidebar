@@ -188,6 +188,8 @@ async function save(tab: number, state: AgentState): Promise<void> {
 const PAUSE_AFTER_MS = 30_000
 type AwayWords = { paused: string; done: string; needs: string; title: string; signIn?: string; pay?: string; answer?: string }
 let away: { words: AwayWords } | null = null
+// Counts each change of `away`: a note begun before Safari came back isn't sent after.
+let awayGen = 0
 // A tab switch hides one page and shows another: not leaving Safari.
 let switchedAt = 0
 // Each page of ours, visible or hidden (away only while none is visible).
@@ -199,7 +201,11 @@ function runId(state: AgentState): string {
 
 async function awayNote(tab: number, state: AgentState): Promise<void> {
   if (TARGET !== "safari" || !away) return
+  const gen = awayGen
   const tabUrl = await new Promise<string>((resolve) => chrome.tabs.get(tab, (t) => resolve(chrome.runtime.lastError ? state.url : t?.url ?? state.url)))
+  // Back in Safari while the tab was read (the iPad, 24f43d1b: a page's «hidden» set this going, its next page's «visible»
+  // cancelled first, and the schedule landed after the cancel and stayed): nothing is set.
+  if (!away || gen !== awayGen) return
   const base = { id: runId(state), url: tabUrl, title: away.words.title }
   // On a lock screen: the plan's name for the task and the site, never the request (it holds phones, e-mails, names).
   const what = noticeLabel(state.plan, hostOf(tabUrl))
@@ -244,6 +250,7 @@ function needWord(state: AgentState, w: AwayWords): string {
 async function back(): Promise<void> {
   if (!away) return
   away = null
+  awayGen++
   for (const [tab, state] of await activeTasks()) {
     void tab
     if (TARGET === "safari") void callNative("agent_cancel", { id: runId(state) }, 4_000)
@@ -263,6 +270,7 @@ async function seen(visible: boolean, words?: AwayWords, from?: number, doc?: st
   const fronts = await new Promise<chrome.tabs.Tab[]>((resolve) => chrome.tabs.query({ active: true }, (t) => resolve(chrome.runtime.lastError ? [] : t ?? [])))
   if (pagesSeen.anyVisible(new Set(fronts.flatMap((t) => (t.id === undefined ? [] : [t.id]))))) return
   away = { words }
+  awayGen++
   for (const [tab, state] of await activeTasks()) if (state.status === "running") void awayNote(tab, state)
 }
 
