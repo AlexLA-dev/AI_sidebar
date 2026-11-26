@@ -13,6 +13,7 @@ import { wordTest } from "./match.ts"
 import { BOOKING_WORDS, CANCEL_TERMS_WORDS, NEXT_FREE_WORDS } from "./words.ts"
 export { dayItems, isDateLabel }
 import { classify } from "./classify.ts"
+import { countRefusal } from "./counts.ts"
 import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, withNameParts, type FormEntry } from "./formdata.ts"
 import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
 import { pageSubject, subjectLine, titleName } from "./subject.ts"
@@ -152,6 +153,8 @@ export interface AgentState {
   // The map's part the model asked for (read_page), read at the next step only.
   readPart?: number
   slotRefusals?: number
+  // The person's standing rule for how many people (guests, tickets, seats) when the request doesn't say.
+  ruleParty?: number
   // Date presses without progress (a time to choose), the last date pressed, and whether a fully greyed strip was
   // tapped once to wake it.
   dateSteps?: number
@@ -484,6 +487,42 @@ export function placeInReply(text: string, state: Pick<AgentState, "venues">, ma
 // (Words in so many places' names that sharing them says nothing.)
 const COMMON = new Set(["hotel", "hotels", "apartment", "apartments", "house", "restaurant", "with", "from", "instead", "book", "this", "that", "there"])
 
+/** A place's distinctive words (not «hotel», «restaurant»…). */
+function placeWords(name: string): string[] {
+  return [...new Set(fold2(placeName(name)).match(/[\p{L}\p{N}]{3,}/gu) ?? [])].filter((w) => !COMMON.has(w) && !/^\d+$/.test(w))
+}
+
+/** Whether a place's name is the chosen one: every distinctive word of the chosen name is in it. */
+function samePlace(chosen: string, name: string): boolean {
+  const want = placeWords(chosen)
+  const have = new Set(placeWords(name))
+  return want.length > 0 && want.every((w) => have.has(w))
+}
+
+/**
+ * A press on a list of places that belongs to another place than the chosen one: why it's refused, or null. The place a
+ * control belongs to is its own link's, or the place whose link heads it on the list (the nearest place link before it,
+ * within its card's reach). Only on a page that lists the chosen place too (its own link is named in the refusal), and
+ * never on the chosen place's own page (a «similar places» card there is not the place).
+ */
+export function otherPlace(state: Pick<AgentState, "plan">, map: PageMap, item: MapItem): string | null {
+  const chosen = state.plan?.booking?.venue
+  if (!chosen) return null
+  const at = map.items.indexOf(item)
+  if (at < 0) return null
+  const places = map.items.map((i) => ({ i, v: venueOf(i, map.url) })).filter((x) => !!x.v) as Array<{ i: MapItem; v: Venue }>
+  if (places.length < 2) return null
+  const right = places.find((x) => samePlace(chosen, x.v.name))
+  if (!right || onVenue(map.url, right.v)) return null
+  let own = venueOf(item, map.url)
+  if (!own) {
+    // (The nearest place link before it, with no more than 25 controls between: a card's reach.)
+    for (let k = at - 1; k >= Math.max(0, at - 25) && !own; k--) own = venueOf(map.items[k], map.url)
+  }
+  if (!own || samePlace(chosen, own.name) || own.url === right.v.url) return null
+  return `«${item.label.slice(0, 60)}» belongs to «${placeName(own.name).slice(0, 60)}», not «${chosen}», the place chosen: press «${chosen}»'s own link (id ${right.i.id}), not another place's`
+}
+
 /** A place's name out of a card's label: before its rating, distance or price («… The Palm Suites - Adults Only 8.8 Excellent…»). */
 function placeName(label: string): string {
   return label.split(/\s+\d|\s[·•|]\s|\n/)[0].trim().slice(0, 100)
@@ -756,6 +795,7 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   const book = site ? await io.playbook?.get(site).catch(() => null) : null
   if (book?.length) state.playbook = playbookLine(book)
   state.rules = rulesLine(rules, calendarOn)
+  state.ruleParty = rules.party
   state.chooseVenue = rules.chooseVenue
   state.minRating = rules.rating
   const subject = pageSubject(map)
@@ -1689,6 +1729,17 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       state.refused = "choose a place from <venues>"
       continue
     }
+    // The place is chosen (the request named it, or the person picked it): a press that belongs to another place on a
+    // list — its own link, or a control in the card that place heads («See availability») — is refused, with the chosen
+    // place's own link (the director's device pass on 72264bba: «Opening Harmony Bay Hotel» opened another hotel's page,
+    // then about ten steps went to finding the link again).
+    const other = seenItem && (call.tool === "click" || call.tool === "go") ? otherPlace(state, map, seenItem) : null
+    if (other) {
+      rule(state, "place_other")
+      state.log.push({ call, target: target ?? undefined, result: `refused: ${other}` })
+      state.refused = other
+      continue
+    }
     if (seenItem) call.expect = { label: seenItem.label, role: seenItem.role, ...(seenItem.lock ? { lock: seenItem.lock } : {}) }
     const device = classify(call, { map, startHost: state.startHost, request: words(state), confirmedHere: confirmedOn(state, hostOf(map.url)), policy: io.policy })
     let verdict = stricter(reply.verdict, device)
@@ -1719,6 +1770,15 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       const lines = typing ? fillLines(call, map.items.find((i) => i.id === call.id) ?? null, entries, map.lang || state.lang, map) : []
       const said = words(state)
       if (typing && lines.length && lines.every((l) => saidInWords(said, l.value))) perm = { ...typing, keys: lines.map((l) => l.key), ids: lines.map((l) => l.id) }
+    }
+    // A count that isn't the request's (people, tickets, rooms, children: report-137, a table «for 2» set to «12 people»
+    // from a large-party list): refused, with what the list offers; when the request's number isn't there, ask.
+    const countWhy = verdict.cls !== "blocked" && state.plan?.booking ? countRefusal(call, seenItem, map, words(state), state.ruleParty) : null
+    if (countWhy) {
+      rule(state, "count_other")
+      state.log.push({ call, target: target ?? undefined, result: `refused: ${countWhy}` })
+      state.refused = countWhy
+      continue
     }
     // A time slot that clashes with the person's Calendar is never pressed (checked on the device).
     if (verdict.cls !== "blocked") {
@@ -2155,6 +2215,17 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
       state.picked = undefined
       state.sawDate = false
       state.pressedTarget = false
+    }
+    // A time the person agreed to in their answer («Am 2026-12-01 um 10:30 buchen», report-137: the window rule then
+    // refused 10:30 four times): the booking's time from now on, as for days. (Dates are taken out first: «2026.12.01»
+    // isn't 12:01.)
+    const agreed = b && !DAY_KINDS.has(b.kind) ? [...new Set(timesIn(text.replace(/\d{4}[-./]\d{1,2}[-./]\d{1,2}|\d{1,2}[./]\d{1,2}[./]\d{2,4}/g, " ")))] : []
+    if (b && agreed.length === 1) {
+      b.at = agreed[0]
+      b.from = agreed[0]
+      b.until = agreed[0]
+      state.picked = undefined
+      state.nearSaid = undefined
     }
     // A place the person chose in their answer, whatever the question was (the director on 11f0c58b: «Book The Palm
     // Suites instead», then «Do it?» with «not what you asked: you asked to book Pefkos City Hotel»): the booking's place

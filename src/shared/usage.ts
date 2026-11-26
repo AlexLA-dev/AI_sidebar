@@ -32,7 +32,7 @@ export const AGENT_RULES = [
   "done_press", "place_find", "day_grey", "next_free", "date_field", "day_unseen", "place_again", "field_kind",
   "contact_kind", "given_words", "other_person", "search_first", "list_open", "date_step", "link_dates", "place_ask",
   "place_unfit", "made_up", "slot_time", "slot_window", "slot_nearer", "slot_busy", "book_again", "book_hold",
-  "days_unset", "blocked", "apple_access", "said_no", "book_unseen"
+  "days_unset", "blocked", "apple_access", "said_no", "book_unseen", "count_other", "place_other"
 ] as const
 export type AgentRule = (typeof AGENT_RULES)[number]
 
