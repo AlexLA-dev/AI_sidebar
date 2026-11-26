@@ -1588,6 +1588,13 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       }
       continue
     }
+    // A booking press the page asked for after the booking's press (a form wanting more): never by the plan's
+    // permission — the plan presses the booking silently at most once per task; this one is the person's «Do it?» with
+    // the recap (the director on c874eefa: a plan-booked table, a field typed again, a ticked «Book» pressed silently).
+    if (perm && state.bookPress && verdict.cls === "confirm" && verdict.reason === "submit" && call.tool !== "fill" && state.plan?.booking) {
+      perm = null
+      state.log.push({ call, target: target ?? undefined, result: `held for the person: the booking's press already went in this task (${state.bookPress.target}), so another booking press goes only with their yes` })
+    }
     // The booking's last press goes only with its days set on the page (128); three refusals in a row end the task, not
     // finished, never a loop.
     if (verdict.cls === "confirm" && verdict.reason === "submit" && state.plan?.booking) {

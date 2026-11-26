@@ -186,3 +186,66 @@ test("Q2: the plan's step «Asking you which stay to book» goes when the card c
   const act = readFileSync(new URL("../netlify/shared/act.mts", import.meta.url), "utf8")
   assert.match(act, /no step says you'll ask it/)
 })
+
+// R1 (the director on c874eefa): after the booking's press, a further booking press is never the plan's to press.
+const TABLE = "https://tables.example/booking"
+const tableItems = [{ id: "5", role: "combobox", label: "Time", options: ["19:00"], form: 0 }, { id: "11", role: "textbox", label: "Notes", form: 0 }, { id: "8", role: "button", label: "Confirm", form: 0 }, { id: "9", role: "button", label: "Book", form: 0 }] as PageMap["items"]
+const tableForm = page(TABLE, "Book a table", "Trattoria Sole 2026-11-27 19:00 2 people", tableItems)
+const tableBooked = page(TABLE, "Book a table", "Trattoria Sole 2026-11-27 19:00 2 people Your table is booked", tableItems)
+const TABLE_BOOKING: PlanBooking = { kind: "table", date: "2026-11-27", at: "19:00", from: "19:00", until: "19:00", minutes: 90 }
+const bookPerm = [{ id: "p1", kind: "press", reason: "submit", label: "Book", ids: ["9"], host: "tables.example", on: true }] as TaskPlan["perms"]
+const typeAgain = () => step({ tool: "type", id: "11", text: "window seat", why: "A note" } as ToolCall, "free", "read")
+
+test("R1: a plan-booked table, a field typed again, «Book» again: asked, not pressed by the plan", async () => {
+  const s = running(TABLE, TABLE_BOOKING, bookPerm)
+  const io = stand(tableForm, { "9": tableBooked }, [
+    step({ tool: "click", id: "9", why: "Booking the table" }, "confirm", "submit"),
+    typeAgain(),
+    step({ tool: "click", id: "9", why: "Booking the table" }, "confirm", "submit"),
+    done()
+  ])
+  let st = await drive(s, io)
+  assert.equal(st.status, "confirm", "the second booking press is the person's «Do it?»")
+  assert.equal(presses(io, "9"), 1, "the plan pressed it once")
+  assert.ok(st.pending?.recap, "with the recap")
+  assert.match(st.log.at(-1)!.result, /^held for the person: the booking's press already went in this task/)
+  st = await answer(st, io, "no")
+  assert.equal(presses(io, "9"), 1)
+})
+
+test("R1: the same after the booking's press went with the person's yes on its recap", async () => {
+  const s = running(TABLE, TABLE_BOOKING, bookPerm)
+  const io = stand(tableForm, { "8": tableBooked }, [
+    step({ tool: "click", id: "8", why: "Confirming the table" }, "confirm", "submit"),
+    typeAgain(),
+    step({ tool: "click", id: "9", why: "Booking the table" }, "confirm", "submit"),
+    done()
+  ])
+  let st = await drive(s, io)
+  assert.equal(st.status, "confirm")
+  assert.equal(st.pending?.call.id, "8")
+  st = await answer(st, io, "yes")
+  assert.equal(st.bookPress?.yes, true)
+  assert.equal(st.status, "confirm", "«Book» after it is asked, though the plan allows «Book»")
+  assert.equal(st.pending?.call.id, "9")
+  assert.equal(presses(io, "9"), 0)
+})
+
+test("R1 doesn't add cards to the ordinary flows: two-press stay 2, plan-booked table 0, doctor's slot 1 (as before)", async () => {
+  const count = async (s: AgentState, io: RunnerIO) => {
+    let n = 0
+    let st = await drive(s, io)
+    while (st.status === "confirm") {
+      n++
+      st = await answer(st, io, "yes")
+    }
+    return [n, st.status]
+  }
+  const stay = stand(STAY_FORM, { "6": STAY_BOOKED }, [step({ tool: "click", id: "3", why: "r" }, "confirm", "submit"), step({ tool: "select", id: "7", value: "2", why: "g" } as ToolCall, "free", "read"), step({ tool: "click", id: "6", why: "c" }, "confirm", "submit"), done()])
+  assert.deepEqual(await count(running(STAY, STAY_BOOKING), stay), [2, "done"])
+  const table = stand(tableForm, { "9": tableBooked }, [step({ tool: "click", id: "9", why: "b" }, "confirm", "submit"), done()])
+  assert.deepEqual(await count(running(TABLE, TABLE_BOOKING, bookPerm), table), [0, "done"])
+  const SLOT = "https://clinic.example/doctor/7?date=2026-11-30"
+  const slot = stand(page(SLOT, "Dr. Lee", "Dr. Lee 2026-11-30 10:30 General check-up", [{ id: "4", role: "button", label: "Book appointment", form: 0 }] as PageMap["items"]), { "4": page("https://clinic.example/confirmation/88", "Appointment confirmed", "Your appointment with Dr. Lee on 2026-11-30 at 10:30 is confirmed", []) }, [step({ tool: "click", id: "4", why: "b" }, "confirm", "submit"), done()])
+  assert.deepEqual(await count(running(SLOT, { kind: "appointment", date: "2026-11-30", at: "10:30", from: "10:30", until: "10:30", minutes: 30, venue: "Dr. Lee" }), slot), [1, "done"])
+})
