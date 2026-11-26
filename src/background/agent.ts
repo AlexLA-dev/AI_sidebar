@@ -190,6 +190,10 @@ type AwayWords = { paused: string; done: string; needs: string; title: string; s
 let away: { words: AwayWords } | null = null
 // Counts each change of `away`: a note begun before Safari came back isn't sent after.
 let awayGen = 0
+// The schedule on its way to the app: the app reads its notification settings before adding it, so a cancel sent a
+// moment later used to land first and the schedule stayed (the iPad, 0475951b: «hidden» of a tab's old page, «visible» of
+// its next 130 ms on, the notification pending until the next page). Coming back waits for it, then cancels.
+let scheduling: Promise<unknown> = Promise.resolve()
 // A tab switch hides one page and shows another: not leaving Safari.
 let switchedAt = 0
 // Each page of ours, visible or hidden (away only while none is visible).
@@ -210,7 +214,9 @@ async function awayNote(tab: number, state: AgentState): Promise<void> {
   // On a lock screen: the plan's name for the task and the site, never the request (it holds phones, e-mails, names).
   const what = noticeLabel(state.plan, hostOf(tabUrl))
   if (state.status === "running") {
-    await callNative("agent_schedule", { ...base, at: Date.now() + PAUSE_AFTER_MS, body: away.words.paused.replace("{0}", what) }, 6_000)
+    const sent = callNative("agent_schedule", { ...base, at: Date.now() + PAUSE_AFTER_MS, body: away.words.paused.replace("{0}", what) }, 6_000)
+    scheduling = sent.catch(() => undefined)
+    await sent
     return
   }
   const waiting = state.status === "plan" || state.status === "confirm" || state.status === "fill" || state.status === "self" || state.status === "asked"
@@ -251,6 +257,9 @@ async function back(): Promise<void> {
   if (!away) return
   away = null
   awayGen++
+  await scheduling
+  // (Away again meanwhile: that note stands.)
+  if (away) return
   for (const [tab, state] of await activeTasks()) {
     void tab
     if (TARGET === "safari") void callNative("agent_cancel", { id: runId(state) }, 4_000)
@@ -259,7 +268,10 @@ async function back(): Promise<void> {
 
 /** A page of ours was hidden or seen: away from Safari (as far as we can tell) or back. */
 async function seen(visible: boolean, words?: AwayWords, from?: number, doc?: string): Promise<void> {
-  if (from !== undefined) pagesSeen.report(from, doc ?? "", visible)
+  const fresh = from === undefined || pagesSeen.report(from, doc ?? "", visible)
+  trace(from ?? -1, `seen ${visible ? "visible" : "hidden"} doc=${doc ?? ""} fresh=${fresh} away=${!!away} pages=${pagesSeen}`)
+  // (A tab's old page saying «hidden» after its next page showed: Safari is in front.)
+  if (!fresh) return
   if (visible) {
     for (const [tab] of await activeTasks()) void resume(tab)
     await back()
@@ -268,7 +280,9 @@ async function seen(visible: boolean, words?: AwayWords, from?: number, doc?: st
   if (!words || Date.now() - switchedAt < 1500) return
   // Another page of ours is still in front (the tab's next page showed before its old one said «hidden»): not away.
   const fronts = await new Promise<chrome.tabs.Tab[]>((resolve) => chrome.tabs.query({ active: true }, (t) => resolve(chrome.runtime.lastError ? [] : t ?? [])))
-  if (pagesSeen.anyVisible(new Set(fronts.flatMap((t) => (t.id === undefined ? [] : [t.id]))))) return
+  const front = new Set(fronts.flatMap((t) => (t.id === undefined ? [] : [t.id])))
+  trace(from ?? -1, `away? fronts=${[...front].join(",")} switched=${Date.now() - switchedAt}ms`)
+  if (pagesSeen.anyVisible(front)) return
   away = { words }
   awayGen++
   for (const [tab, state] of await activeTasks()) if (state.status === "running") void awayNote(tab, state)

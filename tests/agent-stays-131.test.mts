@@ -6,7 +6,7 @@ import { test } from "node:test"
 
 import { PagesSeen } from "../src/background/pagesSeen.ts"
 import { DEFAULT_RULES, type AgentRules } from "../src/shared/agent/rules.ts"
-import { drive, newState, suggestFirst, type RunnerIO } from "../src/shared/agent/runner.ts"
+import { chatSuggestion, drive, newState, suggestFirst, type RunnerIO } from "../src/shared/agent/runner.ts"
 import { checkPlan, PLAN_SCHEMA } from "../src/shared/agent/taskplan.ts"
 import type { PageMap } from "../src/shared/agent/types.ts"
 
@@ -24,11 +24,14 @@ const SCRIPT: PageMap = { ...LINKS, items: [{ id: "1", role: "link", label: "Har
 // The model's plan as the new prompt has it: no place in booking.venue nor in fromChat, the suggestion in chatPlace.
 const RAW = (over: Record<string, unknown> = {}) => ({ label: "booking a stay", steps: ["Opening the stays list", "Booking the stay"], questions: [], prices: [], fromChat: "4–6 Dec", chatPlace: "Old Town Guesthouse", risky: [],
   booking: { kind: "stay", date: "2026-12-04", dateEnd: "2026-12-06", from: "", until: "", minutes: 0, venue: "", personal: true, match: [], area: [] }, ...over })
-const run = (map: PageMap, plan: unknown, rules: AgentRules = DEFAULT_RULES, request = REQ) => {
+const CHAT = "person: Which stay here would you suggest for 2 nights from next Friday?\nassistant: Based on the listings, I'd suggest **Old Town Guesthouse** (€88/night, 9.0). Alternatives: **Olive Grove Apartments** (9.2), **Seafront Studio Rooms**, **Harbour View Suites**."
+const run = (map: PageMap, plan: unknown, rules: AgentRules = DEFAULT_RULES, request = REQ, chat = "") => {
   const replies: any[] = [{ ok: true, plan, token: "t" }]
   const io: RunnerIO = { map: async () => map, act: async () => ({ ok: true }), waitPage: async () => {}, ask: async () => replies.shift() ?? { ok: true, call: { tool: "done", summary: "x" }, verdict: { cls: "free", reason: "read" } }, save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30, planning: true,
     device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => rules, playbook: { get: async () => null, put: async () => {} } }
-  return drive(newState("p1", request, "en", map.url), io)
+  const st = newState("p1", request, "en", map.url)
+  if (chat) st.chat = chat
+  return drive(st, io)
 }
 const placeQ = (s: Awaited<ReturnType<typeof run>>) => s.plan!.questions.filter((q) => q.kind === "venue" || q.fact === "venue" || q.place)
 
@@ -125,7 +128,8 @@ test("P2: Safari is away only while no page of ours is visible, whatever order a
 
 test("P2: the background asks the pages before calling Safari away; a ping (only a visible page sends it) clears it", () => {
   const bg = readFileSync(new URL("../src/background/agent.ts", import.meta.url), "utf8")
-  assert.match(bg, /if \(pagesSeen\.anyVisible\(new Set\(fronts\.flatMap[^\n]+\)\)\)\) return\n\s+away = \{ words \}/)
+  assert.match(bg, /if \(!fresh\) return/)
+  assert.match(bg, /if \(pagesSeen\.anyVisible\(front\)\) return\n\s+away = \{ words \}/)
   assert.match(bg, /case "agentPing":[\s\S]{0,200}pagesSeen\.report\(tab, [^\n]+, true\)\n\s+void back\(\)/)
   assert.match(bg, /pagesSeen\.drop\(tab\)/)
   const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
@@ -133,6 +137,28 @@ test("P2: the background asks the pages before calling Safari away; a ping (only
   assert.match(app, /type: "agentSeen", visible, doc: PAGE_DOC/)
   // A note begun before Safari came back isn't sent after the cancel (the iPad: schedule landed 44 ms after it, stayed 21 s).
   assert.match(bg, /const gen = awayGen\n\s+const tabUrl = await[^\n]+\n(\s*\/\/[^\n]*\n)*\s+if \(!away \|\| gen !== awayGen\) return/)
-  assert.match(bg, /away = null\n\s+awayGen\+\+/)
+  assert.match(bg, /away = null\n\s+awayGen\+\+\n\s+await scheduling\n(\s*\/\/[^\n]*\n)*\s+if \(away\) return/)
+  assert.match(bg, /scheduling = sent\.catch\(\(\) => undefined\)\n\s+await sent/)
   assert.match(bg, /away = \{ words \}\n\s+awayGen\+\+/)
+})
+
+test("P1: the model leaves chatPlace empty — the device reads the suggestion itself (fromChat, else the chat's last answer)", async () => {
+  const places = ["Harbour View Suites", "Olive Grove Apartments", "Seafront Studio Rooms", "Old Town Guesthouse"]
+  assert.equal(chatSuggestion(CHAT, "", places), "Old Town Guesthouse", "the first the last answer names")
+  assert.equal(chatSuggestion(CHAT, "Olive Grove Apartments, 2 nights", places), "Olive Grove Apartments", "the one «From the chat» names")
+  assert.equal(chatSuggestion("person: hi\nassistant: Nothing here fits.", "", places), "")
+  // The iPad's run 9: no question, the name only in fromChat, «pick for me» on (script cards): asked, the suggestion first.
+  const r9 = await run(SCRIPT, RAW({ chatPlace: "", fromChat: "Old Town Guesthouse, 2 nights" }), DEFAULT_RULES, REQ, CHAT)
+  assert.equal(placeQ(r9)[0]?.options[0], "Old Town Guesthouse")
+  assert.equal(r9.plan!.booking!.venue, undefined)
+  assert.doesNotMatch(r9.plan!.fromChat ?? "", /Old Town/, "«From the chat» doesn't name it")
+  // Run 7: no chatPlace, no fromChat; only the chat says it.
+  const r7 = await run(SCRIPT, RAW({ chatPlace: "", fromChat: "" }), DEFAULT_RULES, REQ, CHAT)
+  assert.equal(placeQ(r7)[0]?.options[0], "Old Town Guesthouse")
+  // A request pointing into the chat («the second one») is its own choice: not reordered by the device.
+  const pointed = await run(SCRIPT, RAW({ chatPlace: "", fromChat: "" }), { ...DEFAULT_RULES, chooseVenue: false }, "Book the second one for 2 nights from next Friday", CHAT)
+  assert.ok(!placeQ(pointed).some((q) => q.options[0] === "Old Town Guesthouse"))
+  // No chat: as before.
+  const none = await run(SCRIPT, RAW({ chatPlace: "", fromChat: "" }), { ...DEFAULT_RULES, chooseVenue: false })
+  assert.equal(placeQ(none).length, 0)
 })

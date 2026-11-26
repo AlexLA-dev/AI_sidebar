@@ -30,7 +30,7 @@ test("«Позже» is a choice in the plan card; the row has no clock", () => 
 
 test("out of Safari mid-task: the paused notification only once steps stop, done or needs-you at once, gone on return", () => {
   const bg = read("src/background/agent.ts")
-  assert.match(bg, /if \(state\.status === "running"\) \{\s*await callNative\("agent_schedule", \{ \.\.\.base, at: Date\.now\(\) \+ PAUSE_AFTER_MS/)
+  assert.match(bg, /if \(state\.status === "running"\) \{\s*const sent = callNative\("agent_schedule", \{ \.\.\.base, at: Date\.now\(\) \+ PAUSE_AFTER_MS/)
   assert.match(bg, /await callNative\("agent_notify", \{ \.\.\.base, body \}/)
   assert.match(bg, /if \(!words \|\| Date\.now\(\) - switchedAt < 1500\) return/)
   // The notification's tap: the task's own tab to the front, the page it opened goes.

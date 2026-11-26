@@ -13,12 +13,18 @@ export interface PageSeen {
 export class PagesSeen {
   private pages = new Map<number, PageSeen>()
 
-  /** A page of ours (in `tab`, id `doc`) said it's visible or hidden. */
-  report(tab: number, doc: string, visible: boolean): void {
+  /** A page of ours (in `tab`, id `doc`) said it's visible or hidden; false when that word is stale and changes nothing. */
+  report(tab: number, doc: string, visible: boolean): boolean {
     const was = this.pages.get(tab)
     // (A «hidden» from a page that isn't this tab's latest: its old page, unloading after the new one showed.)
-    if (!visible && was?.visible && was.doc && doc && was.doc !== doc) return
+    if (!visible && was?.visible && was.doc && doc && was.doc !== doc) return false
     this.pages.set(tab, { doc, visible })
+    return true
+  }
+
+  /** For the stand's trace: each tab's latest page and whether it's visible. */
+  toString(): string {
+    return [...this.pages].map(([t, p]) => `${t}:${p.doc}:${p.visible ? "v" : "h"}`).join(" ")
   }
 
   /** The tab closed: its pages say nothing any more. */

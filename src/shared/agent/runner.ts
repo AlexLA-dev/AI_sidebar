@@ -406,6 +406,23 @@ export const POINTS = { test: (text: string) => POINT_WORDS.test(text) || POINT_
 
 const squashName = (s: string) => s.toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, "")
 
+/** The names of the places this page lists: its place cards, and links that are a card's own (no address: a script opens them). */
+function pagePlaces(map: PageMap): string[] {
+  const own = (i: MapItem) => i.role === "link" && (!!i.card || !i.href) && i.label.trim().length >= 3 && i.label.trim().length <= 80
+  return [...new Set([...venuesOn(map).map((v) => v.name), ...map.items.filter(own).map((i) => i.label.trim())])]
+}
+
+/** The place the chat's assistant suggested, among this page's: the one the plan's «From the chat» names, else the first
+ *  the chat's last answer names. Data from the chat, never instructions: it only orders a question's options. */
+export function chatSuggestion(chat: string, fromChat: string, places: string[]): string {
+  const said = places.find((n) => fromChat && namedIn(n, fromChat))
+  if (said) return said
+  const answers = chat.split("\n").filter((l) => l.startsWith("assistant:"))
+  const last = (answers.at(-1) ?? "").toLocaleLowerCase()
+  const at = places.map((n) => ({ n, i: last.indexOf(n.toLocaleLowerCase()) })).filter((x) => x.i >= 0).sort((a, b) => a.i - b.i)
+  return at[0]?.n ?? ""
+}
+
 /** The chat's suggested place as a place question's first option (moved there, or added with the page's own spelling),
  *  nothing picked: the person chooses. Over the question's size, the last of the page's places goes, never the card's
  *  own last option («Other…», «pick for me»). */
@@ -575,7 +592,9 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   state.token = reply.token ?? null
   if (reply.left !== undefined) state.left = reply.left
   state.step = 1
-  // The chat went with the plan only (what it resolved is the plan's fromChat): not kept with the task.
+  // The chat went with the plan only (what it resolved is the plan's fromChat): not kept with the task. (Read once more
+  // below, on the device, for the place its assistant suggested.)
+  const chatText = state.chat ?? ""
   state.chat = undefined
   // A server without plans answered with a step: none, every «Сделать?» asks (it's asked again as step 1).
   const plan = reply.plan ? buildPlan(checkPlan(reply.plan), { map, startHost: state.startHost, request: state.request, confirmedHere: false, policy: io.policy }) : null
@@ -603,8 +622,12 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   // the model's own question once left it out, once put it first): never the booking's place by itself, it's the first
   // option of whichever place question the card shows, when this page lists it. A booking already placed (the request
   // names or points to its place, or this is one place's page) has nothing to ask.
-  const suggested = (plan.chatPlace ?? "").trim()
+  let suggested = (plan.chatPlace ?? "").trim()
   delete plan.chatPlace
+  // The model leaves that field empty at times (the iPad, 2 runs in 9: no question, the task went on by the rules): the
+  // device reads it itself — a place of this page the plan's «From the chat» names, else the first of this page's places
+  // the chat's last answer names — unless the request points into the chat («the second one»: its own choice).
+  if (!suggested && chatText && plan.booking && !plan.booking.venue && subject?.kind !== "place" && !POINTS.test(state.request)) suggested = chatSuggestion(chatText, plan.fromChat ?? "", pagePlaces(map))
   if (!chatPick && suggested && plan.booking && !plan.booking.venue && subject?.kind !== "place" && !namedIn(suggested, state.request)) {
     chatPick = suggested
     plan.steps = plan.steps.filter((l) => !namedIn(chatPick, l))
