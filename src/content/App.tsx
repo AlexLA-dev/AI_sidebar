@@ -6186,6 +6186,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                           {resetsAt ? (Date.parse(resetsAt) > Date.now() ? answersBackShort(clockTime(resetsAt), timeUntil(resetsAt)) : t("limitCardBackNow")) : ""}
                         </>}
                         offer={offer ? { code: offer.code, discount: offer.discount } : null}
+                        settled={status !== null && fullAt !== undefined}
                         remind={TARGET === "safari" && resetsAt
                           ? <AnswersBack
                               short
