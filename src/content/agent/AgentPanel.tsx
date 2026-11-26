@@ -4,7 +4,7 @@
 // shared explanation, src/shared/amazon.ts). The strip is the indicator App Review's 2.5.14 asks for.
 
 import type { VNode } from "preact"
-import { clock, clockFrom, hours } from "./clockform"
+import { clock, clockFrom, hours, twelveToClock } from "./clockform"
 export { clock, clockForm, clockFrom } from "./clockform"
 import { useEffect, useRef, useState } from "preact/hooks"
 
@@ -78,7 +78,7 @@ function when(date?: string, time?: string): string {
 export function localWhen(text: string): string {
   if (!text) return text
   // (A day the model wrote in words, «Thursday 26 November», shows as the ISO ones do: one format in a task, 128.)
-  return daysAsIso(text, todayIso())
+  return twelveToClock(daysAsIso(text, todayIso()))
     .replace(/(?<![\d:./-])(\d{4})-(\d{2})-(\d{2})(?![\d:])/g, (m, y: string, mo: string, d: string) => (Number(mo) >= 1 && Number(mo) <= 12 && Number(d) >= 1 && Number(d) <= 31 ? when(`${y}-${mo}-${d}`) : m))
     .replace(/(?<![\d:.,])([01]?\d|2[0-3]):([0-5]\d)(?![\d:])(?!\s?[aApP]\.?[mM])/g, (m, h: string, mi: string) => clock(`${h}:${mi}`))
 }
