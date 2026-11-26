@@ -5,7 +5,7 @@
 // all of them; each place adds its own (the discount, a note, the own key, Retry).
 
 import type { ComponentChildren, VNode } from "preact"
-import { useEffect, useState } from "preact/hooks"
+import { useEffect, useRef, useState } from "preact/hooks"
 
 import { t } from "../../shared/i18n"
 import { productOf, startPeriod, type PaidPlan, type Period } from "../../shared/plan"
@@ -49,6 +49,21 @@ export function useAnswersBack(at: number | null | "unknown" | undefined): boole
   return at !== "unknown" && (!at || at <= now)
 }
 
+/**
+ * How far to scroll the chat (px, down) so a plans message that just appeared is in view (the director on #273: the
+ * agent's opened below the fold on iPhone, only its title above the field). The whole card when it fits; else its plan
+ * and the button under it (the button's bottom at the list's), the title scrolled off rather than the button. Never up.
+ */
+export function revealDelta(list: { top: number; bottom: number }, card: { top: number; bottom: number }, button: { bottom: number } | null, pad = 8): number {
+  const room = list.bottom - list.top - pad
+  const fits = card.bottom - card.top <= room
+  const end = fits || !button ? card.bottom : button.bottom + pad
+  const delta = end - (list.bottom - pad)
+  if (delta <= 0) return 0
+  // A card that fits never goes above the list's top.
+  return fits ? Math.min(delta, Math.max(0, card.top - list.top)) : delta
+}
+
 export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "ultra"], focus, extra, retryAt, onRetry, onChoose, onEvent, onClose }: {
   place: OfferPlace
   status: StatusInfo | null
@@ -76,6 +91,23 @@ export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "
   const [period, setPeriod] = useState<Period>(startPeriod(status?.store?.active ? status.store.productId : null))
   // Shown once per message.
   useEffect(() => onEvent("shown", { plan, period }), [])
+  // In view as it comes, and again while its prices and the plan's facts come in (each makes it taller): it answers a
+  // tap, like an answer (the chat scrolled to its end before it was this tall). Only while it settles.
+  const ref = useRef<HTMLDivElement>(null)
+  const since = useRef(Date.now())
+  const priced = Object.keys(prices).length > 0
+  useEffect(() => {
+    if (Date.now() - since.current > 2_000) return
+    const timer = setTimeout(() => {
+      const card = ref.current
+      const list = card?.closest<HTMLElement>(".cf-messages")
+      if (!card || !list) return
+      const button = card.querySelector<HTMLElement>(".cf-card-actions .cf-primary")
+      const delta = revealDelta(list.getBoundingClientRect(), card.getBoundingClientRect(), button?.getBoundingClientRect() ?? null)
+      if (delta > 0) list.scrollTop += delta
+    }, 40)
+    return () => clearTimeout(timer)
+  }, [priced, Boolean(facts)])
   const answersBack = useAnswersBack(retryAt)
   const canRetry = Boolean(onRetry) && answersBack
 
@@ -93,7 +125,7 @@ export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "
   }
 
   return (
-    <div class={`cf-card cf-offer ${place}`} role="group" aria-label={title}>
+    <div ref={ref} class={`cf-card cf-offer ${place}`} role="group" aria-label={title}>
       <div class="cf-upsell-head">
         <span class="cf-upsell-icon"><Icon.Sparkle size={18} /></span>
         <strong>{title}</strong>
