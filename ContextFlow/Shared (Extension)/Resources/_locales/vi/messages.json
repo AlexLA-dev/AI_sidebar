@@ -3302,6 +3302,9 @@
  "agentSelfOther": {
   "message": "Bạn hãy tự làm việc này: “{0}”."
  },
+ "agentSelfNewTab": {
+  "message": "Bạn hãy tự chạm vào “{0}”: trang mở mục này trong tab mới, và chỉ thao tác của chính bạn mới làm được. Mình sẽ làm tiếp ở đó."
+ },
  "agentSelfFile": {
   "message": "Bạn hãy tự chọn tệp."
  },
@@ -3554,6 +3557,12 @@
  "agentPermFill": {
   "message": "Điền từ “Thông tin của tôi”: {0}"
  },
+ "agentLineFilled": {
+  "message": "Đã điền: {0}"
+ },
+ "agentLinePressed": {
+  "message": "Đã chạm: {0}"
+ },
  "agentPermConsent": {
   "message": "Đánh dấu đồng ý với điều khoản của {0}"
  },
@@ -3576,7 +3585,7 @@
   "message": "Đăng nhập vào trang"
  },
  "agentPriceChanged": {
-  "message": "Giá trên trang không còn như trong kế hoạch ({0})."
+  "message": "Giá ở đây khác với giá đã thấy trước đó ({0}). Hãy kiểm tra trước khi tiếp tục."
  },
  "agentMarkPaused": {
   "message": "Tạm dừng"
@@ -4076,6 +4085,15 @@
  "tip_da5f7b74b1": {
   "message": "Đi sâu hơn"
  },
+ "tip_8f191972e8": {
+  "message": "Đặt chỗ giúp bạn, ngay trên trang"
+ },
+ "tip_363625547a": {
+  "message": "Cần đặt bàn, đặt chỗ ở, hay hẹn lịch với bác sĩ hoặc thợ làm tóc? Trên trang đặt chỗ, mở bảng, chạm + cạnh ô nhập, chọn Làm và nói điều bạn cần: “bàn cho hai người lúc 19:00 ngày mai”. ContextFlow chọn giờ, điền tên và thông tin liên hệ của bạn từ Thông tin của tôi rồi đặt chỗ. Bạn có thể đóng bảng: câu hỏi hoặc kết quả sẽ hiện cạnh ✦. Thanh toán và đăng nhập vẫn do bạn tự làm, và Dừng luôn ở đó. Với Pro hoặc Ultra."
+ },
+ "tip_232e049197": {
+  "message": "Cần đặt bàn, đặt chỗ ở, hay hẹn lịch với bác sĩ hoặc thợ làm tóc? Trên trang đặt chỗ, mở bảng, bấm + cạnh ô nhập, chọn Làm và nói điều bạn cần: “bàn cho hai người lúc 19:00 ngày mai”. ContextFlow chọn giờ, điền tên và thông tin liên hệ của bạn từ Thông tin của tôi rồi đặt chỗ. Bạn có thể đóng bảng: câu hỏi hoặc kết quả sẽ hiện cạnh ✦. Thanh toán và đăng nhập vẫn do bạn tự làm, và Dừng luôn ở đó. Với Pro hoặc Ultra."
+ },
  "tip_6ba198cbff": {
   "message": "Ghi chú của riêng bạn"
  },
@@ -4318,6 +4336,15 @@
  },
  "tip_6cc366173d": {
   "message": "Không cần ✦ trên một trang web? Ẩn nút trên trang đó, hoặc tắt ở mọi nơi trong phần cài đặt tiện ích mở rộng. ContextFlow vẫn mở được từ menu tiện ích mở rộng của Safari."
+ },
+ "tip_92470c1789": {
+  "message": "Cửa sổ cookie tự đóng"
+ },
+ "tip_8534da4bd8": {
+  "message": "Mệt vì phải chạm qua từng cửa sổ cookie? ContextFlow trả lời thay bạn bằng “chỉ cần thiết”, và vài lần đầu sẽ có một dòng ngắn cạnh ✦ báo cho bạn biết. Muốn chúng hiện lại trên một trang web? Tắt cho trang đó trong phần cài đặt tiện ích mở rộng, ở mục Cửa sổ cookie."
+ },
+ "tip_fc1a61bcfa": {
+  "message": "Mệt vì phải bấm qua từng cửa sổ cookie? ContextFlow trả lời thay bạn bằng “chỉ cần thiết”, và vài lần đầu sẽ có một dòng ngắn cạnh ✦ báo cho bạn biết. Muốn chúng hiện lại trên một trang web? Tắt cho trang đó trong phần cài đặt tiện ích mở rộng, ở mục Cửa sổ cookie."
  },
  "tip_cc54dd5946": {
   "message": "Gợi ý cạnh nút ✦"

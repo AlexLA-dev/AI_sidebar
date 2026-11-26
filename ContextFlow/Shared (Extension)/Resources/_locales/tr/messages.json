@@ -3302,6 +3302,9 @@
  "agentSelfOther": {
   "message": "Bunu kendiniz yapın: “{0}”."
  },
+ "agentSelfNewTab": {
+  "message": "“{0}” öğesine kendiniz dokunun: sayfa bunu yeni sekmede açıyor ve bunu yalnızca sizin dokunuşunuz yapabilir. Oradan devam edeceğim."
+ },
  "agentSelfFile": {
   "message": "Dosyayı kendiniz seçin."
  },
@@ -3554,6 +3557,12 @@
  "agentPermFill": {
   "message": "“Bilgilerim” ile doldurmak: {0}"
  },
+ "agentLineFilled": {
+  "message": "Dolduruldu: {0}"
+ },
+ "agentLinePressed": {
+  "message": "Dokunuldu: {0}"
+ },
  "agentPermConsent": {
   "message": "{0} sitesinin koşullarını kabul kutusunu işaretlemek"
  },
@@ -3576,7 +3585,7 @@
   "message": "Siteye giriş yapmak"
  },
  "agentPriceChanged": {
-  "message": "Sayfadaki fiyat plandaki fiyat değil ({0})."
+  "message": "Buradaki fiyat daha önce görünenden farklı ({0}). Devam etmeden önce kontrol edin."
  },
  "agentMarkPaused": {
   "message": "Duraklatıldı"
@@ -4076,6 +4085,15 @@
  "tip_da5f7b74b1": {
   "message": "Daha derine inin"
  },
+ "tip_8f191972e8": {
+  "message": "Sizin yerinize, sayfanın içinde rezervasyon yapar"
+ },
+ "tip_363625547a": {
+  "message": "Masa ya da konaklama ayırtmanız, doktordan ya da kuaförden randevu almanız mı gerekiyor? Rezervasyon sitesinde paneli açın, alanın yanındaki + düğmesine dokunun, “Yap” seçeneğini seçin ve ne istediğinizi yazın: “yarın saat 19.00'da iki kişilik masa”. ContextFlow saati seçer, adınızı ve iletişim bilgilerinizi “Bilgilerim” bölümünden doldurur ve rezervasyonu yapar. Paneli kapatabilirsiniz: bir soru ya da sonuç ✦ düğmesinin yanında görünür. Ödeme ve oturum açma sizde kalır, “Durdur” düğmesi ise her zaman elinizin altındadır. Pro veya Ultra ile."
+ },
+ "tip_232e049197": {
+  "message": "Masa ya da konaklama ayırtmanız, doktordan ya da kuaförden randevu almanız mı gerekiyor? Rezervasyon sitesinde paneli açın, alanın yanındaki + düğmesine tıklayın, “Yap” seçeneğini seçin ve ne istediğinizi yazın: “yarın saat 19.00'da iki kişilik masa”. ContextFlow saati seçer, adınızı ve iletişim bilgilerinizi “Bilgilerim” bölümünden doldurur ve rezervasyonu yapar. Paneli kapatabilirsiniz: bir soru ya da sonuç ✦ düğmesinin yanında görünür. Ödeme ve oturum açma sizde kalır, “Durdur” düğmesi ise her zaman elinizin altındadır. Pro veya Ultra ile."
+ },
  "tip_6ba198cbff": {
   "message": "Kendi notlarınız"
  },
@@ -4318,6 +4336,15 @@
  },
  "tip_6cc366173d": {
   "message": "Bir sitede ✦ düğmesine ihtiyacınız yok mu? O sitede gizleyin ya da uzantı ayarlarından her yerde kapatın. ContextFlow yine de Safari'nin uzantılar menüsünden açılır."
+ },
+ "tip_92470c1789": {
+  "message": "Çerez pencereleri kendiliğinden kapanır"
+ },
+ "tip_8534da4bd8": {
+  "message": "Çerez pencerelerine dokunup durmaktan bıktınız mı? ContextFlow bunları sizin yerinize “yalnızca gerekli” ile yanıtlar; ilk birkaç seferde ✦ düğmesinin yanındaki kısa bir satır bunu söyler. Bir sitede yeniden görmek mi istiyorsunuz? Uzantı ayarlarındaki “Çerez pencereleri” bölümünden o site için kapatın."
+ },
+ "tip_fc1a61bcfa": {
+  "message": "Çerez pencerelerine tıklayıp durmaktan bıktınız mı? ContextFlow bunları sizin yerinize “yalnızca gerekli” ile yanıtlar; ilk birkaç seferde ✦ düğmesinin yanındaki kısa bir satır bunu söyler. Bir sitede yeniden görmek mi istiyorsunuz? Uzantı ayarlarındaki “Çerez pencereleri” bölümünden o site için kapatın."
  },
  "tip_cc54dd5946": {
   "message": "✦ düğmesinin yanındaki ipuçları"

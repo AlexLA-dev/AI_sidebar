@@ -310,7 +310,7 @@ export type BackgroundRequest =
   // The cookie closer in a consent platform's own frame (2.7.1).
   | { type: "cookieFrameInject" }
   | { type: "cookieFrameDone"; via: string; accepted?: boolean }
-  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate" | "apple" | "space" | "match" | "write" | "shot" | "similar" | "collect" | "cookies"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; from?: string; state?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number; val?: string; spaces?: number; match?: number; where?: string; screens?: number; cards?: number; count?: number }
+  | { type: "useEvent"; f: "agent" | "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate" | "apple" | "space" | "match" | "write" | "shot" | "similar" | "collect" | "cookies"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; from?: string; state?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number; val?: string; spaces?: number; match?: number; where?: string; screens?: number; cards?: number; count?: number; task?: string; did?: string; options?: number; card?: string; page?: string; result?: string; err?: string; steps?: number; secs?: number; calls?: number; recap?: string }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =

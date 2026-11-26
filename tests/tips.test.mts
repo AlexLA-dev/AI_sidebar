@@ -24,7 +24,7 @@ const data = tipsData(root)
 const locales = new URL("../src/locales/", import.meta.url)
 const en = JSON.parse(readFileSync(new URL("en.json", locales), "utf8")) as Record<string, string>
 // 2.7: Find similar starts at Pro (Pro's quick search, #167; Ultra's in full), and the underlines as you type are Pro's.
-const PRO = ["Ask about a video", "PDFs on the page", "Find similar", "Mistakes underlined as you type", "AI search", "Ask your chats", "Where it belongs", "Your tags, suggested"]
+const PRO = ["It books for you, right on the page", "Ask about a video", "PDFs on the page", "Find similar", "Mistakes underlined as you type", "AI search", "Ask your chats", "Where it belongs", "Your tags, suggested"]
 const ULTRA = ["Listen"]
 
 test("the app's Tips, as the build reads them: seven blocks in order, iCloud before them, the renamed last block", () => {
@@ -310,7 +310,8 @@ test("the clips' loading rule: nothing before Tips opens, then the open block's 
   assert.ok(deeper.length > 0 && deeper.every((b) => !src(b)))
   click(deeper[0])
   await tick()
-  assert.ok(src(deeper[0])?.startsWith(page(data.groups[1].tips[0].clip)))
+  // (The block's first card with a clip: 2.8's agent card has none yet.)
+  assert.ok(src(deeper[0])?.startsWith(page(data.groups[1].tips.find((t: any) => t.clip).clip)))
   // Tips closed: every clip let go (their frames gone).
   assert.ok(r.querySelectorAll("iframe").length >= 5)
   ui.close(r)

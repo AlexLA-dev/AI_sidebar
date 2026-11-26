@@ -11,7 +11,7 @@ import type { VNode } from "preact"
 import * as Icon from "../icons"
 import { t } from "../../shared/i18n"
 import { isCancelChoice } from "../../shared/agent/taskplan"
-import { errorText, isAccess, NO_UNDO, recapNotes, recapWhat, selfText, stepText, type PanelAgent } from "./AgentPanel"
+import { errorText, isAccess, localWhen, NO_UNDO, recapNotes, recapWhat, selfText, stepText, type PanelAgent } from "./AgentPanel"
 
 export type BubbleKind = "ask" | "confirm" | "self" | "open" | "end"
 
@@ -114,7 +114,7 @@ export function AgentBubble({ data, side, top, low, act }: { data: BubbleData; s
   const open = data.here ? t("agentBubbleOpen") : t("agentGoToTab")
   const buttons: Array<{ label: string; on: () => void; primary?: boolean }> =
     data.kind === "ask"
-      ? [...data.options.map((o, i) => ({ label: o, on: () => act.reply(o), primary: i === 0 })), ...(data.other ? [{ label: t("agentBubbleOther"), on: act.open }] : [])]
+      ? [...data.options.map((o, i) => ({ label: localWhen(o), on: () => act.reply(o), primary: i === 0 })), ...(data.other ? [{ label: t("agentBubbleOther"), on: act.open }] : [])]
       : data.kind === "confirm"
         ? [{ label: t("agentYes"), on: act.yes, primary: true }, { label: t("agentNo"), on: act.no }]
         : data.kind === "self"
@@ -129,7 +129,7 @@ export function AgentBubble({ data, side, top, low, act }: { data: BubbleData; s
     <div class={`cf-agent-bubble ${side} ${mark} ${low ? "low" : "high"}`} style={{ top }} role="status" aria-live="polite" data-key={data.key}>
       <div class="cf-agent-bubble-head">
         <span class={`cf-agent-bubble-mark ${mark}`} aria-hidden="true" />
-        <p dir="auto">{data.text}</p>
+        <p dir="auto">{localWhen(data.text)}</p>
         <button type="button" class="cf-ph-x" aria-label={t("close")} title={t("close")} tabIndex={-1} onClick={real(act.close)}><Icon.Close /></button>
       </div>
       {data.meta && <p class="cf-agent-bubble-meta" dir="auto">{data.meta}</p>}

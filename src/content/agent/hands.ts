@@ -12,6 +12,7 @@ import { controlChanged } from "../../shared/agent/expect"
 import type { StepResult, ToolCall } from "../../shared/agent/types"
 import { readText, replaceText } from "../insert/fieldtext"
 import { elementOf, markFilled, nameOf, roleOf } from "./map"
+import { catchNewTab } from "./newtab"
 import { hostOf, sameSite } from "../../shared/agent/sites"
 import { fieldLock } from "../../shared/agent/fields"
 
@@ -38,7 +39,10 @@ export function watch(doc: Document = document): Watch {
   let changed = false
   let gone = false
   let last = Date.now()
-  const observer = new view.MutationObserver(() => {
+  // (Not the agent's own marks: the script and the attributes that watch a page's new tab during a tap, 129 — with them
+  // every tap read «the page changed».)
+  const observer = new view.MutationObserver((records) => {
+    if (records.every(ownMark)) return
     changed = true
     last = Date.now()
   })
@@ -87,6 +91,23 @@ function inView(el: Element): boolean {
 
 function reveal(el: Element): void {
   if (!inView(el)) (el as HTMLElement).scrollIntoView?.({ block: "center", inline: "nearest" })
+}
+
+/** A control that sends its form (a submit button or input, a button with no type inside a form). */
+function submitsForm(el: Element): boolean {
+  const form = (el as HTMLButtonElement).form ?? el.closest?.("form")
+  if (!form) return false
+  const t = tag(el)
+  const type = (el.getAttribute("type") ?? (t === "button" ? "submit" : "")).toLowerCase()
+  return (t === "button" || t === "input") && (type === "submit" || type === "image")
+}
+
+/** A change that is only the agent's own: its watching script added or removed, or one of its data-cf- attributes. */
+export function ownMark(r: MutationRecord): boolean {
+  if (r.type === "attributes") return !!r.attributeName?.startsWith("data-cf-")
+  if (r.type !== "childList") return false
+  const nodes = [...Array.from(r.addedNodes), ...Array.from(r.removedNodes)]
+  return nodes.length > 0 && nodes.every((n) => (n as Element).hasAttribute?.("data-cf-shim"))
 }
 
 /** A press the way a page hears a finger or a mouse: pointer and mouse down and up, then the click itself. */
@@ -301,9 +322,31 @@ async function actOnly(call: ToolCall, doc: Document): Promise<StepResult> {
       reveal(el!)
       const toggle = tag(el!) === "input" && /^(checkbox|radio)$/i.test((el as HTMLInputElement).type)
       const before = toggle ? (el as HTMLInputElement).checked : null
-      press(el!)
-      const settled = await stepSettle()
+      // A page that opens its place in a new tab by script (window.open): Safari blocks it for a tap that isn't a person's
+      // (128, the iPad: the stand's card got the test line «the new tab was blocked»). During this tap only, the page's
+      // window.open keeps the address instead; the runner sends the task there through the same checks as any «go».
+      const win = toggle ? null : catchNewTab(el!.ownerDocument)
+      let settled: { changed: boolean; navigated: boolean }
+      let tab: { url: string; reached: boolean } | null = null
+      // (Put back however the tap ends: a settle that throws, a task stopped mid-tap. The script's own timer covers a
+      // content script torn down before this runs.)
+      try {
+        press(el!)
+        settled = await stepSettle()
+      } finally {
+        tab = win?.done() ?? null
+      }
+      // A form's submit that seems to change nothing may still be loading its next page (129, the iPad: the stays list's
+      // Search went on after the quiet wait and read «nothing changed», the line without its ✓): a little longer for it.
+      if (!settled.changed && !settled.navigated && submitsForm(el!)) {
+        const more = await watch(el!.ownerDocument).settle(SETTLE_QUIET_MS, 2500)
+        if (more.navigated || more.changed) settled = more
+      }
       const result: StepResult = { ok: true, note: settled.navigated ? "the page went on" : settled.changed ? "the page changed" : "nothing changed on the page", changed: settled.changed, navigated: settled.navigated }
+      if (tab?.url && !settled.navigated) {
+        result.opened = tab.url
+        result.note = "the page tried to open another page in a new tab"
+      } else if (tab && !tab.reached && !settled.changed && !settled.navigated && roleOf(el!) === "link" && !(el as HTMLAnchorElement).href) result.tabBlocked = true
       if (toggle && before !== null) {
         const now = (el as HTMLInputElement).checked
         if (now === before) result.note = "the box didn't change (the site may want a real tap)"

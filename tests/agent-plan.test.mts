@@ -217,7 +217,9 @@ test("a saved detail the request itself gives goes as the plan's typing; a field
   y.entries = async () => [{ id: "e1", key: "phone", label: "", value: "+44 20 0000 1111", updatedAt: 1 }] as never
   let s2 = await drive(newState("t6", ctx.request, "en", BOOK.url), y)
   s2 = await approvePlan(s2, y, { answers: ["19:30"], off: [] })
-  assert.equal(s2.status, "fill", "another number than the request's: asks")
+  // (127: the request wins — a saved number other than the request's isn't offered.)
+  assert.notEqual(s2.status, "fill", "another number than the request's isn't offered")
+  assert.ok(s2.log.some((l) => /^refused: the request gives the phone itself/.test(l.result)))
 })
 
 test("with the whole page's amounts: changed only when one is new; they never go to the server", async () => {
@@ -299,8 +301,9 @@ test("117: answers about the person are pre-filled from «Мои данные» 
   assert.deepEqual(savedAnswers(plan, { [factKey("пол")]: "Мужская" }), ["Мужская", ""])
   const panel = readFileSync(new URL("../src/content/agent/AgentPanel.tsx", import.meta.url), "utf8")
   // (A contact asked for a booking whose request carries someone's details isn't kept by default, 125.)
-  assert.match(panel, /const \[keep, setKeep\] = useState<boolean\[\]>\(\(\) => plan\.questions\.map\(\(q\) => !!q\.fact \|\| \(q\.kind === "contact" && !q\.once\)\)\)/)
-  assert.match(panel, /const label = q\.fact \? factLabel\(q\.fact, plan\.site\) : ""/)
+  // (128: never which place — keepable() leaves it out.)
+  assert.match(panel, /const \[keep, setKeep\] = useState<boolean\[\]>\(\(\) => plan\.questions\.map\(\(q\) => keepable\(q\) && \(q\.kind !== "contact" \|\| !q\.once\)\)\)/)
+  assert.match(panel, /const label = q\.fact && keepable\(q\) \? factLabel\(q\.fact, plan\.site\) : ""/)
   assert.match(panel, /label && keep\[i\] && answers\[i\]\.trim\(\) && answers\[i\]\.trim\(\) !== pre\[i\]/)
   const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
   assert.match(app, /if \(refusedEntry\(fact, value\)\) return \[\]/)

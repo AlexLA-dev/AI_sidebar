@@ -151,6 +151,11 @@ export interface StepResult {
   data?: string
   // What the step changed, to put back with «Отменить» (a field's or a checkbox's earlier value).
   undo?: { id: string; kind: "value" | "checked" | "select"; before: string | boolean }
+  // The tap's page asked to open this address in a new tab (its window.open, caught during the tap: 128).
+  opened?: string
+  // The tap changed nothing and the page's own world couldn't be watched (a strict content policy): it may have tried
+  // to open a new tab, which Safari blocks for the agent's tap.
+  tabBlocked?: boolean
 }
 
 /** One line of the task's log, as the server gets it back with each step. */

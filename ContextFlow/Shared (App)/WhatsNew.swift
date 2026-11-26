@@ -16,7 +16,7 @@ import BackgroundTasks
 // - After an update the tab opens once by itself (not on a first install: that has the setup guide).
 enum WhatsNew {
     /// The version the cards are about (major.minor).
-    static let version = "2.7"
+    static let version = "2.8"
     /// The version whose tab was shown (or that was installed first).
     static let seenKey = "cf_whatsnew_seen"
     /// The App Store version a notification was sent for: one per version.
@@ -42,12 +42,12 @@ enum WhatsNew {
         return false
     }
 
-    /// The main features of 2.7, as Tips shows them (the same words, in every language): the five that everyone has,
-    /// the strongest first (the director, from the owner: «не забыть включить новые функции … в онбординг с Tips»).
+    /// The main features of 2.8, as Tips shows them (the same words, in every language), the strongest first: the agent,
+    /// then cookie windows (the director, tracker А11, Д3.9). 2.7's five stay in Tips with their clips.
     /// Their clips aren't made yet: each card plays one as soon as its Tip names it (the owner on 2.6: What's new has a
     /// video wherever there is one), and the line under the heading says so only when all of them do.
     static var items: [Tip] {
-        [TipGroup.translateTip, TipGroup.writeTip, TipGroup.spacesTip, TipGroup.appleTip, TipGroup.shotTip]
+        [TipGroup.agentTip, TipGroup.cookiesTip]
     }
 
     /// Every card has its clip in this language.

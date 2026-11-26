@@ -198,6 +198,38 @@ test("a list of places that shows no ratings (a clinic directory) is a list by i
   assert.deepEqual(venuesOn(footer), [])
 })
 
+test("a marketplace's home page named after its site, with a search, isn't one place (126); a restaurant's own home page is", () => {
+  const home = page("https://www.clinicbook.example/", "Clinicbook : Prenez rendez-vous avec un médecin", "Clinicbook\nTrouvez un rendez-vous", [
+    { id: "1", role: "textbox", label: "Nom, spécialité, établissement" }, { id: "2", role: "textbox", label: "Où ?" }, { id: "3", role: "button", label: "Rechercher" }, { id: "4", role: "link", label: "Réserver un rendez-vous", href: "/rdv" }])
+  assert.equal(pageSubject(home), null)
+  const own = page("https://trattoriasole.example/", "Trattoria Sole | Italian restaurant in Paris", "Trattoria Sole\nItalian cuisine since 1990", [{ id: "1", role: "button", label: "Book a table" }])
+  assert.deepEqual(pageSubject(own), { kind: "place", name: "Trattoria Sole" })
+})
+
+test("rules that say not to choose a place make any unnamed place the person's: asked from the list, noted even without the rule (126)", async () => {
+  const HOME = page("https://parking.example/", "Parking", "Find parking", [{ id: "1", role: "textbox", label: "Where" }, { id: "2", role: "button", label: "Search" }])
+  const LIST = page("https://parking.example/search/limassol", "Parking in Limassol", "Parking in Limassol",
+    ["North", "Harbour", "Market"].map((n, i) => ({ id: `p${i}`, role: "link" as const, label: `${n} Garage`, href: `/garage/limassol/${n.toLowerCase()}`, card: `${n} Garage Covered parking Limassol 24/7 Book a spot` })))
+  const RAW = { label: "parking", steps: ["Search"], questions: [], prices: [], fromChat: "", risky: [],
+    booking: { kind: "slot", date: "2026-12-26", dateEnd: "", at: "", personal: false, from: "09:00", until: "18:00", minutes: 60, tz: "", venue: "", match: ["parking"], area: ["Limassol"], contacts: [], specialists: [], services: [], specialistNamed: "", serviceNamed: "" } }
+  let page_ = HOME
+  const acted: string[] = []
+  let asks = 0
+  const io: RunnerIO = {
+    map: async () => page_, act: async (c) => (acted.push(c.id ?? ""), { ok: true }), waitPage: async () => {},
+    // The plan on the home page; then the list is open and the model opens its first place.
+    ask: async () => (asks++ === 0 ? ((page_ = LIST), { ok: true, plan: RAW, token: "t" }) : { ok: true, call: { tool: "click", id: "p0", why: "open the first" }, verdict: { cls: "free", reason: "click" }, target: 'link "North Garage"' }) as any,
+    save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30, planning: true,
+    device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => ({ ...DEFAULT_RULES, chooseVenue: false }), playbook: { get: async () => null, put: async () => {} }
+  }
+  const s = await drive(newState("pk", "Parking in Limassol on 26 December", "en", HOME.url), io)
+  if (s.status === "plan") await approvePlan(s, io, { answers: s.plan!.questions.map(() => ""), off: [] })
+  assert.equal(s.plan?.askPlace, true)
+  assert.equal(s.venues?.list.length, 3, "the list is noted though the rules don't choose")
+  assert.deepEqual(acted, [], "no place opened before the person is asked")
+  assert.match(s.log.find((l) => l.result.startsWith("refused"))?.result ?? "", /their rules say not to choose/)
+})
+
 test("a directory at a tablet's width (doctor, specialty, address; no times) is a list when its cards name the request's area (126)", async () => {
   const { venuesOn, rankVenues, cardsOf } = await import("../src/shared/agent/venues.ts")
   const doc = (n: string, street: string): MapItem => ({ id: n, role: "link", label: `Dr ${n}`, href: `/dentist/paris/dr-${n.toLowerCase()}`, card: `Dr ${n} Chirurgien-dentiste ${street} 75020 Paris Conventionné` })
@@ -230,4 +262,21 @@ test("a page that is the booking's own form: no «I'll pick the place», and a d
   assert.ok(s.plan?.perms.some((p) => p.kind === "personal"), "the request's details are typed")
   assert.ok(!s.plan?.perms.some((p) => p.kind === "fill" && p.keys?.includes("email")), "the e-mail isn't from «Мои данные» too")
   assert.ok(!s.plan?.questions.some((q) => q.kind === "contact"), "nor asked")
+})
+
+test("a contact still asked is kept by default unless the request carries someone's details (a search box isn't them, 126)", async () => {
+  const SEARCHY = page("https://clinics.example/", "Clinics", "Find a doctor", [{ id: "1", role: "textbox", label: "Nom, spécialité, examens", lock: "personal" }, { id: "2", role: "button", label: "Rechercher" }])
+  const run = async (request: string) => {
+    const RAW = { label: "rdv", steps: ["Search"], questions: [], prices: [], fromChat: "", risky: [{ tool: "type", id: "1", text: "dentiste", key: "" }],
+      booking: { kind: "appointment", date: "2026-12-28", dateEnd: "", at: "", personal: true, from: "08:00", until: "12:00", minutes: 30, tz: "", venue: "", match: ["dentist"], area: ["Paris"], contacts: ["phone"], specialists: [], services: [], specialistNamed: "", serviceNamed: "" } }
+    const io: RunnerIO = {
+      map: async () => SEARCHY, act: async () => ({ ok: true }), waitPage: async () => {},
+      ask: async () => ({ ok: true, plan: RAW, token: "t" } as any),
+      save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30, planning: true,
+      device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} }
+    }
+    return (await drive(newState("c", request, "ru", SEARCHY.url), io)).plan?.questions.find((q) => q.kind === "contact")
+  }
+  assert.equal((await run("Запиши меня к стоматологу в Париже в понедельник"))?.once, undefined, "the person's own: kept")
+  assert.equal((await run("Запиши к стоматологу в Париже, имя Мария Ким"))?.once, true, "someone else's: not kept by default")
 })

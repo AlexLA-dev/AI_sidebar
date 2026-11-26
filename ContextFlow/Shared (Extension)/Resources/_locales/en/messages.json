@@ -3302,6 +3302,9 @@
  "agentSelfOther": {
   "message": "Do this yourself: “{0}”."
  },
+ "agentSelfNewTab": {
+  "message": "Tap “{0}” yourself: the page opens it in a new tab, and only your own tap can do that. I'll go on there."
+ },
  "agentSelfFile": {
   "message": "Choose the file yourself."
  },
@@ -3554,6 +3557,12 @@
  "agentPermFill": {
   "message": "Fill in from My details: {0}"
  },
+ "agentLineFilled": {
+  "message": "Filled in: {0}"
+ },
+ "agentLinePressed": {
+  "message": "Pressed: {0}"
+ },
  "agentPermConsent": {
   "message": "Tick the box agreeing to {0}'s terms"
  },
@@ -3576,7 +3585,7 @@
   "message": "Sign in to the site"
  },
  "agentPriceChanged": {
-  "message": "The price on the page isn't the one in the plan ({0})."
+  "message": "The price here differs from the one shown earlier ({0}). Check it before going on."
  },
  "agentMarkPaused": {
   "message": "Paused"
@@ -4076,6 +4085,15 @@
  "tip_da5f7b74b1": {
   "message": "Deeper work"
  },
+ "tip_8f191972e8": {
+  "message": "It books for you, right on the page"
+ },
+ "tip_363625547a": {
+  "message": "Need a table or a stay booked, or a visit to a doctor or a stylist? On the booking site, open the panel, tap + by the field, choose Do and say what you need: “a table for two tomorrow at 7 pm”. ContextFlow picks the time, fills in your name and contacts from My details and books. You can close the panel: a question or the result shows up by ✦. Paying and signing in stay yours, and Stop is always there. With Pro or Ultra."
+ },
+ "tip_232e049197": {
+  "message": "Need a table or a stay booked, or a visit to a doctor or a stylist? On the booking site, open the panel, click + by the field, choose Do and say what you need: “a table for two tomorrow at 7 pm”. ContextFlow picks the time, fills in your name and contacts from My details and books. You can close the panel: a question or the result shows up by ✦. Paying and signing in stay yours, and Stop is always there. With Pro or Ultra."
+ },
  "tip_6ba198cbff": {
   "message": "Notes of your own"
  },
@@ -4318,6 +4336,15 @@
  },
  "tip_6cc366173d": {
   "message": "Don't need ✦ on a site? Hide it on that site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu."
+ },
+ "tip_92470c1789": {
+  "message": "Cookie windows close themselves"
+ },
+ "tip_8534da4bd8": {
+  "message": "Tired of tapping through cookie windows? ContextFlow answers them for you with “only necessary”, and the first few times a short line by ✦ says so. Want them back on a site? Turn it off for that site in the extension settings, under Cookie windows."
+ },
+ "tip_fc1a61bcfa": {
+  "message": "Tired of clicking through cookie windows? ContextFlow answers them for you with “only necessary”, and the first few times a short line by ✦ says so. Want them back on a site? Turn it off for that site in the extension settings, under Cookie windows."
  },
  "tip_cc54dd5946": {
   "message": "Tips by the ✦ button"

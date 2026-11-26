@@ -18,8 +18,9 @@ interface Feature {
   actions: readonly string[]
   /** How people got to it. */
   via?: readonly string[]
-  /** Extra named values; "int" is a whole number 0–9999, "code" 2–3 capital letters (a currency, a country). */
-  fields?: Record<string, readonly string[] | "int" | "code">
+  /** Extra named values; "int" is a whole number 0–9999, "code" 2–3 capital letters (a currency, a country), "uuid" a
+   *  random id (an agent task's, never anything about the person). */
+  fields?: Record<string, readonly string[] | "int" | "code" | "uuid">
   /** Sent as its own event kind (or logged by the server), never as "use": named here for prev and reports. */
   own?: true
 }
@@ -39,6 +40,25 @@ export const COACH_HINTS = [
 ] as const
 
 export const FEATURES: Record<string, Feature> = {
+  // The browser agent (2.7.1): one task's start and end, tied by its random id (also on the server's agent_step rows);
+  // the person's answer to the recap before a booking; a question and where it was answered; the end's «Show».
+  // Kinds and counts only: never a site, a name, a time or the request.
+  agent: {
+    since: "2.8", tracked: "2.8", on: "ext",
+    actions: ["start", "end", "accepted", "rejected", "question", "result"],
+    via: ["card", "bubble", "chat"],
+    fields: {
+      task: "uuid",
+      what: ["book_table", "book_stay", "book_visit", "cart", "form", "other"],
+      page: ["product", "article", "video", "form", "event", "stay", "other"],
+      card: ["shown", "skipped"],
+      result: ["done", "failed", "stopped", "asked"],
+      err: ["steps", "stuck", "page", "unbooked", "blocked", "upstream", "other"],
+      recap: ["yes", "no"],
+      did: ["answered", "dismissed", "show"],
+      steps: "int", secs: "int", calls: "int", options: "int"
+    }
+  },
   // 2.8 (events-2.8 §2, rungs 8 and 9): sent by the panel from 2.8. "open": how ("hint": a hint's tap), its layout, the
   // page's kind, what the first screen showed (the guide, ready questions, an empty chat, a chat, an agent task's card)
   // and `first` on the first opening ever; "close": seconds open (`open_s`) and what it came to (`did`). 2.8.1: a close
@@ -384,7 +404,7 @@ export const FEATURES: Record<string, Feature> = {
   // «pay or accept» wall).
   // Settings: the switch and the per-site exception. Never a site or an address.
   cookies: {
-    since: "2.7.1", tracked: "2.7.1", on: "ext",
+    since: "2.8", tracked: "2.8", on: "ext",
     // 121, the owner: "accepted" — no way to refuse, «Если отказаться нельзя — принимать» on ("accept_on"/"accept_off").
     actions: ["closed", "accepted", "left", "switch_on", "switch_off", "site_off", "site_on", "accept_on", "accept_off"],
     fields: {
@@ -467,8 +487,8 @@ export function useFields(body: Record<string, unknown>): Record<string, unknown
   if (has(spec.via, body.via)) out.via = body.via
   for (const [name, allowed] of Object.entries(spec.fields ?? {})) {
     const value = allowed === "int" ? count(body[name]) : body[name]
-    const ok = allowed === "int" ? whole(value, 9999) : allowed === "code" ? typeof value === "string" && /^[A-Z]{2,3}$/.test(value) : has(allowed, value)
-    if (ok) out[name] = value
+    const ok = allowed === "int" ? whole(value, 9999) : allowed === "code" ? typeof value === "string" && /^[A-Z]{2,3}$/.test(value) : allowed === "uuid" ? typeof value === "string" && UUID.test(value) : has(allowed, value)
+    if (ok) out[name] = allowed === "uuid" ? (value as string).toLowerCase() : value
   }
   return out
 }

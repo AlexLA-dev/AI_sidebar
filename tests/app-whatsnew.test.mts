@@ -53,7 +53,8 @@ test("its cards are Tips' (their words and clips, in every language); a version 
   // Build 98 (the owner: «Почему в What's new нет видео про Listen?»): a card plays its clip wherever there is one. 2.7's
   // five (tests/tips-27.test.mts) have none made yet: each plays one once its Tip names it, and the line under the heading
   // says "each shown in a short clip" only then.
-  assert.match(whatsNew, /static var items: \[Tip\] \{\s*\[TipGroup\.\w+Tip(, TipGroup\.\w+Tip){3,4}\]/)
+  // (2.8: two cards, the agent and cookie windows.)
+  assert.match(whatsNew, /static var items: \[Tip\] \{\s*\[TipGroup\.\w+Tip(, TipGroup\.\w+Tip){1,4}\]/)
   for (const name of [...whatsNew.matchAll(/TipGroup\.(\w+Tip)/g)].map((m) => m[1])) assert.match(content, new RegExp(`static var ${name}: Tip \\{`), name)
   assert.match(whatsNew, /TipCard\(tip: WhatsNew\.items\[i\]\)/)
   assert.match(whatsNew, /if let store, WhatsNew\.newer\(store\.version, than: WhatsNew\.installed\)/)

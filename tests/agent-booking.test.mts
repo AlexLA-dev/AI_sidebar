@@ -268,7 +268,7 @@ test("a wordless button over the page (a banner's ×) closes it freely; elsewher
   assert.equal(classify({ tool: "click", id: "3" }, ctx([{ id: "3", role: "button", label: "", where: "dialog", form: 0, type: "submit" }])).cls, "confirm")
 })
 
-test("typing what an approved fill would put in (the request's words or the saved value) is the plan's; another value asks", async () => {
+test("typing what an approved fill would put in (the request's words or the saved value) is the plan's; another value is refused", async () => {
   const FORM: PageMap = { ...SALON, forms: [{ n: 0, fillable: true }], items: [{ id: "1", role: "textbox", label: "Name", lock: "personal", form: 0, state: ["empty"] }, { id: "2", role: "textbox", label: "Phone", lock: "personal", form: 0, state: ["empty"] }, { id: "9", role: "button", label: "Book", type: "submit", form: 0 }] }
   const raw = { label: "", steps: ["Booking"], questions: [], risky: [{ tool: "fill", id: "1", text: "", key: "name.full" }, { tool: "fill", id: "2", text: "", key: "phone" }], prices: [] }
   const entries: FormEntry[] = [{ id: "n", key: "name.full", label: "", value: "Анна Петрова", updatedAt: 1 }, { id: "p", key: "phone", label: "", value: "+357 99 123456", updatedAt: 1 }]
@@ -287,7 +287,9 @@ test("typing what an approved fill would put in (the request's words or the save
   const b = await run([{ tool: "type", id: "2", text: "+357 99 123 456" }], "забронируй")
   assert.equal(b.s.status, "done", "the saved phone's own value")
   const c = await run([{ tool: "type", id: "2", text: "+44 20 7946 0000" }], "забронируй")
-  assert.equal(c.s.status, "confirm", "another number asks")
+  // (127: never a value nobody gave — refused, not offered on a card.)
+  assert.equal(c.x.acted.length, 0, "another number isn't typed")
+  assert.ok(c.s.log.some((l) => /^refused: «\+44 20 7946 0000» isn't in the person's words/.test(l.result)))
 })
 
 test("the place's time zone: Paris 19:00 is Nicosia 20:00; free time is said in the place's clock", async () => {
@@ -302,7 +304,8 @@ test("the place's time zone: Paris 19:00 is Nicosia 20:00; free time is said in 
 
 test("a slot in another zone is checked in the device's clock", async () => {
   const seen: string[] = []
-  const raw = { ...RAW, booking: { ...BOOKING, tz: "Europe/Paris" } }
+  // (The request names 17:45: with no time named, the earliest free one — 17:00 — would be the one, 127.)
+  const raw = { ...RAW, booking: { ...BOOKING, tz: "Europe/Paris", at: "17:45" } }
   const x = io([{ ok: true, plan: raw, token: "t" }, step({ tool: "click", id: "3", date: "2026-11-24", time: "17:45" }, "free", "click", 'button "17:45"'), step({ tool: "done", summary: "x" }, "free", "read")], { entries: [fact("Gender", "Man"), fact("example.com · Specialist", "Y")], playbook: ["a"] })
   x.slotFree = async (date, time) => (seen.push(`${date} ${time}`), true)
   process.env.TZ = process.env.TZ ?? ""
@@ -405,10 +408,10 @@ test("a misfit place is refused; when one doesn't fit, the device opens the next
 
 test("the watchdog: a visible page pings while its task runs; a run idle for 45 s is picked up again", () => {
   const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
-  assert.match(app, /if \(!document\.hidden\) void sendBackground\(\{ type: "agentPing" \}\)/)
+  assert.match(app, /if \(!document\.hidden\) void sendBackground\(\{ type: "agentPing", doc: PAGE_DOC \}\)/)
   assert.match(app, /setInterval\(ping, 20_000\)/)
   const bg = readFileSync(new URL("../src/background/agent.ts", import.meta.url), "utf8")
-  assert.match(bg, /case "agentPing":[\s\S]{0,200}resume\(tab, PING_IDLE_MS\)/)
+  assert.match(bg, /case "agentPing":[\s\S]{0,500}resume\(tab, PING_IDLE_MS\)/)
   assert.match(bg, /const PING_IDLE_MS = 45_000/)
 })
 

@@ -206,6 +206,8 @@ const APP_ID = "6759115793"
 // the finished task whose end was seen, and how long an end is worth a bubble on this tab's pages.
 const AGENT_QUIET = "cf:agentQuiet"
 const AGENT_END_SEEN = "cf:agentEndSeen"
+// This page load, as the background tells our pages apart (a tab's old page saying «hidden» after its next one showed).
+const PAGE_DOC = `p${Math.random().toString(36).slice(2, 10)}`
 const END_BUBBLE_MS = 15 * 60_000
 
 interface ChatError {
@@ -3064,7 +3066,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => {
     if (agentTask?.status !== "running") return
     const ping = () => {
-      if (!document.hidden) void sendBackground({ type: "agentPing" })
+      if (!document.hidden) void sendBackground({ type: "agentPing", doc: PAGE_DOC })
     }
     const timer = setInterval(ping, 20_000)
     return () => clearInterval(timer)
@@ -3147,9 +3149,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // The bubble's buttons: this tab's answers go the panel's way; another tab's go to its task by the notice's step key.
   const agentBubbleActs = (b: BubbleData): BubbleActions => {
+    // (Counts only, feature "agent": the task's random id when it runs here, never the page or the question.)
+    const count = (fields: Record<string, string | number>) =>
+      void sendBackground({ type: "useEvent", f: "agent", ...(b.here && agentTask ? { task: agentTask.id } : {}), ...fields } as never)
     const send = (a: AgentAnswer, chosen?: string[]) => {
       setBubbleGone(b.key)
-      if (b.here) void answerAgent(a, chosen)
+      if (b.here) void answerAgent(a, chosen, "bubble")
       else
         void sendBackground<{ ok: boolean }>({ type: "agentNoticeAnswer", answer: a, chosen, key: b.key }).then((r) => {
           // (The step moved on meanwhile: the card in that tab says what's next; this bubble goes.)
@@ -3168,12 +3173,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           void sendBackground({ type: "agentGoTab" })
           return
         }
+        if (b.kind === "end") count({ a: "result", did: "show" })
         if (b.kind === "end" && agentTask) markEndSeen(agentTask.id)
         agentPeek.current = true
         show()
       },
       close: () => {
         setBubbleGone(b.key)
+        if (b.kind === "end") count({ a: "result", did: "dismissed" })
+        else if (b.kind === "ask") count({ a: "question", via: "bubble", options: b.options.length, did: "dismissed" })
         if (b.kind !== "end") return
         if (b.here && agentTask) markEndSeen(agentTask.id)
         else if (!b.here) {
@@ -3184,10 +3192,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
   }
 
-  const answerAgent = async (a: AgentAnswer, chosen?: string[]) => {
+  const answerAgent = async (a: AgentAnswer, chosen?: string[], via: "chat" | "bubble" = "chat") => {
     // The answer names its question (a second tap can't approve the next one).
     const key = agentTask ? pendingKey(agentTask as never) : ""
-    const r = await toAgent<{ ok: boolean; state?: PanelAgent }>({ type: "agentAnswer", answer: a, chosen, key })
+    const r = await toAgent<{ ok: boolean; state?: PanelAgent }>({ type: "agentAnswer", answer: a, chosen, key, via })
     if (r?.state) setAgentTask(r.state)
   }
 
@@ -3280,7 +3288,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (popup) return
     const onVis = () => {
       const visible = document.visibilityState === "visible"
-      void sendBackground({ type: "agentSeen", visible, ...(visible ? {} : { words: { title: "ContextFlow", paused: t("agentNotifPaused", "{0}"), done: t("agentNotifDone", "{0}"), needs: t("agentNotifNeeds", "{0}"), signIn: t("agentNeedSignIn"), pay: t("agentNeedPay"), answer: t("agentNeedAnswer") } }) })
+      void sendBackground({ type: "agentSeen", visible, doc: PAGE_DOC, ...(visible ? {} : { words: { title: "ContextFlow", paused: t("agentNotifPaused", "{0}"), done: t("agentNotifDone", "{0}"), needs: t("agentNotifNeeds", "{0}"), signIn: t("agentNeedSignIn"), pay: t("agentNeedPay"), answer: t("agentNeedAnswer") } }) })
     }
     document.addEventListener("visibilitychange", onVis)
     // A page that opens visible fires no change: it says so at once (a new tab otherwise left the background thinking
