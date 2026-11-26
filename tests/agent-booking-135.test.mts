@@ -4,7 +4,7 @@ import assert from "node:assert/strict"
 import { readFileSync } from "node:fs"
 import { test } from "node:test"
 
-import { answer, drive, lastDone, newState, nothingBooked, placeInReply, type ActReply, type AgentState, type RunnerIO } from "../src/shared/agent/runner.ts"
+import { answer, confirmedOnPage, drive, lastDone, newState, nothingBooked, placeInReply, untouchedNear, type ActReply, type AgentState, type RunnerIO } from "../src/shared/agent/runner.ts"
 import { requestWithAnswers, type PlanBooking, type TaskPlan } from "../src/shared/agent/taskplan.ts"
 import type { PageMap, ToolCall } from "../src/shared/agent/types.ts"
 
@@ -58,7 +58,8 @@ test("B: a booking task that ends with no booking press says nothing was booked 
   s.plan = { steps: [], questions: [], perms: [], self: [], prices: [], approved: true, booking: { ...BOOKING } } as unknown as TaskPlan
   const x = io(HOTEL, [
     step({ tool: "click", id: "4", why: "Choosing a room at The Palm Suites" }, "free", "entry"),
-    step({ tool: "done", summary: "I pressed Reserve for 2 nights, but the last pages didn't show a confirmation. Please check your booking.", date: "2026-12-04" } as ToolCall, "free", "read")
+    // (No day in done: the prompt has it only when the site confirmed a booking.)
+    step({ tool: "done", summary: "I pressed Reserve for 2 nights, but the last pages didn't show a confirmation. Please check your booking.", date: "" } as ToolCall, "free", "read")
   ])
   const st = await drive(s, x)
   assert.equal(st.status, "done")
@@ -104,4 +105,61 @@ test("smaller: a not-done line repeated for the same control shows once; prompt 
   assert.match(act, /never what didn't work before it/)
   assert.match(act, /A press that only opens the booking's form, its rooms or its next page isn't the booking/)
   assert.match(act, /The summary never says a booking was made, sent or pressed unless the page showed it booked/)
+})
+
+// The director on ffb2b665: «Nothing was booked.» only with no sign of a booking at all.
+async function endOf(doneCall: ToolCall, last: PageMap = HOTEL, press?: ActReply) {
+  const s = newState("b136", "Book a table for 2 tomorrow at 19:30", "en", URL0)
+  s.plan = { steps: [], questions: [], perms: [], self: [], prices: [], approved: true, booking: { kind: "table", date: "2026-11-27", at: "19:30", from: "19:30", until: "19:30", minutes: 90 } } as unknown as TaskPlan
+  const x = io(last, [...(press ? [press] : []), step(doneCall, "free", "read")])
+  return drive(s, x)
+}
+
+test("B both ways: a booking press the classifier missed (a final «Continue» classed free) with the site's confirmed day in done — unsure, the model's summary stands", async () => {
+  const st = await endOf({ tool: "done", summary: "Your table is booked for 19:30.", date: "2026-11-27", time: "19:30" } as ToolCall, HOTEL, step({ tool: "click", id: "4", why: "Continuing" }, "free", "nav"))
+  assert.equal(st.status, "done")
+  assert.equal(st.bookUnseen, true)
+  assert.equal(nothingBooked(st), false, "never «Nothing was booked» then")
+  assert.equal(st.error, undefined, "nor «Not finished»")
+  assert.equal(st.summary, "Your table is booked for 19:30.")
+  assert.equal(st.booked, undefined, "and no booked day or event asserted either")
+  assert.equal(st.ruleCounts?.book_unseen, 1)
+})
+
+test("B both ways: no day in done, but the last page shows a confirmation — unsure too", async () => {
+  const conf = page(HOTEL.items, "Thank you! Your reservation is confirmed. Reservation number 4821-993")
+  const st = await endOf({ tool: "done", summary: "Booked.", date: "" } as ToolCall, conf)
+  assert.equal(nothingBooked(st), false)
+  assert.equal(st.bookUnseen, true)
+})
+
+test("B both ways: no press, no day, no confirmation — «Nothing was booked»; with the press recorded — booked as before", async () => {
+  const none = await endOf({ tool: "done", summary: "I couldn't find a free table.", date: "" } as ToolCall)
+  assert.equal(nothingBooked(none), true)
+  assert.equal(none.error, "unbooked")
+  assert.equal(none.ruleCounts?.book_unseen, undefined)
+})
+
+test("the confirmation words are narrow: a list's «booked 5 times» isn't one", () => {
+  const p = (text: string) => page([], text)
+  for (const yes of ["Your booking is confirmed", "Booking confirmed!", "Confirmation number: AB12", "Your table has been booked", "Номер бронирования: 123", "Бронирование подтверждено", "Ihre Buchung ist bestätigt", "Votre réservation est confirmée", "Reserva confirmada", "予約番号：123", "예약이 확정되었습니다", "预订成功"]) assert.equal(confirmedOnPage(p(yes)), true, yes)
+  for (const no of ["Booked 5 times in the last 24 hours", "Забронировано 5 раз за последние 24 часа", "Greyed times are booked", "We have 1 left", "I'll reserve", "Confirm your booking"]) assert.equal(confirmedOnPage(p(no)), false, no)
+})
+
+test("C: a press that changed nothing names the choices beside it still at their first option or 0", async () => {
+  const items = [
+    { id: "r1", role: "combobox", label: "Select rooms", options: ["0", "1 (€ 210)", "2 (€ 420)"], value: "0", form: 3 },
+    { id: "r2", role: "combobox", label: "Select rooms", options: ["0", "1 (€ 223)"], value: "1 (€ 223)", form: 3 },
+    { id: "r9", role: "button", label: "I'll reserve", form: 3 },
+    { id: "x1", role: "combobox", label: "Currency", options: ["EUR", "USD"], value: "EUR", form: 1 }
+  ] as PageMap["items"]
+  const m = page(items)
+  assert.deepEqual(untouchedNear(m, "r9"), ["«Select rooms» (0)"], "the same form's untouched choice only")
+  // Through a run: the press's log line says so.
+  const s = newState("c136", "Book a stay", "en", URL0)
+  s.plan = { steps: [], questions: [], perms: [], self: [], prices: [], approved: true, booking: { ...BOOKING } } as unknown as TaskPlan
+  const x: RunnerIO = { ...io(m, [step({ tool: "click", id: "r9", why: "Choosing a room" }, "free", "entry"), step({ tool: "done", summary: "x", date: "" } as ToolCall, "free", "read")]), act: async () => ({ ok: true, note: "nothing changed on the page" }) }
+  const st = await drive(s, x)
+  const entry = st.log.find((e) => e.call.id === "r9")!
+  assert.match(entry.result, /^nothing changed on the page; beside it, still at their first option: «Select rooms» \(0\) — set the one the request needs/)
 })

@@ -36,7 +36,8 @@ test("every code is counted somewhere in the runner, and the slot rules by their
   assert.equal(slotCode("2026-11-27 19:30 is busy in the person's calendar (their event)"), "slot_busy")
   // Every refusal or hold the runner logs has its count beside it.
   const logged = src.split("\n").filter((l) => /state\.log\.push\(.*result: (box \? )?`(refused|held)/.test(l) || /result: access === "denied" \? `refused/.test(l)).length
-  assert.equal(src.split("\n").filter((l) => /^\s*rule\(state, /.test(l)).length, logged)
+  // (book_unseen isn't a refusal: a booking press the device didn't record, counted at the end.)
+  assert.equal(src.split("\n").filter((l) => /^\s*rule\(state, /.test(l) && !/"book_unseen"/.test(l)).length, logged)
 })
 
 const step = (call: ToolCall, cls: "free" | "confirm", reason: string): ActReply => ({ ok: true, call, verdict: { cls, reason }, target: null })
