@@ -440,10 +440,26 @@ export function saidInWords(words: string, value: string): boolean {
   if (!v) return false
   // An e-mail address counts as a whole, never by its parts (127: «Alex» typed into Name passed as the person's words
   // because they had just given alex.test@example.com).
-  const said = EMAIL_IN.test(value) ? words : words.replace(EMAIL_ALL, " ")
+  // (A name's parts written with a middle dot — «アレックス・テスト» — are words of their own.)
+  const said = (EMAIL_IN.test(value) ? words : words.replace(EMAIL_ALL, " ")).replace(/[・･·]/g, " ")
   if (` ${normalize(said)} `.includes(` ${v} `)) return true
   const sv = squash(value)
-  return sv.length >= 7 && squash(said).includes(sv)
+  if (sv.length >= 7 && squash(said).includes(sv)) return true
+  // Words in a script written without spaces (kana, Han, Hangul): the value counts where the text changes script or has a
+  // separator on both its sides («名前はアレックス・テスト»: «アレックス» after «は», before «・»).
+  return unspacedWord(said, value.trim())
+}
+
+const SCRIPT = (ch: string) => (/\p{Script=Katakana}/u.test(ch) ? "k" : /\p{Script=Hiragana}/u.test(ch) ? "h" : /\p{Script=Han}/u.test(ch) ? "c" : /\p{Script=Hangul}/u.test(ch) ? "g" : /[\p{L}\p{N}]/u.test(ch) ? "l" : "")
+
+function unspacedWord(text: string, value: string): boolean {
+  if (value.length < 2 || !/^[\p{Script=Katakana}\p{Script=Hiragana}\p{Script=Han}\p{Script=Hangul}ー]+$/u.test(value)) return false
+  for (let at = text.indexOf(value); at >= 0; at = text.indexOf(value, at + 1)) {
+    const before = SCRIPT(text[at - 1] ?? "")
+    const after = SCRIPT(text[at + value.length] ?? "")
+    if (before !== SCRIPT(value[0]) && after !== SCRIPT(value[value.length - 1])) return true
+  }
+  return false
 }
 
 // ------------------------------------------------------------ prices
@@ -750,8 +766,8 @@ export function keyKind(key: string): string {
 }
 
 /** What a field asks for, when the page says it plainly (its type, autocomplete or label): email, phone; else null. */
-const GIVEN = /first.?name|given.?name|forename|(?<!\p{L})имя(?!\p{L})|(?<!\p{L})ім'я|vorname|prénom|prenom|(?<!\p{L})nombre(?!\p{L})|(?<!\p{L})nome(?!\p{L})|(?<!\p{L})ad(?!\p{L})|名(?!字)|이름/iu
-const FAMILY = /last.?name|surname|family.?name|фамили|прізвищ|nachname|nom de famille|(?<!\p{L})nom(?!\p{L})|apellido|cognome|sobrenome|soyad|姓(?!名)|성(?!함)/iu
+const GIVEN = /first.?name|given.?name|forename|(?<!\p{L})имя(?!\p{L})|(?<!\p{L})ім'я|vorname|prénom|prenom|(?<!\p{L})nombre(?!\p{L})|(?<!\p{L})nome(?!\p{L})|(?<!\p{L})ad(?!\p{L})|(?<![氏姓])名(?![字前])|이름/iu
+const FAMILY = /last.?name|surname|family.?name|фамили|прізвищ|nachname|nom de famille|(?<!\p{L})nom(?!\p{L})|apellido|cognome|sobrenome|soyad|姓(?!名)|^\s*氏\s*[*＊]?\s*$|성(?!함)/iu
 
 export function fieldKind(item: Pick<MapItem, "type" | "auto" | "label">, autoKey: string | null): string | null {
   // A first or last name's field takes that part only (a restaurant's «First name»: the full name was put in).

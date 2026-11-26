@@ -1847,7 +1847,10 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       if (call.tool === "fill") {
         const item = map.items.find((i) => i.id === call.id) ?? null
         // Only the details the plan named (the same form's others, with their own keys, when they're named too).
-        const fill = fillLines(call, item, entries, map.lang || state.lang, map).filter((l) => perm.keys?.includes(l.key) && (!perm.ids || perm.ids.includes(l.id)) && own(l.key, l.value))
+        // (A first or last name is the saved full name's part: allowed where the full name is — the director's real-site run
+        // on 10eed066: «First name» and «名» refused as «doesn't fit» on two booking forms.)
+        const allowed = (k: string) => !!perm.keys?.includes(k) || ((k === "name.given" || k === "name.family") && !!perm.keys?.includes("name.full"))
+        const fill = fillLines(call, item, entries, map.lang || state.lang, map).filter((l) => allowed(l.key) && (!perm.ids || perm.ids.includes(l.id)) && own(l.key, l.value))
         if (!fill.length) {
           state.log.push({ call: { tool: "fill", id: call.id, key: call.key, why: call.why }, target: target ?? undefined, result: "failed: that detail doesn't fit this field" })
           continue

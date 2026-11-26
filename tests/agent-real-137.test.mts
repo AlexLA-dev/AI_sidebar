@@ -94,3 +94,27 @@ test("days the person gives in an answer are the booking's days from then on (a 
   const u = await answer(t, io([cal], []), "reply", ["2026-12-04"])
   assert.equal(u.plan!.booking!.dateEnd, "2026-12-06")
 })
+
+test("split name fields: a saved full name fills «First name» and «名» where the plan allows the full name; «氏» is the family name", async () => {
+  const { fieldKind, saidInWords } = await import("../src/shared/agent/taskplan.ts")
+  assert.equal(fieldKind({ label: "氏" } as never, null), "name.family")
+  assert.equal(fieldKind({ label: "名" } as never, null), "name.given")
+  assert.equal(fieldKind({ label: "氏名" } as never, null), null, "the full name's field isn't the given name's")
+  assert.equal(fieldKind({ label: "First name*" } as never, null), "name.given")
+  // The request's own name, written with a middle dot and no spaces, counts as the person's words; a made-up one doesn't.
+  assert.equal(saidInWords("名前はアレックス・テスト", "アレックス"), true)
+  assert.equal(saidInWords("名前はアレックス・テスト", "レック"), false)
+  assert.equal(saidInWords("名前はアレックス・テスト", "ボブ"), false)
+  // Through a run: the plan's contact fill names the full name; the form asks first and last name apart.
+  const form = page("Guest details", "Guest details", [
+    { id: "10", role: "textbox", label: "First name*", lock: "personal", form: 0, state: ["empty"] },
+    { id: "11", role: "textbox", label: "Last name*", lock: "personal", form: 0, state: ["empty"] }
+  ] as PageMap["items"])
+  form.forms = [{ n: 0, fillable: true }] as never
+  const s = newState("r137n", "Book a stay", "en", form.url)
+  s.plan = { steps: [], questions: [], perms: [{ id: "pc", kind: "fill", reason: "contact", label: "", keys: ["name.full", "email"], host: "venue.example", on: true }], self: [], prices: [], approved: true, booking: { kind: "stay", date: "2026-12-04", dateEnd: "2026-12-06", from: "", until: "", minutes: 0 } } as unknown as TaskPlan
+  const x = { ...io([form], [step({ tool: "fill", id: "10", key: "name.given", why: "Filling in your first name" } as ToolCall, "confirm", "fill")]), entries: async () => [{ id: "e1", key: "name.full", label: "", value: "Alex Test", updatedAt: 1 }] as never }
+  const st = await drive(s, x)
+  const fill = st.log.find((e) => e.call.tool === "fill" && e.call.id === "10")!
+  assert.doesNotMatch(fill.result, /doesn't fit this field/)
+})
