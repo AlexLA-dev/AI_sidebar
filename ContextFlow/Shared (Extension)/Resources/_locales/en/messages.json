@@ -3620,6 +3620,9 @@
  "agentNotifNeeds": {
   "message": "Needs you: {0}"
  },
+ "agentNotifNotBooked": {
+  "message": "Not booked: {0}"
+ },
  "agentPlanStepYours": {
   "message": "“{0}” — you press it"
  },
@@ -3640,6 +3643,12 @@
  },
  "agentMarkUnfinished": {
   "message": "Not finished"
+ },
+ "agentNothingBooked": {
+  "message": "Nothing was booked."
+ },
+ "agentLastDone": {
+  "message": "Last step done: {0}"
  },
  "agentStuck": {
   "message": "The page stopped changing, so I stopped here. What I got to is above."

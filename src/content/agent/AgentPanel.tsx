@@ -8,7 +8,7 @@ import { clock, clockFrom, hours } from "./clockform"
 export { clock, clockForm, clockFrom } from "./clockform"
 import { useEffect, useRef, useState } from "preact/hooks"
 
-import type { Answer, AgentState, PlanApproval, Recap } from "../../shared/agent/runner"
+import { lastDone, nothingBooked, type Answer, type AgentState, type PlanApproval, type Recap } from "../../shared/agent/runner"
 import { factLabel, isCancelChoice, keepable, savedAnswers, type Perm, type PlanSelf, type TaskPlan } from "../../shared/agent/taskplan"
 import { daysAsIso } from "../../shared/agent/dates"
 import { AMAZON_TEXT } from "../../shared/amazon"
@@ -433,7 +433,9 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
   // A line with nothing to say (no words from the model, no control) isn't shown: it read as a stray «·».
   // While it works, the newest few; a finished task opened from its line shows every step that ran (the director: the
   // cookie step was missing from an opened booking).
-  const shown = state.lines.filter((l) => l.text || l.target || l.popup)
+  // Two not-done lines in a row for the same control say it once (the director on 11f0c58b: «Opening The Palm Suites…»
+  // greyed twice in a row).
+  const shown = state.lines.filter((l, i, all) => (l.text || l.target || l.popup) && !(i > 0 && !l.ok && !all[i - 1].ok && l.tool === all[i - 1].tool && (l.target ?? "") === (all[i - 1].target ?? "")))
   const lines = finished ? shown : shown.slice(-8)
   // The card stays in view as the task goes on: its newest line, its question, its result.
   const ref = useRef<HTMLDivElement>(null)
@@ -591,7 +593,14 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
             <>
               <strong>{t(state.error === "steps" || state.error === "stuck" || state.error === "unbooked" ? "agentMarkUnfinished" : "agentDoneTitle")}</strong>
               {(state.error === "steps" || state.error === "stuck") && <p>{t(state.error === "stuck" ? "agentStuck" : "agentSteps")}</p>}
-              {state.summary ? <Markdown text={localWhen(state.summary)} /> : null}
+              {/* Nothing booked: the device's own words, not the model's (which once said «I pressed Reserve… check your
+                  booking» with no booking press gone): that, and the last step done. */}
+              {nothingBooked(state) ? (
+                <>
+                  <p>{t("agentNothingBooked")}</p>
+                  {lastDone(state) && <p class="cf-agent-meta" dir="auto">{t("agentLastDone", localWhen(lastDone(state)))}</p>}
+                </>
+              ) : state.summary ? <Markdown text={localWhen(state.summary)} /> : null}
               {state.calSkipped && <p class="cf-agent-meta">{t("agentCalNotChecked")}</p>}
             </>
           )}

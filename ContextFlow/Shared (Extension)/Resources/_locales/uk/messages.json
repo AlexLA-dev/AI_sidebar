@@ -3620,6 +3620,9 @@
  "agentNotifNeeds": {
   "message": "Потрібні ви: {0}"
  },
+ "agentNotifNotBooked": {
+  "message": "Не заброньовано: {0}"
+ },
  "agentPlanStepYours": {
   "message": "«{0}» — натиснете ви"
  },
@@ -3640,6 +3643,12 @@
  },
  "agentMarkUnfinished": {
   "message": "Не завершено"
+ },
+ "agentNothingBooked": {
+  "message": "Нічого не заброньовано."
+ },
+ "agentLastDone": {
+  "message": "Останній виконаний крок: {0}"
  },
  "agentStuck": {
   "message": "Сторінка перестала змінюватися — я зупинився. Що встиг — вище."

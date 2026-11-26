@@ -3620,6 +3620,9 @@
  "agentNotifNeeds": {
   "message": "Sizi bekliyor: {0}"
  },
+ "agentNotifNotBooked": {
+  "message": "Rezerve edilmedi: {0}"
+ },
  "agentPlanStepYours": {
   "message": "“{0}” — siz basacaksınız"
  },
@@ -3640,6 +3643,12 @@
  },
  "agentMarkUnfinished": {
   "message": "Bitmedi"
+ },
+ "agentNothingBooked": {
+  "message": "Hiçbir şey rezerve edilmedi."
+ },
+ "agentLastDone": {
+  "message": "Yapılan son adım: {0}"
  },
  "agentStuck": {
   "message": "Sayfa değişmeyi bıraktı, burada durdum. Yapabildiklerim yukarıda."

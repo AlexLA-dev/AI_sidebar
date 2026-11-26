@@ -3620,6 +3620,9 @@
  "agentNotifNeeds": {
   "message": "確認が必要です：{0}"
  },
+ "agentNotifNotBooked": {
+  "message": "未予約：{0}"
+ },
  "agentPlanStepYours": {
   "message": "「{0}」はご自身で押してください"
  },
@@ -3640,6 +3643,12 @@
  },
  "agentMarkUnfinished": {
   "message": "未完了"
+ },
+ "agentNothingBooked": {
+  "message": "何も予約されていません。"
+ },
+ "agentLastDone": {
+  "message": "最後に済んだ手順：{0}"
  },
  "agentStuck": {
   "message": "ページが変わらなくなったので、ここで止めました。進んだところまでは上にあります。"

@@ -11,6 +11,7 @@ import type { VNode } from "preact"
 import * as Icon from "../icons"
 import { t } from "../../shared/i18n"
 import { isCancelChoice } from "../../shared/agent/taskplan"
+import { nothingBooked } from "../../shared/agent/runner"
 import { clockFrom, errorText, isAccess, localWhen, NO_UNDO, recapNotes, recapWhat, selfText, stepText, type PanelAgent } from "./AgentPanel"
 
 export type BubbleKind = "ask" | "confirm" | "self" | "open" | "end"
@@ -34,7 +35,7 @@ export interface BubbleData {
 }
 
 // What the bubble reads: this tab's task, or another tab's notice (the same fields, kept by the background).
-export type BubbleSource = Pick<PanelAgent, "id" | "status" | "summary" | "choices" | "pending" | "error" | "askKey"> & { request?: string }
+export type BubbleSource = Pick<PanelAgent, "id" | "status" | "summary" | "choices" | "pending" | "error" | "askKey"> & Partial<Pick<PanelAgent, "plan" | "bookPress">> & { request?: string }
 
 /** A finished task's summary as one plain line: no Markdown marks, links as their words. */
 export function plainLine(md: string, max = 140): string {
@@ -88,7 +89,7 @@ export function bubbleOf(s: BubbleSource, key: string, here: boolean): BubbleDat
     default: {
       if (!ENDED.has(s.status)) return null
       const unfinished = s.status !== "done" || s.error === "steps" || s.error === "stuck" || s.error === "unbooked"
-      const why = s.status === "done" ? plainLine(s.summary ?? "") : s.status === "blocked" ? t("agentBlockedSite") : errorText(s.error, null)
+      const why = nothingBooked(s) ? t("agentNothingBooked") : s.status === "done" ? plainLine(s.summary ?? "") : s.status === "blocked" ? t("agentBlockedSite") : errorText(s.error, null)
       return { ...base, key: `end:${s.id}`, kind: "end", ok: !unfinished, text: t(unfinished ? "agentBubbleNotDone" : "agentBubbleDone", why || "—") }
     }
   }

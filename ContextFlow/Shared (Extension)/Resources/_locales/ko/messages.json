@@ -3620,6 +3620,9 @@
  "agentNotifNeeds": {
   "message": "확인이 필요해요: {0}"
  },
+ "agentNotifNotBooked": {
+  "message": "예약 안 됨: {0}"
+ },
  "agentPlanStepYours": {
   "message": "‘{0}’는 직접 누르세요"
  },
@@ -3640,6 +3643,12 @@
  },
  "agentMarkUnfinished": {
   "message": "끝나지 않음"
+ },
+ "agentNothingBooked": {
+  "message": "예약된 것이 없습니다."
+ },
+ "agentLastDone": {
+  "message": "마지막으로 한 단계: {0}"
  },
  "agentStuck": {
   "message": "페이지가 더 바뀌지 않아 여기서 멈췄어요. 진행한 내용은 위에 있어요."
