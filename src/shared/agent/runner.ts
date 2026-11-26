@@ -19,7 +19,7 @@ import { pageSubject, subjectLine } from "./subject.ts"
 import { cardsOf, onVenue, rankVenues, venueNote, venueOf, venuesOn, type Venue } from "./venues.ts"
 import { freeLineIn, honestChoices, looksLikeSlot, nearerTimes, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
 import { pageKind } from "./events.ts"
-import { addContactFill, NAME_SAID, bareLabel, buildPlan, contactField, contactKind, requestGives, pathOf, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, contactInWords, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type TaskPlan, DAY_KINDS, sameTaskPage } from "./taskplan.ts"
+import { addContactFill, NAME_SAID, bareLabel, buildPlan, contactField, contactKind, requestGives, pathOf, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, contactInWords, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type PlanQuestion, type TaskPlan, DAY_KINDS, sameTaskPage } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
 
 export type AgentStatus = "plan" | "running" | "confirm" | "fill" | "self" | "done" | "asked" | "stopped" | "error" | "blocked"
@@ -406,6 +406,36 @@ export const POINTS = { test: (text: string) => POINT_WORDS.test(text) || POINT_
 
 const squashName = (s: string) => s.toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, "")
 
+/** The chat's suggested place as a place question's first option (moved there, or added with the page's own spelling),
+ *  nothing picked: the person chooses. Over the question's size, the last of the page's places goes, never the card's
+ *  own last option («Other…», «pick for me»). */
+export function suggestFirst(q: PlanQuestion, name: string, listed: Set<string>): void {
+  const opts = [...q.options]
+  const notes = q.notes ? [...q.notes] : undefined
+  const cap = Math.max(4, opts.length)
+  const i = opts.findIndex((o) => squashName(o) === squashName(name))
+  if (i > 0) {
+    const [o] = opts.splice(i, 1)
+    opts.unshift(o)
+    if (notes) notes.unshift(...notes.splice(i, 1))
+  } else if (i < 0) {
+    opts.unshift(name)
+    notes?.unshift("")
+    while (opts.length > cap) {
+      let j = -1
+      for (let k = opts.length - 1; k > 0; k--) if (listed.has(squashName(opts[k]))) { j = k; break }
+      if (j < 0) j = opts.length - 2
+      if (j <= 0) break
+      opts.splice(j, 1)
+      notes?.splice(j, 1)
+    }
+  }
+  q.options = opts
+  if (notes) q.notes = notes
+  delete q.pick
+  q.place = true
+}
+
 /** Today on the device (YYYY-MM-DD), the year a day without one is read against. */
 function todayIso(): string {
   const d = new Date()
@@ -567,9 +597,19 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
     delete plan.booking.venue
     // (Nor does a plan step that chooses it: the card asks instead.)
     plan.steps = plan.steps.filter((l) => !namedIn(chatPick, l))
-    // (Nor does the card's «From the chat» line say it: that line is what the person's words took from the chat.)
-    if (plan.fromChat) plan.fromChat = plan.fromChat.replace(new RegExp(`\\s*[,;·—–-]?\\s*${chatPick.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "iu"), "").replace(/^[\s,;·—–-]+|[\s,;·—–-]+$/gu, "")
+    // (Nor does the card's «From the chat» line say it, below: that line is what the person's words took from the chat.)
   }
+  // The place the assistant suggested in the chat, named by the plan in a field of its own (the director on 03a95321:
+  // the model's own question once left it out, once put it first): never the booking's place by itself, it's the first
+  // option of whichever place question the card shows, when this page lists it. A booking already placed (the request
+  // names or points to its place, or this is one place's page) has nothing to ask.
+  const suggested = (plan.chatPlace ?? "").trim()
+  delete plan.chatPlace
+  if (!chatPick && suggested && plan.booking && !plan.booking.venue && subject?.kind !== "place" && !namedIn(suggested, state.request)) {
+    chatPick = suggested
+    plan.steps = plan.steps.filter((l) => !namedIn(chatPick, l))
+  }
+  if (chatPick && plan.fromChat) plan.fromChat = plan.fromChat.replace(new RegExp(`\\s*[,;·—–-]?\\s*${chatPick.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "iu"), "").replace(/^[\s,;·—–-]+|[\s,;·—–-]+$/gu, "")
   if (plan.booking?.venue && !(subject?.kind === "place" && subject.name === plan.booking.venue) && !namedIn(plan.booking.venue, `${state.request} ${plan.fromChat ?? ""}`)) delete plan.booking.venue
   // On one place's page, a booking that names no other is there: no choosing, no «I'll pick the place».
   if (subject?.kind === "place" && plan.booking && !plan.booking.venue) plan.booking.venue = subject.name
@@ -638,13 +678,20 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   // aren't links the device can rank (129, the iPad: the stand's script-opened cards; no question was asked at all).
   if (chatPick && plan.booking && !plan.booking.venue && !plan.questions.some((q) => q.kind === "venue" || q.fact === "venue" || q.place)) {
     const own = (i: MapItem) => i.role === "link" && (!!i.card || !i.href) && i.label.trim().length >= 3 && i.label.trim().length <= 80
-    const labels = [...new Set(map.items.filter(own).map((i) => i.label.trim()))]
+    const labels = [...new Set([...venuesOn(map).map((v) => v.name), ...map.items.filter(own).map((i) => i.label.trim())])]
     const first = labels.find((l) => squashName(l) === squashName(chatPick)) ?? (shown.includes(chatPick.toLocaleLowerCase()) ? chatPick : "")
     if (first) {
       const options = [first, ...labels.filter((l) => l !== first).slice(0, 2), ...(rules.chooseVenue ? ["@auto"] : [])]
       plan.questions.push({ q: "", kind: "venue", fact: "pref:place", options, notes: options.map(() => ""), min: rules.rating, place: true })
       if (plan.how) plan.how.rating = 0
     }
+  }
+  // Whichever place question is on the card — the model's own (it left the suggestion out, or put it in the middle) or
+  // the device's — has the chat's suggestion first, chosen by nobody yet: the person picks.
+  if (chatPick && plan.booking && !plan.booking.venue) {
+    const q = plan.questions.find((x) => x.kind === "venue" || x.fact === "venue" || x.fact === "pref:place" || x.place)
+    const onPage = [...venuesOn(map).map((v) => v.name), ...map.items.filter((i) => i.role === "link").map((i) => i.label.trim())].find((n) => squashName(n) === squashName(chatPick)) ?? (shown.includes(chatPick.toLocaleLowerCase()) ? chatPick : "")
+    if (q && onPage) suggestFirst(q, onPage, listed)
   }
   // A page that is the booking's own form (its booking press is on this page, no places listed): there's no place to
   // choose, so no «I'll pick the place» (the director on 126, a stand's one-form page).

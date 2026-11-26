@@ -97,6 +97,10 @@ export interface TaskPlan {
   how?: { rating: number; calendar: boolean; ask?: "none" | "denied" }
   // What it took from the chat it was started in (the card says «Из чата: …»; the steps hear it as data).
   fromChat?: string
+  // The place the assistant suggested in the earlier chat, which the request doesn't point to (the director on 03a95321):
+  // never the booking's place by itself; the device makes it the first option of the place question. Data, not
+  // instructions; read on the plan's arrival and not kept with the task.
+  chatPlace?: string
   // Who or where matters to the person and nothing settled it (no list to ask from on the card): the agent finds the
   // places, then asks them once (2.7.1: never a silent pick of a place that's theirs).
   askPlace?: boolean
@@ -118,6 +122,8 @@ export interface RawPlan {
   booking?: PlanBooking
   // What the plan took from the chat it was started in (resolved references: «a restaurant, 2 человека»), for the card.
   fromChat?: string
+  // The place the assistant only suggested in the chat (see TaskPlan.chatPlace).
+  chatPlace?: string
 }
 
 /** A task that books a time (2.7.1, the owner: the agent looks at the Calendar's free time for it): what, which day,
@@ -193,6 +199,7 @@ export const PLAN_SCHEMA = {
     },
     prices: { type: "array", items: { type: "string" } },
     fromChat: { type: "string" },
+    chatPlace: { type: "string" },
     booking: {
       type: "object",
       properties: {
@@ -218,7 +225,7 @@ export const PLAN_SCHEMA = {
       additionalProperties: false
     }
   },
-  required: ["label", "steps", "questions", "risky", "prices", "fromChat", "booking"],
+  required: ["label", "steps", "questions", "risky", "prices", "fromChat", "chatPlace", "booking"],
   additionalProperties: false
 }
 
@@ -245,7 +252,8 @@ export function checkPlan(raw: unknown): RawPlan {
   }).slice(0, 20)
   const prices = arr(r.prices).map((x) => s(x, 40)).filter((p) => /\d/.test(p)).slice(0, 4)
   const fromChat = s(r.fromChat, 120)
-  return { label: safeLabel(s(r.label, 60)), steps, questions, risky, prices, ...(fromChat ? { fromChat } : {}), ...(bookingOf(r.booking) ? { booking: bookingOf(r.booking)! } : {}) }
+  const chatPlace = s(r.chatPlace, 80)
+  return { label: safeLabel(s(r.label, 60)), steps, questions, risky, prices, ...(fromChat ? { fromChat } : {}), ...(chatPlace ? { chatPlace } : {}), ...(bookingOf(r.booking) ? { booking: bookingOf(r.booking)! } : {}) }
 }
 
 function bookingOf(v: unknown): PlanBooking | null {
@@ -388,7 +396,7 @@ export function buildPlan(raw: RawPlan, ctx: StepContext): TaskPlan {
     if (i >= 0) x.step = i
   }
   const seen = [...new Set([...(ctx.map.money ?? []), ...amounts(ctx.map.text), ...ctx.map.items.flatMap((i) => (i.role === "button" ? amounts(i.label) : []))])].slice(0, 120)
-  return { ...(raw.label ? { label: raw.label } : {}), steps: raw.steps, questions: raw.questions.filter((q) => q.options.length || q.q), perms, self, prices: raw.prices, seen, site: siteOfHost(host), ...(raw.booking ? { booking: raw.booking } : {}), ...(raw.fromChat ? { fromChat: raw.fromChat } : {}) }
+  return { ...(raw.label ? { label: raw.label } : {}), steps: raw.steps, questions: raw.questions.filter((q) => q.options.length || q.q), perms, self, prices: raw.prices, seen, site: siteOfHost(host), ...(raw.booking ? { booking: raw.booking } : {}), ...(raw.fromChat ? { fromChat: raw.fromChat } : {}), ...(raw.chatPlace ? { chatPlace: raw.chatPlace } : {}) }
 }
 
 /** Whether the plan needs the person at all: questions, permissions or their own steps. */

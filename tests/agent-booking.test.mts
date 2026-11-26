@@ -408,10 +408,10 @@ test("a misfit place is refused; when one doesn't fit, the device opens the next
 
 test("the watchdog: a visible page pings while its task runs; a run idle for 45 s is picked up again", () => {
   const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
-  assert.match(app, /if \(!document\.hidden\) void sendBackground\(\{ type: "agentPing" \}\)/)
+  assert.match(app, /if \(!document\.hidden\) void sendBackground\(\{ type: "agentPing", doc: PAGE_DOC \}\)/)
   assert.match(app, /setInterval\(ping, 20_000\)/)
   const bg = readFileSync(new URL("../src/background/agent.ts", import.meta.url), "utf8")
-  assert.match(bg, /case "agentPing":[\s\S]{0,200}resume\(tab, PING_IDLE_MS\)/)
+  assert.match(bg, /case "agentPing":[\s\S]{0,500}resume\(tab, PING_IDLE_MS\)/)
   assert.match(bg, /const PING_IDLE_MS = 45_000/)
 })
 
