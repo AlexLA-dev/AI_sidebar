@@ -74,6 +74,21 @@ function inTurn<T>(run: () => Promise<T>): Promise<T> {
   return next
 }
 
+/**
+ * Puts `id` in the index of openings if it isn't there (the director's review of #268: the index is read and written
+ * whole, so two tabs adding at once, or a cleanup against an add, could drop an id, whose record was then never closed
+ * or removed). Checked again after the write and written again if another tab's write took it out; the tab that has the
+ * opening checks on every keep (each 15 s on screen, and as the page goes), so a dropped id comes back.
+ */
+async function ensureIndexed(store: OpeningStore, id: string, at: number): Promise<void> {
+  for (let tries = 0; tries < 3; tries++) {
+    const index = (await store.get([INDEX_KEY]))[INDEX_KEY]
+    const ids = index && typeof index === "object" ? (index as Record<string, unknown>) : {}
+    if (typeof ids[id] === "number") return
+    await store.set({ [INDEX_KEY]: { ...ids, [id]: at } })
+  }
+}
+
 async function readRecord(store: OpeningStore, id: string): Promise<OpeningRecord | null> {
   const v = (await store.get([recordKey(id)]))[recordKey(id)]
   return valid(v) ? v : null
@@ -113,11 +128,7 @@ export function keepOpening(id: string, rec: Omit<OpeningRecord, "claim" | "clai
       return won ? { state: "ended", record: won } : { state: "closed" }
     }
     await store.set({ [recordKey(id)]: rec })
-    if (!cur) {
-      const index = (await store.get([INDEX_KEY]))[INDEX_KEY]
-      const ids = index && typeof index === "object" ? (index as Record<string, unknown>) : {}
-      if (typeof ids[id] !== "number") await store.set({ [INDEX_KEY]: { ...ids, [id]: rec.at } })
-    }
+    await ensureIndexed(store, id, rec.at)
     return { state: "kept" }
   })
 }
@@ -128,6 +139,8 @@ export function endOpening(id: string, rec: Omit<OpeningRecord, "claim" | "claim
     const cur = await readRecord(store, id)
     if (cur?.closed || (cur && claimedByOther(cur, token, now()))) return false
     await store.set({ [recordKey(id)]: { ...rec, closed: now() } })
+    // Listed, so its tombstone is forgotten in a day (an opening closed before its first keep was written, too).
+    await ensureIndexed(store, id, rec.at)
     return true
   })
 }

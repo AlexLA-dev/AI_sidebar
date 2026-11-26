@@ -18,6 +18,9 @@ interface Context {
   installId: string
   jws: string | null
   client: Record<string, unknown>
+  // The client for the scan count (2.8.1, the director's review of #268): the one that waits for the app's build and
+  // «ours» mark (index.ts clientForEvent), so a test install's scans are never counted as a person's. Requests keep client.
+  eventClient?: () => Promise<Record<string, unknown>>
   // Suggestions are on, and the one AI consent (which lists them) is given.
   on: boolean
 }
@@ -259,7 +262,7 @@ async function reportScan(chat: Thread, live: Thread[], vectorOf: VectorOf, cfg:
   // How much of the extension's storage is used (its vectors live there), when the browser says.
   const used = await (chrome.storage.local as { getBytesInUse?: (keys: null) => Promise<number> }).getBytesInUse?.(null).catch(() => undefined)
   const kb = typeof used === "number" ? { kb: Math.min(9999, Math.round(used / 1024)) } : {}
-  await postEvent(() => ({ kind: "use", installId: ctx.installId, client: ctx.client, f: "org", a: "scan", ...scan, ...kb, ev: ORGANIZE_ENGINE, s: "panel" }))
+  await postEvent(async () => ({ kind: "use", installId: ctx.installId, client: ctx.eventClient ? await ctx.eventClient() : ctx.client, f: "org", a: "scan", ...scan, ...kb, ev: ORGANIZE_ENGINE, s: "panel" }))
 }
 
 export async function reportOrganize(event: OrganizeEvent, installId: () => Promise<string>, client: () => Promise<Record<string, unknown>>): Promise<void> {

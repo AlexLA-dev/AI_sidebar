@@ -35,7 +35,7 @@ test("the extension marks every request through the native ping", () => {
   const handler = read("ContextFlow/Shared (Extension)/SafariWebExtensionHandler.swift")
   assert.match(handler, /case "ping":[\s\S]{0,900}?if OurBuild\.isOurs \{ data\["test"\] = true \}\s*Self\.reply\(context, \["success": true, "data": data\]\)/)
   const bg = read("src/background/index.ts")
-  assert.match(bg, /return \{ build: data\?\.build \?\? "", app, test: data\?\.test === true \}/)
+  assert.match(bg, /return \{ build: data\.build, app, test: data\.test === true \}/)
   assert.match(bg, /async function clientInfo\(\) \{[\s\S]*?\.\.\.\(test \? \{ audience: "test" \} : \{\}\) \}/)
   // Chrome (no native side) is never marked by this.
   assert.match(bg, /if \(TARGET !== "safari"\) return Promise\.resolve\(\{ build: "", app: null, test: false \}\)/)
