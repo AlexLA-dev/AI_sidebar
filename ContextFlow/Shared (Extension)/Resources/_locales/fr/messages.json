@@ -3545,6 +3545,9 @@
  "agentNotifNeeds": {
   "message": "Vous êtes attendu : {0}"
  },
+ "agentNotifNotBooked": {
+  "message": "Pas réservé : {0}"
+ },
  "agentPlanStepYours": {
   "message": "« {0} » — c’est vous qui appuyez"
  },
@@ -3565,6 +3568,12 @@
  },
  "agentMarkUnfinished": {
   "message": "Pas terminé"
+ },
+ "agentNothingBooked": {
+  "message": "Rien n'a été réservé."
+ },
+ "agentLastDone": {
+  "message": "Dernière étape faite : {0}"
  },
  "agentStuck": {
   "message": "La page ne changeait plus, je me suis arrêté ici. Ce que j’ai fait est au-dessus."

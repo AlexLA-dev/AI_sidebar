@@ -3545,6 +3545,9 @@
  "agentNotifNeeds": {
   "message": "Braucht Sie: {0}"
  },
+ "agentNotifNotBooked": {
+  "message": "Nicht gebucht: {0}"
+ },
  "agentPlanStepYours": {
   "message": "„{0}“ – drücken Sie selbst"
  },
@@ -3565,6 +3568,12 @@
  },
  "agentMarkUnfinished": {
   "message": "Nicht fertig"
+ },
+ "agentNothingBooked": {
+  "message": "Es wurde nichts gebucht."
+ },
+ "agentLastDone": {
+  "message": "Zuletzt erledigt: {0}"
  },
  "agentStuck": {
   "message": "Die Seite hat sich nicht mehr verändert, deshalb habe ich hier aufgehört. Was ich geschafft habe, steht oben."

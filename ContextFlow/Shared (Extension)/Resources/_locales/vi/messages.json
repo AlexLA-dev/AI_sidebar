@@ -3545,6 +3545,9 @@
  "agentNotifNeeds": {
   "message": "Cần bạn: {0}"
  },
+ "agentNotifNotBooked": {
+  "message": "Chưa đặt: {0}"
+ },
  "agentPlanStepYours": {
   "message": "“{0}” — bạn tự nhấn"
  },
@@ -3565,6 +3568,12 @@
  },
  "agentMarkUnfinished": {
   "message": "Chưa xong"
+ },
+ "agentNothingBooked": {
+  "message": "Chưa đặt được gì."
+ },
+ "agentLastDone": {
+  "message": "Bước cuối đã làm: {0}"
  },
  "agentStuck": {
   "message": "Trang không thay đổi nữa nên tôi dừng ở đây. Những gì đã làm ở bên trên."

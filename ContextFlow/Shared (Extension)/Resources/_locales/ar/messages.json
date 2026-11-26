@@ -3545,6 +3545,9 @@
  "agentNotifNeeds": {
   "message": "بحاجة إليك: {0}"
  },
+ "agentNotifNotBooked": {
+  "message": "لم يُحجز: {0}"
+ },
  "agentPlanStepYours": {
   "message": "«{0}» — ستضغط عليه بنفسك"
  },
@@ -3565,6 +3568,12 @@
  },
  "agentMarkUnfinished": {
   "message": "لم يكتمل"
+ },
+ "agentNothingBooked": {
+  "message": "لم يُحجز شيء."
+ },
+ "agentLastDone": {
+  "message": "آخر خطوة تمت: {0}"
  },
  "agentStuck": {
   "message": "توقفت الصفحة عن التغير، فتوقفت هنا. ما أنجزته أعلاه."

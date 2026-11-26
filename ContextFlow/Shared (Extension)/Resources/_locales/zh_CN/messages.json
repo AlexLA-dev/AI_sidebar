@@ -3545,6 +3545,9 @@
  "agentNotifNeeds": {
   "message": "需要你：{0}"
  },
+ "agentNotifNotBooked": {
+  "message": "未预订：{0}"
+ },
  "agentPlanStepYours": {
   "message": "“{0}”——由你来点按"
  },
@@ -3565,6 +3568,12 @@
  },
  "agentMarkUnfinished": {
   "message": "未完成"
+ },
+ "agentNothingBooked": {
+  "message": "没有预订任何内容。"
+ },
+ "agentLastDone": {
+  "message": "最后完成的步骤：{0}"
  },
  "agentStuck": {
   "message": "页面不再变化，我在这里停下了。完成的部分在上面。"

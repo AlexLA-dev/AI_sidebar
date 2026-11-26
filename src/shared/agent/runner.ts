@@ -447,6 +447,53 @@ export function slotCode(why: string): AgentRule {
   return /^a time slot: say its date/.test(why) ? "slot_time" : / is outside the time /.test(why) ? "slot_window" : / is free on the page and /.test(why) ? "slot_nearer" : "slot_busy"
 }
 
+/** The place of this page (or of the places the agent found) the person's answer names: the one sharing the most of its
+ *  name's distinctive words with the answer, two at least (or its whole name); "" for none or a tie. */
+export function placeInReply(text: string, state: Pick<AgentState, "venues">, map: PageMap): string {
+  const words = (t: string) => new Set((t.toLocaleLowerCase().match(/[\p{L}\p{N}]{4,}/gu) ?? []).filter((w) => !COMMON.has(w) && !/^\d+$/.test(w)))
+  const said = words(text)
+  // (Places only: the agent's found ones and the page's rated links, a review count or not («… 8.8 Excellent», a
+  // «Similar properties» card) — a hotel's own room rows aren't places.)
+  const rated = map.items.flatMap((i) => venueOf(i, map.url)?.name ?? (i.role === "link" && /(?<![\d.,])(10|[1-9])[.,]\d(?![\d.,])/.test(i.label) ? [i.label] : []))
+  const names = [...new Set([...(state.venues?.list.map((v) => v.name) ?? []), ...rated].map(placeName).filter((n) => n.length >= 3))]
+  const scored = names.map((n) => ({ n, k: namedIn(n, text) ? 99 : [...words(n)].filter((w) => said.has(w)).length })).filter((x) => x.k >= 2).sort((a, b) => b.k - a.k)
+  if (!scored.length || (scored[1] && scored[1].k === scored[0].k && squashName(scored[1].n) !== squashName(scored[0].n))) return ""
+  return scored[0].n
+}
+
+// (Words in so many places' names that sharing them says nothing.)
+const COMMON = new Set(["hotel", "hotels", "apartment", "apartments", "house", "restaurant", "with", "from", "instead", "book", "this", "that", "there"])
+
+/** A place's name out of a card's label: before its rating, distance or price («… The Palm Suites - Adults Only 8.8 Excellent…»). */
+function placeName(label: string): string {
+  return label.split(/\s+\d|\s[·•|]\s|\n/)[0].trim().slice(0, 100)
+}
+
+/** The person chose this place: the booking's from now on, and the plan's answer about the place says it. */
+function choosePlace(state: AgentState, name: string): void {
+  const plan = state.plan
+  if (!plan?.booking) return
+  plan.booking.venue = name
+  plan.askPlace = false
+  state.chooseVenue = false
+  state.cardPlace = name
+  const where = plan.questions.findIndex((q) => q.kind === "venue" || q.fact === "venue" || q.place)
+  const answers = plan.answers ?? []
+  if (where >= 0 && answers[where]) answers[where] = { ...answers[where], a: name }
+  else answers.push({ q: "Where to book", a: name })
+  plan.answers = answers
+}
+
+/** A booking task that ended with no booking press gone: nothing was booked, whatever the model's words say. */
+export function nothingBooked(s: Pick<AgentState, "status" | "plan" | "bookPress">): boolean {
+  return s.status === "done" && !!s.plan?.booking && !s.bookPress
+}
+
+/** The last step the task did, as its line says (for «how far it got»). */
+export function lastDone(s: Pick<AgentState, "lines">): string {
+  return [...(s.lines ?? [])].reverse().find((l) => l.ok && l.text)?.text ?? ""
+}
+
 /** Why another booking press is refused, or null: the booking's press went already, and the page asked for nothing
  *  more since (no detail typed, filled or chosen after it). */
 export function pressedAlready(state: AgentState, map: PageMap): string | null {
@@ -1808,6 +1855,13 @@ async function pressAlso(state: AgentState, io: RunnerIO, also: NonNullable<Tool
 async function afterBooking(state: AgentState, io: RunnerIO, call: ToolCall, here: { reminders: string; calendar: string } | null): Promise<void> {
   const plan = state.plan
   if (!plan?.booking) return
+  // Nothing was booked when the booking's press never went (the director on 11f0c58b: «I pressed Reserve… check your
+  // booking» on a page where no booking press had gone): not «done», no booked day, no event, no steps kept for the
+  // site; the end says it in the device's words (nothingBooked).
+  if (!state.bookPress) {
+    state.error = state.error || "unbooked"
+    return
+  }
   // (A «done» without its date after the booking's last press went, 128: «Not finished» over «Your stay is booked» —
   // the day is the one the page showed at that press.)
   // (The day the page showed at the press goes first: the person's own choice when they took another, 128.)
@@ -1986,6 +2040,14 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
     }
     // Answered: the plan no longer says to ask (a «choose by my rules» answer leaves it to the rules).
     if (state.plan?.askPlace && state.placeAsked) state.plan.askPlace = false
+    // A place the person chose in their answer, whatever the question was (the director on 11f0c58b: «Book The Palm
+    // Suites instead», then «Do it?» with «not what you asked: you asked to book Pefkos City Hotel»): the booking's place
+    // from now on — the plan's answer the server's check reads, the card's place, the venue.
+    if (state.plan?.booking) {
+      const map = await io.map().catch(() => null)
+      const chosen = map ? placeInReply(text, state, map) : ""
+      if (chosen) choosePlace(state, chosen)
+    }
     await io.save(state)
     return drive(state, io)
   }
@@ -2011,6 +2073,8 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
     // (Access given: no line of its own; the tool's own step, called again, writes one.)
     if (!access) state.lines.push(line(call, verdict, target, did))
     if (did) confirmHere(state)
+    // (The person pressed the booking's own last button themselves, a payment or the submit: that is the booking's press.)
+    if (did && state.plan?.booking && (verdict.reason === "pay" || verdict.reason === "submit")) state.bookPress = { target: target ?? call.id ?? "", at: state.log.length, yes: true }
   } else {
     state.log.push({ call, target: target ?? undefined, result: "the person said no" })
     state.lines.push(line(call, verdict, target, false))

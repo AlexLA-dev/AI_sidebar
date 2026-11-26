@@ -10,7 +10,7 @@
 import { CHAT_CHARS } from "../shared/agent/chatctx"
 import { API_BASE, TARGET, TEST_PLAN } from "../shared/config"
 import { liveEntries, modelKey, type FormEntry } from "../shared/agent/formdata"
-import { active, answer, approvePlan, drive, newState, pendingKey, type Answer, type AgentState, type PlanApproval, type RunnerIO } from "../shared/agent/runner"
+import { active, answer, approvePlan, drive, newState, nothingBooked, pendingKey, type Answer, type AgentState, type PlanApproval, type RunnerIO } from "../shared/agent/runner"
 import { noticeLabel, type TaskPlan } from "../shared/agent/taskplan"
 import { hostOf, sameSite } from "../shared/agent/sites"
 import { venuesOn } from "../shared/agent/venues"
@@ -186,7 +186,7 @@ async function save(tab: number, state: AgentState): Promise<void> {
 // background) — never claiming it goes on. Done or waiting for the person while away: «Готово: …» / «Нужны вы: …» at
 // once instead. Back in Safari (any page of ours seen, or a tab switch): the one still waiting goes.
 const PAUSE_AFTER_MS = 30_000
-type AwayWords = { paused: string; done: string; needs: string; title: string; signIn?: string; pay?: string; answer?: string }
+type AwayWords = { paused: string; done: string; needs: string; title: string; signIn?: string; pay?: string; answer?: string; notBooked?: string }
 let away: { words: AwayWords } | null = null
 // Counts each change of `away`: a note begun before Safari came back isn't sent after.
 let awayGen = 0
@@ -229,7 +229,9 @@ async function awayNote(tab: number, state: AgentState): Promise<void> {
   // («Нужны вы: вход на сайт · fresha.com»). Never a name, a phone or the request.
   const when = ended && state.booked ? bookedWhen(state.booked.date, state.booked.time) : ""
   const why = waiting ? needWord(state, away.words) : ""
-  const body = ended ? away.words.done.replace("{0}", when ? `${what}, ${when}` : what) : away.words.needs.replace("{0}", why ? `${why} · ${what}` : what)
+  // (Nothing booked: never «Done» — «Not booked: …», 11f0c58b.)
+  const done = nothingBooked(state) && away.words.notBooked ? away.words.notBooked : away.words.done
+  const body = ended ? done.replace("{0}", when ? `${what}, ${when}` : what) : away.words.needs.replace("{0}", why ? `${why} · ${what}` : what)
   await callNative("agent_notify", { ...base, body }, 6_000)
 }
 
