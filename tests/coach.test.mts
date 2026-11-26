@@ -18,7 +18,7 @@ before(async () => {
   const src = new URL("../src/content/coach/", import.meta.url).pathname
   const usage = new URL("../src/shared/usage.ts", import.meta.url).pathname
   const entry = join(dir, "entry.ts")
-  writeFileSync(entry, `export * from "${src}rules.ts"\nexport { seedCoach } from "${src}seed.ts"\nexport { FEATURES, COACH_HINTS, useFields } from "${usage}"\n`)
+  writeFileSync(entry, `export * from "${src}rules.ts"\nexport { seedCoach } from "${src}seed.ts"\nexport { changeStored } from "${src}state.ts"\nexport { FEATURES, COACH_HINTS, useFields } from "${usage}"\n`)
   const out = join(dir, "lib.mjs")
   await build({ entryPoints: [entry], bundle: true, format: "esm", platform: "neutral", outfile: out, logLevel: "silent" })
   lib = await import(pathToFileURL(out).href)
@@ -249,4 +249,29 @@ test("a scripted first week: no session ever shows two hints, the first day stay
     for (const [day, set] of capDays) assert.ok(set.size <= 1, `run ${run}, day ${day}: capabilities ${[...set].join(", ")}`)
     for (const e of shownLog) if (e.day === 1) assert.ok(["fab_pulse", "sel_ask"].includes(e.id), `day 1: ${e.id}`)
   }
+})
+
+test("F6 (2.8.1): another tab's write between this tab's read and write isn't lost — the change is made again on it", async () => {
+  // One stored copy; tab A reads it, tab B writes (a hint shown), then A writes (the panel opened).
+  let stored: any = { ...fresh(), seeded: true }
+  const clone = (v: unknown) => JSON.parse(JSON.stringify(v))
+  const load = async () => ({ ...lib.freshCoach(DAY1), ...clone(stored) })
+  const save = async (s: unknown) => {
+    stored = clone(s)
+  }
+  let peeks = 0
+  const peek = async () => {
+    // B's write lands right after A's first read.
+    if (peeks++ === 0) stored = { ...stored, session: { ...stored.session, shown: "page_summary", settled: false }, hints: { page_summary: { shown: 1, dismissed: 0, done: false } } }
+    return clone(stored)
+  }
+  const after = await lib.changeStored((s: any) => lib.afterPanelOpen(s, DAY1 + 1000), DAY1 + 1000, load, peek, save)
+  assert.equal(after.panelOpens, 1)
+  assert.equal(after.session.shown, "page_summary", "B's hint is still the session's one")
+  assert.equal(after.hints.page_summary.shown, 1)
+  assert.deepEqual(stored, clone(after))
+  // Nobody wrote meanwhile: one read again, written as changed.
+  peeks = 1
+  const again = await lib.changeStored((s: any) => lib.afterPanelOpen(s, DAY1 + 2000), DAY1 + 2000, load, async () => clone(stored), save)
+  assert.equal(again.panelOpens, 2)
 })

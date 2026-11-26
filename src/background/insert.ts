@@ -9,12 +9,16 @@ import { clipAsk, writeDeadline, type WriteAsk, type WriteFailureCode, type Writ
 import { applyTemplates, pendingTemplates, type Templates } from "../shared/templates"
 import { DEFAULT_SETTINGS, STORAGE, type ErrorCode, type ProOffer, type Settings, type Usage } from "../shared/types"
 import { callNative } from "./native"
+import { postEvent } from "./events"
 
 export interface InsertDeps {
   installId: () => Promise<string>
   // The App Store transaction the server checks the plan with (null: free).
   entitlementJws: () => Promise<string | null>
   clientInfo: () => Promise<Record<string, unknown>>
+  // 2.8.1: the client fields for an event, which wait briefly for the app's build and «ours» mark (index.ts
+  // clientForEvent): a simulator install that only used this feature reached the events unmarked. Requests keep clientInfo.
+  eventClient?: () => Promise<Record<string, unknown>>
   consented: () => Promise<boolean>
   // The plan or the allowance may have changed: the panel's status is asked again.
   statusChanged: () => void
@@ -184,12 +188,10 @@ async function send(ask: WriteAsk, signal: AbortSignal): Promise<WriteReply> {
 // ------------------------------------------------------------ counters
 
 async function report(event: InsertEvent): Promise<void> {
-  const [installId, client] = await Promise.all([deps.installId(), deps.clientInfo()])
-  await fetch(`${API_BASE}/api/v2/event`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...event, installId, client })
-  }).catch(() => undefined)
+  await postEvent(async () => {
+    const [installId, client] = await Promise.all([deps.installId(), (deps.eventClient ?? deps.clientInfo)()])
+    return { ...event, installId, client }
+  })
 }
 
 // ------------------------------------------------------------ wiring
