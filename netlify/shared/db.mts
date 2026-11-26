@@ -127,6 +127,20 @@ export async function logEvent(kind: string, installId: string | null, data: Rec
 // (with the install or app they came from).
 const OUR_VERSIONS = new Set(["dev-check", "calibrate"])
 
+/** The request is ours by its own marks (a test deploy, our scripts' versions, audience "test"): /api/v2/event tells
+ *  cf_event_guard so, and the guard remembers the address for the day. */
+export function isOurRequest(data: Record<string, unknown>): boolean {
+  return data.audience === "test" || "audience" in testMark(data)
+}
+
+/** Our simulator installs caught on the server (20261125120000_contextflow_sim_net.sql), for an app's first open:
+ *  "address" when the address was ours earlier today (marked as a test), "burst" for the third new app on one platform
+ *  from one address today (a hint only); null otherwise and when the call fails. */
+export const eventGuard = (subject: string, app: string | null, install: string | null, platform: string, firstOpen: boolean, marked: boolean) =>
+  rpc<string | null>("cf_event_guard", {
+    p_subject: subject, p_app: app, p_install: install, p_platform: platform || null, p_first_open: firstOpen, p_marked: marked
+  }).then((why) => (why === "address" || why === "burst" ? why : null), () => null)
+
 function testMark(data: Record<string, unknown>): Record<string, unknown> {
   const deploy = (globalThis as { Netlify?: { context?: { deploy?: { context?: string } } | null } }).Netlify?.context?.deploy?.context ??
     process.env.CONTEXT

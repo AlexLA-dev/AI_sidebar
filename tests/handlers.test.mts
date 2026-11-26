@@ -688,26 +688,30 @@ async function hitFreeLimit() {
   await new Promise((r) => setTimeout(r, 0))
 }
 
-test("a free install out of answers is offered the App Store code, today and on later days", async () => {
+test("the App Store code only on return: full price the first time at the limit, the code on a later day (2.8)", async () => {
   const fresh = await statusOf()
-  assert.deepEqual([fresh.limitedBefore, fresh.offer], [false, null])
+  assert.deepEqual([fresh.limitedBefore, fresh.offer, fresh.returnOffer], [false, null, { discount: 50 }])
   await hitFreeLimit()
-  // At the limit: the 402 and today's status carry the code.
+  // The first time at the limit: no code in the 402 or in today's status (the plans at full price). What a return
+  // would bring is said apart (returnOffer, read by the 2.8 panel only).
   const limited = await chat(ask(), ctx())
   assert.equal(limited.status, 402)
-  assert.deepEqual((await limited.json()).offer, { code: "CONTEXTFLOW50", discount: 50 })
-  assert.deepEqual([(await statusOf()).limitedBefore, (await statusOf()).offer?.code], [false, "CONTEXTFLOW50"])
+  assert.equal((await limited.json()).offer, null)
+  const today = await statusOf()
+  assert.deepEqual([today.limitedBefore, today.offer, today.returnOffer], [false, null, { discount: 50 }])
 
-  // A day later, with answers back: still offered, once more, as someone who ran out before.
+  // A day later, with answers back: the code, as someone who ran out before; and at the limit again.
   events.forEach((e) => { e.at -= 86_400_000 })
   counters.clear()
   const back = await statusOf()
   assert.deepEqual([back.plan, back.limitedBefore, back.offer?.discount], ["free", true, 50])
+  await hitFreeLimit()
+  assert.deepEqual((await (await chat(ask(), ctx())).json()).offer, { code: "CONTEXTFLOW50", discount: 50 })
   // Subscribers aren't offered anything; PRO_OFFER_CODE=off stops it.
   const sub = await statusOf({ entitlement: signJws(transaction()) })
-  assert.deepEqual([sub.limitedBefore, sub.offer], [false, null])
+  assert.deepEqual([sub.limitedBefore, sub.offer, sub.returnOffer], [false, null, null])
   serverConfig.proOfferCode = "off"
-  assert.equal((await statusOf()).offer, null)
+  assert.deepEqual([(await statusOf()).offer, (await statusOf()).returnOffer], [null, null])
 })
 
 test("funnel events are logged with only the allowed fields and capped per id", async () => {
