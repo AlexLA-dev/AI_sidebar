@@ -1732,6 +1732,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           ...(wholeChat ? { context: "chat" as const, pages } : {})
         }
       })
+      standTrace("chat ask posted")
     })
   }
 
