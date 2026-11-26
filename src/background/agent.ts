@@ -17,6 +17,7 @@ import { venuesOn } from "../shared/agent/venues"
 import { agentEvents, type AgentUse } from "../shared/agent/events"
 import type { PageMap, StepResult, ToolCall } from "../shared/agent/types"
 import { agentDeferred, type Plan } from "../shared/plan"
+import type { AgentSwitch } from "../shared/agentSwitch"
 import { appleCall, appleDevice, calendarFreeLine, calendarSlotFree, deferredReminder, deferredReminderEnd } from "./agentApple"
 import { addMinutes, RULES_KEY } from "../shared/agent/rules"
 import { callNative } from "./native"
@@ -30,6 +31,9 @@ export interface AgentDeps {
   plan: () => Promise<Plan>
   statusChanged: () => void
   use?: (fields: AgentUse) => void
+  // 2.8: the server's switch as last heard (src/shared/agentSwitch.ts); the agent's own call answered OFF.
+  agentSwitch?: () => Promise<AgentSwitch>
+  agentOffHeard?: () => void
 }
 
 let deps: AgentDeps
@@ -457,7 +461,11 @@ async function askOnce(body: Record<string, unknown>): Promise<Record<string, un
       signal: AbortSignal.timeout(45_000)
     })
     const json = (await res.json().catch(() => ({}))) as Record<string, unknown>
-    if (!res.ok) return { ok: false, code: json.code ?? `HTTP_${res.status}`, ...json }
+    if (!res.ok) {
+      // Switched off on the server: the panel stops offering the agent at once (this task ends on the OFF).
+      if (json.code === "OFF") deps.agentOffHeard?.()
+      return { ok: false, code: json.code ?? `HTTP_${res.status}`, ...json }
+    }
     return json
   } catch {
     return { ok: false, code: "NETWORK" }
@@ -686,6 +694,8 @@ function run(tab: number, work: () => Promise<AgentState>): Promise<AgentState> 
 const STALE_RUN_MS = 120_000
 
 async function start(tab: number, url: string, m: Extract<AgentRequest, { type: "agentStart" }>): Promise<Record<string, unknown>> {
+  // Switched off on the server (2.8): nothing starts, a deferred task neither (it stays in its list).
+  if ((await deps.agentSwitch?.()) === "off") return { ok: false, code: "OFF" }
   if (!(await deps.consented())) return { ok: false, code: "CONSENT" }
   const plan = await deps.plan()
   if (plan !== "pro" && plan !== "ultra") return { ok: false, code: "PRO_ONLY" }
@@ -803,6 +813,7 @@ async function syncDeferred(): Promise<void> {
 }
 
 async function defer(m: Extract<AgentRequest, { type: "agentDefer" }>): Promise<Record<string, unknown>> {
+  if ((await deps.agentSwitch?.()) === "off") return { ok: false, code: "OFF" }
   const plan = await deps.plan()
   if (plan !== "pro" && plan !== "ultra") return { ok: false, code: "PRO_ONLY" }
   const list = await deferredAll()
@@ -834,11 +845,30 @@ const WATCH_WORDS = "cf:agentTaskWords"
 /** A page watch fired: its deferred tasks send their notification now (watch.ts calls this). */
 export async function deferredWatchMet(watchId: string): Promise<void> {
   if (TARGET !== "safari") return
+  // Switched off on the server (2.8): no notification offers the task (it stays in its list).
+  if ((await deps.agentSwitch?.()) === "off") return
   const words = ((await chrome.storage.local.get(WATCH_WORDS))[WATCH_WORDS] as Record<string, { title: string; body: string }> | undefined) ?? {}
   for (const d of (await deferredAll()).filter((x) => x.watch === watchId)) {
     // (Never the request on a lock screen: the site, or the plan's name for the task.)
     const w = words[d.id] ?? { title: "ContextFlow", body: noticeLabel(d.plan, hostOf(d.url)) }
     await callNative("agent_notify", { id: d.id, url: d.url, title: w.title, body: w.body }, 10_000)
+  }
+}
+
+/** The server's switch changed (2.8, index.ts calls this): off, the deferred tasks' notifications still to come are
+ *  taken back (the tasks stay in their list); on again, the ones still ahead are set again, in their own words. */
+export async function agentSwitched(now: AgentSwitch, before: AgentSwitch): Promise<void> {
+  if (TARGET !== "safari" || now === before) return
+  if (now !== "off" && before !== "off") return
+  const ahead = (await deferredAll()).filter((d) => typeof d.at === "number" && d.at > Date.now())
+  if (!ahead.length) return
+  const words = ((await chrome.storage.local.get(WATCH_WORDS))[WATCH_WORDS] as Record<string, { title: string; body: string }> | undefined) ?? {}
+  for (const d of ahead) {
+    if (now === "off") await callNative("agent_cancel", { id: d.id }, 6_000)
+    else {
+      const w = words[d.id] ?? { title: "ContextFlow", body: noticeLabel(d.plan, hostOf(d.url)) }
+      await callNative("agent_schedule", { id: d.id, at: d.at, url: d.url, title: w.title, body: w.body }, 10_000)
+    }
   }
 }
 
@@ -902,7 +932,8 @@ export function startAgent(d: AgentDeps): void {
       case "agentDefer":
         return respond(defer(message).then(async (r) => {
           const task = r.task as DeferredTask | undefined
-          if (task?.watch) {
+          // (A task due at a time keeps its words too: its notification is set again when the agent comes back on.)
+          if (task) {
             const words = ((await chrome.storage.local.get(WATCH_WORDS))[WATCH_WORDS] as Record<string, unknown> | undefined) ?? {}
             await chrome.storage.local.set({ [WATCH_WORDS]: { ...words, [task.id]: { title: message.notifTitle, body: message.notifBody } } })
           }

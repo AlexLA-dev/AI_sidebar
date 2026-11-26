@@ -40,7 +40,8 @@ import { startInsert } from "./insert"
 import { startTranslate } from "./translate"
 import { inviteMarks, startInvite } from "./invite"
 import { startWatch } from "./watch"
-import { startAgent } from "./agent"
+import { agentSwitched, startAgent } from "./agent"
+import { AGENT_SWITCH_KEY, keptSwitch, switchFromStatus, type AgentSwitch } from "../shared/agentSwitch"
 import { matchTopic, nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./organize"
 import { organizeConfig } from "../shared/organize"
 import { collectAi } from "./collect"
@@ -328,7 +329,7 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
   if (!refresh && !fresh && statusCache && Date.now() - statusCache.at < 30_000) return statusCache.value
   const [id, ent, key, client, local] = await Promise.all([
     installId(), entitlement(refresh), ownKey(), clientInfo(),
-    chrome.storage.local.get([STORAGE.byokRefused, STORAGE.byokOfferShown])
+    chrome.storage.local.get([STORAGE.byokRefused, STORAGE.byokOfferShown, AGENT_SWITCH_KEY])
   ])
   // The Own key marks: the app's (through the native side) and this device's own, for the same period.
   const period = ent?.period ?? null
@@ -360,6 +361,7 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
       plan: Plan; usage: Usage | null; limitedBefore?: boolean; offer?: ProOffer | null; returnOffer?: { discount?: unknown } | null; upgradeOffer?: { discount: number } | null
       limits?: { freeDaily?: number; proWeekly?: number; ultraWeekly?: number; searchFreeDaily?: number; searchProWeekly?: number; speakWeeklySeconds?: number; similarWeekly?: number; watch?: Record<Plan, number> }
       organize?: { on?: unknown; space?: unknown; config?: unknown }
+      agent?: { on?: unknown } | null
       ultra?: { speak?: Usage | null; similar?: Usage | null } | null
       taste?: { speak?: Usage | null; similar?: Usage | null } | null
       country?: string
@@ -382,17 +384,28 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
       store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: false,
       organize: body.organize && typeof body.organize.space === "string"
         ? { on: body.organize.on === true, space: body.organize.space, config: organizeConfig(body.organize.config) }
-        : null
+        : null,
+      agent: switchFromStatus(body)
     }
+    void keepAgentSwitch(value.agent!, keptSwitch(local[AGENT_SWITCH_KEY]))
   } catch {
     value = {
       plan: ent?.active ? planFromProduct(ent.productId) : "free", usage: null, limitedBefore: false, offer: null,
       upgradeOffer: null, searchLimits: SEARCH_LIMITS, ultra: null, plans: planFacts(undefined),
-      store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: true, organize: null
+      store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: true, organize: null,
+      // Offline: the agent as last heard on this device (none yet: unknown).
+      agent: keptSwitch(local[AGENT_SWITCH_KEY])
     }
   }
   statusCache = { at: Date.now(), value }
   return value
+}
+
+/** The server's agent switch as heard (2.8): kept on the device, and the deferred tasks' notifications follow it. */
+async function keepAgentSwitch(now: AgentSwitch, before: AgentSwitch): Promise<void> {
+  if (now === before) return
+  await chrome.storage.local.set({ [AGENT_SWITCH_KEY]: now }).catch(() => undefined)
+  await agentSwitched(now, before).catch(() => undefined)
 }
 
 // ------------------------------------------------------------------ funnel
@@ -1400,6 +1413,12 @@ startAgent({
     return ent?.active ? planFromProduct(ent.productId) : "free"
   },
   statusChanged: () => (statusCache = null),
+  agentSwitch: async () => keptSwitch((await chrome.storage.local.get(AGENT_SWITCH_KEY).catch(() => ({} as Record<string, unknown>)))[AGENT_SWITCH_KEY]),
+  // The agent's own call answered OFF: kept as off at once (the panel hears it with its next status).
+  agentOffHeard: () => {
+    statusCache = null
+    void chrome.storage.local.get(AGENT_SWITCH_KEY).then((v) => keepAgentSwitch("off", keptSwitch(v[AGENT_SWITCH_KEY])), () => undefined)
+  },
   // The agent's usage events (feature "agent", src/shared/usage.ts): kinds and counts only.
   use: (fields) => void reportUse({ type: "useEvent", ...fields } as Extract<BackgroundRequest, { type: "useEvent" }>)
 })

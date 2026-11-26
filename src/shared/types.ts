@@ -2,6 +2,7 @@ import type { Attachment, MediaKind } from "./attachments.ts"
 import { COPIED_DEFAULT_ON } from "./copied.ts"
 import type { ChatDigest } from "./history.ts"
 import type { AppleItem } from "./appleItems.ts"
+import type { AgentSwitch } from "./agentSwitch.ts"
 import type { OrganizeConfig } from "./organize.ts"
 import type { RenewalReason } from "./renewal.ts"
 // Messages exchanged between the content script (UI) and the background worker.
@@ -68,6 +69,9 @@ export interface StatusInfo {
   offline: boolean
   // Organizing the chats (2.5): switched on on the server, the vector space and the thresholds; null offline.
   organize: { on: boolean; space: string; config: OrganizeConfig } | null
+  // 2.8: the agent switched on on the server (src/shared/agentSwitch.ts): "unknown" until a status was heard on this
+  // device; offline, the last one heard. Absent (tests' statuses): unknown.
+  agent?: AgentSwitch
   // 2.7, invite a friend: friends who came with this install's code and asked on two different days (only once the
   // install has a code).
   invite?: { active: number }

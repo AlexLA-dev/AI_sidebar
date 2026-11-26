@@ -11,7 +11,8 @@ import { t } from "../../shared/i18n"
 import * as Icon from "../icons"
 import { useAboveComposer } from "../ux/MessageUx"
 import { ClipFrame } from "./ClipFrame"
-import { forDevice, isNewTip, say, tipsData, type TipEntry } from "./data"
+import { forDevice, isNewTip, say, tipsData, type TipEntry, type TipsData } from "./data"
+import { useAgentSwitch } from "../agentSwitch"
 
 const OPEN = "cf:tipsOpen"
 
@@ -127,9 +128,18 @@ function TipCard({ tip, mac, lang, load = null, fresh = false }: { tip: TipEntry
   )
 }
 
+// The app's agent card (ContentView.swift agentTip), by its title.
+const AGENT_TIP = "It books for you, right on the page"
+
+/** 2.8 (the director): while the server has the agent switched off, Tips don't show its card (as in the app). */
+function withoutAgent(data: TipsData | null, off: boolean): TipsData | null {
+  if (!data || !off) return data
+  return { ...data, groups: data.groups.map((g) => ({ ...g, tips: g.tips.filter((tip) => tip.title.en !== AGENT_TIP) })) }
+}
+
 /** `mac`: a Mac's words and clips (no touch). */
 export function TipsSheet({ mac, onClose }: { mac: boolean; onClose: () => void }): VNode | null {
-  const data = tipsData()
+  const data = withoutAgent(tipsData(), useAgentSwitch() === "off")
   const back = useRef<HTMLDivElement>(null)
   useAboveComposer(back)
   const [open, toggle, ready] = useOpenBlocks(data?.groups[0]?.id ?? "")

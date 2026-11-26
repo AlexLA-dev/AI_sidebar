@@ -149,6 +149,8 @@ import { wheelSwitch, wheelSwitchStep } from "./ux/wheelSwitch"
 import { markPointerHintSeen, pointerHintSeen, SendMenu } from "./ux/SendMenu"
 import { EdgeGlow } from "./side/EdgeGlow"
 import { HintLine, hintText, revealOnce, usePageHints } from "./pagehints/PageHints"
+import { agentSwitchNow, useAgentSwitch } from "./agentSwitch"
+import { agentOffered, agentSold } from "../shared/agentSwitch"
 import { pageKind } from "./pagehints/detect"
 import { panelRoot } from "./root"
 import { ReadyQuestions } from "./ready/ReadyQuestions"
@@ -546,6 +548,18 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // never sees Free first (build 92: Free for a moment on every page, for seconds when the app was slow to answer).
   const [keptPlan, setKeptPlan] = useState<Plan | null>(null)
   useEffect(() => void keptPlanNow().then(setKeptPlan), [])
+  // 2.8 (the director): the server's agent switch as last heard (src/shared/agentSwitch.ts). Off: nothing offers the
+  // agent. Not known yet: as before for Pro and Ultra; without Pro its offers lead only to the plans, which name the
+  // agent only once it's known to be on, so they wait.
+  const agentSwitch = useAgentSwitch(status)
+  const agentSells = agentSold(agentSwitch)
+  const agentHere = agentOffered(agentSwitch) && (agentSells || hasPro(status?.plan ?? keptPlan ?? "free"))
+  const agentHereRef = useRef(agentHere)
+  agentHereRef.current = agentHere
+  // (Switched off while the field was in Do: back to asking.)
+  useEffect(() => {
+    if (agentSwitch === "off") setAgentMode(false)
+  }, [agentSwitch])
   // The card opened from a selection: what was selected, the thing to find alternatives to (the page is context).
   const [similarSubject, setSimilarSubject] = useState<string | null>(null)
   const [similarRun, setSimilarRun] = useState<{ items: SimilarItem[]; step: SimilarStep; pages?: number } | null>(null)
@@ -2837,7 +2851,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setNoteHint(false)
     void setNoteHintCount(-1)
   }, [])
-  const swipeDo = hasPro(status?.plan ?? keptPlan ?? "free") && !historyMode
+  const swipeDo = hasPro(status?.plan ?? keptPlan ?? "free") && !historyMode && agentHere
   const flipDo = useCallback(() => {
     setNoteMode(false)
     setGoogleMode(false)
@@ -3101,7 +3115,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   const startAgent = async (request: string, deferred?: string, chat?: string) => {
     const text = request.trim()
-    if (!text) return
+    // Switched off on the server: nothing starts (the background refuses too). (Read here, not from the render: a task
+    // started from a notification's tap runs before the panel has its status.)
+    if (!text || (await agentSwitchNow()) === "off") return
     // The plan as last heard (a ref: a task started from a notification's tap runs before the panel has its status, in an
     // older render). Not known yet: the background decides, and says PRO_ONLY when it isn't Pro.
     const known = statusRef.current?.plan
@@ -3140,6 +3156,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       const again = await sendBackground<{ ok: boolean; state?: PanelAgent }>({ type: "agentStart", request: text, lang: uiLanguage(), deferred, ...(chat ? { chat } : {}) })
       if (again?.state) setAgentTask(again.state)
     } else if (r?.code === "PRO_ONLY") setAgentUpsell(true)
+    else if (r?.code === "OFF") {
+      // Switched off on the server meanwhile: the words back in the field, to ask (the panel stops offering Do).
+      setAgentMode(false)
+      setDraft(text)
+      setAgentStartError(null)
+    }
   }
 
   const markEndSeen = (id: string) => {
@@ -3369,6 +3391,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         if (r?.here) show()
         return
       }
+      // Switched off on the server: a deferred task is neither offered nor started (it stays in its list).
+      if ((await agentSwitchNow()) === "off") return
       const list = await sendBackground<{ tasks: Array<{ id: string; request: string; lang: string; url?: string }> }>({ type: "agentDeferred" })
       const task = list?.tasks.find((x) => x.id === id)
       if (!task) return
@@ -3426,7 +3450,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     void startAgent(messages[offerFor].content, undefined, threadFor(offerFor))
   }
   const offerChip = (at: number) =>
-    at === offerAt && (
+    at === offerAt && agentHere && (
       <button type="button" class="cf-chip cf-agent-hint" onClick={offerTap}>
         <Icon.Sparkle size={13} /> {t("agentHint")}{!hasPro(plan) && <span class="cf-pro-badge">Pro</span>}
       </button>
@@ -3743,7 +3767,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // 2.7.1: the cookie closer's confirmation by the circle, the first few times a banner is answered.
   const cookieLine = useCookieLine(fabVisible && !open && !bubble?.rect)
   const pageHints = usePageHints({ plan: status?.plan ?? keptPlan ?? "free", ready: fabVisible && !fabDrag.state.dragging && !bubble?.rect && !open, firstRunAhead: !tourSeen, open: openFromHint,
-    may: (id) => coachRef.current?.may(`page_${id}` as CoachHint) ?? false, onUsed: (id) => coachRef.current?.done(`page_${id}` as CoachHint) })
+    may: (id) => (id !== "agent" || agentHereRef.current) && (coachRef.current?.may(`page_${id}` as CoachHint) ?? false), onUsed: (id) => coachRef.current?.done(`page_${id}` as CoachHint) })
   const panelDrag = usePanelDrag({
     panel: panelRef,
     side,
@@ -5128,6 +5152,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       return
     }
     if (id === "agent") {
+      if (!agentHereRef.current) return
       if (!hasPro(plan)) return setAgentUpsell(true)
       setNoteMode(false)
       setAgentMode(true)
@@ -5967,7 +5992,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {/* 2.8 (the director): the agent asked for without Pro gets the plans message the other Pro features get
                     (Monthly first, the same buttons and route into the purchase, counted in chat_plans via "agent"),
                     with the agent named; its help stays one link away. */}
-                {agentUpsell && (
+                {agentUpsell && agentSells && (
                   <PlanOffer
                     place="agent"
                     status={status}
@@ -6508,7 +6533,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         flipMode()
                         inputRef.current?.focus()
                       }}
-                      agent={historyMode ? null : {
+                      agent={historyMode || !agentHere ? null : {
                         on: agentMode,
                         locked: !hasPro(plan),
                         onPick: () => {

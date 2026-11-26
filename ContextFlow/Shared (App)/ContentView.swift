@@ -742,7 +742,7 @@ struct TipsView: View {
                     .foregroundColor(.secondary)
                 // The whole app's, before the blocks (the owner's note).
                 TipCard(tip: TipGroup.lead)
-                ForEach(TipGroup.all, id: \.id) { group in
+                ForEach(TipGroup.shown, id: \.id) { group in
                     let open = isOpen(group)
                     Section {
                         if open {
@@ -811,6 +811,11 @@ struct Tip {
 
     /// New in the version this build's What's new is about.
     var isNew: Bool { since == WhatsNew.version }
+}
+
+extension AgentSwitch {
+    /// A card Tips and What's new keep: all of them, but the agent's while the server has it switched off.
+    static func keeps(_ tip: Tip) -> Bool { offered || tip.title != TipGroup.agentTip.title }
 }
 
 struct TipGroup {
@@ -1045,6 +1050,11 @@ struct TipGroup {
         #else
         nil
         #endif
+    }
+
+    /// The blocks as Tips shows them now: without the agent's card while the server has it switched off (AgentSwitch).
+    static var shown: [TipGroup] {
+        all.map { group in TipGroup(id: group.id, title: group.title, tips: group.tips.filter(AgentSwitch.keeps)) }
     }
 
     // Blocks by what the person wants to do, simple to advanced within each; Pro cards carry the badge.
@@ -1515,8 +1525,11 @@ struct ProView: View {
     private var features: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Everything in Pro").font(.headline)
-            // 2.8's main feature (Pro and Ultra only), in the approved What's New title's words.
-            Feature(systemImage: "calendar.badge.checkmark", text: "It books for you, right on the page")
+            // 2.8's main feature (Pro and Ultra only), in the approved What's New title's words; only while the server's
+            // switch is known to be on (AgentSwitch).
+            if store.planFacts.agentSold {
+                Feature(systemImage: "calendar.badge.checkmark", text: "It books for you, right on the page")
+            }
             Feature(systemImage: "arrow.turn.down.right", text: "Sorts by topic: suggests the right chat and your own tag")
             Feature(systemImage: "sparkles", text: "AI search: find any chat by describing it in your own words")
             Feature(systemImage: "bubble.left.and.text.bubble.right", text: "Ask your chats: questions across everything you've read and asked")

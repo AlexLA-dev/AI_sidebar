@@ -72,7 +72,7 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
 let setNameOrderForTests: (next: () => number) => void
 let organize: (req: Request, ctx: any) => Promise<Response>
 let status: (req: Request, ctx: any) => Promise<Response>
-let config: { anthropicKey: string; organize: { enabled: boolean; embedDaily: number; tagsDaily: number; thresholds: Record<string, number> } }
+let config: { anthropicKey: string; organize: { enabled: boolean; embedDaily: number; tagsDaily: number; thresholds: Record<string, number> }; agent: { enabled: boolean } }
 
 before(async () => {
   ;(await import("../netlify/shared/apple.mts")).setTrustedRootFingerprintForTests(TEST_ROOT_FINGERPRINT)
@@ -318,4 +318,15 @@ test("status gives the switch, the vector space and the thresholds (known number
   assert.equal(body.organize.config.moveT, 0.5)
   assert.equal(body.organize.config.tagT, 0.3)
   assert.equal(body.organize.config.bogus, undefined)
+})
+
+test("2.8: status says whether the agent is on (AGENT=off: false)", async () => {
+  const ask = async () => (await (await status(new Request("https://aisidebar.netlify.app/api/v2/status", { method: "POST", body: JSON.stringify({ installId: INSTALL, client: {} }) }), ctx())).json()).agent
+  assert.deepEqual(await ask(), { on: true })
+  config.agent.enabled = false
+  try {
+    assert.deepEqual(await ask(), { on: false })
+  } finally {
+    config.agent.enabled = true
+  }
 })

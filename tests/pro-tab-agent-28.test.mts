@@ -18,7 +18,8 @@ const REQUEST = "a table for two tomorrow at 7 pm"
 
 test("«Everything in Pro» names the agent first; the Pro box keeps its three lines", () => {
   const view = read("ContextFlow/Shared (App)/ContentView.swift")
-  assert.match(view, /Text\("Everything in Pro"\)\.font\(\.headline\)\s*\/\/[^\n]*\n\s*Feature\(systemImage: "calendar\.badge\.checkmark", text: "It books for you, right on the page"\)/)
+  // (2.8, the director: only while the server's agent switch is known to be on.)
+  assert.match(view, /Text\("Everything in Pro"\)\.font\(\.headline\)\s*(\/\/[^\n]*\n\s*)+if store\.planFacts\.agentSold \{\n\s*Feature\(systemImage: "calendar\.badge\.checkmark", text: "It books for you, right on the page"\)/)
   const pro = view.match(/case \.pro:\s*return \[([\s\S]*?)\]/)![1]
   assert.equal((pro.match(/\("/g) ?? []).length, 3)
 })
