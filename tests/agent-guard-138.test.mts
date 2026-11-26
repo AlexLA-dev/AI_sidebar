@@ -185,7 +185,7 @@ test("B3: the task that just ended shows its end card open; earlier tasks stay f
 })
 
 test("a listing's card with promo words («pay less», «reviews») opens the place; a short pay link or a card on a payment page still pays", () => {
-  const card = { id: "20", role: "link", label: "Teoz Barber 5.0 Bezirk Mitte, Berlin Friseursalon•614 Bewertungen 6% discount: bring 1 friend, pay le", href: "/de/a/salon-berlin-1" }
+  const card = { id: "20", role: "link", label: "Salon Nord 5.0 Bezirk Mitte, Berlin Friseursalon•614 Bewertungen 6% discount: bring 1 friend, pay le", href: "/de/a/salon-berlin-1" }
   const list = (extra: Partial<PageMap> = {}) => ({ ...page([card, { id: "21", role: "link", label: "Pay now", href: "/checkout/pay" }, { id: "22", role: "button", label: "Pay now and bring a friend for 6% off your visit today" }] as PageMap["items"], "", [], "https://salons.example/de/berlin"), ...extra }) as PageMap
   const c = { ...ctx(list()), startHost: "salons.example" }
   assert.notEqual(classify({ tool: "click", id: "20" }, c).reason, "pay")
