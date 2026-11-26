@@ -341,8 +341,14 @@ function offerUrl(code: string): string {
 // A question whose answer was lost while nobody followed it shows these as they were; anything else as "interrupted".
 const RESUMABLE = ["STREAM", "NETWORK", "UPSTREAM", "BUSY", "LIMIT_REACHED", "LINK"]
 /** The consent saved, or false when the storage doesn't answer in a few seconds (a tab whose link is gone). */
-const consentSaved = (): Promise<boolean> =>
-  Promise.race([giveConsent().then(() => true, () => false), new Promise<boolean>((done) => setTimeout(() => done(false), 6_000))])
+const consentSaved = (): Promise<boolean> => {
+  const asked = Date.now()
+  return Promise.race([giveConsent().then(() => true, () => false), new Promise<boolean>((done) => setTimeout(() => done(false), 6_000))]).then((saved) => {
+    // (Stand builds only, bgmsg.ts: how long the save took, against the 6 s bound.)
+    standTrace(`consent ${saved ? "saved" : "not saved"} after ${Date.now() - asked} ms`)
+    return saved
+  })
+}
 
 /**
  * A question's connection that has said nothing for this long is checked (2.8.1, F1). The background confirms a question

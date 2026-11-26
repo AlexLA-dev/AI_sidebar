@@ -122,7 +122,7 @@ test("a silent tab (no answer at all after another app): the quiet watchdog trea
 
 test("a tab whose link is gone: saving the consent ends in the lost-link card after a few seconds, brought into view (2.8.1)", () => {
   const app = readFileSync("src/content/App.tsx", "utf8")
-  assert.match(app, /const consentSaved = \(\): Promise<boolean> =>\n\s+Promise\.race\(\[giveConsent\(\)\.then\(\(\) => true, \(\) => false\), new Promise<boolean>\(\(done\) => setTimeout\(\(\) => done\(false\), 6_000\)\)\]\)/)
+  assert.match(app, /const consentSaved = \(\): Promise<boolean> => \{[\s\S]{0,80}?Promise\.race\(\[giveConsent\(\)\.then\(\(\) => true, \(\) => false\), new Promise<boolean>\(\(done\) => setTimeout\(\(\) => done\(false\), 6_000\)\)\]\)/)
   assert.match(app, /if \(!\(await consentSaved\(\)\)\) \{\s*setPending\(null\)\s*setLinkLost\(true\)\s*return\s*\}/)
   assert.match(app, /void consentSaved\(\)\.then\(\(saved\) => \{\s*if \(!saved\) return setLinkLost\(true\)/)
   assert.match(app, /if \(linkLost\) requestAnimationFrame\(\(\) => listRef\.current\?\.scrollTo/)
