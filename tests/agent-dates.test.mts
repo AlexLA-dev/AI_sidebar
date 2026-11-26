@@ -565,7 +565,8 @@ test("a booking's own settings scrolled past stay in the map's first part (B3): 
   assert.ok(labels.includes("Date"), "the date field")
   assert.ok(labels.includes("Guests"), "the party")
   assert.ok(labels.includes("Sat 26 Dec"), "a day")
-  assert.ok(!labels.includes("About us"), "a link scrolled past stays last")
+  // (The part's own 120 come first; a control the outline shows — a part's summary lists a few — is added after them.)
+  assert.ok(!labels.slice(0, 120).includes("About us"), "a link scrolled past stays last")
 })
 
 test("a widget's own date field on another day than the asked one is found (B3)", () => {

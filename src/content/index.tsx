@@ -65,7 +65,11 @@ function boot(): void {
       // 2.7.1: the page's cookie banner answered first («only necessary», the cookie closer), so it's never a step.
       const money = (message as unknown as { money?: boolean }).money === true
       const part = Number((message as unknown as { part?: number }).part) || undefined
-      closeForAgent().catch(() => null).then(() => sendResponse(buildMap(document, { money, ...(part ? { part } : {}) })))
+      const m = message as unknown as { open?: unknown; openUrl?: unknown; words?: unknown }
+      const open = Array.isArray(m.open) ? m.open.filter((n): n is number => typeof n === "number").slice(0, 4) : undefined
+      const words = Array.isArray(m.words) ? m.words.filter((w): w is string => typeof w === "string").slice(0, 16) : undefined
+      const openUrl = typeof m.openUrl === "string" ? m.openUrl : undefined
+      closeForAgent().catch(() => null).then(() => sendResponse(buildMap(document, { money, ...(part ? { part } : {}), ...(open ? { open, openUrl } : {}), ...(words ? { words } : {}) })))
       return true
     }
     if (agent?.type === "agentAct" && agent.call) {

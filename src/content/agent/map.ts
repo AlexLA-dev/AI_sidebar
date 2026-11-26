@@ -17,6 +17,7 @@ import { fieldLock } from "../../shared/agent/fields"
 import { hostOf, sameSite } from "../../shared/agent/sites"
 import type { Lock, MapItem, PageForm, PageMap, Role } from "../../shared/agent/types"
 import { isOwnHost } from "../insert/field"
+import { buildOutline } from "./outline"
 import { OVERLAY } from "../translate/pageControls"
 
 const CONTROL = [
@@ -31,6 +32,8 @@ const CONTROL = [
 const LEAF_ROLES = new Set<Role>(["button", "link", "option", "menuitem", "tab", "checkbox", "radio", "switch", "textbox", "textarea", "editor", "select", "summary"])
 
 export const PART_SIZE = 120
+// The list with the outline's own controls added (the server takes 200).
+const OUTLINE_ITEMS_MAX = 190
 const TEXT_MAX = 3000
 const LABEL_MAX = 120
 const VALUE_MAX = 200
@@ -211,6 +214,19 @@ function textBefore(el: Element): string {
 export function nameOf(el: Element, role: Role): string {
   const own = ownName(el, role)
   return /^\s*(0?[1-9]|[12]\d|3[01])\s*$/.test(own) ? `${own.trim()} ${monthOfCell(el)}`.trim() : own
+}
+
+/** A control with no words (an icon): what its picture or the page's own code calls it («close», «calendar-next»). Shown
+ *  to the model as a hint, in its own field: never its name, so no guard ever classes a press by it (2.8, round 139). */
+export function hintOf(el: Element): string {
+  const use = el.querySelector("use")
+  const icon = squash(el.querySelector("svg title")?.textContent, 40) || (use ? squash((use.getAttribute("href") ?? use.getAttribute("xlink:href") ?? "").split("#")[1], 40) : "")
+  const img = el.querySelector("img")
+  const src = img ? squash((img.getAttribute("src") ?? "").split(/[?#]/)[0].split("/").pop()?.replace(/\.[a-z0-9]+$/i, ""), 40) : ""
+  const named = squash(el.getAttribute("data-testid") ?? el.getAttribute("data-test") ?? el.getAttribute("data-qa") ?? el.getAttribute("name"), 40)
+  const id = el.id && !/\d{3}|^[a-z0-9]{12,}$/i.test(el.id) ? squash(el.id, 40) : ""
+  const cls = (el.getAttribute("class") ?? "").split(/\s+/).find((c) => /^[a-z][a-z-_]{3,30}$/i.test(c) && !/^(css|sc|jsx|style|flex|grid|btn|button|icon|link|item|wrapper|container|inner|outer|active|selected)$/i.test(c)) ?? ""
+  return (icon || named || id || src || cls).replace(/[\[\]"]/g, "").slice(0, 40)
 }
 
 // A month's name with a four-digit year («November 2026», «noviembre de 2026», «2026年11月»).
@@ -551,12 +567,27 @@ function pageText(doc: Document, overlays: Element[]): string {
 
 // ------------------------------------------------------------ the map
 
+const pagePath = (url: string) => {
+  try {
+    const u = new URL(url)
+    return `${u.origin}${u.pathname}`
+  } catch {
+    return url
+  }
+}
+
 export interface MapOptions {
   part?: number
   size?: number
   // Every amount on the whole page (the plan's price check): read only when asked — it reads the whole page's text,
   // which makes the browser lay the page out (2.7.1, the owner on 117: the phone got hot while Do ran).
   money?: boolean
+  // The outline's parts the model opened (read_page): they stay open while the page is the same (round 139).
+  open?: number[]
+  // The page those parts were opened on (origin and path): on another page none is open.
+  openUrl?: string
+  // The request's words: a site menu's link with one of them stays in the outline.
+  words?: string[]
 }
 
 /** The page's map now (one part of it: PART_SIZE controls, those over the page and on the screen first). */
@@ -588,6 +619,7 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
 
   const width = view?.innerWidth ?? 400
   const items: Array<MapItem & { order: number; side?: boolean }> = []
+  const elements = new Map<MapItem, Element>()
   const looks: Array<{ item: MapItem; el: Element; group: Element | null; contrast: number }> = []
   const overlays = new Set<Element>()
   const seen = new Set<Element>()
@@ -601,7 +633,10 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
     if (outer && role === "other") return
     if (outer && outer !== el) {
       const outerRole = roleOf(outer)
-      if (outerRole && LEAF_ROLES.has(outerRole) && outerRole !== "editor" && role !== "textbox" && role !== "checkbox" && role !== "radio") return
+      // (A button inside a link is a control of its own — a card that is one link with its «Записаться» inside, the
+      // director's eyes15 run; twins of one choice are taken once below.)
+      const inLink = outerRole === "link" && (role === "button" || role === "select" || role === "combobox")
+      if (outerRole && LEAF_ROLES.has(outerRole) && outerRole !== "editor" && role !== "textbox" && role !== "checkbox" && role !== "radio" && !inLink) return
     }
     if ((el as HTMLElement).isContentEditable && el.parentElement && (el.parentElement as HTMLElement).isContentEditable) return
     if (hiddenByStyle(el)) return
@@ -617,6 +652,11 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
       ? fieldLock({ tag: tag(el), type, autocomplete: el.getAttribute("autocomplete") ?? "", name: el.getAttribute("name") ?? "", id: el.id, label }) ?? (fromData.has(el) ? "personal" : null)
       : null
     const item: MapItem & { order: number; side?: boolean } = { id: idOf(el, f.frame), role, label, order }
+    if (!label && (role === "button" || role === "link" || role === "other" || role === "tab" || role === "menuitem")) {
+      const hint = hintOf(el)
+      if (hint) item.hint = hint
+    }
+    elements.set(item, el)
     if (type && type !== "text" && type !== "submit" && role !== "checkbox" && role !== "radio") item.type = type
     else if (type === "submit" && tag(el) !== "button") item.type = "submit"
     else if (tag(el) === "button" && type === "submit" && (input.form || el.closest("form"))) item.type = "submit"
@@ -671,6 +711,33 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
     }
   }
 
+  // Twins: two controls for one choice, one inside the other with the same words (or one with none) — a day's option
+  // and its checkbox, a link and the button drawn in it. Taken once: the one a tap at the outer one's centre lands on
+  // (round 139, the director's Booking.com log: two presses on a day's option changed nothing before its checkbox did).
+  const twins = new Set<MapItem>()
+  const byEl = new Map<Element, MapItem>()
+  for (const it of items) byEl.set(elements.get(it)!, it)
+  const plain = (t: string) => t.replace(/\s+/g, " ").trim().toLocaleLowerCase()
+  for (const it of items) {
+    const el = elements.get(it)!
+    if (FIELD_ROLES.has(it.role) && it.role !== "checkbox" && it.role !== "radio") continue
+    for (let up = el.parentElement, depth = 0; up && depth < 4; up = up.parentElement, depth++) {
+      const outer = byEl.get(up)
+      if (!outer || twins.has(outer) || (FIELD_ROLES.has(outer.role) && outer.role !== "checkbox" && outer.role !== "radio")) continue
+      if (!(plain(it.label) === plain(outer.label) || !it.label || !outer.label)) break
+      const r = up.getBoundingClientRect()
+      const hit = typeof up.ownerDocument.elementFromPoint === "function" && r.width > 0 ? up.ownerDocument.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2) : null
+      const keepOuter = !!hit && up.contains(hit) && !el.contains(hit)
+      const drop = keepOuter ? it : outer
+      const keep = keepOuter ? outer : it
+      twins.add(drop)
+      if (!keep.label && drop.label) keep.label = drop.label
+      if (drop.state?.length) keep.state = [...new Set([...(keep.state ?? []), ...drop.state])]
+      break
+    }
+  }
+  if (twins.size) for (let k = items.length - 1; k >= 0; k--) if (twins.has(items[k])) items.splice(k, 1)
+
   // The forms: what they hold (a password or a card makes a form secret; a field to fill makes it fillable).
   const byForm = new Map<number, PageForm>()
   for (const f of forms.values()) byForm.set(f.n, f)
@@ -698,8 +765,13 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
   const size = opts.size ?? PART_SIZE
   const parts = Math.max(1, Math.ceil(items.length / size))
   const part = Math.min(Math.max(1, opts.part ?? 1), parts)
-  const slice = items.slice((part - 1) * size, part * size).map(({ order: _order, side: _side, ...rest }) => rest)
   const overlayList = [...overlays]
+  // The outline the model reads (outline.ts); every control it shows is in the map's list too.
+  const outline = buildOutline({ doc, items: new Map(items.map((it) => [elements.get(it)!, it] as [Element, MapItem])), overlays: overlayList.slice(0, 2), height, open: opts.openUrl && pagePath(opts.openUrl) !== pagePath(doc.location?.href ?? "") ? [] : opts.open, words: opts.words })
+  const chosen = items.slice((part - 1) * size, part * size)
+  const inPart = new Set(chosen)
+  for (const it of items) if (chosen.length < OUTLINE_ITEMS_MAX && !inPart.has(it) && outline.ids.has(it.id)) chosen.push(it)
+  const slice = chosen.map(({ order: _order, side: _side, ...rest }) => rest)
   const consent = overlayList.some((o) => /cookie|куки|çerez|クッキー|쿠키|consent|gdpr|privacy|datenschutz|confidentialit|privacidad|privacidade|riservatezza|конфиденциальн|ملفات تعريف الارتباط|隐私|隱私|プライバシー|개인정보|quyền riêng tư/i.test(o.textContent ?? ""))
 
   return {
@@ -712,6 +784,8 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
     part,
     parts,
     text: pageText(doc, overlayList.slice(0, 2)),
+    outline: outline.text,
+    sections: outline.sections,
     ...(overlayList.length ? { overlay: true } : {}),
     ...(consent ? { consent: true } : {}),
     ...((() => {

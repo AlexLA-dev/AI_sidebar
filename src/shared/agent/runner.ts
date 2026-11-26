@@ -152,6 +152,8 @@ export interface AgentState {
   disabledWaits?: number
   // The map's part the model asked for (read_page), read at the next step only.
   readPart?: number
+  // The outline's parts the model opened on this page (read_page with an outline): they stay open (round 139).
+  openParts?: { page: string; parts: number[] }
   slotRefusals?: number
   // The person's standing rule for how many people (guests, tickets, seats) when the request doesn't say.
   ruleParty?: number
@@ -242,7 +244,7 @@ export interface ActReply {
 export interface RunnerIO {
   // The page's map now (null: the page is changing; the runner waits and asks again). `money`: with every amount on the
   // page (it reads the whole page's text: only when the plan's price check needs it).
-  map(opts?: { money?: boolean; part?: number }): Promise<PageMap | null>
+  map(opts?: { money?: boolean; part?: number; open?: number[]; openUrl?: string; words?: string[] }): Promise<PageMap | null>
   // Keeps the state without telling the panel (the in-flight mark before a step: no extra render).
   mark?: (state: AgentState) => Promise<void>
   // Does a step on the page (null: the page went away mid-step, as a link does).
@@ -1355,7 +1357,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // 125, the iPad: four reads of part 1 again, then «stuck»); the next step is back on the first part.
     const part = state.readPart
     state.readPart = undefined
-    const opts = { money, ...(part ? { part } : {}) }
+    const opts = { money, ...(part ? { part } : {}), ...(state.openParts?.parts.length ? { open: state.openParts.parts, openUrl: state.openParts.page } : {}), words: requestWords(state.request) }
     // (An empty map — the page between two documents after «back» — is no map: read again, never sent to the server, which
     // refused it, the director's real-site run on 10eed066.)
     const read = async () => {
@@ -1950,7 +1952,15 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       }
       break
     }
-    if (call.tool === "read_page" && (call.part ?? 1) > 1) state.readPart = Math.min(Math.round(call.part!), map.parts)
+    if (call.tool === "read_page" && (call.part ?? 1) > 1) {
+      // With the outline a read opens a part and it stays open while the page is the same (a read adds, never replaces);
+      // without one, the map's next part for one step, as before.
+      if (map.outline) {
+        const page = pageLink(map.url)
+        const parts = state.openParts?.page === page ? state.openParts.parts.filter((p) => p !== call.part) : []
+        state.openParts = { page, parts: [...parts, Math.round(call.part!)].slice(-4) }
+      } else state.readPart = Math.min(Math.round(call.part!), map.parts)
+    }
     await perform(state, io, call, verdict, target)
     state.lastWasRead = READS.has(call.tool)
     if (call.tool === "click" && call.also?.length && state.status === "running") await pressAlso(state, io, call.also)
@@ -2059,6 +2069,11 @@ function pageLink(url: string): string {
   } catch {
     return ""
   }
+}
+
+/** The request's own words for the map (a site menu's link with one of them stays in the outline): letters only, 4 or more. */
+export function requestWords(request: string): string[] {
+  return [...new Set((request.match(/[\p{L}]{4,}/gu) ?? []).map((w) => w.toLocaleLowerCase()))].slice(0, 16)
 }
 
 /** The page as far as progress goes: its address, its controls and their states, how much text (not where it's scrolled). */

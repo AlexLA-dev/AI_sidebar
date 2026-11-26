@@ -549,7 +549,7 @@ function io(tab: number, gen?: string): RunnerIO {
   }
   return {
     map: (opts) =>
-      traced(tab, "map", tabMessage<PageMap>(tab, { type: "agentMap", ...(opts?.money ? { money: true } : {}), ...(opts?.part && opts.part > 1 ? { part: opts.part } : {}) }, 6_000)).then(async (m) => {
+      traced(tab, "map", tabMessage<PageMap>(tab, { type: "agentMap", ...(opts?.money ? { money: true } : {}), ...(opts?.part && opts.part > 1 ? { part: opts.part } : {}), ...(opts?.open?.length ? { open: opts.open, openUrl: opts.openUrl } : {}), ...(opts?.words?.length ? { words: opts.words } : {}) }, 6_000)).then(async (m) => {
         // (Stand builds: what the map holds for a list of places, to see on a device why a list was or wasn't one.)
         if (TRACE && m) {
           const st = await load(tab)

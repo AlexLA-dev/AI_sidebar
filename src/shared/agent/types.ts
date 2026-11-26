@@ -34,6 +34,9 @@ export interface MapItem {
   form?: number
   // A link's address: a path on this site, or "other-site.com/path" for another site.
   href?: string
+  // A control with no words: what its picture or the page's code calls it («close», «calendar-next»). Shown to the
+  // model in brackets; never read by a guard (its class comes from its words only).
+  hint?: string
   // A select's options (the first 30), or a listbox's.
   options?: string[]
   // A link with no rating of its own: the text of the card it heads (its rating, reviews, cuisine, area beside it), so
@@ -61,8 +64,14 @@ export interface PageMap {
   more: number
   part: number
   parts: number
-  // Headings, messages (alerts, errors) and the text around the visible part (≤ ~3000 chars).
+  // Headings, messages (alerts, errors) and the text around the visible part (≤ ~3000 chars). The guards' words: what
+  // the device's rules read (a booking confirmed, an account made, a cookie layer), never the outline.
   text: string
+  // The page in reading order for the model: words and controls together («[#12 button "See availability"]»), the
+  // screen in full, the rest in parts (§2…) it opens with read_page (round 139). Never read by a guard.
+  outline?: string
+  // How many parts after the screen the outline has (read_page(n) opens §n, 2 ≤ n ≤ sections + 1).
+  sections?: number
   // An overlay of the page is open (a dialog, a cookie banner): its controls come first.
   overlay?: boolean
   // The overlay's own words, when it's about cookies or consent.
