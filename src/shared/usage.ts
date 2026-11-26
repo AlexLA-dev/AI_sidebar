@@ -269,7 +269,8 @@ export const FEATURES: Record<string, Feature> = {
     // will say); the opt-in to a discount in that reminder turned on or off, on the card or in Settings; the «once
     // more» card on return ("return": shown, discount, later).
     since: "2.6", tracked: "2.6", on: "ext", actions: ["shown", "choose", "discount", "note", "own_key", "retry", "close", "remind", "remind_set", "remind_off", "remind_notify", "remind_app", "more", "offer_notify_on", "offer_notify_off", "later"],
-    via: ["limit", "memory", "pro_only", "ultra_only", "return", "settings"],
+    // "agent" (2.8): the plans message when the agent was asked for without Pro.
+    via: ["limit", "memory", "pro_only", "ultra_only", "return", "settings", "agent"],
     fields: { plan: ["pro", "ultra"], period: ["monthly", "yearly"], from: ["more"], state: ["full", "discount"] }
   },
   // 2.7: the page translated in place (src/content/translate): the pill by the circle shown on a page in another

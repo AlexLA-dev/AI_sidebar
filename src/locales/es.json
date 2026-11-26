@@ -1364,5 +1364,8 @@
   "setOfferNotify": "Descuentos de Pro en recordatorios",
   "setOfferNotifyHint": "Solo en el recordatorio que pones cuando se acaban tus respuestas gratis. Desactivado hasta que lo actives.",
   "limitCardBackNow": "Tus respuestas gratis ya están de vuelta.",
-  "limitCardTitleBack": "Tus respuestas gratis han vuelto"
+  "limitCardTitleBack": "Tus respuestas gratis han vuelto",
+  "gAgentTitle": "Reserva por ti, en la misma página",
+  "gAgentLine": "ContextFlow elige la hora, rellena tu nombre y tus datos de contacto desde «Mis datos» y reserva. El pago y el inicio de sesión quedan en tus manos, y «Detener» siempre está a mano.",
+  "gAgentRequest": "mesa para dos mañana a las 19:00"
 }

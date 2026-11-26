@@ -1364,5 +1364,8 @@
   "setOfferNotify": "Pro discounts in reminders",
   "setOfferNotifyHint": "Only in the one reminder you set when your free answers run out. Off unless you turn it on.",
   "limitCardBackNow": "Your free answers are back.",
-  "limitCardTitleBack": "Your free answers are back"
+  "limitCardTitleBack": "Your free answers are back",
+  "gAgentTitle": "It books for you, right on the page",
+  "gAgentLine": "ContextFlow picks the time, fills in your name and contacts from My details and books. Paying and signing in stay yours, and Stop is always there.",
+  "gAgentRequest": "a table for two tomorrow at 7 pm"
 }

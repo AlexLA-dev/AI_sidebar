@@ -4001,6 +4001,15 @@
  "limitCardTitleBack": {
   "message": "Câu trả lời miễn phí đã quay lại"
  },
+ "gAgentTitle": {
+  "message": "Đặt chỗ giúp bạn, ngay trên trang"
+ },
+ "gAgentLine": {
+  "message": "ContextFlow chọn giờ, điền tên và thông tin liên hệ của bạn từ Thông tin của tôi rồi đặt chỗ. Thanh toán và đăng nhập vẫn do bạn tự làm, và Dừng luôn ở đó."
+ },
+ "gAgentRequest": {
+  "message": "bàn cho hai người lúc 19:00 ngày mai"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

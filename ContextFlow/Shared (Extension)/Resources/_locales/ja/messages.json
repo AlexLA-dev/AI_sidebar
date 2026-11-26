@@ -4001,6 +4001,15 @@
  "limitCardTitleBack": {
   "message": "無料回答が戻りました"
  },
+ "gAgentTitle": {
+  "message": "ページ上でそのまま、代わりに予約します"
+ },
+ "gAgentLine": {
+  "message": "ContextFlow が時間を選び、「自分の情報」から名前と連絡先を入力して予約します。支払いとサインインはご自身で行い、「停止」はいつでも押せます。"
+ },
+ "gAgentRequest": {
+  "message": "明日19時に2名で席を予約して"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

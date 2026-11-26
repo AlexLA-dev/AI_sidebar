@@ -5964,15 +5964,31 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   </div>
                 )}
 
+                {/* 2.8 (the director): the agent asked for without Pro gets the plans message the other Pro features get
+                    (Monthly first, the same buttons and route into the purchase, counted in chat_plans via "agent"),
+                    with the agent named; its help stays one link away. */}
                 {agentUpsell && (
-                  <div class="cf-card cf-agent" role="region">
-                    <p>{t("agentProOnly")}</p>
-                    <p class="cf-hint">{t("agentHelp")}</p>
-                    <div class="cf-card-actions">
-                      <button type="button" class="cf-primary" onClick={() => { setAgentUpsell(false); void openApp("subscribe") }}>{t("getPro")}</button>
-                      <button type="button" class="cf-secondary" onClick={() => setAgentUpsell(false)}>{t("close")}</button>
-                    </div>
-                  </div>
+                  <PlanOffer
+                    place="agent"
+                    status={status}
+                    title={t("gAgentTitle")}
+                    body={t("agentProOnly")}
+                    lines={[t("gAgentLine")]}
+                    onChoose={(choice) => { setAgentUpsell(false); choosePlan(choice) }}
+                    onEvent={offerEvent("agent")}
+                    onClose={() => setAgentUpsell(false)}
+                    extra={<>
+                      {offer && (
+                        <>
+                          <div class="cf-card-actions">
+                            <button type="button" class="cf-secondary" onClick={() => { offerEvent("agent")("discount"); redeemOffer(offer.code) }}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
+                          </div>
+                          <p class="cf-offer-code">{t("offerByCode")}</p>
+                        </>
+                      )}
+                      <p class="cf-offer-own"><button type="button" class="cf-link" onClick={() => setAgentHelp(!agentHelp)}>{t("agentHelpLink")}</button></p>
+                    </>}
+                  />
                 )}
                 {agentDeferred && !agentTask && (
                   <AgentDeferredCard

@@ -4001,6 +4001,15 @@
  "limitCardTitleBack": {
   "message": "Suas respostas grátis voltaram"
  },
+ "gAgentTitle": {
+  "message": "Ele reserva por você, direto na página"
+ },
+ "gAgentLine": {
+  "message": "O ContextFlow escolhe o horário, preenche seu nome e seus contatos a partir de “Meus dados” e faz a reserva. Pagar e entrar na conta continuam com você, e “Parar” está sempre à mão."
+ },
+ "gAgentRequest": {
+  "message": "mesa para dois amanhã às 19h"
+ },
  "tip_4cf1b54b00": {
   "message": "Dicas"
  },

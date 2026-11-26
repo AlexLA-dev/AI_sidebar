@@ -24,8 +24,9 @@ const BackIcon = () => <Svg size={18}><path d="M4 12a8 8 0 1 0 2.4-5.7" /><path 
 const AheadIcon = () => <Svg size={18}><path d="M20 12a8 8 0 1 1-2.4-5.7" /><path d="M20 4v4h-4" /></Svg>
 const PauseIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4.5" width="4" height="15" rx="1" /><rect x="14" y="4.5" width="4" height="15" rx="1" /></svg>
 
-type Slide = "media" | "search" | "organize" | "templates" | "watch" | "answers" | "listen" | "similar" | "watchMore"
-const SLIDES: Slide[] = ["media", "search", "organize", "templates", "watch", "answers", "listen", "similar", "watchMore"]
+// 2.8: the agent first (the release's main feature, Pro and Ultra only), as in the app's PaidGallery.swift.
+type Slide = "agent" | "media" | "search" | "organize" | "templates" | "watch" | "answers" | "listen" | "similar" | "watchMore"
+const SLIDES: Slide[] = ["agent", "media", "search", "organize", "templates", "watch", "answers", "listen", "similar", "watchMore"]
 const ULTRA_FROM = SLIDES.indexOf("listen")
 
 const price = (value: number, currency = "USD") => value.toLocaleString(undefined, { style: "currency", currency, maximumFractionDigits: 0 })
@@ -51,6 +52,7 @@ export function Gallery({ facts, ultra = false, start }: { facts: PlanFacts | un
   const daily = facts?.freeDaily ?? 5
 
   const title: Record<Slide, string> = {
+    agent: t("gAgentTitle"),
     media: t("gMediaTitle"),
     search: t("gSearchTitle"),
     organize: t("upsellOrganizeName"),
@@ -62,6 +64,8 @@ export function Gallery({ facts, ultra = false, start }: { facts: PlanFacts | un
     watchMore: t("gWatchTitle", String(watchUltra))
   }
   const line: Record<Slide, string> = {
+    // The approved What's New text's own two sentences (2.8): no claim beyond it.
+    agent: t("gAgentLine"),
     media: t("gMediaLine"),
     search: t("gSearchLine"),
     organize: t("upsellOrganizeText"),
@@ -158,6 +162,14 @@ export function Gallery({ facts, ultra = false, start }: { facts: PlanFacts | un
 
 function sample(slide: Slide, watchUltra: number, weekly: number, daily: number): VNode {
   switch (slide) {
+    case "agent":
+      // The request as said in Do (the approved example), and what the agent fills it from.
+      return (
+        <>
+          <p class="cf-g-ask">{t("gAgentRequest")}</p>
+          <div class="cf-g-chips"><span class="cf-g-chip"><Icon.Sparkle size={12} /> {t("agentMode")}</span><span class="cf-g-chip"><DocIcon /> {t("fdTitle")}</span></div>
+        </>
+      )
     case "media":
       return (
         <>

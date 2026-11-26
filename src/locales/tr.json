@@ -1364,5 +1364,8 @@
   "setOfferNotify": "Hatırlatmalarda Pro indirimleri",
   "setOfferNotifyHint": "Yalnızca ücretsiz yanıtlarınız bittiğinde kurduğunuz tek hatırlatmada. Siz açana kadar kapalı.",
   "limitCardBackNow": "Ücretsiz yanıtlarınız geri geldi.",
-  "limitCardTitleBack": "Ücretsiz yanıtlarınız geri geldi"
+  "limitCardTitleBack": "Ücretsiz yanıtlarınız geri geldi",
+  "gAgentTitle": "Sizin yerinize, sayfanın içinde rezervasyon yapar",
+  "gAgentLine": "ContextFlow saati seçer, adınızı ve iletişim bilgilerinizi “Bilgilerim” bölümünden doldurur ve rezervasyonu yapar. Ödeme ve oturum açma sizde kalır, “Durdur” düğmesi ise her zaman elinizin altındadır.",
+  "gAgentRequest": "yarın saat 19.00'da iki kişilik masa"
 }

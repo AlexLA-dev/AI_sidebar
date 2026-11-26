@@ -4001,6 +4001,15 @@
  "limitCardTitleBack": {
   "message": "Gratis-Antworten sind wieder da"
  },
+ "gAgentTitle": {
+  "message": "Es bucht für dich, direkt auf der Seite"
+ },
+ "gAgentLine": {
+  "message": "ContextFlow wählt die Uhrzeit, trägt deinen Namen und deine Kontaktdaten aus „Meine Daten“ ein und bucht. Bezahlen und Anmelden übernimmst du selbst, und „Stopp“ ist immer da."
+ },
+ "gAgentRequest": {
+  "message": "einen Tisch für zwei morgen um 19 Uhr"
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

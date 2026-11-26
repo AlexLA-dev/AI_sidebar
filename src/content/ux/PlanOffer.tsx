@@ -14,7 +14,9 @@ import { currencyCode, tierLines, yearlySaving } from "../Plans"
 import * as Icon from "../icons"
 import { lastPrices } from "../store"
 
-export type OfferPlace = "limit" | "memory" | "pro_only" | "ultra_only"
+// "agent" (2.8): the agent asked for without Pro (the «Do it on this page?» chip, Do in «+», the quick chip, the server's
+// PRO_ONLY), the same plans message as the other Pro features.
+export type OfferPlace = "limit" | "memory" | "pro_only" | "ultra_only" | "agent"
 
 export interface OfferChoice {
   plan: Exclude<PaidPlan, "byok">
