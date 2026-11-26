@@ -1,6 +1,7 @@
 // The director's round on report-137: a sign-in or an account by a contact alone is the person's (a guard widened); a
 // count that isn't the request's is refused; a time the person agreed to in an answer is the booking's time.
 import assert from "node:assert/strict"
+import { readFileSync } from "node:fs"
 import { test } from "node:test"
 
 import { classify } from "../src/shared/agent/classify.ts"
@@ -143,4 +144,35 @@ test("through a run: «12 people» for a table for 2 is refused and counted; the
   const w = running("Buche mir einen Herrenhaarschnitt am Dienstag ab 11:00", { ...u.plan!.booking! })
   const v = await drive(w, io([slots], [step({ tool: "click", id: "2", date: "2026-12-01", time: "10:00" } as ToolCall, "free", "click")]))
   assert.ok(v.log.some((e) => /10:00 is outside the time/.test(e.result)))
+})
+
+test("B1: a press that belongs to another place than the chosen one is refused, with the chosen place's own link", async () => {
+  const { otherPlace } = await import("../src/shared/agent/runner.ts")
+  const list = page([
+    { id: "10", role: "link", label: "Four Seasons Hotel 9.1 Superb 1,204 reviews", href: "/hotel/cy/four-seasons.html" },
+    { id: "11", role: "button", label: "See availability" },
+    { id: "20", role: "link", label: "Harmony Bay Hotel 8.6 Excellent 851 reviews", href: "/hotel/cy/harmony-bay.html" },
+    { id: "21", role: "button", label: "See availability" },
+    { id: "30", role: "link", label: "The Grand Resort 8.9 Fabulous 2,310 reviews", href: "/hotel/cy/grand-resort.html" }
+  ] as PageMap["items"], "", [], "https://stays.example/searchresults")
+  const st = { plan: { booking: { venue: "Harmony Bay Hotel" } } } as never
+  // Another hotel's link, and the «See availability» in its card: refused, naming Harmony Bay's own link.
+  assert.match(otherPlace(st, list, list.items[0]) ?? "", /belongs to «Four Seasons Hotel», not «Harmony Bay Hotel».*id 20/)
+  assert.match(otherPlace(st, list, list.items[1]) ?? "", /belongs to «Four Seasons Hotel»/)
+  // The chosen hotel's link and its card's button: pressed.
+  assert.equal(otherPlace(st, list, list.items[2]), null)
+  assert.equal(otherPlace(st, list, list.items[3]), null)
+  // No place chosen, or the chosen place not on this list, or on its own page: nothing refused.
+  assert.equal(otherPlace({ plan: { booking: {} } } as never, list, list.items[0]), null)
+  assert.equal(otherPlace({ plan: { booking: { venue: "Olive Grove" } } } as never, list, list.items[0]), null)
+  const own = { ...list, url: "https://stays.example/hotel/cy/harmony-bay.html" }
+  assert.equal(otherPlace(st, own, own.items[1]), null)
+  assert.ok((AGENT_RULES as readonly string[]).includes("place_other"))
+})
+
+test("B3: the task that just ended shows its end card open; earlier tasks stay folded; an answer-only task shows its answer", () => {
+  const panel = readFileSync("src/content/agent/AgentPanel.tsx", "utf8")
+  assert.match(panel, /const \[open, setOpen\] = useState\(\(\) => endsOpen\(state\)\)/)
+  assert.match(panel, /const endsOpen = \(s: PanelAgent\) => !past && /)
+  assert.match(panel, /if \(endsOpen\(state\)\) setOpen\(true\)/)
 })

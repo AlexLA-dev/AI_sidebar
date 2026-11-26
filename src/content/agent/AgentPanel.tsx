@@ -403,9 +403,13 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
   // A finished task folds to one line (2.7.1, the owner: «свёрнутыми по дефолту в одну строку… с возможностью
   // развернуть»); a tap opens its steps and its result.
   // A task that just failed or was refused stays open with its reason (121 sweep: a bare «!» line hid «tasks used up»).
-  const [open, setOpen] = useState(() => !past && (state.status === "error" || state.status === "blocked"))
+  // The task that just ended in this chat shows its end card open — its result, «Nothing was booked», what's left (the
+  // director's device pass on 72264bba: only the folded row showed, the end seen after a tap). Earlier tasks of the tab
+  // stay folded; a task that only answered a question shows its answer under its line.
+  const endsOpen = (s: PanelAgent) => !past && s.status !== "running" && s.status !== "plan" && s.status !== "confirm" && s.status !== "fill" && s.status !== "self" && s.status !== "asked" && !(s.status === "done" && !!s.summary && s.lines.every((l) => READS.has(l.tool)))
+  const [open, setOpen] = useState(() => endsOpen(state))
   useEffect(() => {
-    if (!past && (state.status === "error" || state.status === "blocked")) setOpen(true)
+    if (endsOpen(state)) setOpen(true)
   }, [state.status, past])
   const [undone, setUndone] = useState(false)
   // One answer per question: the buttons go quiet on the first tap (the background also refuses a second).

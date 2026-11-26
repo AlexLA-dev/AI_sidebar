@@ -487,6 +487,42 @@ export function placeInReply(text: string, state: Pick<AgentState, "venues">, ma
 // (Words in so many places' names that sharing them says nothing.)
 const COMMON = new Set(["hotel", "hotels", "apartment", "apartments", "house", "restaurant", "with", "from", "instead", "book", "this", "that", "there"])
 
+/** A place's distinctive words (not «hotel», «restaurant»…). */
+function placeWords(name: string): string[] {
+  return [...new Set(fold2(placeName(name)).match(/[\p{L}\p{N}]{3,}/gu) ?? [])].filter((w) => !COMMON.has(w) && !/^\d+$/.test(w))
+}
+
+/** Whether a place's name is the chosen one: every distinctive word of the chosen name is in it. */
+function samePlace(chosen: string, name: string): boolean {
+  const want = placeWords(chosen)
+  const have = new Set(placeWords(name))
+  return want.length > 0 && want.every((w) => have.has(w))
+}
+
+/**
+ * A press on a list of places that belongs to another place than the chosen one: why it's refused, or null. The place a
+ * control belongs to is its own link's, or the place whose link heads it on the list (the nearest place link before it,
+ * within its card's reach). Only on a page that lists the chosen place too (its own link is named in the refusal), and
+ * never on the chosen place's own page (a «similar places» card there is not the place).
+ */
+export function otherPlace(state: Pick<AgentState, "plan">, map: PageMap, item: MapItem): string | null {
+  const chosen = state.plan?.booking?.venue
+  if (!chosen) return null
+  const at = map.items.indexOf(item)
+  if (at < 0) return null
+  const places = map.items.map((i) => ({ i, v: venueOf(i, map.url) })).filter((x) => !!x.v) as Array<{ i: MapItem; v: Venue }>
+  if (places.length < 2) return null
+  const right = places.find((x) => samePlace(chosen, x.v.name))
+  if (!right || onVenue(map.url, right.v)) return null
+  let own = venueOf(item, map.url)
+  if (!own) {
+    // (The nearest place link before it, with no more than 25 controls between: a card's reach.)
+    for (let k = at - 1; k >= Math.max(0, at - 25) && !own; k--) own = venueOf(map.items[k], map.url)
+  }
+  if (!own || samePlace(chosen, own.name) || own.url === right.v.url) return null
+  return `«${item.label.slice(0, 60)}» belongs to «${placeName(own.name).slice(0, 60)}», not «${chosen}», the place chosen: press «${chosen}»'s own link (id ${right.i.id}), not another place's`
+}
+
 /** A place's name out of a card's label: before its rating, distance or price («… The Palm Suites - Adults Only 8.8 Excellent…»). */
 function placeName(label: string): string {
   return label.split(/\s+\d|\s[·•|]\s|\n/)[0].trim().slice(0, 100)
@@ -1691,6 +1727,17 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       rule(state, "place_unfit")
       state.log.push({ call, target: target ?? undefined, result: `refused: «${place.name}» doesn't fit the request or the rules${fit ? `; the ones that do: ${fit}` : ""}` })
       state.refused = "choose a place from <venues>"
+      continue
+    }
+    // The place is chosen (the request named it, or the person picked it): a press that belongs to another place on a
+    // list — its own link, or a control in the card that place heads («See availability») — is refused, with the chosen
+    // place's own link (the director's device pass on 72264bba: «Opening Harmony Bay Hotel» opened another hotel's page,
+    // then about ten steps went to finding the link again).
+    const other = seenItem && (call.tool === "click" || call.tool === "go") ? otherPlace(state, map, seenItem) : null
+    if (other) {
+      rule(state, "place_other")
+      state.log.push({ call, target: target ?? undefined, result: `refused: ${other}` })
+      state.refused = other
       continue
     }
     if (seenItem) call.expect = { label: seenItem.label, role: seenItem.role, ...(seenItem.lock ? { lock: seenItem.lock } : {}) }
