@@ -35,9 +35,9 @@ test("the panel's gallery opens on the agent, as the app's does: the same title,
 
 test("the agent without Pro: the plans message (place agent), its help one link away; every way in leads there", () => {
   const app = read("src/content/App.tsx")
-  const from = app.indexOf("{agentUpsell && (")
+  const from = app.indexOf("{agentUpsell && agentSells && (")
   assert.ok(from >= 0)
-  const block = app.slice(from).match(/^\{agentUpsell && \(\s*<PlanOffer[\s\S]*?\n\s*\/>\s*\n\s*\)\}/)![0]
+  const block = app.slice(from).match(/^\{agentUpsell && agentSells && \(\s*<PlanOffer[\s\S]*?\n\s*\/>\s*\n\s*\)\}/)![0]
   assert.match(block, /place="agent"/)
   assert.match(block, /title=\{t\("gAgentTitle"\)\}/)
   assert.match(block, /body=\{t\("agentProOnly"\)\}/)

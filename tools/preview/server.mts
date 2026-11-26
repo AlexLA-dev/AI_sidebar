@@ -31,6 +31,13 @@
 //                                                              502, as a connection lost mid-text)
 //   PREVIEW_CLAUDE=credits|overloaded|refusal|off …            (answers come from a scripted Claude; these make
 //                                                              it fail that way, so OpenAI answers; off: no key)
+//   AGENT=off …                                                (2.8: the agent switched off: the status says so and
+//                                                              /api/v2/act answers OFF; GET /agent?on=0|1 flips it
+//                                                              while the stand runs)
+//   PREVIEW_ACT=1 …                                            (2.8: /api/v2/act scripted, no model: the plan step
+//                                                              plans nothing, then each step (ACT_STEP_MS apart, 6 s)
+//                                                              types into the page's next empty text field, then done;
+//                                                              time to flip the switch mid-task)
 //   STATUS_DELAY_MS=800 …                                      (/api/v2/status answers that late, as over a phone's
 //                                                              network: what waiting for the plan costs)
 //   FIRST_WORD_DELAY_MS=4000 …                                 (an answer's first word comes that late: time to
@@ -619,6 +626,26 @@ const speak: typeof chat = (async (req: Request, context: Parameters<typeof chat
   return speakAny(new Request(req.url, { method: req.method, headers: req.headers, body: text }), context)
 }) as typeof chat
 const speakScript: typeof chat = (await proxied("/api/v2/speak-script")) ?? localScript
+// 2.8: the agent's switch (netlify/shared/config.mts agent.enabled, AGENT=off), flipped by GET /agent?on=0|1.
+const serverConfig = (await import("../../netlify/shared/config.mts")).config
+const realAct = (await import("../../netlify/functions/v2-act.mts")).default
+const ACT_STEP_MS = Number(process.env.ACT_STEP_MS ?? 6000)
+const actTyped = new Map<string, number>()
+const act: typeof chat = (async (req: Request, context: Parameters<typeof chat>[1]) => {
+  if (!serverConfig.agent.enabled || process.env.PREVIEW_ACT !== "1") return realAct(req, context)
+  const body = JSON.parse((await req.text()) || "{}") as Record<string, any>
+  const task = body.task ?? {}
+  // The plan step: no plan (every «Сделать?» asks), the task counted.
+  if (task.phase === "plan") return Response.json({ ok: true, token: "stand", left: 4 })
+  await new Promise((r) => setTimeout(r, ACT_STEP_MS))
+  // (Switched off while this step waited: the switch decides, as the real one would on the next request.)
+  if (!serverConfig.agent.enabled) return Response.json({ code: "OFF" }, { status: 503 })
+  const n = actTyped.get(task.id) ?? 0
+  const field = ((body.map?.items ?? []) as Array<{ id: string; role: string; label: string; value?: string }>).filter((i) => i.role === "textbox" && !i.value)[0]
+  if (!field || n >= 3) return Response.json({ ok: true, token: "stand", left: 4, call: { tool: "done", summary: "Filled in the stand's fields." }, verdict: { cls: "free", reason: "done" } })
+  actTyped.set(task.id, n + 1)
+  return Response.json({ ok: true, token: "stand", left: 4, call: { tool: "type", id: field.id, text: `Test ${n + 1}`, why: `«${field.label}»` }, verdict: { cls: "free", reason: "type" } })
+}) as typeof chat
 const STATUS_DELAY_MS = Number(process.env.STATUS_DELAY_MS ?? 0)
 const statusLate: typeof chat = (async (req: Request, context: Parameters<typeof chat>[1]) => {
   if (STATUS_DELAY_MS) await new Promise((r) => setTimeout(r, STATUS_DELAY_MS))
@@ -656,7 +683,7 @@ const invite: typeof chat = (async (req: Request) => {
   return Response.json({ ok: true, code, link: code ? `https://context-flow.app/i/${code}` : null, joined: 0, active: 0, reward: null,
     answersUntil: null, entered: null, canEnter: false, friendDaily: 5, friendDays: 7 })
 }) as typeof chat
-const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/speak-heard": speakHeard, "/api/v2/chat": chat, "/api/v2/status": statusLate, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch, "/api/v2/item": item, "/api/v2/write": write, "/api/v2/collect": collect, "/api/v2/translate": translatePage, "/api/v2/invite": invite }
+const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/speak-heard": speakHeard, "/api/v2/chat": chat, "/api/v2/status": statusLate, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch, "/api/v2/item": item, "/api/v2/write": write, "/api/v2/collect": collect, "/api/v2/translate": translatePage, "/api/v2/invite": invite, "/api/v2/act": act }
 
 // Page watch's test shop (2.5): /shop shows a mug whose price and stock /shop-set changes
 // (/shop-set?price=39&stock=OutOfStock), /shop-js draws the price with a script (the background sees none, the
@@ -931,6 +958,13 @@ createServer(async (req, res) => {
     for (const [subject, limit] of limits) if (subject.startsWith("install:")) { counters.set(subject, limit); filled.push(subject) }
     res.writeHead(200, { "Content-Type": "application/json" })
     res.end(JSON.stringify({ filled: filled.length }))
+    return
+  }
+  // 2.8: the agent's switch, flipped while the stand runs (the status says it; /api/v2/act answers OFF when off).
+  if (url.pathname === "/agent") {
+    if (url.searchParams.has("on")) serverConfig.agent.enabled = url.searchParams.get("on") !== "0"
+    res.writeHead(200, { "Content-Type": "application/json" })
+    res.end(JSON.stringify({ on: serverConfig.agent.enabled }))
     return
   }
   // 2.7: the plan every request comes as from now on (free, byok, pro, ultra), for a check of several plans in one run.

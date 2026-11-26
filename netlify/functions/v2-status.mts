@@ -24,6 +24,8 @@ import { inviteExtra, readState } from "../shared/invite.mts"
  * `ultra`: {speak, similar} — this week's read-aloud seconds and find-similar searches (used, limit, resetsAt), for
  * an Ultra subscriber only. `limits` also carries the Ultra allowances and the watched pages per plan, for what the
  * paywall says (2.6).
+ * `agent`: {on} (2.8) — the agent switched on (AGENT=off: false; /api/v2/act then answers OFF). The panel and the app
+ * offer the agent only while it's on; a status without it (older servers) means on.
  */
 export default async (req: Request, context: Context): Promise<Response> => {
   if (req.method === "OPTIONS") return preflight()
@@ -92,6 +94,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
       tasteSpeakSeconds: settings.taste.speakWeeklySeconds, tasteSimilarWeekly: settings.taste.similarWeekly
     },
     organize: { on: settings.organize.enabled, space: vectorSpace(), config: settings.organize.thresholds },
+    agent: { on: settings.agent.enabled },
     ...(invite ? { invite: { active: invite.active } } : {}),
     // Build 93: the country the request came from (Find similar's "near me"); missing when unknown.
     ...(geoCountryOf(context) ? { country: geoCountryOf(context) } : {})

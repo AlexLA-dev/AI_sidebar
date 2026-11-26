@@ -58,7 +58,8 @@ test("the plans opened on a feature: Ultra's line for it first, its slide first"
   assert.match(plans.tierLines("ultra", FACTS, "listen")[0], /30 minutes a week/)
   assert.match(plans.tierLines("ultra", FACTS, "similar")[0], /10 searches a week/)
   assert.deepEqual([...plans.tierLines("ultra", FACTS, "similar")].sort(), [...ultra].sort())
-  assert.match(read("src/content/Gallery.tsx"), /useState\(start \? SLIDES\.indexOf\(start\) : ultra \? ULTRA_FROM : 0\)/)
+  // (2.8: the slide kept by name, the agent's only while the server has it on: tests/agent-switch-28.)
+  assert.match(read("src/content/Gallery.tsx"), /useState<Slide>\(start \?\? \(ultra \? "listen" : SLIDES\[0\]\)\)/)
 })
 
 test("the panel: Listen for Pro with a taste, the full search asked as a taste, the plans on the feature when used", () => {

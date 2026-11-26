@@ -25,7 +25,12 @@ struct PaidGallery: View {
     @State private var forward = true
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private var slide: Slide { Slide(rawValue: index) ?? .agent }
+    /// 2.8 (the director): the agent's slide only while the server's switch is known to be on (AgentSwitch): a
+    /// promise at purchase that isn't kept is the worst case. Without it the gallery starts on the next slide.
+    private var first: Int { facts.agentSold ? 0 : Slide.media.rawValue }
+    private var slides: [Slide] { Slide.allCases.filter { $0.rawValue >= first } }
+    private var shown: Int { max(index, first) }
+    private var slide: Slide { Slide(rawValue: shown) ?? .media }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -37,7 +42,7 @@ struct PaidGallery: View {
             }
             ZStack(alignment: .topLeading) {
                 GallerySlide(slide: slide, facts: facts)
-                    .id(index)
+                    .id(shown)
                     .transition(transition)
             }
             // As tall as the slide (a short one leaves no gap above the arrows).
@@ -51,13 +56,13 @@ struct PaidGallery: View {
                 Button { step(-1) } label: { Image(systemName: "chevron.left").font(.body.weight(.semibold)).frame(width: 36, height: 30) }
                     .accessibilityLabel(Text("Previous"))
                     .accessibilityIdentifier("gallery.previous")
-                    .disabled(index == 0)
+                    .disabled(shown == first)
                 Spacer()
                 HStack(spacing: 6) {
-                    ForEach(Slide.allCases, id: \.rawValue) { item in
+                    ForEach(slides, id: \.rawValue) { item in
                         Circle()
-                            .fill(item.rawValue == index ? (item.ultra ? ultraViolet : brandBlue) : Color.secondary.opacity(0.3))
-                            .frame(width: item.rawValue == index ? 8 : 6, height: item.rawValue == index ? 8 : 6)
+                            .fill(item.rawValue == shown ? (item.ultra ? ultraViolet : brandBlue) : Color.secondary.opacity(0.3))
+                            .frame(width: item.rawValue == shown ? 8 : 6, height: item.rawValue == shown ? 8 : 6)
                     }
                 }
                 .accessibilityHidden(true)
@@ -65,7 +70,7 @@ struct PaidGallery: View {
                 Button { step(1) } label: { Image(systemName: "chevron.right").font(.body.weight(.semibold)).frame(width: 36, height: 30) }
                     .accessibilityLabel(Text("Next"))
                     .accessibilityIdentifier("gallery.next")
-                    .disabled(index == Slide.allCases.count - 1)
+                    .disabled(shown == Slide.allCases.count - 1)
             }
             .buttonStyle(.borderless)
             .foregroundColor(slide.ultra ? ultraViolet : brandBlue)
@@ -90,17 +95,17 @@ struct PaidGallery: View {
     }
 
     private func step(_ by: Int) {
-        go(to: index + by)
+        go(to: shown + by)
     }
 
     private func go(to target: Int) {
-        guard target != index, Slide(rawValue: target) != nil else { return }
-        forward = target > index
+        guard target != shown, target >= first, Slide(rawValue: target) != nil else { return }
+        forward = target > shown
         withAnimation(.easeInOut(duration: 0.3)) { index = target }
     }
 
     private func groupChip(ultra: Bool) -> some View {
-        Button { go(to: ultra ? Slide.listen.rawValue : 0) } label: {
+        Button { go(to: ultra ? Slide.listen.rawValue : first) } label: {
             TierChip(ultra: ultra, dimmed: slide.ultra != ultra)
         }
         .buttonStyle(.borderless)

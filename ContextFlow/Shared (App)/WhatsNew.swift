@@ -46,8 +46,9 @@ enum WhatsNew {
     /// then cookie windows (the director, tracker А11, Д3.9). 2.7's five stay in Tips with their clips.
     /// Their clips aren't made yet: each card plays one as soon as its Tip names it (the owner on 2.6: What's new has a
     /// video wherever there is one), and the line under the heading says so only when all of them do.
+    /// (The agent's card only while the server hasn't switched it off: AgentSwitch.)
     static var items: [Tip] {
-        [TipGroup.agentTip, TipGroup.cookiesTip]
+        [TipGroup.agentTip, TipGroup.cookiesTip].filter(AgentSwitch.keeps)
     }
 
     /// Every card has its clip in this language.
