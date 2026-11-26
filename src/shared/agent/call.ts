@@ -125,7 +125,8 @@ export function checkCall(raw: unknown, map: PageMap, keys: string[] = []): Chec
       } else call.to = r.to === "up" ? "up" : "down"
       break
     case "read_page":
-      call.part = typeof r.part === "number" && r.part >= 1 && r.part <= Math.max(1, map.parts) ? Math.floor(r.part) : 1
+      // (With the outline, a part is one of its §n: 2 … sections + 1.)
+      call.part = typeof r.part === "number" && r.part >= 1 && r.part <= Math.max(1, map.outline ? (map.sections ?? 0) + 1 : map.parts) ? Math.floor(r.part) : 1
       break
     case "extract":
       if (id && item) call.id = id
