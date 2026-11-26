@@ -46,7 +46,7 @@ export const FEATURES: Record<string, Feature> = {
   // when it was last seen (kept every 15 s): every open has its close. Via "back": the panel was left open on a page
   // put away for over half an hour (that opening ended at its last sight) and the person came back to it.
   panel: {
-    since: "2.0", tracked: "2.8.1", on: "ext", actions: ["open", "close"],
+    since: "2.0", tracked: "2.8", on: "ext", actions: ["open", "close"],
     via: ["toolbar", "shortcut", "fab", "bubble", "note_open", "qi", "app", "hint", "back"],
     fields: { lay: ["side", "sheet", "popup"], page: PAGE_KINDS, screen: ["guide", "tour", "ask", "empty", "chat", "agent", "plans"], first: "int", open_s: "int", did: ["none", "chip", "ask", "tour", "settings", "other"], cut: "int" }
   },
@@ -63,7 +63,7 @@ export const FEATURES: Record<string, Feature> = {
   // 2.8: sent by the extension's consent card (src/content/Consent.tsx), where it was asked; step 2: asked again for a
   // newer text.
   consent: {
-    since: "2.0", tracked: "2.8.1", actions: ["shown", "accepted", "declined"],
+    since: "2.0", tracked: "2.8", actions: ["shown", "accepted", "declined"],
     // "ready": given by tapping a ready question that says so (В6.3).
     via: ["ask", "find", "ask_chats", "qi", "organize", "translate", "write", "watch", "ready"], fields: { step: "int" }
   },
@@ -75,7 +75,7 @@ export const FEATURES: Record<string, Feature> = {
   },
   // 2.8 (events-2.8 §2, rung 7): "shown" once a device day when the circle first shows on a page, with the page's kind
   // (and `first` the first time ever); "tap" when it opens the panel.
-  fab: { since: "2.0", tracked: "2.8.1", on: "ext", actions: ["tap", "drag", "hide_site", "shown"], fields: { page: PAGE_KINDS, first: "int" } },
+  fab: { since: "2.0", tracked: "2.8", on: "ext", actions: ["tap", "drag", "hide_site", "shown"], fields: { page: PAGE_KINDS, first: "int" } },
   msg: { since: "2.0", actions: ["copy", "share"], fields: { what: ["answer", "note", "ask_chats"] } },
   share_chat: { since: "2.3", actions: ["open", "copy", "share"], fields: { picked: "int" } },
   page_open: { since: "2.3", actions: ["tap"], via: ["divider", "chat_pages", "note_link", "source", "reminder", "watch"] },
@@ -126,7 +126,7 @@ export const FEATURES: Record<string, Feature> = {
   // first (device days). The ✦ pulse (fab_pulse) reports shown once a device day. A page line by the circle is ALSO sent
   // as page_hint.* (2.7's series, kept so 2.7 and 2.8.1 compare): reports count a page line once, from one of the two.
   hint: {
-    since: "2.3", tracked: "2.8.1", actions: ["shown", "done", "tap", "dismiss"],
+    since: "2.3", tracked: "2.8", actions: ["shown", "done", "tap", "dismiss"],
     fields: {
       what: ["chats", "video", "pdf", "note", "bubble", "qi", "app_chats", "side", ...COACH_HINTS],
       rung: "int", day: "int"
