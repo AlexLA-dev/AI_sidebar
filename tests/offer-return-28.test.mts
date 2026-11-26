@@ -186,7 +186,7 @@ test("the panel: the code only on return everywhere it shows; full price noted; 
   }
   const usage = read("src/shared/usage.ts")
   assert.match(usage, /what: \["remind", "remind_page", "setup", "watch", "similar", "offer"\]/)
-  assert.match(usage, /via: \["limit", "memory", "pro_only", "ultra_only", "return", "settings"\]/)
+  assert.match(usage, /via: \["limit", "memory", "pro_only", "ultra_only", "return", "settings", "agent"\]/)
 })
 
 test("15 languages: the opt-in, the notification (no price, the two numbers) and Settings' switch", () => {

@@ -1364,5 +1364,8 @@
   "setOfferNotify": "お知らせで Pro の割引を伝える",
   "setOfferNotifyHint": "無料回答を使い切ったときに設定する1件のお知らせだけです。オンにするまでオフです。",
   "limitCardBackNow": "無料回答が戻りました。",
-  "limitCardTitleBack": "無料回答が戻りました"
+  "limitCardTitleBack": "無料回答が戻りました",
+  "gAgentTitle": "ページ上でそのまま、代わりに予約します",
+  "gAgentLine": "ContextFlow が時間を選び、「自分の情報」から名前と連絡先を入力して予約します。支払いとサインインはご自身で行い、「停止」はいつでも押せます。",
+  "gAgentRequest": "明日19時に2名で席を予約して"
 }

@@ -4001,6 +4001,15 @@
  "limitCardTitleBack": {
   "message": "Your free answers are back"
  },
+ "gAgentTitle": {
+  "message": "It books for you, right on the page"
+ },
+ "gAgentLine": {
+  "message": "ContextFlow picks the time, fills in your name and contacts from My details and books. Paying and signing in stay yours, and Stop is always there."
+ },
+ "gAgentRequest": {
+  "message": "a table for two tomorrow at 7 pm"
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

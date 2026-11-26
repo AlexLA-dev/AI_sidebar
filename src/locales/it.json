@@ -1364,5 +1364,8 @@
   "setOfferNotify": "Sconti su Pro nei promemoria",
   "setOfferNotifyHint": "Solo nel promemoria che imposti quando finiscono le risposte gratuite. Disattivato finché non lo attivi.",
   "limitCardBackNow": "Le risposte gratuite sono tornate.",
-  "limitCardTitleBack": "Le risposte gratuite sono tornate"
+  "limitCardTitleBack": "Le risposte gratuite sono tornate",
+  "gAgentTitle": "Prenota per te, direttamente nella pagina",
+  "gAgentLine": "ContextFlow sceglie l’orario, inserisce il tuo nome e i tuoi contatti da «I miei dati» e prenota. Pagare e accedere restano compito tuo, e «Interrompi» è sempre lì.",
+  "gAgentRequest": "un tavolo per due domani alle 19"
 }

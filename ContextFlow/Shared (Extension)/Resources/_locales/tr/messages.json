@@ -4001,6 +4001,15 @@
  "limitCardTitleBack": {
   "message": "Ücretsiz yanıtlarınız geri geldi"
  },
+ "gAgentTitle": {
+  "message": "Sizin yerinize, sayfanın içinde rezervasyon yapar"
+ },
+ "gAgentLine": {
+  "message": "ContextFlow saati seçer, adınızı ve iletişim bilgilerinizi “Bilgilerim” bölümünden doldurur ve rezervasyonu yapar. Ödeme ve oturum açma sizde kalır, “Durdur” düğmesi ise her zaman elinizin altındadır."
+ },
+ "gAgentRequest": {
+  "message": "yarın saat 19.00'da iki kişilik masa"
+ },
  "tip_4cf1b54b00": {
   "message": "İpuçları"
  },

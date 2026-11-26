@@ -114,6 +114,8 @@ button.cf-tier-chip { border: 0; cursor: pointer; }
 .cf-g-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .cf-g-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 10px; font-size: 11.5px; font-weight: 600; color: var(--accent-text); background: var(--accent-soft); }
 .cf-g-text { margin: 0; line-height: 1.45; }
+/* 2.8: the agent's slide, the request as said in Do (right, as the person's own message). */
+.cf-g-ask { margin: 0 0 8px auto; width: fit-content; max-width: 85%; padding: 6px 10px; border-radius: 12px 12px 4px 12px; background: var(--accent); color: #fff; font-size: 12.5px; line-height: 1.4; }
 .cf-g-text mark { padding: 0 2px; border-radius: 3px; font-weight: 650; color: inherit; background: rgba(250, 204, 21, 0.38); }
 .cf-g-name { font-size: 12.5px; }
 .cf-g-search { display: flex; align-items: center; gap: 6px; padding: 3px 3px 3px 10px; border-radius: 14px; background: var(--bg-3); color: var(--text-2); }

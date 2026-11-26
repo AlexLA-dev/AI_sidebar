@@ -1364,5 +1364,8 @@
   "setOfferNotify": "Réductions Pro dans les rappels",
   "setOfferNotifyHint": "Seulement dans le rappel que vous programmez quand vos réponses gratuites sont épuisées. Désactivé tant que vous ne l’activez pas.",
   "limitCardBackNow": "Vos réponses gratuites sont de retour.",
-  "limitCardTitleBack": "Réponses gratuites de retour"
+  "limitCardTitleBack": "Réponses gratuites de retour",
+  "gAgentTitle": "Il réserve pour vous, directement sur la page",
+  "gAgentLine": "ContextFlow choisit l’heure, remplit votre nom et vos coordonnées depuis « Mes infos » et réserve. Le paiement et la connexion restent entre vos mains, et « Arrêter » est toujours là.",
+  "gAgentRequest": "une table pour deux demain à 19 h"
 }

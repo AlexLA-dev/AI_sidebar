@@ -1364,5 +1364,8 @@
   "setOfferNotify": "在提醒中告知 Pro 優惠",
   "setOfferNotifyHint": "僅限免費回答用完時你設定的那一則提醒。在你開啟之前保持關閉。",
   "limitCardBackNow": "免費回答已恢復。",
-  "limitCardTitleBack": "免費回答已恢復"
+  "limitCardTitleBack": "免費回答已恢復",
+  "gAgentTitle": "直接在頁面上幫你預訂",
+  "gAgentLine": "ContextFlow 會挑好時間，從「我的資料」填入你的姓名和聯絡方式，然後完成預訂。付款和登入仍由你自己來，「停止」隨時都在。",
+  "gAgentRequest": "訂明天晚上 7 點的兩人座位"
 }

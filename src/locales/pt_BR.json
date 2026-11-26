@@ -1364,5 +1364,8 @@
   "setOfferNotify": "Descontos do Pro nos lembretes",
   "setOfferNotifyHint": "Só no lembrete que você define quando as respostas grátis acabam. Desligado até você ligar.",
   "limitCardBackNow": "Suas respostas grátis voltaram.",
-  "limitCardTitleBack": "Suas respostas grátis voltaram"
+  "limitCardTitleBack": "Suas respostas grátis voltaram",
+  "gAgentTitle": "Ele reserva por você, direto na página",
+  "gAgentLine": "O ContextFlow escolhe o horário, preenche seu nome e seus contatos a partir de “Meus dados” e faz a reserva. Pagar e entrar na conta continuam com você, e “Parar” está sempre à mão.",
+  "gAgentRequest": "mesa para dois amanhã às 19h"
 }

@@ -4001,6 +4001,15 @@
  "limitCardTitleBack": {
   "message": "Le risposte gratuite sono tornate"
  },
+ "gAgentTitle": {
+  "message": "Prenota per te, direttamente nella pagina"
+ },
+ "gAgentLine": {
+  "message": "ContextFlow sceglie l’orario, inserisce il tuo nome e i tuoi contatti da «I miei dati» e prenota. Pagare e accedere restano compito tuo, e «Interrompi» è sempre lì."
+ },
+ "gAgentRequest": {
+  "message": "un tavolo per due domani alle 19"
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },

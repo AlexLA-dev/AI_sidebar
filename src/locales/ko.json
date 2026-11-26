@@ -1364,5 +1364,8 @@
   "setOfferNotify": "알림에서 Pro 할인 알려 주기",
   "setOfferNotifyHint": "무료 답변을 다 썼을 때 설정하는 알림 하나에만 해당돼요. 켜기 전까지는 꺼져 있어요.",
   "limitCardBackNow": "무료 답변이 돌아왔어요.",
-  "limitCardTitleBack": "무료 답변이 돌아왔어요"
+  "limitCardTitleBack": "무료 답변이 돌아왔어요",
+  "gAgentTitle": "페이지에서 바로 대신 예약해 줘요",
+  "gAgentLine": "ContextFlow가 시간을 고르고 ‘내 정보’에서 이름과 연락처를 채워 예약해요. 결제와 로그인은 직접 하시고, ‘중지’는 언제든 누를 수 있어요.",
+  "gAgentRequest": "내일 저녁 7시에 두 명 자리 예약해 줘"
 }

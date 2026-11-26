@@ -4001,6 +4001,15 @@
  "limitCardTitleBack": {
   "message": "免费回答已恢复"
  },
+ "gAgentTitle": {
+  "message": "直接在网页上替你预订"
+ },
+ "gAgentLine": {
+  "message": "ContextFlow 会选好时间，用“我的信息”填上你的姓名和联系方式，然后完成预订。付款和登录仍由你自己来，“停止”随时都在。"
+ },
+ "gAgentRequest": {
+  "message": "订明天晚上 7 点的两人桌"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

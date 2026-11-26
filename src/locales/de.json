@@ -1364,5 +1364,8 @@
   "setOfferNotify": "Pro-Rabatte in Erinnerungen",
   "setOfferNotifyHint": "Nur in der einen Erinnerung, die du stellst, wenn deine Gratis-Antworten aufgebraucht sind. Aus, bis du es einschaltest.",
   "limitCardBackNow": "Deine Gratis-Antworten sind wieder da.",
-  "limitCardTitleBack": "Gratis-Antworten sind wieder da"
+  "limitCardTitleBack": "Gratis-Antworten sind wieder da",
+  "gAgentTitle": "Es bucht für dich, direkt auf der Seite",
+  "gAgentLine": "ContextFlow wählt die Uhrzeit, trägt deinen Namen und deine Kontaktdaten aus „Meine Daten“ ein und bucht. Bezahlen und Anmelden übernimmst du selbst, und „Stopp“ ist immer da.",
+  "gAgentRequest": "einen Tisch für zwei morgen um 19 Uhr"
 }

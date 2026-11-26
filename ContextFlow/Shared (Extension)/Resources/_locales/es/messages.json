@@ -4001,6 +4001,15 @@
  "limitCardTitleBack": {
   "message": "Tus respuestas gratis han vuelto"
  },
+ "gAgentTitle": {
+  "message": "Reserva por ti, en la misma página"
+ },
+ "gAgentLine": {
+  "message": "ContextFlow elige la hora, rellena tu nombre y tus datos de contacto desde «Mis datos» y reserva. El pago y el inicio de sesión quedan en tus manos, y «Detener» siempre está a mano."
+ },
+ "gAgentRequest": {
+  "message": "mesa para dos mañana a las 19:00"
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },
