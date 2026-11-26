@@ -206,7 +206,12 @@ function signsIn(map: PageMap, item: MapItem): boolean {
 }
 
 function pressClass(map: PageMap, item: MapItem, host: string): StepVerdict {
-  const hit = wordKind(item.label)
+  // A listing's card (a long link to a place, with its address) carries the place's promo and ratings text («6% discount:
+  // bring 1 friend, pay less», «614 reviews»): those words don't make opening the place a payment, a review or a post
+  // (the director's real-site set, round 138: a salon card stopped as «pay»). A short link, a button, or a card on a page
+  // that takes payment keeps every word; a card's sign-in words still count.
+  const word = wordKind(item.label)
+  const hit = word && listingCard(item) && item.label.length > 40 && !!item.href && !map.pay && (word.kind === "pay" || word.kind === "rate" || word.kind === "post") ? null : word
   const form = item.form !== undefined ? map.forms.find((f) => f.n === item.form) : undefined
   const toggle = item.role === "checkbox" || item.role === "radio" || item.role === "switch"
   if (toggle) {

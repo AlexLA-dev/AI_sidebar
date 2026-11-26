@@ -22,6 +22,10 @@ const CHILDREN_AFTER = /(?<![\d.,:])(\d{1,2})\s*(?:child\S*|kids?|infants?|enfan
 // A press that adds one to a counter («+», «Increase», «Add adult»).
 const PLUS = /^\s*(\+|＋|increase|add|plus|more|увеличить|добавить|больше|збільшити|додати|erhöhen|hinzufügen|mehr|augmenter|ajouter|aumentar|añadir|agregar|aumenta|aggiungi|adicionar|artır|ekle|زيادة|إضافة|増やす|追加|증가|추가|增加|添加|tăng|thêm)(?!\p{L})/iu
 
+// A number of people said in words, or a people word with no digit read beside it («لأربعة أشخاص», «for four», «四名»,
+// «на четверых»): the count is the person's but not one read here, so neither a refusal nor the standing rule applies.
+const PEOPLE_MENTION = new RegExp(`${PEOPLE.source}|[一二三四五六七八九十两兩]\\s*(?:名|人|位|枚)|\\p{L}\\s*명|(?:дво|тро|четвер|пятер|шестер|семер|восьмер)(?:их|ых|ом)|вдво|втро|вчетвер|(?<!\\p{L})(?:for|für|pour|para|per|на|для)\\s+(?:two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|zwei|drei|vier|fünf|sechs|sieben|acht|deux|trois|quatre|cinq|sept|huit|dos|tres|cuatro|cinco|seis|siete|ocho|due|tre|quattro|cinque|sei|sette|otto|duas|três)(?!\\p{L})`, "giu")
+
 function lastNumber(text: string, re: RegExp): number | null {
   let n: number | null = null
   for (const m of text.matchAll(re)) n = Number(m[1])
@@ -31,14 +35,23 @@ function lastNumber(text: string, re: RegExp): number | null {
 /** The number of people the person said (the request, then their answers: the last said), or null. */
 export function peopleSaid(text: string): number | null {
   // (The last mention in the text, whichever form it takes.)
-  let best: { at: number; n: number } | null = null
+  let best: { at: number; end: number; n: number } | null = null
   for (const re of [PEOPLE_AFTER, PEOPLE_BEFORE]) {
     for (const m of text.matchAll(re)) {
       const n = Number(m[1])
-      if (n >= 1 && n <= 99 && (!best || (m.index ?? 0) >= best.at)) best = { at: m.index ?? 0, n }
+      if (n >= 1 && n <= 99 && (!best || (m.index ?? 0) >= best.at)) best = { at: m.index ?? 0, end: (m.index ?? 0) + m[0].length, n }
     }
   }
-  return best?.n ?? null
+  if (!best) return null
+  // A people mention in a later line or sentence than the last number read («for 2» … «no, make it four people»): the
+  // later words decide, and they aren't read here.
+  for (const m of text.matchAll(PEOPLE_MENTION)) if ((m.index ?? 0) > best.end && /\n|[.;!?。]\s*/.test(text.slice(best.end, m.index))) return null
+  return best.n
+}
+
+/** The person's words speak of a number of people (in digits or not). */
+export function mentionsPeople(text: string): boolean {
+  return new RegExp(PEOPLE_MENTION.source, "iu").test(text)
 }
 
 /** What a control counts: by its label, else by its options (numbers of people). */
@@ -54,7 +67,8 @@ export function countKind(item: Pick<MapItem, "label" | "options" | "role">): Co
 
 /** The count expected for a control of this kind. */
 export function countExpected(kind: CountKind, said: string, ruleParty?: number): number | null {
-  if (kind === "people") return peopleSaid(said) ?? ruleParty ?? null
+  // The standing rule only when the person's words say nothing of people at all (a number written as a word isn't read).
+  if (kind === "people") return peopleSaid(said) ?? (mentionsPeople(said) ? null : ruleParty ?? null)
   if (kind === "rooms") return lastNumber(said, ROOMS_AFTER) ?? 1
   return lastNumber(said, CHILDREN_AFTER) ?? 0
 }

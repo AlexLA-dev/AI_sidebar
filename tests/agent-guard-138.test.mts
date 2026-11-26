@@ -88,6 +88,13 @@ test("a count that isn't the request's is refused, by the kind of control; the r
   assert.equal(countRefusal({ tool: "select", id: big.id, option: "2 people" } as ToolCall, small, map, "Book a table for 2", 2), null)
   // No number in the request: the person's rule decides.
   assert.match(countRefusal({ tool: "select", id: big.id, option: "2 people" } as ToolCall, small, map, "Book a table tomorrow", 3) ?? "", /isn't the 3 people/)
+  // A number written as a word (the stand's Arabic request «لأربعة أشخاص», «for four»): not read, so neither a refusal
+  // nor the standing rule — the person's number wins.
+  const four = { ...big, label: "Party size", options: ["2 people", "3 people", "4 people"] }
+  for (const said of ["احجز طاولة يوم 5 ديسمبر 2026 الساعة 19:30 لأربعة أشخاص", "Book a table for four tomorrow", "на четверых завтра", "明日四名で予約", "for 2 people.\nActually we'll be four people"]) {
+    assert.equal(countRefusal({ tool: "select", id: big.id, option: "4 people" } as ToolCall, four, map, said, 2), null, said)
+  }
+  assert.equal(peopleSaid("for 2 people.\nActually we'll be four people"), null)
   // Rooms: one unless the request says.
   const rooms = { id: "r", role: "select", label: "Rooms", options: ["1", "2", "3"] } as PageMap["items"][number]
   assert.match(countRefusal({ tool: "select", id: "r", option: "2" } as ToolCall, rooms, map, "a stay for 2 adults", 2) ?? "", /isn't the 1 room/)
@@ -175,4 +182,15 @@ test("B3: the task that just ended shows its end card open; earlier tasks stay f
   assert.match(panel, /const \[open, setOpen\] = useState\(\(\) => endsOpen\(state\)\)/)
   assert.match(panel, /const endsOpen = \(s: PanelAgent\) => !past && /)
   assert.match(panel, /if \(endsOpen\(state\)\) setOpen\(true\)/)
+})
+
+test("a listing's card with promo words («pay less», «reviews») opens the place; a short pay link or a card on a payment page still pays", () => {
+  const card = { id: "20", role: "link", label: "Teoz Barber 5.0 Bezirk Mitte, Berlin Friseursalon•614 Bewertungen 6% discount: bring 1 friend, pay le", href: "/de/a/salon-berlin-1" }
+  const list = (extra: Partial<PageMap> = {}) => ({ ...page([card, { id: "21", role: "link", label: "Pay now", href: "/checkout/pay" }, { id: "22", role: "button", label: "Pay now and bring a friend for 6% off your visit today" }] as PageMap["items"], "", [], "https://salons.example/de/berlin"), ...extra }) as PageMap
+  const c = { ...ctx(list()), startHost: "salons.example" }
+  assert.notEqual(classify({ tool: "click", id: "20" }, c).reason, "pay")
+  assert.equal(classify({ tool: "click", id: "20" }, c).cls, "free")
+  assert.deepEqual(classify({ tool: "click", id: "21" }, c), { cls: "self", reason: "pay" }, "a short link that pays")
+  assert.deepEqual(classify({ tool: "click", id: "22" }, c), { cls: "self", reason: "pay" }, "a button keeps its words")
+  assert.deepEqual(classify({ tool: "click", id: "20" }, { ...c, map: list({ pay: true } as Partial<PageMap>) }).cls, "self", "a card on a page that takes payment")
 })
