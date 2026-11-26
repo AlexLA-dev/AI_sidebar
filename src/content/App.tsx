@@ -3415,7 +3415,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const recheckLink = () => void sendBackground({ type: "agentGet" }).then((r) => setLinkLost(r === null))
   const agentBusyRef = useRef(false)
   agentBusyRef.current = agentBusy
-  const offerFor = lastUserIndex >= 0 && !historyMode && !agentBusy && messages[lastUserIndex].similarAsk === undefined && asksForAction(messages[lastUserIndex].content) ? lastUserIndex : -1
+  // A request a task was already started from (going on, ended, or folded in this tab's past tasks) doesn't offer itself
+  // again (the director on 03a95321: the chip stayed under the reply after its task was done); asking again brings it back.
+  const startedFrom = (text: string) => [agentTask, ...agentPast].some((p) => !!p && p.request.trim() === text.trim())
+  const offerFor = lastUserIndex >= 0 && !historyMode && !agentBusy && messages[lastUserIndex].similarAsk === undefined && asksForAction(messages[lastUserIndex].content) && !startedFrom(messages[lastUserIndex].content) ? lastUserIndex : -1
   // Under the answer once it's there (where the answer says it is), under the question while it's written.
   const offerAt = offerFor < 0 ? -1 : messages[offerFor + 1]?.role === "assistant" ? offerFor + 1 : offerFor
   // (2.8.1: the answer's own button, outside the hint coordinator: the director's review, R7.)

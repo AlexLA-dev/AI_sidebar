@@ -3,6 +3,7 @@
 // request or anything typed.
 
 import type { AgentState } from "./runner.ts"
+import { rulesValue } from "../usage.ts"
 import type { PageMap } from "./types.ts"
 import type { Subject } from "./subject.ts"
 
@@ -62,7 +63,9 @@ export function agentEvents(s: AgentState, now = Date.now()): AgentUse[] {
     out.push({
       f: "agent", a: "end", task: s.id, what: taskWhat(s), result: end.result, ...(end.err ? { err: end.err } : {}),
       steps: Math.min(9999, s.step), calls: Math.min(9999, s.step + (s.plan ? 1 : 0)), secs: Math.min(9999, Math.max(0, Math.round((now - s.startedAt) / 1000))),
-      recap: s.recapShown ? "yes" : "no"
+      recap: s.recapShown ? "yes" : "no",
+      // Which of the device's rules refused or held steps, and how often (codes and counts, never what was refused).
+      ...(rulesValue(s.ruleCounts) ? { rules: rulesValue(s.ruleCounts) } : {})
     })
   }
   return out

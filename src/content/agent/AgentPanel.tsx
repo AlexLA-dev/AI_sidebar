@@ -4,6 +4,8 @@
 // shared explanation, src/shared/amazon.ts). The strip is the indicator App Review's 2.5.14 asks for.
 
 import type { VNode } from "preact"
+import { clock, clockFrom, hours } from "./clockform"
+export { clock, clockForm, clockFrom } from "./clockform"
 import { useEffect, useRef, useState } from "preact/hooks"
 
 import type { Answer, AgentState, PlanApproval, Recap } from "../../shared/agent/runner"
@@ -54,6 +56,7 @@ function nameOf(target: string | null | undefined): string {
   return (m ? m[1] : target ?? "").replace(/\s*[*＊]+\s*$/u, "").slice(0, 80)
 }
 
+
 /** A day and time as the person reads them ("Sat, 5 Dec, 19:30"), in the panel's language. */
 function when(date?: string, time?: string): string {
   if (!date) return ""
@@ -61,22 +64,12 @@ function when(date?: string, time?: string): string {
   const [h, min] = (time ?? "").split(":").map(Number)
   const at = new Date(y, m - 1, d, time ? h : 12, time ? min : 0)
   try {
-    return new Intl.DateTimeFormat(undefined, { weekday: "short", day: "numeric", month: "short", ...(time ? { hour: "2-digit", minute: "2-digit" } : {}) }).format(at)
+    return new Intl.DateTimeFormat(undefined, { weekday: "short", day: "numeric", month: "short", ...(time ? { hour: "2-digit", minute: "2-digit", ...hours() } : {}) }).format(at)
   } catch {
     return `${date}${time ? ` ${time}` : ""}`
   }
 }
 
-/** A time alone («19:10») in the device's own clock, as `when` shows a time (the director on 126: «07:00 PM» beside «19:10»). */
-export function clock(time: string): string {
-  const m = /^(\d{1,2}):(\d{2})$/.exec(time.trim())
-  if (!m) return time
-  try {
-    return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit" }).format(new Date(2000, 0, 1, Number(m[1]), Number(m[2])))
-  } catch {
-    return time
-  }
-}
 
 /**
  * The model's words with their times and dates in the device's own format (the director on 127: steps «19:00», the
@@ -406,6 +399,7 @@ function markOf(status: PanelAgent["status"], error?: string): { sign: string; t
 }
 
 export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, later, past, planFailed, saved, onRemember }: Props): VNode {
+  clockFrom(state.request)
   // A finished task folds to one line (2.7.1, the owner: «свёрнутыми по дефолту в одну строку… с возможностью
   // развернуть»); a tap opens its steps and its result.
   // A task that just failed or was refused stays open with its reason (121 sweep: a bare «!» line hid «tasks used up»).
@@ -623,6 +617,7 @@ export function AgentPanel({ state, onAnswer, onUndo, onClose, onHelp, onPlan, l
  *  aside too: the panel would cover the control (on a short page it can't be scrolled above the panel). The strip then
  *  asks, with the control ringed in view. */
 export function AgentStrip({ state, onOpen, onStop, onAnswer }: { state: PanelAgent; onOpen: () => void; onStop: () => void; onAnswer?: (a: Answer) => void }): VNode {
+  clockFrom(state.request)
   const last = state.lines[state.lines.length - 1]
   // One answer per question (the strip's buttons too), reset when the question changes.
   const [sentFor, setSentFor] = useState("")
