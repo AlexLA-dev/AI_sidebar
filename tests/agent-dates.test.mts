@@ -267,7 +267,8 @@ test("pattern: a calendar grid — bare day numbers under the month, cells off b
     <td role="gridcell" id="g31" tabindex="0"><span style="text-decoration: line-through">31</span></td>
   </tr></table></section>`)
   const st = (l: string) => map.items.find((i) => i.label.startsWith(l))?.state ?? []
-  assert.deepEqual(dayItems(map, "2026-12-26").map((i) => i.label), ["26"], "the bare 26 under «December 2026»")
+  // (A bare day number is named with its calendar's month, 10eed066's real-site run: «26 December 2026».)
+  assert.deepEqual(dayItems(map, "2026-12-26").map((i) => i.label), ["26 December 2026"], "the bare 26 under «December 2026»")
   assert.ok(!st("26").includes("unavailable"))
   assert.ok(st("27").includes("unavailable"), "not-allowed cursor")
   assert.ok(st("28 December").includes("unavailable"), "its own words")
@@ -580,4 +581,28 @@ test("a link carrying other days than the booking's (a list searched before the 
   assert.equal(staleDates("https://stays.example/hotel/x.html?checkin=2026-11-28&checkout=2026-11-29&group_adults=2", b), "2026-11-28, 2026-11-29")
   assert.equal(staleDates("/hotel/x.html?checkin=2026-12-26&checkout=2026-12-28", b), null)
   assert.equal(staleDates("/hotel/x.html?ref=list", b), null, "no days in it")
+})
+
+// The director's real-site run on 10eed066: rules too wide, narrowed by what the control or the page is.
+test("real sites: a calendar's bare days take their own month (two months side by side), a header names no day, a mixed-script day reads right", async () => {
+  const { dayOf, isDateLabel } = await import("../src/shared/agent/dates.ts")
+  const map = domMap(`<div><section><h3>November 2026</h3><table role="grid"><tr><td role="gridcell" tabindex="0">26</td><td role="gridcell" tabindex="0">27</td></tr></table></section>
+    <section><h3>December 2026</h3><table role="grid"><tr><td role="gridcell" tabindex="0">4</td><td role="gridcell" tabindex="0">5</td></tr></table></section></div>`)
+  const labels = map.items.map((i) => i.label)
+  assert.ok(labels.includes("26 November 2026") && labels.includes("4 December 2026"), labels.join(" | "))
+  assert.deepEqual(dayItems(map, "2026-12-04").map((i) => i.label), ["4 December 2026"])
+  assert.equal(isDateLabel("11月 2026"), false, "a month's header")
+  assert.equal(dayOf("Friday, 11月 27", "2026-11-27"), "2026-11-27")
+  assert.equal(dayOf("12月4日(金)", "2026-12-04"), "2026-12-04", "the usual form still reads")
+})
+
+test("real sites: a picker's opening button showing a date isn't a day chosen; a day in a strip still is", () => {
+  const st = (): AgentState => ({ ...newState("p", "table", "en", "https://tables.example/r"), plan: { booking: { kind: "table", date: "2026-11-27", from: "19:00", until: "19:00", minutes: 90 } } as any })
+  const m = (items: MapItem[]): PageMap => ({ url: "https://tables.example/r", title: "", lang: "en", more: 0, part: 1, parts: 1, text: "", forms: [], items })
+  const opener: MapItem = { id: "1", role: "button", label: "26 Nov 2026", state: ["popup"] }
+  assert.equal(dateStep(st(), m([opener]), opener), null, "opens the picker")
+  const field: MapItem = { id: "2", role: "combobox", label: "Date 26 Nov 2026" }
+  assert.equal(dateStep(st(), m([field]), field), null, "a date field")
+  const day: MapItem = { id: "3", role: "button", label: "Thu 26 Nov" }
+  assert.match(dateStep(st(), m([day, { id: "4", role: "button", label: "Fri 27 Nov" }]), day) ?? "", /before the asked day/, "a strip's day: still refused")
 })

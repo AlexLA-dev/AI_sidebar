@@ -77,7 +77,7 @@ test("the recap's asked time is in the device's clock, as the booked one (the di
   // (In clockform.ts since 0a3d9e23's round, with the task's own form when its request wrote a time.)
   const clockSrc = readFileSync(new URL("../src/content/agent/clockform.ts", import.meta.url), "utf8")
   assert.match(clockSrc, /export function clock\(time: string\): string \{[\s\S]{0,200}Intl\.DateTimeFormat\(undefined, \{ hour: "2-digit", minute: "2-digit", \.\.\.hours\(\) \}\)/)
-  assert.match(panel, /import \{ clock, clockFrom, hours \} from "\.\/clockform"/)
+  assert.match(panel, /import \{ clock, clockFrom, hours, twelveToClock \} from "\.\/clockform"/)
 })
 
 test("another tab's finished task doesn't speak over a task working in this tab (126)", () => {

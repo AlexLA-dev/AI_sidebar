@@ -32,20 +32,25 @@ function nameOf(title: string): string {
 }
 
 /** The thing this page is about, or null: a list, a home page, or nothing to book or buy here. */
-export function pageSubject(map: PageMap): Subject | null {
+/** The name the page's title gives, as the page itself shows it (its heading): «Trattoria Sole in Paris» is «Trattoria Sole»;
+ *  "" for a title that is the page's action («Book a table»), a list's, or a name the page doesn't show. */
+export function titleName(map: PageMap): string {
   const full = nameOf(map.title)
   // (A title that is the page's action — «Забронировать столик», «Book a table» — names nothing.)
-  if (full.length < 3 || full.length > 80 || LISTY.test(full) || bookingWord(full.split(" ")[0])) return null
-  // (A results list shows its places on the screen; a place's own page may list «nearby» ones far below it.)
-  if (venuesOn({ ...map, items: map.items.filter((i) => i.where !== "below") }).length) return null
-  // The name as the page itself shows it (its heading), not only in the tab's title: «Trattoria Sole in Paris» is «Trattoria Sole».
+  if (full.length < 3 || full.length > 80 || LISTY.test(full) || bookingWord(full.split(" ")[0])) return ""
   const head = map.text.slice(0, 1500).toLocaleLowerCase()
   const words = full.split(" ")
-  let name = ""
-  for (let n = words.length; n >= 1 && !name; n--) {
+  for (let n = words.length; n >= 1; n--) {
     const cand = words.slice(0, n).join(" ")
-    if (cand.length >= 3 && head.includes(cand.toLocaleLowerCase())) name = cand
+    if (cand.length >= 3 && head.includes(cand.toLocaleLowerCase())) return cand
   }
+  return ""
+}
+
+export function pageSubject(map: PageMap): Subject | null {
+  // (A results list shows its places on the screen; a place's own page may list «nearby» ones far below it.)
+  if (venuesOn({ ...map, items: map.items.filter((i) => i.where !== "below") }).length) return null
+  const name = titleName(map)
   if (!name) return null
   // The site's own name on its home page with a search for places (a marketplace: «Doctolib» on doctolib.fr, 126) isn't
   // one place: the task searches it. (A restaurant's own site with no search stays its place.)
