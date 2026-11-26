@@ -36,7 +36,7 @@ const running = (url: string, booking: Record<string, unknown>): AgentState => {
 
 test("«the request names no place»: not on one place's own booking page; still on a page titled by its action", async () => {
   const days = [{ id: "1", role: "button", label: "Fri 27 Nov" }, { id: "2", role: "button", label: "19:00" }] as PageMap["items"]
-  const own = page("Sarabeth's Tokyo - TableCheck", "Sarabeth's Tokyo Reserve a table", days)
+  const own = page("Olive Room Tokyo - Reservations", "Olive Room Tokyo Reserve a table", days)
   assert.equal(ownBookingPage(own), true)
   const ask = step({ tool: "ask_user", question: "Friday is full. Saturday?", choices: ["Saturday"] } as ToolCall, "free", "read")
   const a = await drive(running(own.url, { kind: "table", date: "2026-11-27", from: "19:00", until: "19:00", minutes: 90 }), io([own], [ask]))
@@ -79,7 +79,7 @@ test("an empty map (between two pages after «back») is read again, never sent 
 })
 
 test("days the person gives in an answer are the booking's days from then on (a stay keeps its nights for one day given)", async () => {
-  const cal = page("Casa España", "Casa España noviembre 2026", [{ id: "1", role: "option", label: "27 nov 2026" }, { id: "2", role: "option", label: "28 nov 2026" }])
+  const cal = page("Casa Marina", "Casa Marina noviembre 2026", [{ id: "1", role: "option", label: "27 nov 2026" }, { id: "2", role: "option", label: "28 nov 2026" }])
   const s = running(cal.url, { kind: "stay", date: "2026-11-27", dateEnd: "2026-11-29", from: "", until: "", minutes: 0 })
   s.status = "asked"
   s.summary = "29 and 30 Nov are sold out. Book 1 night?"
