@@ -23,7 +23,7 @@ function domMap(html: string, opts: Record<string, unknown> = {}, url = "https:/
     ;(globalThis as any).__styleReads++
     const inline = el.getAttribute("style") ?? ""
     const get = (p: string) => new RegExp(`${p}\\s*:\\s*([^;]+)`).exec(inline)?.[1]?.trim()
-    return { display: get("display") ?? "block", visibility: "visible", contentVisibility: "visible", opacity: "1", pointerEvents: "auto", cursor: get("cursor") ?? "auto", textDecorationLine: "none", color: "rgb(20, 20, 20)", backgroundColor: el.tagName === "BODY" ? "rgb(255, 255, 255)" : "rgba(0, 0, 0, 0)" }
+    return { display: get("display") ?? "block", visibility: "visible", contentVisibility: "visible", opacity: "1", pointerEvents: "auto", cursor: get("cursor") ?? "auto", textDecorationLine: "none", color: "rgb(20, 20, 20)", backgroundColor: get("background") ?? (el.tagName === "BODY" ? "rgb(255, 255, 255)" : "rgba(0, 0, 0, 0)"), ...Object.fromEntries(["Top", "Right", "Bottom", "Left"].flatMap((side) => [[`border${side}Width`, get("border-width") ?? "0px"], [`border${side}Style`, get("border-style") ?? "none"]])) }
   }
   Object.assign(globalThis as any, { window, document, Node: window.Node, Element: window.Element, HTMLElement: window.HTMLElement })
   if ((document as any).defaultView !== window) Object.defineProperty(document, "defaultView", { configurable: true, get: () => window })
@@ -98,4 +98,13 @@ test("the map's style reads grow with what's near the screen, not with the page'
   assert.ok(long - short < 40, `${short} → ${long}`)
   const map = domMap(near + far(400))
   assert.ok(map.items.some((i) => i.label === "Open 50"), "far links are still controls (the part holds 120)")
+})
+
+test("inside a card that is one link, a short piece drawn as a button is a control of its own; the card's other words aren't", () => {
+  const map = domMap(`<a href="/master/anna" style="cursor:pointer"><div style="cursor:pointer"><span style="cursor:pointer">Анна Смирнова, топ-мастер маникюра, 4.9 · 120 отзывов</span></div>
+    <div style="cursor:pointer;background:rgb(30, 120, 255)">Записаться</div><div style="cursor:pointer;border-width:1px;border-style:solid">Подробнее</div></a>`)
+  assert.ok(map.items.some((i) => i.role === "link" && i.href?.includes("/master/anna")), "the card's link")
+  assert.ok(byLabel(map, "Записаться"), JSON.stringify(map.items.map((i) => `${i.role}:${i.label}`)))
+  assert.ok(byLabel(map, "Подробнее"), "a bordered piece")
+  assert.ok(!map.items.some((i) => i.role === "button" && /Анна/.test(i.label)), "the card's words stay the link's")
 })

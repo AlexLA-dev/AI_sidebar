@@ -123,7 +123,11 @@ function pressableByLook(el: Element, dy: number, height: number, width: number)
   const style = styleOf(el)
   const pointer = style?.cursor === "pointer"
   if (!pointer && !tabbed) return false
-  if (el.closest(CONTROL) || el.querySelector(CONTROL)) return false
+  if (el.querySelector(CONTROL)) return false
+  const inControl = el.closest(CONTROL)
+  // Inside a card that is one link (a master's card with its «Записаться» drawn inside): everything there inherits the
+  // link's pointer, so only a short piece drawn as a button — its own background or border — counts.
+  if (inControl) return inCardLink(el, inControl, style)
   // Inside a box found by look already: a piece of it.
   for (let up = el.parentElement, n = 0; up && n < 8; up = up.parentElement, n++) if (lookThisBuild.has(up)) return false
   if (!pointer) return true
@@ -135,6 +139,21 @@ function pressableByLook(el: Element, dy: number, height: number, width: number)
   if (!p!.querySelector(CONTROL)) return false
   const words = ((el as HTMLElement).innerText ?? el.textContent ?? "").replace(/\s+/g, " ").trim()
   return words.length > 0 && weightedLength(words) <= 60
+}
+
+const transparent = (c: string | undefined) => !c || c === "transparent" || /rgba\([^)]*,\s*0\)$/.test(c)
+
+function inCardLink(el: Element, link: Element, style: CSSStyleDeclaration | null): boolean {
+  if (link.tagName.toLowerCase() !== "a" || !style) return false
+  const words = ((el as HTMLElement).innerText ?? el.textContent ?? "").replace(/\s+/g, " ").trim()
+  if (!/\p{L}{2,}/u.test(words) || weightedLength(words) > 30) return false
+  const card = ((link as HTMLElement).innerText ?? link.textContent ?? "").replace(/\s+/g, " ").trim()
+  if (weightedLength(card) < 40) return false
+  for (let up = el.parentElement, n = 0; up && up !== link && n < 8; up = up.parentElement, n++) if (lookThisBuild.has(up)) return false
+  const border = ["Top", "Right", "Bottom", "Left"].some((s) => parseFloat((style as any)[`border${s}Width`] ?? "0") >= 1 && (style as any)[`border${s}Style`] !== "none")
+  const parentBg = el.parentElement ? styleOf(el.parentElement)?.backgroundColor : undefined
+  const ownBg = !transparent(style.backgroundColor) && style.backgroundColor !== parentBg
+  return border || ownBg
 }
 
 function collect(doc: Document): Found[] {
