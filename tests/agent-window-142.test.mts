@@ -36,3 +36,13 @@ test("«the first free day» with no window takes the standing rule's «up to N 
   assert.deepEqual(windowOf({ kind: "table", date: "2026-12-05", window: "none" } as never, FRI, 2, 0), { date: "2026-12-05" })
   assert.deepEqual(windowOf({ kind: "table", date: "2026-12-05" } as never, FRI, 2, 0), { date: "2026-12-05" })
 })
+
+import { checkPlan } from "../src/shared/agent/taskplan.ts"
+
+test("a CJK city of two characters stays in area, a two-character kind in match (item 6: «東京», «서울» came back empty)", () => {
+  const raw = (area: string[], match: string[]) => ({ label: "", steps: ["Booking"], questions: [], risky: [], prices: [], booking: { kind: "table", date: "2026-11-27", dateEnd: "", window: "this_week", windowDays: 0, at: "", personal: false, from: "18:00", until: "21:00", minutes: 90, tz: "", venue: "", match, area, contacts: [], specialists: [], services: [], specialistNamed: "", serviceNamed: "" } })
+  for (const city of ["東京", "서울", "上海", "台北"]) assert.deepEqual(checkPlan(raw([city], ["寿司"])).booking?.area, [city], city)
+  assert.deepEqual(checkPlan(raw(["東京"], ["寿司", "sushi"])).booking?.match, ["寿司", "sushi"])
+  assert.deepEqual(checkPlan(raw(["NY"], ["ok"])).booking?.area, undefined, "two Latin letters still don't count")
+  assert.equal(checkPlan(raw(["Soho"], [])).booking?.window, "this_week")
+})

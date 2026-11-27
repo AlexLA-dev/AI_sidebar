@@ -102,6 +102,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const strongUsed = Math.max(0, Number(task.strongUsed) || 0)
   const strong = needsStrong(log) && strongUsed < a.strongSteps
   // Measuring on a deploy preview (signed requests only): the driver may be named, to compare the models.
+  const effort = measuring && (body.effort === "low" || body.effort === "medium" || body.effort === "high") ? (body.effort as "low" | "medium" | "high") : undefined
   const named = measuring && typeof body.model === "string" && (body.model === a.model || body.model === a.strongModel) ? body.model : null
   const model = named ?? (strong ? a.strongModel : a.model)
   const started = Date.now()
@@ -112,7 +113,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   try {
     if (planning) {
       // (Measuring only: the plan's own reasoning off, to compare it on the same pages — round 141.)
-      const p = await planTask(input, { model: named ?? a.planModel, signal: req.signal, thinkingOff: !!measuring && body.planThinking === "off" })
+      const p = await planTask(input, { model: named ?? a.planModel, signal: req.signal, thinkingOff: !!measuring && body.planThinking === "off", effort })
       const spent = p.usage.reduce((n, u: Usage) => n + cost(u), 0)
       context.waitUntil(Promise.all([
         logEvent("agent_step", installId, {
@@ -124,7 +125,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
       ]))
       return json({ ok: true, plan: p.plan, token, left, stepsLeft: Math.max(0, maxSteps - stepsUsed), ...(measuring ? { model: named ?? a.planModel, cost: Math.round(spent * 1e6) / 1e6, output: p.usage.reduce((n, u) => n + u.output, 0), thinking: p.usage.reduce((n, u) => n + (u.thinking ?? 0), 0), retried: !!p.retried } : {}) })
     }
-    out = await nextStep(input, { model, startHost, confirmedHere: task.confirmedHere === true, signal: req.signal, fallback: a.strongModel })
+    out = await nextStep(input, { model, startHost, confirmedHere: task.confirmedHere === true, signal: req.signal, fallback: a.strongModel, effort })
   } catch (err) {
     const reason = err instanceof ActError ? err.reason : "error"
     console.error("[cf] act failed:", err instanceof Error ? err.message : err)

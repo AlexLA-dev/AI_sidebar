@@ -268,6 +268,8 @@ export function checkPlan(raw: unknown): RawPlan {
   return { label: safeLabel(s(r.label, 60)), steps, questions, risky, prices, ...(fromChat ? { fromChat } : {}), ...(chatPlace ? { chatPlace } : {}), ...(bookingOf(r.booking) ? { booking: bookingOf(r.booking)! } : {}) }
 }
 
+const CJK_WORD = /[\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff\uac00-\ud7af]/
+
 function bookingOf(v: unknown): PlanBooking | null {
   const b = (v && typeof v === "object" ? v : {}) as Record<string, unknown>
   const kind = BOOKING_KINDS.includes(b.kind as BookingKind) ? (b.kind as BookingKind) : null
@@ -285,8 +287,11 @@ function bookingOf(v: unknown): PlanBooking | null {
   const minutes = typeof b.minutes === "number" && Number.isFinite(b.minutes) ? Math.min(600, Math.max(15, Math.round(b.minutes))) : 60
   const tz = s(b.tz, 60)
   const venue = s(b.venue, 120)
-  const match = (Array.isArray(b.match) ? b.match : []).map((x) => s(x, 30)).filter((x) => x.length >= 3).slice(0, 8)
-  const area = (Array.isArray(b.area) ? b.area : []).map((x) => s(x, 40)).filter((x) => x.length >= 3).slice(0, 4)
+  // (Words of two characters count in Chinese, Japanese and Korean — «東京», «서울», «寿司»: round 142, the director's item 6,
+  // where every CJK plan's area came back empty.)
+  const long = (x: string) => x.length >= (CJK_WORD.test(x) ? 2 : 3)
+  const match = (Array.isArray(b.match) ? b.match : []).map((x) => s(x, 30)).filter(long).slice(0, 8)
+  const area = (Array.isArray(b.area) ? b.area : []).map((x) => s(x, 40)).filter(long).slice(0, 4)
   const contacts = [...new Set((Array.isArray(b.contacts) ? b.contacts : []).filter((x): x is "email" | "phone" => x === "email" || x === "phone"))]
   const names = (v: unknown) => [...new Set((Array.isArray(v) ? v : []).map((x) => s(x, 60)).filter((x) => x.length >= 2))].slice(0, 6)
   const specialists = names(b.specialists)

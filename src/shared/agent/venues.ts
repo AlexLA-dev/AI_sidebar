@@ -9,6 +9,10 @@ import { monthIn } from "./dates.ts"
 import { hostOf, sameSite } from "./sites.ts"
 import type { MapItem, PageMap } from "./types.ts"
 
+// A word long enough to match by: three letters, or two in Chinese, Japanese and Korean («東京», «서울», «寿司»: round 142).
+const CJK_WORD = /[\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff\uac00-\ud7af]/
+const wordLong = (w: string) => w.length >= (CJK_WORD.test(w) ? 2 : 3)
+
 export interface Venue {
   url: string
   name: string
@@ -110,7 +114,7 @@ function urlOf(href: string, page: string): string | null {
  * into view, 126); ranked by the rules from distance or the page's order.
  */
 function unratedOn(map: PageMap, area: string[]): Venue[] {
-  const places = area.map((a) => fold(a)).filter((w) => w.length >= 3)
+  const places = area.map((a) => fold(a)).filter(wordLong)
   const groups = new Map<string, { list: Venue[]; signed: number }>()
   const seen = new Set<string>()
   for (const it of map.items) {
@@ -143,18 +147,18 @@ const fold = (s: string) => s.toLocaleLowerCase().normalize("NFKD").replace(/\p{
 /** `strict`: a page that isn't the answer to a search (the plan's start page: a home page's promoted places in another
  *  country for «a hotel in Limassol», 125) offers none when none of its cards names the area. */
 export function rankVenues(list: Venue[], cards: Map<string, string>, match: string[], minRating: number, area: string[] = [], strict = false): Venue[] {
-  const words = match.map(fold).filter((w) => w.length >= 3)
+  const words = match.map(fold).filter(wordLong)
   const card = (v: Venue) => fold(cards.get(v.url) ?? v.name)
   // The area the request names («Soho»): when some cards name it, only those (a salon marketplace, 121 sweep: a Shropshire salon
   // for «Soho, London»); when none does, the list is the site's answer to the search and stays.
-  const places = area.map(fold).filter((w) => w.length >= 3)
+  const places = area.map(fold).filter(wordLong)
   const near = places.length ? list.filter((v) => places.some((w) => card(v).includes(w))) : []
   if (strict && places.length && !near.length) return []
   const inArea = near.length ? near : list
   // A term fits when each of its words is on the card, in any order («men's haircut» on «Men's Wash, Haircut & Style»;
   // a possessive or plural ending aside).
   const stem = (w: string) => w.replace(/['’]s$|s$/u, "")
-  const has = (text: string, term: string) => term.split(/[\s\-–,&/]+/).map(stem).filter((x) => x.length >= 3).every((x) => text.includes(x))
+  const has = (text: string, term: string) => term.split(/[\s\-–,&/]+/).map(stem).filter(wordLong).every((x) => text.includes(x))
   const fits = inArea.filter((v) => !words.length || words.some((w) => card(v).includes(w) || has(card(v), w)))
   // (A list with no ratings at all: by distance or the page's order.)
   if (fits.length && fits.every((v) => !v.rating)) return byRules(fits, cards)
