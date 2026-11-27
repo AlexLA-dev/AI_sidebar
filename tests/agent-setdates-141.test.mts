@@ -123,7 +123,7 @@ async function runWith(call: ToolCall, note = "") {
   const replies: ActReply[] = [step(call, "free", "read"), step({ tool: "done", summary: "", why: "" }, "free", "read")]
   const io: RunnerIO = {
     map: async () => io0.map(), act: async (c) => {
-      const m = await io0.map()
+      const m = (await io0.map())!
       const it = m.items.find((i) => i.id === c.id)!
       if (c.tool === "type") await io0.type(it, c.text ?? "")
       else await io0.press(it)
