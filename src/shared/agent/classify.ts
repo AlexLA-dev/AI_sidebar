@@ -44,7 +44,8 @@ function commitStage(map: PageMap): boolean {
   return !!map.pay || COMMIT_PATH.test(path) || map.items.some((i) => i.lock === "personal")
 }
 
-const READ_ONLY = new Set(["read_page", "scroll", "extract", "ask_user", "done", "back", "reminders", "calendar"])
+// (set_dates: the device classes each of its presses itself and goes only through free ones.)
+const READ_ONLY = new Set(["read_page", "scroll", "extract", "ask_user", "done", "back", "reminders", "calendar", "set_dates"])
 // The person's Calendar and Reminders changed: always «Сделать?» first, wherever the page is.
 const APPLE_WRITES = new Set(["reminder_add", "reminder_done", "event_add"])
 const SELF_KINDS = new Set(["pay", "post", "rate", "account", "auth", "consent"])

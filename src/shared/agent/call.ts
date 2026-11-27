@@ -4,7 +4,7 @@
 
 import type { MapItem, PageMap, Role, ToolCall, ToolName } from "./types.ts"
 
-export const TOOLS: ToolName[] = ["read_page", "click", "type", "fill", "select", "scroll", "go", "back", "extract", "ask_user", "done", "reminders", "reminder_add", "reminder_done", "calendar", "event_add"]
+export const TOOLS: ToolName[] = ["read_page", "click", "type", "fill", "select", "scroll", "go", "back", "extract", "ask_user", "done", "set_dates", "reminders", "reminder_add", "reminder_done", "calendar", "event_add"]
 
 /** The tools that work on the person's Calendar and Reminders, not on the page. */
 export const APPLE_TOOLS = new Set<ToolName>(["reminders", "reminder_add", "reminder_done", "calendar", "event_add"])
@@ -146,6 +146,10 @@ export function checkCall(raw: unknown, map: PageMap, keys: string[] = []): Chec
         const place = str(r.place, 200)
         if (place) call.place = place
       }
+      break
+    case "set_dates":
+      // (A day the model names: kept only as YYYY-MM-DD; the device sets it only inside the request's window.)
+      if (typeof r.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(r.date)) call.date = r.date
       break
     case "reminders":
       call.text = str(r.text, 200)

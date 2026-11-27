@@ -93,6 +93,8 @@ export interface PageMap {
 
 export type ToolName =
   | "read_page" | "click" | "type" | "fill" | "select" | "scroll" | "go" | "back" | "extract" | "ask_user" | "done"
+  // The device sets the booking's dates on the page itself (round 141, setdates.ts).
+  | "set_dates"
   // The person's Calendar and Reminders on the device (2.7.1, AgentApple.swift): no page in it.
   | "reminders" | "reminder_add" | "reminder_done" | "calendar" | "event_add"
 

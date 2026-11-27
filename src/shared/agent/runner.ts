@@ -18,7 +18,8 @@ import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, withNameParts, ty
 import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
 import { pageSubject, subjectLine, titleName } from "./subject.ts"
 import { cardsOf, onVenue, rankVenues, venueNote, venueOf, venuesOn, type Venue } from "./venues.ts"
-import { freeLineIn, honestChoices, looksLikeSlot, nearerTimes, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
+import { addDays, freeLineIn, honestChoices, looksLikeSlot, nearerTimes, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
+import { setDates, type DatesIO, type DatesResult } from "./setdates.ts"
 import { pageKind } from "./events.ts"
 import { addContactFill, NAME_SAID, bareLabel, buildPlan, contactField, contactKind, requestGives, pathOf, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, contactInWords, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type PlanQuestion, type TaskPlan, DAY_KINDS, sameTaskPage } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
@@ -863,6 +864,8 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   // A request that gives a window of days (round 141, the director's 8c): the day is the window's, never a question —
   // set_dates goes through it (a plan asked «which check-in day?» on «any two nights this month»).
   if (plan.booking?.dayLast) plan.questions = plan.questions.filter((q) => !dayQuestion(q))
+  // With no window from the request, the standing rule's «up to N days later» is the window (the director's addition 4).
+  if (plan.booking && !plan.booking.dayLast && (rules.days ?? 0) > 0) plan.booking.dayLast = addDays(plan.booking.date, rules.days)
   // On one place's page, a booking that names no other is there: no choosing, no «I'll pick the place».
   if (subject?.kind === "place" && plan.booking && !plan.booking.venue) plan.booking.venue = subject.name
   if (subject && plan.booking?.venue) state.chooseVenue = false
@@ -1485,6 +1488,12 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (reply.strong) state.strongUsed++
     const call = reply.call
     const target = reply.target ?? null
+    // set_dates: the device sets the booking's dates itself (setdates.ts); the plan's days only.
+    if (call.tool === "set_dates") {
+      await datesStep(state, io, map, call)
+      await io.save(state)
+      continue
+    }
     // «back» only to a page this task was on before, on the task's site: the task's first page is the floor.
     if (call.tool === "back") {
       const trail = state.trail ?? []
@@ -1603,6 +1612,16 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // A question about the booking's day before the page ever showed that day: sent back once, to go to it first.
     if (call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking?.date && !state.sawDate && !state.dateNudged) {
       state.dateNudged = true
+      // (Round 141, design-141: the device goes to the day itself — and, with a window, on to the next days — instead of
+      // sending the model there; the model's question is answered by what the page shows then.)
+      if (!state.greyTarget) {
+        const went = await datesStep(state, io, map, { tool: "set_dates", why: "", date: state.plan.booking.date }, true)
+        if (went && !went.fallback) {
+          state.refused = `your question came before the page had shown the day; the device went to it itself: ${went.line}. Go on from what the page shows now; ask only with what it showed`
+          await io.save(state)
+          continue
+        }
+      }
       const day = dayWords(state.plan.booking.date)
       const why = state.greyTarget
         ? `«${state.greyTarget}» shows greyed, which can mean the page hasn't loaded that day yet: press it once and read what the page says (its free times, or that it's full and its next free day), then go on; ask only with days and times the page showed as free`
@@ -2090,6 +2109,53 @@ function pageLink(url: string): string {
   } catch {
     return ""
   }
+}
+
+/** set_dates: the plan's day (the model's own only inside the window), set by the device; one step, the person's Stop heard
+ *  between presses, each press classed here and done only when free. */
+async function datesStep(state: AgentState, io: RunnerIO, map: PageMap, call: ToolCall, auto = false): Promise<DatesResult | null> {
+  const b = state.plan?.booking
+  if (!b) {
+    state.log.push({ call, result: "set_dates is for a booking's days: there's no booking in this task" })
+    return null
+  }
+  const last = b.dayLast && b.dayLast > b.date ? b.dayLast : b.date
+  // (Only the request and the person's answers set the days: a day the model names counts only inside the window.)
+  const from = call.date && call.date >= b.date && call.date <= last ? call.date : b.date
+  const nights = b.dateEnd ? Math.max(1, Math.round((Date.parse(b.dateEnd) - Date.parse(b.date)) / 86_400_000)) : 0
+  let current = map
+  const ctx = (m: PageMap) => ({ map: m, startHost: state.startHost, request: state.request, confirmedHere: confirmedOn(state, hostOf(m.url)), policy: io.policy })
+  const dio: DatesIO = {
+    map: async () => {
+      const m = await io.map({}).catch(() => null)
+      if (m) current = m
+      return m
+    },
+    press: async (item) => {
+      const c: ToolCall = { tool: "click", id: item.id, why: "", expect: { label: item.label, role: item.role } }
+      if (classify(c, ctx(current)).cls !== "free") return "not free"
+      const r = await io.act(c).catch(() => null)
+      return r?.ok ? "done" : "failed"
+    },
+    type: async (item, text) => {
+      const c: ToolCall = { tool: "type", id: item.id, text, mode: "replace", why: "", expect: { label: item.label, role: item.role } }
+      if (classify(c, ctx(current)).cls !== "free") return "not free"
+      const r = await io.act(c).catch(() => null)
+      return r?.ok ? "done" : "failed"
+    },
+    stopped: async () => !!(await io.isStopped?.().catch(() => false))
+  }
+  const r = await setDates({ date: from, end: nights ? addDays(from, nights) : undefined, last, from: b.from, until: b.until, byDays: DAY_KINDS.has(b.kind) }, dio)
+  if (r.landed) {
+    state.sawDate = true
+    state.picked = { date: r.landed }
+  }
+  // The person sees the day it landed on, in their words, when it moved off the request's first day.
+  const moved = r.landed && r.landed !== b.date ? `${dayWords(r.landed)}: ${dayWords(b.date)}${r.full.length > 1 ? ` – ${dayWords(r.full[r.full.length - 1])}` : ""} ${r.full.length > 1 ? "were" : "was"} full` : ""
+  state.log.push({ call: { ...call, date: from }, result: `${auto ? "the device went to the day itself: " : ""}${r.line}` })
+  state.lines.push(line({ ...call, date: r.landed ?? from }, { cls: "free", reason: "dates" }, null, !r.fallback && !r.stopped, moved || undefined))
+  if (r.stopped) state.status = "stopped"
+  return r
 }
 
 /** The request's own words for the map (a site menu's link with one of them stays in the outline): letters only, 4 or more. */
