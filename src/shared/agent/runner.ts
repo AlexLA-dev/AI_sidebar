@@ -860,6 +860,9 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   }
   if (chatPick && plan.fromChat) plan.fromChat = plan.fromChat.replace(new RegExp(`\\s*[,;·—–-]?\\s*${chatPick.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "iu"), "").replace(/^[\s,;·—–-]+|[\s,;·—–-]+$/gu, "")
   if (plan.booking?.venue && !(subject?.kind === "place" && subject.name === plan.booking.venue) && !namedIn(plan.booking.venue, `${state.request} ${plan.fromChat ?? ""}`)) delete plan.booking.venue
+  // A request that gives a window of days (round 141, the director's 8c): the day is the window's, never a question —
+  // set_dates goes through it (a plan asked «which check-in day?» on «any two nights this month»).
+  if (plan.booking?.dayLast) plan.questions = plan.questions.filter((q) => !dayQuestion(q))
   // On one place's page, a booking that names no other is there: no choosing, no «I'll pick the place».
   if (subject?.kind === "place" && plan.booking && !plan.booking.venue) plan.booking.venue = subject.name
   if (subject && plan.booking?.venue) state.chooseVenue = false
@@ -2094,6 +2097,14 @@ export function requestWords(request: string): string[] {
   return [...new Set((request.match(/[\p{L}]{4,}/gu) ?? []).map((w) => w.toLocaleLowerCase()))].slice(0, 16)
 }
 
+// A question about the booking's day: its choices are days, or it asks the date or the check-in, in the panel's languages.
+const DAY_ASK = /(?<!\p{L})(date|day|check-?in|arrival|fecha|día|llegada|date d|jour|arrivée|datum|tag|anreise|data|giorno|arrivo|dia|chegada|дат|день|заезд|tarih|gün|giriş|日付|日にち|チェックイン|날짜|체크인|日期|哪天|入住|التاريخ|اليوم|الوصول|ngày|nhận phòng)/iu
+function dayQuestion(q: { q: string; options: string[]; fact?: string }): boolean {
+  if (q.fact && /^(venue|pref:)/.test(q.fact)) return false
+  const opts = q.options.filter(Boolean)
+  return (opts.length > 0 && opts.every((o) => isDateLabel(o) || /^\d{4}-\d{2}-\d{2}/.test(o))) || DAY_ASK.test(q.q)
+}
+
 /** The page as far as progress goes: its address, its controls and their states, how much text (not where it's scrolled). */
 function pageSig(map: PageMap): string {
   const items = map.items.slice(0, 80).map((i) => `${i.role}:${i.label}:${i.value ?? ""}:${(i.state ?? []).join(",")}`).join("|")
@@ -2149,8 +2160,10 @@ function placeFromAnswers(state: AgentState, plan: TaskPlan, answers: string[]):
     state.chooseVenue = false
   }
   // A place the person named on the card: theirs, asked once (the director on d05b60bb, run 4: «Which stay should I
-  // book…» again after the card, other options and prices).
-  if (plan.booking && place && !place.startsWith("@")) state.cardPlace = place
+  // book…» again after the card, other options and prices). The rules' own pick shown on the card and left as it was
+  // isn't the person's choice (round 141, the director's 8b: Resy — the picked place couldn't be opened and the next one
+  // was refused as «the person already chose»): it locks nothing, and the next fitting place may be tried.
+  if (plan.booking && place && !place.startsWith("@") && place !== plan.questions[where]?.pick) state.cardPlace = place
 }
 
 export async function approvePlan(state: AgentState, io: RunnerIO, a: PlanApproval): Promise<AgentState> {

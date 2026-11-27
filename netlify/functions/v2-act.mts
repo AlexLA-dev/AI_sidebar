@@ -136,7 +136,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
     ]))
     // (A measuring request on a deploy preview also gets the reason and, for a cut answer, what came before the cut —
     // round 141: the plan call cut on Korean and Japanese pages. Never in production: `measuring` is false there.)
-    const cut = measuring && err instanceof ActError && err.reason === "cut" ? { reason, partial: (err.partial ?? "").slice(0, 12_000), output: err.output } : measuring ? { reason } : {}
+    const cut = measuring && err instanceof ActError && err.reason === "cut" ? { reason, partial: (err.partial ?? "").slice(0, 12_000), output: err.output, blocks: err.blocks } : measuring ? { reason } : {}
     return json({ code: reason === "rate_limit" ? "BUSY" : "UPSTREAM", ...cut }, reason === "rate_limit" ? 503 : 502)
   }
 

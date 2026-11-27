@@ -142,6 +142,10 @@ export interface PlanBooking {
   date: string
   // The last day of a booking by days (check-out, return), YYYY-MM-DD.
   dateEnd?: string
+  // The last day the booking may start on, when the request gives a window of days («this week», «the next two weeks»,
+  // «this month»): date is its first day (round 141, set_dates goes through them). With no window, the device sets it
+  // from the standing rule's «up to N days later».
+  dayLast?: string
   // The time the request itself names (HH:MM), before the rules widen it: a booked time that isn't it is a deviation.
   at?: string
   // Which place or who gives it matters to the person, so they choose it (a doctor, a tutor, a stylist, a hotel for a
@@ -206,6 +210,7 @@ export const PLAN_SCHEMA = {
         kind: { type: "string", enum: ["none", "table", "appointment", "stay", "rental", "slot", "ticket"] },
         date: { type: "string" },
         dateEnd: { type: "string" },
+        dayLast: { type: "string" },
         at: { type: "string" },
         personal: { type: "boolean" },
         from: { type: "string" },
@@ -221,7 +226,7 @@ export const PLAN_SCHEMA = {
         specialistNamed: { type: "string" },
         serviceNamed: { type: "string" }
       },
-      required: ["kind", "date", "dateEnd", "at", "personal", "from", "until", "minutes", "tz", "venue", "match", "area", "contacts", "specialists", "services", "specialistNamed", "serviceNamed"],
+      required: ["kind", "date", "dateEnd", "dayLast", "at", "personal", "from", "until", "minutes", "tz", "venue", "match", "area", "contacts", "specialists", "services", "specialistNamed", "serviceNamed"],
       additionalProperties: false
     }
   },
@@ -263,6 +268,9 @@ function bookingOf(v: unknown): PlanBooking | null {
   // (Only after the first day, and not a year on: a typo isn't a stay.)
   const end = s(b.dateEnd, 10)
   const dateEnd = /^\d{4}-\d{2}-\d{2}$/.test(end) && end > date && Date.parse(end) - Date.parse(date) <= 366 * 86_400_000 ? end : ""
+  // (A window of days: on or after the first day, and no more than a month and a half on.)
+  const last = s(b.dayLast, 10)
+  const dayLast = /^\d{4}-\d{2}-\d{2}$/.test(last) && last > date && Date.parse(last) - Date.parse(date) <= 45 * 86_400_000 ? last : ""
   // Not said: a session with someone and a stay for a trip are the person's choice; the rest, the rules'.
   const personal = typeof b.personal === "boolean" ? b.personal : kind === "appointment" || kind === "stay"
   const time = (t: unknown) => (/^([01]\d|2[0-3]):[0-5]\d$/.test(s(t, 5)) ? s(t, 5) : "")
@@ -279,7 +287,7 @@ function bookingOf(v: unknown): PlanBooking | null {
   const specialistNamed = s(b.specialistNamed, 60)
   const serviceNamed = s(b.serviceNamed, 60)
   const at = time(b.at)
-  return { kind, date, ...(dateEnd ? { dateEnd } : {}), ...(at ? { at } : {}), personal, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes, ...(tz && validZone(tz) ? { tz } : {}), ...(venue ? { venue } : {}), ...(match.length ? { match } : {}), ...(area.length ? { area } : {}), ...(contacts.length ? { contacts } : {}), ...(specialists.length ? { specialists } : {}), ...(services.length ? { services } : {}), ...(specialistNamed ? { specialistNamed } : {}), ...(serviceNamed ? { serviceNamed } : {}) }
+  return { kind, date, ...(dateEnd ? { dateEnd } : {}), ...(dayLast ? { dayLast } : {}), ...(at ? { at } : {}), personal, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes, ...(tz && validZone(tz) ? { tz } : {}), ...(venue ? { venue } : {}), ...(match.length ? { match } : {}), ...(area.length ? { area } : {}), ...(contacts.length ? { contacts } : {}), ...(specialists.length ? { specialists } : {}), ...(services.length ? { services } : {}), ...(specialistNamed ? { specialistNamed } : {}), ...(serviceNamed ? { serviceNamed } : {}) }
 }
 
 /**

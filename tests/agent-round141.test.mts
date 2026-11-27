@@ -80,3 +80,42 @@ test("item 7: what keeps the money guard — a commit or pay word, a lone priced
   assert.equal(press(strip(PICKERS.en, { pay: true })).cls, "self", "on a page that takes payment")
   assert.equal(press(strip(["2 adults €45", "3 adults €60", "4 adults €80", "5 adults €100"])).reason, "pay", "not a day or a time")
 })
+
+// ---- item 8a: a booking engine's page of one property is the place
+import { pageSubject, titleName } from "../src/shared/agent/subject.ts"
+import { approvePlan, type AgentState } from "../src/shared/agent/runner.ts"
+import type { TaskPlan } from "../src/shared/agent/taskplan.ts"
+
+const engine = (title: string): PageMap => ({
+  url: "https://hotels.engine.example/es/reservation/abc123", title, lang: "es", forms: [], more: 0, part: 1, parts: 1,
+  text: "# Reserve su estancia\n# Información de la propiedad\n¡Bienvenid@s a Casa Nova Boutique en el corazón de la ciudad!",
+  items: [
+    { id: "1", role: "link", label: "Ir al inicio de Casa Nova Boutique", href: "/es/reservation/abc123" },
+    { id: "2", role: "button", label: "Check-in" }, { id: "3", role: "button", label: "Check-out" }, { id: "4", role: "button", label: "Search" }
+  ]
+}) as PageMap
+
+test("item 8a: a booking engine's page of one property is that place, whichever part of its title names it", () => {
+  assert.equal(titleName(engine("Casa Nova Boutique – Reservas")), "Casa Nova Boutique")
+  assert.equal(titleName(engine("Datos del huésped – Casa Nova Boutique")), "Casa Nova Boutique", "the step's name comes first")
+  assert.deepEqual(pageSubject(engine("Reservas | Casa Nova Boutique")), { kind: "place", name: "Casa Nova Boutique" })
+  // A list of places is never one place; a page with neither a book button nor its own dates isn't either.
+  const list = { ...engine("Hotels in Guadalajara – Engine"), items: [...engine("x").items, { id: "9", role: "link", label: "Casa Azul 9.1 Superb 210 reviews", href: "/h/azul" }, { id: "10", role: "link", label: "Casa Roja 8.7 Very good 120 reviews", href: "/h/roja" }] } as PageMap
+  assert.equal(pageSubject(list), null)
+  assert.equal(pageSubject({ ...engine("Casa Nova Boutique"), items: [engine("x").items[0]], text: "Casa Nova Boutique — about us" } as PageMap), null)
+})
+
+// ---- item 8b: the rules' own pick on the plan card isn't the person's choice
+test("item 8b: a place the rules picked, left as it was on the card, locks nothing; one the person changed to is theirs", async () => {
+  const mk = (): AgentState => {
+    const s = newState("p141", "Book a table for 2 after 18:00 this week", "en", "https://tables.example/city/ny")
+    s.status = "plan"
+    s.plan = { steps: [], questions: [{ q: "", kind: "venue", fact: "pref:place", options: ["Conwell Hall", "One Flight Up"], pick: "Conwell Hall", place: true }], perms: [], self: [], prices: [], risky: [], booking: { kind: "table", date: "2026-11-27", from: "18:00", until: "21:00", minutes: 90, personal: false, venue: "" } } as unknown as TaskPlan
+    return s
+  }
+  const io: RunnerIO = { map: async () => page("https://tables.example/city/ny", []), act: async () => ({ ok: true, note: "" }), waitPage: async () => {}, ask: async () => step({ tool: "done", summary: "", why: "" }, "free", "read"), save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30 }
+  const kept = await approvePlan(mk(), io, { answers: ["Conwell Hall"], off: [] })
+  assert.equal(kept.cardPlace, undefined, "the rules' pick")
+  const changed = await approvePlan(mk(), io, { answers: ["One Flight Up"], off: [] })
+  assert.equal(changed.cardPlace, "One Flight Up", "the person's own")
+})
