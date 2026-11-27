@@ -11,7 +11,7 @@ const MONTHS = ["January", "February", "March", "April", "May", "June", "July", 
 
 /** A page with a date picker: closed until «Check-in» is pressed, a month at a time with «Next month», days that can be
  *  full (greyed), its own «Apply», and times shown for the applied day when it has any. */
-function picker(opts: { month: number; full?: string[]; times?: Record<string, string[]>; native?: boolean; note?: string; range?: boolean; dayNotFree?: boolean }) {
+function picker(opts: { month: number; full?: string[]; times?: Record<string, string[]>; native?: boolean; note?: string; range?: boolean; dayNotFree?: boolean; select?: boolean; silent?: boolean }) {
   const s = { open: false, month: opts.month, picked: [] as string[], applied: "", typed: "", presses: [] as string[] }
   const days = () => Array.from({ length: 28 }, (_, i) => `2026-${String(s.month + 1).padStart(2, "0")}-${String(i + 1).padStart(2, "0")}`)
   const map = (): PageMap => {
@@ -26,8 +26,11 @@ function picker(opts: { month: number; full?: string[]; times?: Record<string, s
       }
     }
     const day = s.applied || s.typed
-    for (const t of (day && opts.times?.[day]) || []) items.push({ id: `t${t}`, role: "button", label: t })
-    return { url: "https://salon.example/book", title: "Book", lang: "en", forms: [], more: 0, part: 1, parts: 1, text: `${s.open ? `# ${MONTHS[s.month]} 2026\n` : ""}${opts.note ?? ""}`, items } as PageMap
+    const shown = (day && opts.times?.[day]) || []
+    for (const t of shown) items.push({ id: `t${t}`, role: "button", label: t })
+    if (opts.select) items.push({ id: "tsel", role: "select", label: "Time", options: ["18:00", "18:30", "19:00", "19:30"] })
+    const none = day && !shown.length && !opts.select && !opts.silent ? "\nNo free times on this day" : ""
+    return { url: "https://salon.example/book", title: "Book", lang: "en", forms: [], more: 0, part: 1, parts: 1, text: `${s.open ? `# ${MONTHS[s.month]} 2026\n` : ""}${opts.note ?? ""}${none}`, items } as PageMap
   }
   const io: DatesIO & { s: typeof s } = {
     s,
@@ -90,6 +93,21 @@ test("the walk is bounded: at most seven days, then what it saw and «not looked
   assert.equal(r.full.length, MAX_DAYS)
   assert.equal(r.landed, undefined)
   assert.match(r.line, /no free time inside the request's window; not looked further/)
+})
+
+test("a form whose times are a list: the day is set and its times read from the list, never «full» (round 141's stand)", async () => {
+  const io = picker({ month: 11, native: true, select: true })
+  const r = await setDates({ date: "2026-12-05", last: "2026-12-07", from: "18:30", until: "20:30", byDays: false }, io)
+  assert.equal(r.landed, "2026-12-05")
+  assert.deepEqual(r.full, [])
+  assert.match(r.line, /5 Dec shows 18:30, 19:00, 19:30/)
+})
+
+test("a page that shows no times yet and doesn't say the day is full: the day is set, not walked past", async () => {
+  const io = picker({ month: 11, native: true, silent: true })
+  const r = await setDates({ date: "2026-12-05", last: "2026-12-07", from: "18:00", until: "21:00", byDays: false }, io)
+  assert.equal(r.landed, "2026-12-05")
+  assert.match(r.line, /5 Dec set; the page shows no times for it yet/)
 })
 
 test("no date control: the model presses by hand", async () => {

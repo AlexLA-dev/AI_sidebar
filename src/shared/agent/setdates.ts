@@ -79,10 +79,18 @@ function monthShown(map: PageMap): number {
   return -1
 }
 
+const LIST_ROLES = new Set(["select", "listbox", "combobox"])
+
+/** The times the page offers now: its time controls, and a time list's options (a form's «Time» select). */
+function timesShown(map: PageMap): string[] {
+  const own = map.items.filter((i) => !greyed(i) && looksLikeSlot(i.label)).flatMap((i) => timesIn(i.label))
+  const listed = map.items.filter((i) => LIST_ROLES.has(i.role) && !greyed(i)).flatMap((i) => (i.options ?? []).filter(looksLikeSlot).flatMap(timesIn))
+  return [...new Set([...own, ...listed])]
+}
+
 /** Whether the page shows a free time inside the request's window for the day it has chosen. */
 function freeTimes(map: PageMap, ask: DatesAsk): string[] {
-  const all = [...new Set(map.items.filter((i) => !greyed(i) && looksLikeSlot(i.label)).flatMap((i) => timesIn(i.label)))]
-  return all.filter((t) => (!ask.from || t >= ask.from) && (!ask.until || t <= ask.until)).sort()
+  return timesShown(map).filter((t) => (!ask.from || t >= ask.from) && (!ask.until || t <= ask.until)).sort()
 }
 
 /** Sets one day (and the stay's end) on the page: «set», «greyed», «no control», «stopped» or «not free». */
@@ -185,6 +193,10 @@ export async function setDates(ask: DatesAsk, io: DatesIO): Promise<DatesResult>
     }
     const times = map ? freeTimes(map, ask) : []
     if (r !== "greyed" && times.length) return { line: `${short(day)} shows ${times.slice(0, 6).join(", ")}${full.length ? ` (${full.map(short).join(", ")} full)` : ""}`, landed: day, full, presses: budget.presses }
+    // No times on the page at all, and nothing saying the day is full: the day is set, and its times are the page's next
+    // step (a form whose times come later, or a list it hasn't drawn yet). Never read as full (the stand's form with a
+    // «Time» list read as three full days, round 141).
+    if (r !== "greyed" && map && !timesShown(map).length && !FULL.test(text)) return { line: `${short(day)} set; the page shows no times for it yet (read it, or go on to its times)${full.length ? ` (${full.map(short).join(", ")} full)` : ""}`, landed: day, full, presses: budget.presses }
     // A full day: the next one in the window, else what was seen.
     if (r === "greyed" || FULL.test(text) || !times.length) full.push(day)
     if (day >= last || budget.presses >= MAX_PRESSES) break
