@@ -16,6 +16,7 @@
 import type { MapItem } from "../../shared/agent/types"
 import { isOwnHost } from "../insert/field"
 import { DENSE, weightedLength } from "../../shared/agent/length"
+import { styleOf } from "./style"
 
 export const OUTLINE_MAX = 9000
 const LINE_MAX = 400
@@ -85,7 +86,7 @@ export function token(i: MapItem): string {
 
 function hidden(el: Element, view: Window | null): boolean {
   if (el.getAttribute("aria-hidden") === "true" || el.hasAttribute("inert") || el.hasAttribute("hidden")) return true
-  const style = view?.getComputedStyle?.(el)
+  const style = view ? styleOf(el) : null
   return !!style && (style.display === "none" || style.visibility === "hidden" || style.contentVisibility === "hidden")
 }
 

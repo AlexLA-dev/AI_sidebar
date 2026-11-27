@@ -9,6 +9,7 @@
 //   never reaches it.
 
 import { amounts } from "../../shared/agent/taskplan"
+import { weightedLength } from "../../shared/agent/length"
 import { isDateLabel, monthIn } from "../../shared/agent/dates"
 import { wordKind, wordTest } from "../../shared/agent/match"
 import { looksLikeSlot } from "../../shared/agent/rules"
@@ -18,6 +19,7 @@ import { hostOf, sameSite } from "../../shared/agent/sites"
 import type { Lock, MapItem, PageForm, PageMap, Role } from "../../shared/agent/types"
 import { isOwnHost } from "../insert/field"
 import { buildOutline } from "./outline"
+import { beginStyles, styleOf } from "./style"
 import { OVERLAY } from "../translate/pageControls"
 
 const CONTROL = [
@@ -98,13 +100,77 @@ function* roots(doc: Document, frame: string, dx: number, dy: number, depth = 0)
   }
 }
 
+// ------------------------------------------------------------ controls by look (round 140, the director's «eyes» 1b)
+// A page that draws its controls without a control's tag or role (a pointer-cursor div with a script listener, a
+// tab-stop span): found by how it shows, within the screen and one screen around it (styles are read there only).
+// - The largest pointer box that holds no control and sits in none (a whole card, a «Записаться» div).
+// - Inside a pointer box that holds controls, the topmost short-worded piece (a time, «Choose»).
+// - An element given a tab stop (tabindex ≥ 0).
+// Never a label (its input stands for it), a box over most of the screen (a layer that closes on a tap), or the page.
+// It is a button by role and classed by its words exactly as a button is (a hint never decides).
+// (Found by look in this build — the «inside one already» check — and ever, for the element's role while it lives.)
+const byLook = new WeakSet<Element>()
+let lookThisBuild = new Set<Element>()
+const NOT_BY_LOOK = /^(html|body|label|option|optgroup|script|style|noscript|template|svg|path|g|use|circle|rect|line|polygon|polyline|ellipse|defs|title|br|hr|img|picture|source|video|audio|canvas|iframe|frame|head|meta|link|tr|tbody|thead|table|ul|ol|main|header|footer|nav|section|form)$/i
+
+function pressableByLook(el: Element, dy: number, height: number, width: number): boolean {
+  if (NOT_BY_LOOK.test(el.tagName)) return false
+  const r = el.getBoundingClientRect()
+  if (r.width < 8 || r.height < 8) return false
+  if (r.top + dy > height * 2 || r.bottom + dy < -height) return false
+  if (r.width * r.height > width * height * 0.6) return false
+  const tabbed = el.hasAttribute("tabindex") && Number(el.getAttribute("tabindex")) >= 0
+  const style = styleOf(el)
+  const pointer = style?.cursor === "pointer"
+  if (!pointer && !tabbed) return false
+  if (el.querySelector(CONTROL)) return false
+  const inControl = el.closest(CONTROL)
+  // Inside a card that is one link (a master's card with its «Записаться» drawn inside): everything there inherits the
+  // link's pointer, so only a short piece drawn as a button — its own background or border — counts.
+  if (inControl) return inCardLink(el, inControl, style)
+  // Inside a box found by look already: a piece of it.
+  for (let up = el.parentElement, n = 0; up && n < 8; up = up.parentElement, n++) if (lookThisBuild.has(up)) return false
+  if (!pointer) return true
+  const p = el.parentElement
+  const parentPointer = !!p && styleOf(p)?.cursor === "pointer"
+  if (!parentPointer) return true
+  // The parent shows a pointer too: a parent with no control is the unit (this is a piece of it); one that holds
+  // controls isn't, and a short-worded piece of it is a control of its own.
+  if (!p!.querySelector(CONTROL)) return false
+  const words = ((el as HTMLElement).innerText ?? el.textContent ?? "").replace(/\s+/g, " ").trim()
+  return words.length > 0 && weightedLength(words) <= 60
+}
+
+const transparent = (c: string | undefined) => !c || c === "transparent" || /rgba\([^)]*,\s*0\)$/.test(c)
+
+function inCardLink(el: Element, link: Element, style: CSSStyleDeclaration | null): boolean {
+  if (link.tagName.toLowerCase() !== "a" || !style) return false
+  const words = ((el as HTMLElement).innerText ?? el.textContent ?? "").replace(/\s+/g, " ").trim()
+  if (!/\p{L}{2,}/u.test(words) || weightedLength(words) > 30) return false
+  const card = ((link as HTMLElement).innerText ?? link.textContent ?? "").replace(/\s+/g, " ").trim()
+  if (weightedLength(card) < 40) return false
+  for (let up = el.parentElement, n = 0; up && up !== link && n < 8; up = up.parentElement, n++) if (lookThisBuild.has(up)) return false
+  const border = ["Top", "Right", "Bottom", "Left"].some((s) => parseFloat((style as any)[`border${s}Width`] ?? "0") >= 1 && (style as any)[`border${s}Style`] !== "none")
+  const parentBg = el.parentElement ? styleOf(el.parentElement)?.backgroundColor : undefined
+  const ownBg = !transparent(style.backgroundColor) && style.backgroundColor !== parentBg
+  return border || ownBg
+}
+
 function collect(doc: Document): Found[] {
   const out: Found[] = []
+  const view = doc.defaultView
+  const height = view?.innerHeight ?? 800
+  const width = view?.innerWidth ?? 400
   for (const { root, frame, dx, dy } of roots(doc, "", 0, 0)) {
     const walk = (r: Document | ShadowRoot | Element) => {
       for (const el of Array.from(r.querySelectorAll("*"))) {
         if (isOwnHost(el)) continue
         if (el.matches(CONTROL)) out.push({ el, frame, dx, dy })
+        else if (pressableByLook(el, dy, height, width)) {
+          byLook.add(el)
+          lookThisBuild.add(el)
+          out.push({ el, frame, dx, dy })
+        }
         const shadow = (el as HTMLElement).shadowRoot
         if (shadow) walk(shadow)
       }
@@ -162,6 +228,7 @@ export function roleOf(el: Element): Role | null {
     return parent && (parent as HTMLElement).isContentEditable ? null : "editor"
   }
   if (el.hasAttribute("onclick")) return "other"
+  if (byLook.has(el)) return "button"
   return null
 }
 
@@ -322,22 +389,23 @@ const struck = (style: CSSStyleDeclaration) => /line-through/.test(`${style.text
 
 /** Whether the page shows this control as not choosable: its class, faded (opacity), not taking presses, a not-allowed
  *  cursor, or its text struck through. */
-function unavailableByLook(el: Element): boolean {
-  const view = el.ownerDocument.defaultView
+function unavailableByLook(el: Element, classOnly = false): boolean {
   let opacity = 1
   let e: Element | null = el
   for (let i = 0; e && i < 3; i++, e = e.parentElement) {
     const cls = typeof (e as HTMLElement).className === "string" ? (e as HTMLElement).className : e.getAttribute("class") ?? ""
     if (i < 2 && UNAVAILABLE_CLASS.test(cls)) return true
-    const style = view?.getComputedStyle?.(e)
+    if (classOnly) continue
+    const style = styleOf(e)
     if (!style) continue
     opacity *= Number(style.opacity || "1")
     if (i === 0 && (style.pointerEvents === "none" || style.cursor === "not-allowed")) return true
     if (i === 0 && struck(style)) return true
   }
+  if (classOnly) return false
   // A day number struck through inside its tile (a calendar crossing out full days).
   for (const child of Array.from(el.children).slice(0, 3)) {
-    const style = view?.getComputedStyle?.(child)
+    const style = styleOf(child)
     if (style && struck(style) && (child.textContent ?? "").trim()) return true
   }
   return opacity < 0.6
@@ -410,12 +478,12 @@ const lum = ([r, g, b]: [number, number, number, number]) => {
 /** The contrast of a control's text against the background behind it (0 when it can't be told). */
 function textContrast(el: Element): number {
   const view = el.ownerDocument.defaultView
-  const style = view?.getComputedStyle?.(el)
+  const style = styleOf(el)
   const fg = style ? rgb(style.color) : null
   if (!fg) return 0
   let bg: [number, number, number, number] | null = null
   for (let e: Element | null = el; e && !bg; e = e.parentElement) {
-    const c = rgb(view?.getComputedStyle?.(e).backgroundColor ?? "")
+    const c = rgb(styleOf(e)?.backgroundColor ?? "")
     if (c && c[3] > 0.5) bg = c
   }
   bg = bg ?? [255, 255, 255, 1]
@@ -426,17 +494,27 @@ function textContrast(el: Element): number {
   return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
 }
 
-function hiddenByStyle(el: Element): boolean {
-  const view = el.ownerDocument.defaultView
-  for (let e: Element | null = el; e; e = e.parentElement ?? ((e.getRootNode() as ShadowRoot).host ?? null)) {
-    // aria-hidden on the body or the root is a modal library's mistake (react-modal on tiki.vn): the screen shows it all.
-    const top = e === el.ownerDocument.body || e === el.ownerDocument.documentElement
-    if ((!top && e.getAttribute("aria-hidden") === "true") || e.hasAttribute("inert") || (e as HTMLElement).hidden) return true
-    const style = view?.getComputedStyle?.(e)
-    if (style && (style.display === "none" || style.visibility === "hidden" || style.contentVisibility === "hidden")) return true
-    if (e === el.ownerDocument.body) break
+// Hidden or not, per element, while one map is built (an ancestor's answer serves every control under it).
+let hiddenMemo: Map<Element, boolean> | null = null
+
+function hiddenByStyle(el: Element, attributesOnly = false): boolean {
+  const memo = attributesOnly ? null : hiddenMemo
+  const seen = memo?.get(el)
+  if (seen !== undefined) return seen
+  const doc = el.ownerDocument
+  // aria-hidden on the body or the root is a modal library's mistake (react-modal on tiki.vn): the screen shows it all.
+  const top = el === doc.body || el === doc.documentElement
+  let hidden = (!top && el.getAttribute("aria-hidden") === "true") || el.hasAttribute("inert") || !!(el as HTMLElement).hidden
+  if (!hidden && !attributesOnly) {
+    const style = styleOf(el)
+    hidden = !!style && (style.display === "none" || style.visibility === "hidden" || style.contentVisibility === "hidden")
   }
-  return false
+  if (!hidden && el !== doc.body) {
+    const up = el.parentElement ?? ((el.getRootNode() as ShadowRoot).host ?? null)
+    if (up) hidden = hiddenByStyle(up, attributesOnly)
+  }
+  memo?.set(el, hidden)
+  return hidden
 }
 
 interface Box {
@@ -479,7 +557,7 @@ function fixedBanner(el: Element): Element | null {
   const view = el.ownerDocument.defaultView
   if (!view) return null
   for (let e: Element | null = el; e && e !== el.ownerDocument.body; e = e.parentElement) {
-    const position = view.getComputedStyle(e).position
+    const position = styleOf(e)?.position
     if (position === "fixed" || position === "sticky") {
       const r = e.getBoundingClientRect()
       // A header at the very top is the site's own bar; anything else fixed is drawn over the page.
@@ -594,6 +672,21 @@ export interface MapOptions {
 
 /** The page's map now (one part of it: PART_SIZE controls, those over the page and on the screen first). */
 export function buildMap(doc: Document = document, opts: MapOptions = {}): PageMap {
+  const endStyles = beginStyles()
+  hiddenMemo = new Map()
+  lookThisBuild = new Set()
+  try {
+    return buildMapNow(doc, opts)
+  } finally {
+    hiddenMemo = null
+    lastStyleReads = endStyles()
+  }
+}
+
+/** How many computed styles the last map read (the cost measurement). */
+export let lastStyleReads = 0
+
+function buildMapNow(doc: Document, opts: MapOptions): PageMap {
   const view = doc.defaultView
   const height = view?.innerHeight ?? 800
   const pageHost = hostOf(doc.location?.href ?? "")
@@ -641,7 +734,11 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
       if (outerRole && LEAF_ROLES.has(outerRole) && outerRole !== "editor" && role !== "textbox" && role !== "checkbox" && role !== "radio" && !inLink) return
     }
     if ((el as HTMLElement).isContentEditable && el.parentElement && (el.parentElement as HTMLElement).isContentEditable) return
-    if (hiddenByStyle(el)) return
+    // (Far from the screen — beyond it and one screen around it — a control is checked by its attributes only: it is
+    // laid out where it is, so it isn't display:none, and a fixed layer is never there. Round 140, the map's cost.)
+    const at = el.getBoundingClientRect()
+    const far = at.width > 0 && at.height > 0 && (at.top + f.dy > height * 2 || at.bottom + f.dy < -height)
+    if (hiddenByStyle(el, far)) return
     const box = boxOf(f, role)
     if (!box) return
     seen.add(el)
@@ -672,7 +769,7 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
     } else if (value) item.value = value
     const state = stateOf(el, role)
     if (state.length) item.state = [...(item.state ?? []), ...state]
-    const banner = inDialog(el) ? el.closest(OVERLAY) ?? el : fixedBanner(el)
+    const banner = inDialog(el) ? el.closest(OVERLAY) ?? el : far ? null : fixedBanner(el)
     if (banner) {
       item.where = "dialog"
       overlays.add(banner)
@@ -694,9 +791,10 @@ export function buildMap(doc: Document = document, opts: MapOptions = {}): PageM
     // A date or a time that can't be chosen, as the page shows it (124, the owner: «по яркости даты видно доступна ли
     // она»): its class, its fading, or later its text against its siblings'.
     const choice = !item.lock && (role === "button" || role === "option" || role === "radio" || role === "link")
-    if (choice && !item.state?.includes("disabled") && (unavailableByLook(el) || unavailableBySaying(el, item.label))) item.state = [...(item.state ?? []), "unavailable"]
+    // (Far from the screen, by its class only: no style is read there — round 140.)
+    if (choice && !item.state?.includes("disabled") && (unavailableByLook(el, far) || unavailableBySaying(el, item.label))) item.state = [...(item.state ?? []), "unavailable"]
     // (Only dates and times — a short label with a number — are compared with their siblings: a nav bar's styling isn't.)
-    if (!item.lock && (role === "button" || role === "option" || role === "radio" || role === "link") && /\d/.test(item.label) && item.label.length <= 30) looks.push({ item, el, group: el.parentElement?.parentElement ?? el.parentElement, contrast: textContrast(el) })
+    if (!far && !item.lock && (role === "button" || role === "option" || role === "radio" || role === "link") && /\d/.test(item.label) && item.label.length <= 30) looks.push({ item, el, group: el.parentElement?.parentElement ?? el.parentElement, contrast: textContrast(el) })
     items.push(item)
   })
   // Greyed among its own: a control whose text is much fainter than its siblings' (a date strip where the days that
@@ -893,7 +991,7 @@ function shownFrame(f: HTMLIFrameElement): boolean {
   const r = f.getBoundingClientRect()
   if (r.width < 40 || r.height < 20) return false
   const view = f.ownerDocument.defaultView
-  const cs = view?.getComputedStyle(f)
+  const cs = styleOf(f)
   return !cs || (cs.display !== "none" && cs.visibility !== "hidden" && Number(cs.opacity || "1") > 0.05)
 }
 
