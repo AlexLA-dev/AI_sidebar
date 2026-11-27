@@ -190,6 +190,11 @@ export interface AgentState {
   // Layers over the page the device closed itself (at most three a task), and the presses they came after.
   popups?: number
   closedAfter?: string[]
+  // A window's days pressed in this task, in order (decision 14a), whether a later one was sent back for an earlier
+  // offered one, and whether the question for a window with no offered day passed (14c).
+  windowPressed?: string[]
+  windowEarlier?: boolean
+  windowAsked?: boolean
   // Cookie layers the device refused itself (decision 13a: at most three a task, once per page address).
   cookieDevice?: number
   cookiePages?: string[]
@@ -1116,6 +1121,27 @@ export function bookingFrame(f: { src: string; host: string; title?: string }): 
 const SEARCH_BOX = /search|find|treatment|salon|cuisine|restaurant|location|where|what are you looking|поиск|найти|искать|suche|recherch|buscar|cerca|pesquis|検索|검색|搜索|搜尋|بحث|tìm/i
 
 /** A date press as the page and the task stand: why it isn't done, or null to go on. */
+// Decision 14: a window's days (date to dayLast) are all asked days for a booking that isn't by days (a stay's or a
+// rental's own two days keep their rules).
+function windowOfPlan(state: AgentState): { first: string; last: string } | null {
+  const b = state.plan?.booking
+  return b && b.dayLast && b.dayLast > b.date && !DAY_KINDS.has(b.kind) ? { first: b.date, last: b.dayLast } : null
+}
+/** The days the page's day controls offer (not greyed), with their dates, earliest first. */
+export function offeredDays(map: PageMap, near: string): Array<{ date: string; item: MapItem }> {
+  const out: Array<{ date: string; item: MapItem }> = []
+  for (const i of map.items) {
+    if (!isDateLabel(i.label) || greyedItem(i) || opensPicker(map, i)) continue
+    const d = dayOf(i.label, near)
+    if (d && !out.some((o) => o.date === d)) out.push({ date: d, item: i })
+  }
+  return out.sort((a, b) => a.date.localeCompare(b.date))
+}
+/** Every day the page's day controls show (greyed or not), earliest first. */
+function shownDays(map: PageMap, near: string): string[] {
+  return [...new Set(map.items.filter((i) => isDateLabel(i.label) && !opensPicker(map, i)).map((i) => dayOf(i.label, near)).filter((d): d is string => !!d))].sort()
+}
+
 export function dateStep(state: AgentState, map: PageMap, item: MapItem, call?: ToolCall): string | null {
   if (looksLikeSlot(item.label)) {
     // A time is for the day the page has chosen (a salon booking site, 124: «Sat 26 Dec» greyed and pressed wasn't chosen; 11:30 was
@@ -1177,6 +1203,32 @@ export function dateStep(state: AgentState, map: PageMap, item: MapItem, call?: 
   // the rules' (125, the iPad: 27 pressed as check-in for «26 to 28»).
   if (asked && pressed && end && pressed !== asked && pressed !== end && state.plan?.booking && DAY_KINDS.has(state.plan.booking.kind))
     return `«${item.label}» isn't a day of this ${state.plan.booking.kind} (${dayWords(asked)} to ${dayWords(end)}): press only those two. A picker may show the chosen days only in its own grid (selected, in range) until its own «Done»/«Apply»: read that, then press it; if those days really can't be chosen, ask_user with what the page shows`
+  // A day inside the request's window (decision 14a: «this week», a strip offering only 29 and 30 Nov for a window from
+  // the 27th): an asked day, never «isn't the asked day». Earliest first: a later one while the page offers an earlier
+  // window day this task hasn't pressed is sent back once. Distinct days pressed in ascending order walk the window and
+  // don't count toward «two date steps went nowhere».
+  const win = windowOfPlan(state)
+  if (win && pressed && pressed >= win.first && pressed <= win.last) {
+    const tried = state.windowPressed ?? []
+    const earlier = offeredDays(map, win.first).find((o) => o.date >= win.first && o.date < pressed && !tried.includes(o.date))
+    if (earlier && !state.windowEarlier) {
+      state.windowEarlier = true
+      return `«${item.label}» is inside the request's window, but the page offers an earlier day in it, «${earlier.item.label}» (${dayWords(earlier.date)}): press that one first — the earliest free day comes first`
+    }
+    state.sawDate = true
+    state.picked = { date: pressed }
+    if (state.lastDate === item.label) return `«${item.label}» was pressed already: the page answered it. Choose another available day the rules allow, or ask_user once with the page's real nearest options`
+    const ascending = !tried.includes(pressed) && tried.every((d) => d < pressed)
+    state.windowPressed = [...tried, pressed]
+    if (!ascending) {
+      const steps = (state.dateSteps ?? 0) + 1
+      if (steps > 2) return "two date steps went nowhere: don't press more dates. ask_user once now, with the page's real nearest options: the next free day the page names, another specialist on the asked day, another place"
+      state.dateSteps = steps
+    }
+    state.lastDate = item.label
+    state.lastDateId = item.id
+    return null
+  }
   if (asked && pressed && pressed !== asked) {
     if (pressed < asked) return `«${item.label}» is before the asked day (${dayWords(asked)}): go to the asked day instead (the calendar's next-month arrow, or the date strip scrolled)`
     if (!state.sawDate && !dayItems(map, asked).length) return `«${item.label}» isn't the asked day (${dayWords(asked)}), and the page hasn't shown that day yet: go to it first`
@@ -1532,6 +1584,20 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       // (Or set in the page's own date field: a stay list with «Check-in 2026-12-04», 129.)
       if (days.some((i) => !greyedItem(i)) || showsDay(map, state.plan.booking.date)) state.sawDate = true
       else if (days.length) state.greyTarget = days[0].label
+      // A window whose first day the page's day control doesn't offer (decision 14b: a strip listing only bookable days,
+      // 29 and 30 Nov for a window from the 27th): that is the page's answer for it, when the earliest day it shows is
+      // later than the first and no later than a week after the window's end; a control parked far away isn't.
+      const win = windowOfPlan(state)
+      const shown = win && !days.length ? shownDays(map, win.first) : []
+      if (win && shown.length && shown[0] > win.first && shown[0] <= addDays(win.last, 7)) {
+        state.sawDate = true
+        const inWin = offeredDays(map, win.first).filter((o) => o.date >= win.first && o.date <= win.last)
+        const nearest = offeredDays(map, win.first).find((o) => o.date > win.last)
+        const line = inWin.length
+          ? `the page's day control doesn't offer ${dayWords(win.first)}; the days it offers in the request's window: ${inWin.map((o) => `«${o.item.label}»`).join(", ")} — the earliest first`
+          : `the page's day control doesn't offer ${dayWords(win.first)}, and none in the request's window${nearest ? `; the page's nearest day is «${nearest.item.label}» (${dayWords(nearest.date)})` : ""}`
+        if (!state.refused) state.refused = line
+      }
     }
     // A booking whose form is a booking provider's frame on this page (a restaurant's provider widget, 121 sweep: «I've tried "Book a
     // table" five times»): the device opens that form on its own page, once; the provider counts as this task's site.
@@ -1693,7 +1759,15 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // The asked day shown greyed and never pressed (a strip that greys days it hasn't loaded): the device presses it once
     // itself and the page's answer goes to the model, instead of a question about a day nobody looked at (a salon booking site, 124:
     // sent back once, the model asked again; pressed, «full», with its next free day).
-    const greyDay = call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking?.date && !state.sawDate && !state.pressedTarget
+    // A window with no offered day in it on the page (decision 14c): the question that offers the page's nearest day
+    // beyond the window is a true question — it passes at once, once (the day of the person's answer is then the asked
+    // day, as before).
+    const winNow = call.tool === "ask_user" && !details && state.plan?.approved && !state.windowAsked ? windowOfPlan(state) : null
+    const offeredNow = winNow ? offeredDays(map, winNow.first) : []
+    const askDays = winNow ? daysInText(`${call.question ?? ""} ${(call.choices ?? []).join(" ")}`, winNow.first) : []
+    const windowTrue = !!winNow && state.sawDate === true && !offeredNow.some((o) => o.date >= winNow.first && o.date <= winNow.last) && offeredNow.some((o) => o.date > winNow.last && askDays.includes(o.date))
+    if (windowTrue) state.windowAsked = true
+    const greyDay = !windowTrue && call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking?.date && !state.sawDate && !state.pressedTarget
       ? dayItems(map, state.plan.booking.date).find(greyedItem)
       : undefined
     if (greyDay) {
@@ -1707,7 +1781,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // The page names its own next free day (in its words, or a button to it) and the model asks
     // instead (124, a salon strip: «27 and 28 have no times, open only until 9 Dec» while the page said its next free
     // day was the 28th): sent back once with the page's own words, so the rules decide or the question offers that day.
-    if (call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking && !state.nextNudged) {
+    if (!windowTrue && call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking && !state.nextNudged) {
       const said = nextFreeSaid(map)
       if (said) {
         state.nextNudged = true
@@ -1720,7 +1794,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     // A booking widget whose own date field shows another day than the asked one (B3: «your time isn't available» read
     // as no slot): sent back once to set the field first.
-    const field = call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking?.date && !state.widgetNudged ? widgetDay(map, state.plan.booking.date, state.plan.booking.dateEnd) : null
+    const field = !windowTrue && call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking?.date && !state.widgetNudged ? widgetDay(map, state.plan.booking.date, state.plan.booking.dateEnd) : null
     if (field) {
       state.widgetNudged = true
       const why = `the page's own date field «${field.label.slice(0, 40)}» shows ${field.value}, not ${dayWords(state.plan!.booking!.date)}: set it to the asked day first (and the party, then the time), read the page's slots for that day, then go on; ask only with what it shows then`

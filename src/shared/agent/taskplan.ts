@@ -798,9 +798,14 @@ export function keyKind(key: string): string {
 const GIVEN = /first.?name|given.?name|forename|(?<!\p{L})имя(?!\p{L})|(?<!\p{L})ім'я|vorname|prénom|prenom|(?<!\p{L})nombre(?!\p{L})|(?<!\p{L})nome(?!\p{L})|(?<!\p{L})ad(?!\p{L})|(?<![氏姓])名(?![字前])|이름/iu
 const FAMILY = /last.?name|surname|family.?name|фамили|прізвищ|nachname|nom de famille|(?<!\p{L})nom(?!\p{L})|apellido|cognome|sobrenome|soyad|姓(?!名)|^\s*氏\s*[*＊]?\s*$|성(?!함)/iu
 
+// A field whose label asks for the whole name (round 142, the director's S1: Treatwell's «Nome completo» read as a first
+// name, and «Alex» alone went in), in the 15 languages: it takes the full name.
+const FULL_NAME = /full.?name|whole name|first and last name|полное имя|(?<!\p{L})фио(?!\p{L})|имя и фамилия|фамилия(,| и) имя|повне ім'я|повне ім’я|(?<!\p{L})піб(?!\p{L})|ім'я (та|і) прізвище|ім’я (та|і) прізвище|vollständiger name|voller name|vor- und nachname|vor- und zuname|nom complet|prénom et nom|nom et prénom|nombre completo|nombre y apellidos?|nome completo|nome e cognome|cognome e nome|(?<!\p{L})ad[ -]?soyad|adınız soyadınız|tam ad(ınız)?(?!\p{L})|氏名|フルネーム|성명|전체 이름|이름 전체|全名|姓名|họ và tên|họ tên|tên đầy đủ|الاسم الكامل|الاسم بالكامل/iu
+
 export function fieldKind(item: Pick<MapItem, "type" | "auto" | "label">, autoKey: string | null): string | null {
   // A first or last name's field takes that part only (a restaurant's «First name»: the full name was put in).
   if (autoKey === "name.given" || autoKey === "name.family") return autoKey
+  if (!autoKey && FULL_NAME.test(item.label)) return "name.full"
   if (!autoKey && FAMILY.test(item.label)) return "name.family"
   if (!autoKey && GIVEN.test(item.label)) return "name.given"
   if (autoKey) return keyKind(autoKey)

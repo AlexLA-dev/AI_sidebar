@@ -99,7 +99,8 @@ test("split name fields: a saved full name fills «First name» and «名» wher
   const { fieldKind, saidInWords } = await import("../src/shared/agent/taskplan.ts")
   assert.equal(fieldKind({ label: "氏" } as never, null), "name.family")
   assert.equal(fieldKind({ label: "名" } as never, null), "name.given")
-  assert.equal(fieldKind({ label: "氏名" } as never, null), null, "the full name's field isn't the given name's")
+  // (Round 142, the director's S1: the full name's field takes the full name, never the given name's part.)
+  assert.equal(fieldKind({ label: "氏名" } as never, null), "name.full", "the full name's field isn't the given name's")
   assert.equal(fieldKind({ label: "First name*" } as never, null), "name.given")
   // The request's own name, written with a middle dot and no spaces, counts as the person's words; a made-up one doesn't.
   assert.equal(saidInWords("名前はアレックス・テスト", "アレックス"), true)
