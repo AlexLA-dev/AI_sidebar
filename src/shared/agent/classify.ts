@@ -5,7 +5,8 @@
 import { anyWord, wordKind, wordTest } from "./match.ts"
 import { isDateLabel } from "./dates.ts"
 import { amounts, withoutAmounts } from "./money.ts"
-import { SLOT_TIME } from "./rules.ts"
+import { looksLikeSlot, SLOT_TIME } from "./rules.ts"
+import { counterPress } from "./counts.ts"
 import { blockedSite, hostOf, sameSite, type SitePolicy } from "./sites.ts"
 import type { MapItem, PageMap, StepVerdict, ToolCall } from "./types.ts"
 import { CHOSEN_COUNT_WORDS, CONSENT_DIALOG, TERMS_BOX } from "./words.ts"
@@ -284,6 +285,12 @@ function pressClass(map: PageMap, item: MapItem, host: string): StepVerdict {
 }
 
 /** The class of `call` on the page in `ctx`. The model's call is assumed checked (call.ts) against the map. */
+const FUNNEL_FIELDS = new Set(["textbox", "textarea", "editor", "combobox", "select", "listbox", "slider", "option", "tab"])
+/** What stays free inside a checkout funnel: a field, a choice in a picker, a counter's plus or minus. */
+function funnelFree(map: PageMap, item: MapItem): boolean {
+  return FUNNEL_FIELDS.has(item.role) || isDateLabel(item.label) || looksLikeSlot(item.label) || !!counterPress(item, map)
+}
+
 export function classify(call: ToolCall, ctx: StepContext): StepVerdict {
   const host = hostOf(ctx.map.url)
   if (READ_ONLY.has(call.tool)) return verdict("free", "read")
@@ -314,6 +321,9 @@ export function classify(call: ToolCall, ctx: StepContext): StepVerdict {
     if (!sameSite(to, host)) return verdict("confirm", "other_site")
     v = clickClass(ctx.map, item, host)
   }
+  // Inside a checkout funnel with no payment sign (decision 9): a forward press the ordinary rules call free is carded;
+  // a field, a choice in a picker (a day, a time, an option, a tab) or a counter's plus or minus goes without one.
+  if (ctx.map.funnel && !ctx.map.pay && v.cls === "free" && (call.tool === "click" || call.tool === "go") && !funnelFree(ctx.map, item)) v = verdict("confirm", "checkout_step")
   // The first thing done on a site the task came to (not the one it began on) asks first.
   if (v.cls === "free" && !ctx.confirmedHere && ctx.startHost && !sameSite(host, ctx.startHost) && call.tool !== "scroll") {
     return verdict("confirm", "first_here")

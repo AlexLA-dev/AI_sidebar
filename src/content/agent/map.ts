@@ -896,7 +896,7 @@ function buildMapNow(doc: Document, opts: MapOptions): PageMap {
       return promo ? { promo } : {}
     })()),
     ...(opts.money ? { money: pageMoney(doc) } : {}),
-    ...(takesPayment(doc) ? { pay: true } : {}),
+    ...(takesPayment(doc) ? { pay: true } : funnelPath(doc) ? { funnel: true } : {}),
     ...(opts.money && asksDeposit(doc) ? { deposit: true } : {}),
     ...(otherFrames(doc).length ? { frames: otherFrames(doc) } : {})
   }
@@ -965,7 +965,19 @@ const SEARCH_WORDS = /search|find|cuisine|restaurant name|location|where|what ar
 // Payment providers' frames and buttons, and addresses of checkout and payment pages (2.7.1, the security review: card
 // fields in another site's frame never made a form secret).
 const PAY_FRAME = /(^|\.)(stripe\.com|stripe\.network|adyen\.com|adyenpayments\.com|braintreegateway\.com|braintree-api\.com|paypal\.com|paypalobjects\.com|checkout\.com|squareup\.com|squarecdn\.com|klarna\.com|klarnacdn\.net|mollie\.com|worldpay\.com|authorize\.net|cybersource\.com|razorpay\.com|payu\.[a-z.]+|yookassa\.ru|cloudpayments\.ru|iyzipay\.com|apple\.com|pay\.google\.com|recurly\.com|chargebee\.com|paddle\.com|2checkout\.com|bluesnap\.com|globalpay[a-z]*\.com)$/
-const PAY_PATH = /(^|[/._-])(checkout|payment|payments|pay|billing|kasse|zahlung|bezahlen|paiement|pago|pagamento|pagamenti|oplata|odeme|subscribe|donate|order-confirm)([/._?-]|$)|оплат|결제|支付|決済|お支払い/i
+// (Round 142, the director's decision 9: the funnel's words, «checkout» and «kasse», no longer make a payment page on
+// their own — FUNNEL_PATH; the words that name payment itself still do.)
+const PAY_PATH = /(^|[/._-])(payment|payments|pay|billing|zahlung|bezahlen|paiement|pago|pagamento|pagamenti|oplata|odeme|subscribe|donate|order-confirm)([/._?-]|$)|оплат|결제|支付|決済|お支払い/i
+const FUNNEL_PATH = /(^|[/._-])(checkout|kasse)([/._?-]|$)/i
+
+/** A checkout funnel's address (decision 9): carded forward presses unless the page shows a payment sign. */
+export function funnelPath(doc: Document): boolean {
+  try {
+    return FUNNEL_PATH.test(`${doc.location?.pathname ?? ""}`)
+  } catch {
+    return false
+  }
+}
 
 export function takesPayment(doc: Document): boolean {
   try {

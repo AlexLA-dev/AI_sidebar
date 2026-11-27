@@ -82,6 +82,9 @@ export interface PageMap {
   // The page takes payment: card fields, a payment provider's frame (Stripe, Adyen, Braintree, PayPal, Apple Pay…) or
   // a checkout / payment address. Every press that sends something here is the person's own.
   pay?: boolean
+  // A checkout funnel's address («/checkout/», «/kasse/») with no payment sign on the page (round 142, the director's
+  // decision 9): the ordinary rules class each control, and a forward press is carded.
+  funnel?: boolean
   // The page mentions a deposit, a prepayment or a no-show fee (read with the page's amounts): its committing press pays.
   deposit?: boolean
   // Another site's frames big enough to be a form (a restaurant's booking widget from a provider): the map can't read
