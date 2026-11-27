@@ -121,7 +121,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
         }),
         touchInstall(installId, platform, version, locale, 0).catch(() => undefined)
       ]))
-      return json({ ok: true, plan: p.plan, token, left, stepsLeft: Math.max(0, maxSteps - stepsUsed), ...(measuring ? { model: named ?? a.planModel, cost: Math.round(spent * 1e6) / 1e6 } : {}) })
+      return json({ ok: true, plan: p.plan, token, left, stepsLeft: Math.max(0, maxSteps - stepsUsed), ...(measuring ? { model: named ?? a.planModel, cost: Math.round(spent * 1e6) / 1e6, output: p.usage.reduce((n, u) => n + u.output, 0) } : {}) })
     }
     out = await nextStep(input, { model, startHost, confirmedHere: task.confirmedHere === true, signal: req.signal, fallback: a.strongModel })
   } catch (err) {
@@ -134,7 +134,10 @@ export default async (req: Request, context: Context): Promise<Response> => {
       taskBack.length ? refund(taskBack).catch(() => undefined) : Promise.resolve(),
       logEvent("upstream_error", installId, { message: err instanceof Error ? err.message.slice(0, 300) : "unknown", reason, mode: "agent", provider: "anthropic", platform, version })
     ]))
-    return json({ code: reason === "rate_limit" ? "BUSY" : "UPSTREAM" }, reason === "rate_limit" ? 503 : 502)
+    // (A measuring request on a deploy preview also gets the reason and, for a cut answer, what came before the cut —
+    // round 141: the plan call cut on Korean and Japanese pages. Never in production: `measuring` is false there.)
+    const cut = measuring && err instanceof ActError && err.reason === "cut" ? { reason, partial: (err.partial ?? "").slice(0, 12_000), output: err.output } : measuring ? { reason } : {}
+    return json({ code: reason === "rate_limit" ? "BUSY" : "UPSTREAM", ...cut }, reason === "rate_limit" ? 503 : 502)
   }
 
   const spent = out.usage.reduce((n, u: Usage) => n + cost(u), 0)

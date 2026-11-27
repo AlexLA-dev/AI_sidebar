@@ -25,9 +25,14 @@ export const MAX_DATA_CHARS = 12_000
 
 export class ActError extends Error {
   reason: string
-  constructor(reason: string, message: string) {
+  // An answer cut off at its token cap: what came before the cut (for a measuring request's diagnosis, round 141).
+  partial?: string
+  output?: number
+  constructor(reason: string, message: string, partial?: string, output?: number) {
     super(message)
     this.reason = reason
+    this.partial = partial
+    this.output = output
   }
 }
 
@@ -276,7 +281,7 @@ async function askJson(model: string, system: string, content: string, schema: R
     throw err
   }
   if (response.stop_reason === "refusal") throw new ActError("refusal", `declined (${response.stop_details?.category ?? "unknown"})`)
-  if (response.stop_reason === "max_tokens") throw new ActError("cut", "the answer was cut off")
+  if (response.stop_reason === "max_tokens") throw new ActError("cut", "the answer was cut off", response.content.map((b) => (b.type === "text" ? b.text : "")).join(""), response.usage.output_tokens ?? 0)
   const text = response.content.map((b) => (b.type === "text" ? b.text : "")).join("")
   try {
     return { data: JSON.parse(text), usage: usageOf(response, model) }
