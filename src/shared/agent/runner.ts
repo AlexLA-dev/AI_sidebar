@@ -156,6 +156,8 @@ export interface AgentState {
   // The pages this task has been on, in order (origin and path): «back» goes only to the one before, never past the
   // task's first page (round 141: a second «back» left the site for a blank page).
   trail?: string[]
+  // A «done» sent back once on a page that asks for the person's details (details_next).
+  detailsNudged?: boolean
   // The outline's parts the model opened on this page (read_page with an outline): they stay open (round 139).
   openParts?: { page: string; parts: number[] }
   slotRefusals?: number
@@ -1517,6 +1519,15 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
         state.doneNudged = true
         rule(state, "done_press")
         state.log.push({ call: { tool: "done" }, result: `refused: the plan's press "${missing.label}" hasn't happened yet — do it now, or call done again and say in the summary why it is left` })
+        await io.save(state)
+        continue
+      }
+      // A page that asks for the person's details is the booking's next step, not its end (the director, round 141: at
+      // an empty «Enter your details» the agent ended and said the booking might have gone through): sent back once.
+      if (state.plan?.booking && !state.detailsNudged && !confirmedOnPage(map) && map.items.some((i) => i.lock === "personal" && (i.state ?? []).includes("empty") && i.where !== "above" && i.where !== "below")) {
+        state.detailsNudged = true
+        rule(state, "details_next")
+        state.log.push({ call: { tool: "done" }, result: `refused: this page asks for the person's details — the booking's next step, not its end: fill them from <saved> (ask once for one that's missing), then press the booking's own button; never tell the person a booking may have gone through when the page shows no confirmation` })
         await io.save(state)
         continue
       }

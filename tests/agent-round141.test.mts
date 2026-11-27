@@ -119,3 +119,23 @@ test("item 8b: a place the rules picked, left as it was on the card, locks nothi
   const changed = await approvePlan(mk(), io, { answers: ["One Flight Up"], off: [] })
   assert.equal(changed.cardPlace, "One Flight Up", "the person's own")
 })
+
+// ---- a details form after the booking's press is the next step, never an end (the director, round 141)
+test("«done» on a page that asks for the person's details, with no confirmation, is sent back once", async () => {
+  const details = page("https://stays.example/book/step2", [
+    { id: "1", role: "textbox", label: "First name", lock: "personal", state: ["empty"] },
+    { id: "2", role: "textbox", label: "E-mail", lock: "personal", state: ["empty"] },
+    { id: "3", role: "button", label: "Next: Final details" }
+  ])
+  const replies: ActReply[] = [
+    step({ tool: "done", summary: "Please check your e-mail or the site's app to see whether the booking went through.", why: "" }, "free", "read"),
+    step({ tool: "done", summary: "The details form is open; nothing was booked.", why: "" }, "free", "read")
+  ]
+  const io: RunnerIO = { map: async () => details, act: async () => ({ ok: true, note: "" }), waitPage: async () => {}, ask: async () => replies.shift() ?? step({ tool: "done", summary: "", why: "" }, "free", "read"), save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30 }
+  const st = newState("d141", "Book a stay for 2 nights", "en", details.url)
+  st.plan = { steps: [], questions: [], perms: [], self: [], prices: [], risky: [], approved: true, booking: { kind: "stay", date: "2026-12-04", dateEnd: "2026-12-06", from: "", until: "", minutes: 0, personal: false, venue: "Hotel" } } as unknown as TaskPlan
+  const out = await drive(st, io)
+  assert.ok(out.log.some((e) => /^refused: this page asks for the person's details/.test(e.result)))
+  assert.equal(out.ruleCounts?.details_next, 1)
+  assert.equal(out.summary, "The details form is open; nothing was booked.", "the second done ends, once")
+})
