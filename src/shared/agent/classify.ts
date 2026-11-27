@@ -2,14 +2,14 @@
 // model's own words about a step never change it. The server checks with this before it answers, and the extension
 // checks again before it acts (the extension is the one that presses).
 
-import { anyWord, wordKind, wordTest } from "./match.ts"
+import { anyWord, normalize, wordKind, wordTest } from "./match.ts"
 import { isDateLabel } from "./dates.ts"
 import { amounts, withoutAmounts } from "./money.ts"
 import { looksLikeSlot, SLOT_TIME } from "./rules.ts"
 import { counterPress } from "./counts.ts"
 import { blockedSite, hostOf, sameSite, type SitePolicy } from "./sites.ts"
 import type { MapItem, PageMap, StepVerdict, ToolCall } from "./types.ts"
-import { CHOSEN_COUNT_WORDS, CONSENT_DIALOG, TERMS_BOX } from "./words.ts"
+import { CHOSEN_COUNT_WORDS, CONSENT_DIALOG, NAV_AWAY, TERMS_BOX } from "./words.ts"
 
 export interface StepContext {
   map: PageMap
@@ -251,7 +251,9 @@ function pressClass(map: PageMap, item: MapItem, host: string): StepVerdict {
   // (A listing's card is a link with its price on it — «Salon … Men's haircut from £35», a salon marketplace: that's going to
   // the salon, not paying. A button with an amount, or a short link that names one, still pays.)
   if (amounts(item.label).length && !listingCard(item) && !cartSummary(item, hit?.kind) && !pricedChoice(map, item, hit)) return verdict("self", "pay")
-  const quiet = item.role === "tab" || item.role === "option" || item.role === "summary" || item.role === "menuitem" || hit?.kind === "nav" || hit?.kind === "reject"
+  // (Decision 10: on a page that takes payment only a nav word that leads away or shows more stays quiet; «Continue»,
+  // «Next», «Checkout» move the purchase forward and are the person's own there.)
+  const quiet = item.role === "tab" || item.role === "option" || item.role === "summary" || item.role === "menuitem" || (hit?.kind === "nav" && (!map.pay || NAV_AWAY_SET.has(hit.word))) || hit?.kind === "reject"
   if (map.pay && !quiet && !(item.role === "link" && !form)) return verdict("self", "pay")
   if (form?.secret && (hit?.kind === "submit" || hit?.kind === "weak" || hit?.kind === "send")) return verdict("self", "auth")
   // «Continue with Google / Apple»: a sign-in with another account, the person's.
@@ -285,6 +287,8 @@ function pressClass(map: PageMap, item: MapItem, host: string): StepVerdict {
 }
 
 /** The class of `call` on the page in `ctx`. The model's call is assumed checked (call.ts) against the map. */
+const NAV_AWAY_SET = new Set(NAV_AWAY.map(normalize))
+
 const FUNNEL_FIELDS = new Set(["textbox", "textarea", "editor", "combobox", "select", "listbox", "slider", "option", "tab"])
 /** What stays free inside a checkout funnel: a field, a choice in a picker, a counter's plus or minus. */
 function funnelFree(map: PageMap, item: MapItem): boolean {
