@@ -44,6 +44,9 @@ export const CALL_SCHEMA = {
   additionalProperties: false
 }
 
+/** The same shape without set_dates: on a page where it found no date control it isn't offered again (round 142). */
+export const CALL_SCHEMA_NO_DATES = { ...CALL_SCHEMA, properties: { ...CALL_SCHEMA.properties, tool: { type: "string", enum: TOOLS.filter((t) => t !== "set_dates") } } }
+
 const TYPE_ROLES = new Set<Role>(["textbox", "textarea", "editor", "combobox"])
 const SELECT_ROLES = new Set<Role>(["select", "listbox", "combobox", "radio"])
 const CLICK_ROLES = new Set<Role>(["button", "link", "checkbox", "radio", "switch", "tab", "menuitem", "option", "summary", "combobox", "listbox", "select", "other", "file", "slider", "textbox"])

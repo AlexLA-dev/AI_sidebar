@@ -148,6 +148,8 @@ export const WORDS: Record<WordKind, string[]> = {
   // Signing in and up: passwords and codes are the person's (Safari AutoFill and Passwords).
   auth: [
     "log in", "login", "sign in", "sign up", "register", "create account", "create an account", "continue with google",
+    "regístrate", "registrate", "iscriviti", "registrierung", "konto anlegen", "kaydol", "đăng kí",
+    "inscrever-se", "registre-se", "зарегистрируйтесь", "зареєструйтеся", "登錄", "註冊會員", "注册会员",
     "continue with apple", "sign in with google", "sign in with apple",
     "войти", "вход", "зарегистрироваться", "регистрация", "создать аккаунт", "создать учетную запись",
     "увійти", "вхід", "зареєструватися", "реєстрація", "створити акаунт",

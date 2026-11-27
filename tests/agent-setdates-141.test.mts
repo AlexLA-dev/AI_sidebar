@@ -167,14 +167,26 @@ test("through the runner: set_dates sets the plan's day; a day the page or the m
 // ---- round 141's real sites: a window's stay has no check-out in the plan; set_dates found no control again and again
 import { nightsIn } from "../src/shared/agent/runner.ts"
 
-test("a stay's nights from the request when the plan gives no check-out, in the panel's languages", () => {
-  assert.equal(nightsIn("Book a stay in Seoul for 2 adults, 2 nights, any dates in the next two weeks"), 2)
-  assert.equal(nightsIn("이번 달 안에 서울에서 2박, 성인 2명"), 2)
-  assert.equal(nightsIn("東京で2泊3日"), 2)
-  assert.equal(nightsIn("3 noches en Madrid"), 3)
-  assert.equal(nightsIn("на 2 ночи в Москве"), 2)
-  assert.equal(nightsIn("حجز ليلتين في دبي"), 2)
-  assert.equal(nightsIn("Book a table for 2 at 19:00"), 0)
+test("a stay's nights from the request when the plan gives no check-out, in all 15 languages (digits, words, CJK numerals)", () => {
+  const cases: [string, number][] = [
+    ["Book a stay in Seoul for 2 adults, 2 nights, any dates in the next two weeks", 2], ["two nights in Rome", 2],
+    ["Забронируй номер на 2 ночи в Москве", 2], ["на две ночи", 2],
+    ["Забронюй номер на дві ночі у Львові", 2], ["на 3 ночі", 3],
+    ["Buche 2 Nächte in Berlin", 2], ["zwei Nächte", 2],
+    ["Réserve deux nuits à Paris", 2], ["3 nuits", 3],
+    ["Reserva 3 noches en Madrid", 3], ["dos noches", 2],
+    ["Prenota due notti a Roma", 2], ["2 notti", 2],
+    ["Reserve 2 noites em Lisboa", 2], ["duas noites", 2],
+    ["İstanbul'da 2 gece kalmak için", 2], ["iki gece", 2],
+    ["東京で2泊3日", 2], ["二泊", 2],
+    ["이번 달 안에 서울에서 2박, 성인 2명", 2], ["두 박", 2],
+    ["在上海住两晚", 2], ["2晚", 2], ["两个晚上", 2],
+    ["在台北住兩晚", 2], ["3夜", 3],
+    ["Đặt phòng hai đêm ở Hà Nội", 2], ["2 đêm", 2],
+    ["حجز ليلتين في دبي", 2], ["٣ ليالٍ في القاهرة", 3], ["ثلاث ليال", 3],
+    ["Book a table for 2 at 19:00", 0], ["2 adults this weekend", 0], ["Записаться на 2 часа", 0]
+  ]
+  for (const [request, n] of cases) assert.equal(nightsIn(request), n, request)
 })
 
 async function runStay(calls: ToolCall[], range = true) {
@@ -211,4 +223,61 @@ test("set_dates isn't run again on a page where it found no date control", async
   const sd = st.log.filter((e) => e.call.tool === "set_dates").map((e) => e.result)
   assert.match(sd[0], /no date control recognised/)
   assert.match(sd[1], /^refused: set_dates found no date control on this page before/)
+})
+
+// ---- round 142, item 3: a stay set halfway never traps the model
+test("a stay whose last day isn't on the page: the tool says only the first day is set, and what's missing", async () => {
+  const io = picker({ month: 10, range: true })
+  // 28 Nov – 1 Dec: the picker shows one month at a time, so 1 Dec isn't there after 28 Nov is pressed.
+  const r = await setDates({ date: "2026-11-28", end: "2026-12-01", byDays: true }, io)
+  assert.equal(r.landed, "2026-11-28")
+  assert.match(r.line, /only the first day, 28 Nov, is set: the last day, 1 Dec, couldn't be pressed here — press 1 Dec/)
+})
+
+test("after set_dates set a stay's first day, the stay's own days pressed by hand are never refused", async () => {
+  const io0 = picker({ month: 10, range: true })
+  const day = (d: string) => `d${d}`
+  const replies: ActReply[] = [
+    step({ tool: "set_dates", why: "" }, "free", "read"),
+    step({ tool: "click", id: "next", why: "" }, "free", "read"),
+    step({ tool: "click", id: day("2026-12-01"), why: "" }, "free", "read"),
+    step({ tool: "click", id: day("2026-12-01"), why: "" }, "free", "read"),
+    step({ tool: "done", summary: "", why: "" }, "free", "read")
+  ]
+  const io: RunnerIO = {
+    map: async () => io0.map(), act: async (c) => {
+      const m = (await io0.map())!
+      const it = m.items.find((i) => i.id === c.id)
+      if (it) await io0.press(it)
+      return { ok: true, note: "the page changed", changed: true }
+    },
+    waitPage: async () => {}, ask: async () => replies.shift() ?? step({ tool: "done", summary: "", why: "" }, "free", "read"),
+    save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30
+  }
+  const st = newState("sd142", "Book a room for 2 adults from 28 November to 1 December 2026", "en", "https://salon.example/book")
+  st.plan = { steps: [], questions: [], perms: [], self: [], prices: [], risky: [], approved: true, booking: { kind: "stay", date: "2026-11-28", dateEnd: "2026-12-01", from: "09:00", until: "21:00", minutes: 0, personal: false } } as unknown as TaskPlan
+  await drive(st, io)
+  const refused = st.log.filter((e) => /^refused/.test(e.result ?? "") && e.call.tool === "click")
+  assert.deepEqual(refused.map((e) => e.result), [])
+  assert.ok(io0.s.presses.includes("1 December 2026"))
+})
+
+test("a window's stay with no nights in the request: the tool says the last day isn't set, and a later day pressed by hand is the stay's last", async () => {
+  const io0 = picker({ month: 11, range: true })
+  const replies: ActReply[] = [step({ tool: "set_dates", why: "" }, "free", "read"), step({ tool: "click", id: "d2026-12-03", why: "" }, "free", "read"), step({ tool: "done", summary: "", why: "" }, "free", "read")]
+  const io: RunnerIO = {
+    map: async () => io0.map(), act: async (c) => {
+      const it = (await io0.map())!.items.find((i) => i.id === c.id)
+      if (it) await io0.press(it)
+      return { ok: true, note: "the page changed", changed: true }
+    },
+    waitPage: async () => {}, ask: async () => replies.shift() ?? step({ tool: "done", summary: "", why: "" }, "free", "read"),
+    save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30
+  }
+  const st = newState("sd142w", "Book a room for 2 adults, any dates in the first week of December 2026", "en", "https://salon.example/book")
+  st.plan = { steps: [], questions: [], perms: [], self: [], prices: [], risky: [], approved: true, booking: { kind: "stay", date: "2026-12-01", dayLast: "2026-12-07", from: "09:00", until: "21:00", minutes: 0, personal: false } } as unknown as TaskPlan
+  await drive(st, io)
+  assert.match(st.log.find((e) => e.call.tool === "set_dates")!.result, /only the first day, 1 Dec, is set: the request doesn't say how many nights/)
+  assert.ok(!st.log.some((e) => e.call.tool === "click" && /^refused/.test(e.result ?? "")))
+  assert.deepEqual(st.stay, { in: "2026-12-01", out: "2026-12-03" })
 })

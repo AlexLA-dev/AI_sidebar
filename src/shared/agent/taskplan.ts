@@ -137,15 +137,21 @@ export const BOOKING_KINDS: BookingKind[] = ["table", "appointment", "stay", "re
 // Booked by days (check-in to check-out, pick-up to return): no time slot to press.
 export const DAY_KINDS = new Set<BookingKind>(["stay", "rental"])
 
+export const WINDOW_KINDS = ["none", "first_free", "this_week", "this_weekend", "next_week", "next_days", "this_month"] as const
+export type WindowKind = (typeof WINDOW_KINDS)[number]
+
 export interface PlanBooking {
   kind: BookingKind
   date: string
   // The last day of a booking by days (check-out, return), YYYY-MM-DD.
   dateEnd?: string
   // The last day the booking may start on, when the request gives a window of days («this week», «the next two weeks»,
-  // «this month»): date is its first day (round 141, set_dates goes through them). With no window, the device sets it
-  // from the standing rule's «up to N days later».
+  // «this month»): date is its first day (round 141, set_dates goes through them). Worked out by the device from the
+  // window's kind (round 142, windowOf), never written by the model.
   dayLast?: string
+  // The kind of window the request gives (the plan names it; the device computes the days), and its length for next_days.
+  window?: WindowKind
+  windowDays?: number
   // The time the request itself names (HH:MM), before the rules widen it: a booked time that isn't it is a deviation.
   at?: string
   // Which place or who gives it matters to the person, so they choose it (a doctor, a tutor, a stylist, a hotel for a
@@ -210,7 +216,8 @@ export const PLAN_SCHEMA = {
         kind: { type: "string", enum: ["none", "table", "appointment", "stay", "rental", "slot", "ticket"] },
         date: { type: "string" },
         dateEnd: { type: "string" },
-        dayLast: { type: "string" },
+        window: { type: "string", enum: [...WINDOW_KINDS] },
+        windowDays: { type: "integer" },
         at: { type: "string" },
         personal: { type: "boolean" },
         from: { type: "string" },
@@ -226,7 +233,7 @@ export const PLAN_SCHEMA = {
         specialistNamed: { type: "string" },
         serviceNamed: { type: "string" }
       },
-      required: ["kind", "date", "dateEnd", "dayLast", "at", "personal", "from", "until", "minutes", "tz", "venue", "match", "area", "contacts", "specialists", "services", "specialistNamed", "serviceNamed"],
+      required: ["kind", "date", "dateEnd", "window", "windowDays", "at", "personal", "from", "until", "minutes", "tz", "venue", "match", "area", "contacts", "specialists", "services", "specialistNamed", "serviceNamed"],
       additionalProperties: false
     }
   },
@@ -268,9 +275,9 @@ function bookingOf(v: unknown): PlanBooking | null {
   // (Only after the first day, and not a year on: a typo isn't a stay.)
   const end = s(b.dateEnd, 10)
   const dateEnd = /^\d{4}-\d{2}-\d{2}$/.test(end) && end > date && Date.parse(end) - Date.parse(date) <= 366 * 86_400_000 ? end : ""
-  // (A window of days: on or after the first day, and no more than a month and a half on.)
-  const last = s(b.dayLast, 10)
-  const dayLast = /^\d{4}-\d{2}-\d{2}$/.test(last) && last > date && Date.parse(last) - Date.parse(date) <= 45 * 86_400_000 ? last : ""
+  // (The window's kind only: its days are the device's to work out, windowOf.)
+  const window = WINDOW_KINDS.includes(b.window as WindowKind) ? (b.window as WindowKind) : "none"
+  const windowDays = typeof b.windowDays === "number" && Number.isFinite(b.windowDays) ? Math.min(45, Math.max(0, Math.round(b.windowDays))) : 0
   // Not said: a session with someone and a stay for a trip are the person's choice; the rest, the rules'.
   const personal = typeof b.personal === "boolean" ? b.personal : kind === "appointment" || kind === "stay"
   const time = (t: unknown) => (/^([01]\d|2[0-3]):[0-5]\d$/.test(s(t, 5)) ? s(t, 5) : "")
@@ -287,7 +294,7 @@ function bookingOf(v: unknown): PlanBooking | null {
   const specialistNamed = s(b.specialistNamed, 60)
   const serviceNamed = s(b.serviceNamed, 60)
   const at = time(b.at)
-  return { kind, date, ...(dateEnd ? { dateEnd } : {}), ...(dayLast ? { dayLast } : {}), ...(at ? { at } : {}), personal, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes, ...(tz && validZone(tz) ? { tz } : {}), ...(venue ? { venue } : {}), ...(match.length ? { match } : {}), ...(area.length ? { area } : {}), ...(contacts.length ? { contacts } : {}), ...(specialists.length ? { specialists } : {}), ...(services.length ? { services } : {}), ...(specialistNamed ? { specialistNamed } : {}), ...(serviceNamed ? { serviceNamed } : {}) }
+  return { kind, date, ...(dateEnd ? { dateEnd } : {}), ...(window !== "none" ? { window } : {}), ...(window === "next_days" && windowDays > 1 ? { windowDays } : {}), ...(at ? { at } : {}), personal, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes, ...(tz && validZone(tz) ? { tz } : {}), ...(venue ? { venue } : {}), ...(match.length ? { match } : {}), ...(area.length ? { area } : {}), ...(contacts.length ? { contacts } : {}), ...(specialists.length ? { specialists } : {}), ...(services.length ? { services } : {}), ...(specialistNamed ? { specialistNamed } : {}), ...(serviceNamed ? { serviceNamed } : {}) }
 }
 
 /**
@@ -787,4 +794,53 @@ export function fieldKind(item: Pick<MapItem, "type" | "auto" | "label">, autoKe
   if (item.type === "tel") return "phone"
   for (const [k, re] of CONTACT_WORDS) if (k !== "name.full" && re.test(item.label)) return k
   return null
+}
+
+
+// Zones whose weekend is Friday and Saturday (the rest: Saturday and Sunday).
+const FRI_SAT = new Set(["Asia/Riyadh", "Asia/Kuwait", "Asia/Qatar", "Asia/Bahrain", "Asia/Muscat", "Asia/Aden", "Asia/Baghdad", "Africa/Cairo", "Asia/Jerusalem", "Asia/Tel_Aviv", "Africa/Algiers", "Africa/Khartoum", "Asia/Amman", "Africa/Tripoli"])
+
+const isoDay = (iso: string, n: number) => {
+  const d = new Date(`${iso}T12:00:00Z`)
+  d.setUTCDate(d.getUTCDate() + n)
+  return d.toISOString().slice(0, 10)
+}
+const weekday = (iso: string) => new Date(`${iso}T12:00:00Z`).getUTCDay()
+
+/**
+ * The window's days from its kind (round 142, the director's item 4: the device works them out, not the model), from
+ * today (the person's YYYY-MM-DD):
+ * - this_week: to the coming Sunday (today when it's Sunday); next_week: next Monday to its Sunday;
+ * - this_weekend: its Saturday and Sunday (Friday and Saturday in zones whose weekend that is), from today when it's one;
+ * - next_days: windowDays days from the first day; this_month: to the month's last day;
+ * - first_free (no window named): the standing rule's «up to N days later»; none: the one day.
+ * A stay (nights known, else one) still ends inside the window: its last check-in is the window's end less its nights.
+ * Returns the first day and the last (no last when the window has one day only).
+ */
+export function windowOf(b: Pick<PlanBooking, "kind" | "date" | "window" | "windowDays">, today: string, ruleDays: number, nights: number, zone = ""): { date: string; dayLast?: string } {
+  const first = b.date > today ? b.date : today
+  const w = b.window ?? "none"
+  let date = first
+  let end = ""
+  const wd = weekday(today)
+  if (w === "this_week") end = isoDay(today, (7 - wd) % 7)
+  else if (w === "next_week") {
+    date = isoDay(today, ((8 - wd) % 7) || 7)
+    end = isoDay(date, 6)
+  } else if (w === "this_weekend") {
+    const friSat = FRI_SAT.has(zone)
+    const sat = friSat ? 5 : 6
+    const start = wd === sat || wd === (sat + 1) % 7 ? today : isoDay(today, (sat - wd + 7) % 7)
+    date = start
+    end = isoDay(start, wd === (sat + 1) % 7 ? 0 : 1)
+  } else if (w === "next_days") end = isoDay(first, Math.max(1, b.windowDays ?? 7) - 1)
+  else if (w === "this_month") {
+    const d = new Date(`${first.slice(0, 7)}-01T12:00:00Z`)
+    d.setUTCMonth(d.getUTCMonth() + 1)
+    d.setUTCDate(0)
+    end = d.toISOString().slice(0, 10)
+  } else if (w === "first_free") end = ruleDays > 0 ? isoDay(first, ruleDays) : ""
+  if (!end) return { date: w === "none" ? b.date : date }
+  if (DAY_KINDS.has(b.kind) && w !== "first_free") end = isoDay(end, -Math.max(1, nights))
+  return end > date ? { date, dayLast: end } : { date }
 }

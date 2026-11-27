@@ -21,7 +21,7 @@ import { cardsOf, onVenue, rankVenues, venueNote, venueOf, venuesOn, type Venue 
 import { addDays, freeLineIn, honestChoices, looksLikeSlot, nearerTimes, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
 import { setDates, type DatesIO, type DatesResult } from "./setdates.ts"
 import { pageKind } from "./events.ts"
-import { addContactFill, NAME_SAID, bareLabel, buildPlan, contactField, contactKind, requestGives, pathOf, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, contactInWords, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type PlanQuestion, type TaskPlan, DAY_KINDS, sameTaskPage } from "./taskplan.ts"
+import { addContactFill, NAME_SAID, bareLabel, buildPlan, contactField, contactKind, requestGives, pathOf, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, contactInWords, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type PlanQuestion, type TaskPlan, DAY_KINDS, sameTaskPage, windowOf } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
 import type { AgentRule } from "../usage.ts"
 
@@ -161,6 +161,9 @@ export interface AgentState {
   // Pages (origin and path) where set_dates found no date control: it isn't run there again (round 141's real sites: up
   // to nine calls in a run, each «no date control recognised»).
   datesNone?: string[]
+  // A stay's or a rental's days as set_dates set them (its first day, and its last when known): pressing either by hand
+  // afterwards is never refused (round 141: a stays site's last day refused as «before the asked day» and «pressed already»).
+  stay?: { in: string; out?: string }
   // The outline's parts the model opened on this page (read_page with an outline): they stay open (round 139).
   openParts?: { page: string; parts: number[] }
   slotRefusals?: number
@@ -291,6 +294,19 @@ export function appleKind(tool: ToolCall["tool"]): "reminders" | "calendar" {
 }
 
 /** The device's date, weekday, time and zone, for the model's «tomorrow» and «after 18:00». */
+/** The person's today, YYYY-MM-DD, and zone. */
+function localDay(d = new Date()): string {
+  const p = (n: number) => String(n).padStart(2, "0")
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
+}
+function localZone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone ?? ""
+  } catch {
+    return ""
+  }
+}
+
 export function nowLine(d = new Date()): string {
   const p = (n: number) => String(n).padStart(2, "0")
   const day = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()]
@@ -866,11 +882,12 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   }
   if (chatPick && plan.fromChat) plan.fromChat = plan.fromChat.replace(new RegExp(`\\s*[,;·—–-]?\\s*${chatPick.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "iu"), "").replace(/^[\s,;·—–-]+|[\s,;·—–-]+$/gu, "")
   if (plan.booking?.venue && !(subject?.kind === "place" && subject.name === plan.booking.venue) && !namedIn(plan.booking.venue, `${state.request} ${plan.fromChat ?? ""}`)) delete plan.booking.venue
+  // The window's days, worked out here from its kind (round 142, the director's item 4); a request for «the first free
+  // time» that names no window takes the standing rule's «up to N days later».
+  if (plan.booking) Object.assign(plan.booking, windowOf(plan.booking, localDay(), rules.days ?? 0, nightsIn(state.request), plan.booking.tz || localZone()))
   // A request that gives a window of days (round 141, the director's 8c): the day is the window's, never a question —
   // set_dates goes through it (a plan asked «which check-in day?» on «any two nights this month»).
-  if (plan.booking?.dayLast) plan.questions = plan.questions.filter((q) => !dayQuestion(q))
-  // With no window from the request, the standing rule's «up to N days later» is the window (the director's addition 4).
-  if (plan.booking && !plan.booking.dayLast && (rules.days ?? 0) > 0) plan.booking.dayLast = addDays(plan.booking.date, rules.days)
+  if (plan.booking?.dayLast || (plan.booking?.window && plan.booking.window !== "none")) plan.questions = plan.questions.filter((q) => !dayQuestion(q))
   // On one place's page, a booking that names no other is there: no choosing, no «I'll pick the place».
   if (subject?.kind === "place" && plan.booking && !plan.booking.venue) plan.booking.venue = subject.name
   if (subject && plan.booking?.venue) state.chooseVenue = false
@@ -1083,6 +1100,13 @@ export function dateStep(state: AgentState, map: PageMap, item: MapItem, call?: 
   // an earlier one; a later one only once the page has shown the asked day (full, or not there).
   const asked = state.plan?.booking?.date
   const pressed = asked ? dayOf(item.label, asked) : null
+  // The stay set_dates set (a window's stay, its first day landed): its own two days are always the person's request.
+  if (state.stay && pressed && (pressed === state.stay.in || pressed === state.stay.out || (!state.stay.out && pressed > state.stay.in && pressed <= addDays(state.stay.in, 30)))) {
+    if (!state.stay.out && pressed > state.stay.in) state.stay.out = pressed
+    state.lastDate = item.label
+    state.lastDateId = item.id
+    return null
+  }
   // A stay's or a rental's last day (check-out, return), once the first was pressed: the range's second press.
   const end = state.plan?.booking?.dateEnd
   if (end && pressed === end && state.lastDate && state.lastDate !== item.label) {
@@ -1470,7 +1494,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     const plan = planLine(state.plan)
     const reply = await io.ask({
-      task: { id: state.id, request: requestWithAnswers(state.request, state.plan), lang: state.lang, startHost: state.startHost, step: state.step, confirmedHere: confirmedOn(state, hostOf(map.url)), token: state.token, strongUsed: state.strongUsed, now: nowLine(), ...(here ? { device: here } : {}), ...(plan ? { plan } : {}), ...(state.rules ? { rules: state.rules } : {}), ...(state.calendar ? { calendar: state.calendar } : {}), ...(state.playbook ? { playbook: state.playbook } : {}), ...(state.venues ? { venues: venuesLine(state.venues) } : {}), ...(state.subject ? { subject: state.subject } : {}) },
+      task: { id: state.id, request: requestWithAnswers(state.request, state.plan), lang: state.lang, startHost: state.startHost, step: state.step, confirmedHere: confirmedOn(state, hostOf(map.url)), token: state.token, strongUsed: state.strongUsed, now: nowLine(), ...(here ? { device: here } : {}), ...(plan ? { plan } : {}), ...(state.rules ? { rules: state.rules } : {}), ...(state.calendar ? { calendar: state.calendar } : {}), ...(state.playbook ? { playbook: state.playbook } : {}), ...(state.venues ? { venues: venuesLine(state.venues) } : {}), ...(state.subject ? { subject: state.subject } : {}), ...(state.datesNone?.includes(pageKey(map.url)) ? { noDates: true } : {}) },
       map: sent(map), log: state.log, ...(state.refused ? { refused: state.refused } : {}), ...(state.data ? { data: state.data } : {}), keys
     })
     state.refused = undefined
@@ -2174,6 +2198,7 @@ async function datesStep(state: AgentState, io: RunnerIO, map: PageMap, call: To
   if (r.landed) {
     state.sawDate = true
     state.picked = { date: r.landed }
+    if (DAY_KINDS.has(b.kind)) state.stay = { in: r.landed, ...(nights ? { out: addDays(r.landed, nights) } : {}) }
   }
   // The person sees the day it landed on, in their words, when it moved off the request's first day.
   const moved = r.landed && r.landed !== b.date ? `${dayWords(r.landed)}: ${dayWords(b.date)}${r.full.length > 1 ? ` – ${dayWords(r.full[r.full.length - 1])}` : ""} ${r.full.length > 1 ? "were" : "was"} full` : ""
@@ -2193,13 +2218,42 @@ function pageKey(url: string): string {
   }
 }
 
-/** A stay's or rental's nights or days as the request says them («2 nights», «2박», «2泊», «2 noches», «ليلتين»), or 0. */
+/** A stay's nights as the request says them, in the panel's 15 languages: a number in digits (Arabic-Indic too), in
+ *  words up to seven, or in CJK numerals, before the language's word for nights («2 nights», «zwei Nächte», «две ночи»,
+ *  «2박», «二泊», «两晚», «ليلتين», «hai đêm»); 0 when it says none. */
 export function nightsIn(request: string): number {
-  if (/ليلتين|ليلتان/u.test(request)) return 2
-  const m = /(\d{1,2})\s*(?:-\s*)?(nights?|noches?|nuits?|nächte|nachten|nacht|notti|notte|noites?|ноч(?:и|ей|ь)|суток|nocy|noce|gece|geceler|泊|박|晚|夜|ليال[يٍ]?|ليلة|đêm|malam|nätter|natt)/iu.exec(request)
-  const n = m ? Number(m[1]) : 0
+  const t = request.normalize("NFKC").toLocaleLowerCase().replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x660)).replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x6f0))
+  if (/ليلتين|ليلتان/u.test(t)) return 2
+  if (/ليلة واحدة|ليلة$|^ليلة/u.test(t) && !/\d/.test(t)) return 1
+  const m = NIGHTS.exec(t)
+  if (!m) return 0
+  const raw = m[1]
+  const n = /^\d+$/.test(raw) ? Number(raw) : NUMBER_WORDS[raw] ?? 0
   return n >= 1 && n <= 30 ? n : 0
 }
+
+// Number words up to seven in the 15 languages, and CJK numerals (两/兩 is «two» in Chinese).
+const NUMBER_WORDS: Record<string, number> = Object.fromEntries(
+  [
+    ["one a an", 1], ["two", 2], ["three", 3], ["four", 4], ["five", 5], ["six", 6], ["seven", 7],
+    ["одну одна одни", 1], ["две два двое", 2], ["три трое", 3], ["четыре", 4], ["пять", 5], ["шесть", 6], ["семь", 7],
+    ["одну одна", 1], ["дві два двоє", 2], ["три", 3], ["чотири", 4], ["п'ять п’ять", 5], ["шість", 6], ["сім", 7],
+    ["eine ein einer", 1], ["zwei", 2], ["drei", 3], ["vier", 4], ["fünf", 5], ["sechs", 6], ["sieben", 7],
+    ["une un", 1], ["deux", 2], ["trois", 3], ["quatre", 4], ["cinq", 5], ["six", 6], ["sept", 7],
+    ["una uno", 1], ["dos", 2], ["tres", 3], ["cuatro", 4], ["cinco", 5], ["seis", 6], ["siete", 7],
+    ["una", 1], ["due", 2], ["tre", 3], ["quattro", 4], ["cinque", 5], ["sei", 6], ["sette", 7],
+    ["uma um", 1], ["duas dois", 2], ["três", 3], ["quatro", 4], ["cinco", 5], ["seis", 6], ["sete", 7],
+    ["bir", 1], ["iki", 2], ["üç", 3], ["dört", 4], ["beş", 5], ["altı", 6], ["yedi", 7],
+    ["một", 1], ["hai", 2], ["ba", 3], ["bốn", 4], ["năm", 5], ["sáu", 6], ["bảy", 7],
+    ["一", 1], ["二 两 兩 两个 兩個", 2], ["三", 3], ["四", 4], ["五", 5], ["六", 6], ["七", 7],
+    ["한", 1], ["두", 2], ["세", 3], ["네", 4],
+    ["ثلاث ثلاثة", 3], ["أربع أربعة", 4], ["خمس خمسة", 5], ["ست ستة", 6], ["سبع سبعة", 7]
+  ].flatMap(([w, n]) => String(w).split(" ").map((x) => [x, n as number]))
+)
+const NUMBER = `\\d{1,2}|${Object.keys(NUMBER_WORDS).sort((a, b) => b.length - a.length).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")}`
+// The word for nights after the number (Latin and Cyrillic words end at a non-letter; CJK and Korean attach).
+const NIGHT_WORDS = "nights?|noches?|nuits?|nächte|nächten|nacht|notti|notte|noites?|ноч(?:и|ей|ь|ей)|суток|сутки|ніч|ночі|ночей|діб|доби|gece|đêm|ليال[ٍي]?|ليلة"
+const NIGHTS = new RegExp(`(?<![\\p{Script=Latin}\\p{Script=Cyrillic}\\p{Script=Arabic}\\d])(${NUMBER})\\s*(?:-\\s*)?(?:(?:${NIGHT_WORDS})(?!\\p{L})|(?:个|個)?(?:晚上?|夜|泊)|박)`, "iu")
 
 /** The request's own words for the map (a site menu's link with one of them stays in the outline): letters only, 4 or more. */
 export function requestWords(request: string): string[] {

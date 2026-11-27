@@ -94,7 +94,7 @@ function freeTimes(map: PageMap, ask: DatesAsk): string[] {
 }
 
 /** Sets one day (and the stay's end) on the page: «set», «greyed», «no control», «stopped» or «not free». */
-async function setOne(io: DatesIO, day: string, end: string | undefined, budget: { presses: number }): Promise<"set" | "greyed" | "no control" | "stopped" | "not free"> {
+async function setOne(io: DatesIO, day: string, end: string | undefined, budget: { presses: number; endSet?: boolean }): Promise<"set" | "greyed" | "no control" | "stopped" | "not free"> {
   const tried = new Set<string>()
   let picked = false
   for (let k = 0; k < 8 && budget.presses < MAX_PRESSES; k++) {
@@ -109,7 +109,7 @@ async function setOne(io: DatesIO, day: string, end: string | undefined, budget:
       if (r !== "done") return r === "not free" ? "not free" : "no control"
       if (end && fields[1]) {
         budget.presses++
-        await io.type(fields[1], end)
+        if ((await io.type(fields[1], end)) === "done") budget.endSet = true
       }
       return "set"
     }
@@ -127,7 +127,9 @@ async function setOne(io: DatesIO, day: string, end: string | undefined, budget:
         const e = after ? dayControl(after, end) : null
         if (e && !greyed(e)) {
           budget.presses++
-          if ((await io.press(e)) === "not free") return "not free"
+          const pe = await io.press(e)
+          if (pe === "not free") return "not free"
+          if (pe === "done") budget.endSet = true
         }
       }
       // The picker's own «Apply» when it has one.
@@ -164,7 +166,7 @@ async function setOne(io: DatesIO, day: string, end: string | undefined, budget:
 
 /** The tool: sets the request's day (or goes through its window) and says what the page shows. */
 export async function setDates(ask: DatesAsk, io: DatesIO): Promise<DatesResult> {
-  const budget = { presses: 0 }
+  const budget: { presses: number; endSet?: boolean } = { presses: 0 }
   const full: string[] = []
   const last = ask.last && ask.last > ask.date ? ask.last : ask.date
   const nights = ask.end ? Math.max(1, Math.round((Date.parse(ask.end) - Date.parse(ask.date)) / 86_400_000)) : 0
@@ -189,7 +191,13 @@ export async function setDates(ask: DatesAsk, io: DatesIO): Promise<DatesResult>
         if (day < last && budget.presses < MAX_PRESSES) continue
         break
       }
-      return { line: `${short(day)}${end ? ` – ${short(end)}` : ""} set${shows ? "" : " (the page doesn't show them chosen yet: read it, or press its Search)"}${full.length ? `; ${full.map(short).join(", ")} couldn't be chosen` : ""}`, landed: day, full, presses: budget.presses }
+      // Half a stay set says so in plain words, and what's missing (round 141: «27 Nov set» read as the whole stay).
+      const half = !end
+        ? `only the first day, ${short(day)}, is set: the request doesn't say how many nights, so the last day isn't set — press the stay's last day on the page yourself (it's allowed)`
+        : !budget.endSet
+          ? `only the first day, ${short(day)}, is set: the last day, ${short(end)}, couldn't be pressed here — press ${short(end)} on the page yourself (it's allowed), then its «Apply» or Search`
+          : ""
+      return { line: `${half || `${short(day)} – ${short(end!)} set`}${shows || half ? "" : " (the page doesn't show them chosen yet: read it, or press its Search)"}${full.length ? `; ${full.map(short).join(", ")} couldn't be chosen` : ""}`, landed: day, full, presses: budget.presses }
     }
     const times = map ? freeTimes(map, ask) : []
     if (r !== "greyed" && times.length) return { line: `${short(day)} shows ${times.slice(0, 6).join(", ")}${full.length ? ` (${full.map(short).join(", ")} full)` : ""}`, landed: day, full, presses: budget.presses }
