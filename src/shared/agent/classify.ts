@@ -172,6 +172,21 @@ function listingCard(item: MapItem): boolean {
   return item.role === "link" && (item.label.length > 40 || PRICE_FROM.test(item.label))
 }
 
+// Decision 11 (round 142, the director's; a narrowing): in scripts written without spaces a card says as much in fewer
+// characters — Han, Hiragana, Katakana and Hangul count two in a card's length; and the «from» written joined to its
+// price («€35から», «3,500円〜», «35,000원부터», «¥300起») is a «from». Only in the amount rule, only on a page that doesn't
+// take payment, links only.
+const WIDE = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u
+const JOINED_FROM = /(?:[€$£¥₩]\s?\d[\d.,]*|\d[\d.,]*\s?(?:円|원|元|€|₩|¥|\$))(?:から|〜|～|부터|起)/u
+function cardLength(label: string): number {
+  let n = 0
+  for (const ch of label) n += WIDE.test(ch) ? 2 : 1
+  return n
+}
+function listingCardWide(item: MapItem): boolean {
+  return item.role === "link" && (cardLength(item.label) > 40 || PRICE_FROM.test(item.label) || JOINED_FROM.test(item.label))
+}
+
 // The word right after a count in a label («1 item», «2 услуги», «3 Artikel», «2点»): what's counted.
 const chosenCountWord = wordTest(CHOSEN_COUNT_WORDS)
 function countsChosen(label: string): boolean {
@@ -250,7 +265,7 @@ function pressClass(map: PageMap, item: MapItem, host: string): StepVerdict {
   // isn't a link elsewhere on the page, a tab, an option or a refusal is the person's own.
   // (A listing's card is a link with its price on it — «Salon … Men's haircut from £35», a salon marketplace: that's going to
   // the salon, not paying. A button with an amount, or a short link that names one, still pays.)
-  if (amounts(item.label).length && !listingCard(item) && !cartSummary(item, hit?.kind) && !pricedChoice(map, item, hit)) return verdict("self", "pay")
+  if (amounts(item.label).length && !(map.pay ? listingCard(item) : listingCardWide(item)) && !cartSummary(item, hit?.kind) && !pricedChoice(map, item, hit)) return verdict("self", "pay")
   // (Decision 10: on a page that takes payment only a nav word that leads away or shows more stays quiet; «Continue»,
   // «Next», «Checkout» move the purchase forward and are the person's own there.)
   const quiet = item.role === "tab" || item.role === "option" || item.role === "summary" || item.role === "menuitem" || (hit?.kind === "nav" && (!map.pay || NAV_AWAY_SET.has(hit.word))) || hit?.kind === "reject"
