@@ -139,3 +139,27 @@ test("«done» on a page that asks for the person's details, with no confirmatio
   assert.equal(out.ruleCounts?.details_next, 1)
   assert.equal(out.summary, "The details form is open; nothing was booked.", "the second done ends, once")
 })
+
+// ---- item 1: a plan cut at its cap is asked once more; a long Korean page's plan input stays bounded
+import { ActError, planTask, sanitizeMap } from "../netlify/shared/act.mts"
+
+test("item 1: a plan answer cut at its cap is asked once more (with twice the room), and the plan goes on", async () => {
+  const long = Array.from({ length: 400 }, (_, i) => ({ id: String(i + 1), role: "link", label: `서울 호텔 ${i + 1} — 명동역 도보 ${i % 9 + 1}분, 평점 ${(8 + (i % 20) / 10).toFixed(1)}, 리뷰 ${100 + i}개`, href: `/h/${i}` }))
+  const map = sanitizeMap({ url: "https://stays.example/ko/city/seoul", title: "서울 호텔 및 다양한 숙소", lang: "ko", forms: [], more: 0, part: 1, parts: 4, text: "서울 호텔 ".repeat(2000), outline: "# 서울 호텔\n".repeat(3000), sections: 40, items: long })!
+  const sizes: number[] = []
+  let calls = 0
+  const out = await planTask({ request: "이번 달 안에 빈 방이 있는 날짜로 2박, 성인 2명 숙소를 예약해 줘", lang: "ko", map, log: [] }, {
+    model: "m",
+    ask: async (content) => {
+      sizes.push(content.length)
+      if (++calls === 1) throw new ActError("cut", "the answer was cut off", "{\"label\":\"서울 숙소", 2500)
+      return { data: { label: "숙소 예약", steps: ["날짜 정하기"], questions: [], risky: [], prices: [], fromChat: "", chatPlace: "", booking: null }, usage: { model: "m", input: 1, cacheRead: 0, cacheWrite: 0, output: 300, thinking: 0 } }
+    }
+  })
+  assert.equal(calls, 2)
+  assert.equal(out.retried, true)
+  assert.equal(out.plan.label, "숙소 예약")
+  // (What the plan is given is bounded however long the page: 200 controls, the outline and the text cut to size.)
+  assert.ok(sizes[0] < 30_000, String(sizes[0]))
+  assert.equal(map.items.length, 200)
+})

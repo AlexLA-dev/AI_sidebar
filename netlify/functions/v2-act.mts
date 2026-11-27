@@ -111,7 +111,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
   let out
   try {
     if (planning) {
-      const p = await planTask(input, { model: named ?? a.planModel, signal: req.signal })
+      // (Measuring only: the plan's own reasoning off, to compare it on the same pages — round 141.)
+      const p = await planTask(input, { model: named ?? a.planModel, signal: req.signal, thinkingOff: !!measuring && body.planThinking === "off" })
       const spent = p.usage.reduce((n, u: Usage) => n + cost(u), 0)
       context.waitUntil(Promise.all([
         logEvent("agent_step", installId, {
@@ -121,7 +122,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
         }),
         touchInstall(installId, platform, version, locale, 0).catch(() => undefined)
       ]))
-      return json({ ok: true, plan: p.plan, token, left, stepsLeft: Math.max(0, maxSteps - stepsUsed), ...(measuring ? { model: named ?? a.planModel, cost: Math.round(spent * 1e6) / 1e6, output: p.usage.reduce((n, u) => n + u.output, 0) } : {}) })
+      return json({ ok: true, plan: p.plan, token, left, stepsLeft: Math.max(0, maxSteps - stepsUsed), ...(measuring ? { model: named ?? a.planModel, cost: Math.round(spent * 1e6) / 1e6, output: p.usage.reduce((n, u) => n + u.output, 0), thinking: p.usage.reduce((n, u) => n + (u.thinking ?? 0), 0), retried: !!p.retried } : {}) })
     }
     out = await nextStep(input, { model, startHost, confirmedHere: task.confirmedHere === true, signal: req.signal, fallback: a.strongModel })
   } catch (err) {
