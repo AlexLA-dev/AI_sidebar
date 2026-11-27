@@ -2136,7 +2136,10 @@ async function datesStep(state: AgentState, io: RunnerIO, map: PageMap, call: To
   const page = pageKey(map.url)
   if (state.datesNone?.includes(page)) {
     const why = "set_dates found no date control on this page before: set the day with the page's own controls (its date button or field, its calendar and «next month» arrow, a date strip), or open the place's own booking page first"
-    if (!auto) state.log.push({ call, result: `refused: ${why}` })
+    if (!auto) {
+      rule(state, "dates_none")
+      state.log.push({ call, result: `refused: ${why}` })
+    }
     return { line: why, full: [], presses: 0, fallback: true }
   }
   const last = b.dayLast && b.dayLast > b.date ? b.dayLast : b.date
