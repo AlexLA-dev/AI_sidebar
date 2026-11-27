@@ -2238,7 +2238,7 @@ function placeFromAnswers(state: AgentState, plan: TaskPlan, answers: string[]):
   }
   // A place the person named on the card: theirs, asked once (the director on d05b60bb, run 4: «Which stay should I
   // book…» again after the card, other options and prices). The rules' own pick shown on the card and left as it was
-  // isn't the person's choice (round 141, the director's 8b: Resy — the picked place couldn't be opened and the next one
+  // isn't the person's choice (round 141, the director's 8b: a table site — the picked place couldn't be opened and the next one
   // was refused as «the person already chose»): it locks nothing, and the next fitting place may be tried.
   if (plan.booking && place && !place.startsWith("@") && place !== plan.questions[where]?.pick) state.cardPlace = place
 }
