@@ -29,3 +29,12 @@ export function amounts(text: string): number[] {
   return out
 }
 
+
+// (The same amounts without a plain space grouping thousands: «T7 28/11 150.000 đ» isn't «11 150.000».)
+const NUM_TIGHT = "\\d{1,3}(?:[.,']\\d{3})+(?:[.,]\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?"
+const MONEY_TIGHT = new RegExp(`(?:(?:${CUR})\\s?(${NUM_TIGHT}))|(?:(${NUM_TIGHT})\\s?(?:${CUR}))`, "giu")
+
+/** A text with its money amounts taken out («SAT 28 €10» → «SAT 28»): both readings of a space, as amounts() reads. */
+export function withoutAmounts(text: string, tight = false): string {
+  return text.replace(tight ? MONEY_TIGHT : MONEY, " ").replace(/\s+/g, " ").trim()
+}

@@ -3,7 +3,9 @@
 // checks again before it acts (the extension is the one that presses).
 
 import { anyWord, wordKind, wordTest } from "./match.ts"
-import { amounts } from "./money.ts"
+import { isDateLabel } from "./dates.ts"
+import { amounts, withoutAmounts } from "./money.ts"
+import { SLOT_TIME } from "./rules.ts"
 import { blockedSite, hostOf, sameSite, type SitePolicy } from "./sites.ts"
 import type { MapItem, PageMap, StepVerdict, ToolCall } from "./types.ts"
 import { CHOSEN_COUNT_WORDS, CONSENT_DIALOG, TERMS_BOX } from "./words.ts"
@@ -205,6 +207,27 @@ function signsIn(map: PageMap, item: MapItem): boolean {
   return hit?.kind !== "submit" || ACCOUNT_MADE.test(map.text)
 }
 
+// A priced choice in a picker is a choice, not a payment (round 141, the director's decision): a control whose words are
+// only a day and/or a time with its price («SAT 28 €10», «10:40 € 25»), no word of the pay, book or order lists, among
+// at least three like ones, on a page that doesn't take payment, is classed as the same control without the price.
+// «Pay €35 now», «Book 10:40 €25», a lone priced button and any priced press on a page that takes payment keep theirs.
+const dayOrTime = (label: string) => {
+  // A day: the label without its price, either reading of a space («1 200 ₽», «28/11 150.000 đ»).
+  if ([withoutAmounts(label), withoutAmounts(label, true)].some((bare) => !!bare && isDateLabel(bare))) return true
+  // A time: the time taken out first (its minutes aren't a price: «10:40 € 25»), then nothing but the price is left.
+  if (label.length > 40 || !SLOT_TIME.test(label)) return false
+  const rest = label.replace(new RegExp(SLOT_TIME.source, "gi"), " ")
+  return [withoutAmounts(rest), withoutAmounts(rest, true)].some((t) => !/[\p{L}\p{N}]/u.test(t))
+}
+function pricedChoice(map: PageMap, item: MapItem, hit: ReturnType<typeof wordKind>): boolean {
+  if (map.pay || hit || !PICKER_ROLES.has(item.role) || !dayOrTime(item.label)) return false
+  const like = map.items.filter((i) => i.id !== item.id && i.role === item.role && priced(i.label) && dayOrTime(i.label))
+  return like.length >= 3
+}
+const PICKER_ROLES = new Set(["button", "option", "radio", "link", "other", "tab"])
+// (A price beside a time: the time taken out first, so «12:00 € 30» isn't read as «00 €».)
+const priced = (label: string) => amounts(label).length > 0 || amounts(label.replace(new RegExp(SLOT_TIME.source, "gi"), " ")).length > 0
+
 function pressClass(map: PageMap, item: MapItem, host: string): StepVerdict {
   // A listing's card (a long link to a place, with its address) carries the place's promo and ratings text («6% discount:
   // bring 1 friend, pay less», «614 reviews»): those words don't make opening the place a payment, a review or a post
@@ -225,7 +248,7 @@ function pressClass(map: PageMap, item: MapItem, host: string): StepVerdict {
   // isn't a link elsewhere on the page, a tab, an option or a refusal is the person's own.
   // (A listing's card is a link with its price on it — «Salon … Men's haircut from £35», a salon marketplace: that's going to
   // the salon, not paying. A button with an amount, or a short link that names one, still pays.)
-  if (amounts(item.label).length && !listingCard(item) && !cartSummary(item, hit?.kind)) return verdict("self", "pay")
+  if (amounts(item.label).length && !listingCard(item) && !cartSummary(item, hit?.kind) && !pricedChoice(map, item, hit)) return verdict("self", "pay")
   const quiet = item.role === "tab" || item.role === "option" || item.role === "summary" || item.role === "menuitem" || hit?.kind === "nav" || hit?.kind === "reject"
   if (map.pay && !quiet && !(item.role === "link" && !form)) return verdict("self", "pay")
   if (form?.secret && (hit?.kind === "submit" || hit?.kind === "weak" || hit?.kind === "send")) return verdict("self", "auth")
