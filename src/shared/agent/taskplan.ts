@@ -137,7 +137,7 @@ export const BOOKING_KINDS: BookingKind[] = ["table", "appointment", "stay", "re
 // Booked by days (check-in to check-out, pick-up to return): no time slot to press.
 export const DAY_KINDS = new Set<BookingKind>(["stay", "rental"])
 
-export const WINDOW_KINDS = ["none", "first_free", "this_week", "this_weekend", "next_week", "next_days", "this_month"] as const
+export const WINDOW_KINDS = ["none", "first_free", "this_week", "this_weekend", "next_week", "next_days", "this_month", "range"] as const
 export type WindowKind = (typeof WINDOW_KINDS)[number]
 
 export interface PlanBooking {
@@ -152,6 +152,12 @@ export interface PlanBooking {
   // The kind of window the request gives (the plan names it; the device computes the days), and its length for next_days.
   window?: WindowKind
   windowDays?: number
+  // The window's last day when the request states both its ends («between 1 and 7 December»: window "range"), copied
+  // from the request by the model, never counted (round 142, the director's decision 12); checked by windowOf.
+  windowEnd?: string
+  // Set by windowOf when the window's kind contradicts its first day (this_week with 1 December, a bad windowEnd): the
+  // window is then the standing rule's days from that day, never one day by accident. Counted by the stand.
+  windowFixed?: boolean
   // The time the request itself names (HH:MM), before the rules widen it: a booked time that isn't it is a deviation.
   at?: string
   // Which place or who gives it matters to the person, so they choose it (a doctor, a tutor, a stylist, a hotel for a
@@ -218,6 +224,7 @@ export const PLAN_SCHEMA = {
         dateEnd: { type: "string" },
         window: { type: "string", enum: [...WINDOW_KINDS] },
         windowDays: { type: "integer" },
+        windowEnd: { type: "string" },
         at: { type: "string" },
         personal: { type: "boolean" },
         from: { type: "string" },
@@ -233,7 +240,7 @@ export const PLAN_SCHEMA = {
         specialistNamed: { type: "string" },
         serviceNamed: { type: "string" }
       },
-      required: ["kind", "date", "dateEnd", "window", "windowDays", "at", "personal", "from", "until", "minutes", "tz", "venue", "match", "area", "contacts", "specialists", "services", "specialistNamed", "serviceNamed"],
+      required: ["kind", "date", "dateEnd", "window", "windowDays", "windowEnd", "at", "personal", "from", "until", "minutes", "tz", "venue", "match", "area", "contacts", "specialists", "services", "specialistNamed", "serviceNamed"],
       additionalProperties: false
     }
   },
@@ -280,6 +287,8 @@ function bookingOf(v: unknown): PlanBooking | null {
   // (The window's kind only: its days are the device's to work out, windowOf.)
   const window = WINDOW_KINDS.includes(b.window as WindowKind) ? (b.window as WindowKind) : "none"
   const windowDays = typeof b.windowDays === "number" && Number.isFinite(b.windowDays) ? Math.min(45, Math.max(0, Math.round(b.windowDays))) : 0
+  // (Kept as written for a range only: windowOf checks it, and a bad one is counted, not dropped quietly.)
+  const windowEnd = window === "range" ? s(b.windowEnd, 10) : ""
   // Not said: a session with someone and a stay for a trip are the person's choice; the rest, the rules'.
   const personal = typeof b.personal === "boolean" ? b.personal : kind === "appointment" || kind === "stay"
   const time = (t: unknown) => (/^([01]\d|2[0-3]):[0-5]\d$/.test(s(t, 5)) ? s(t, 5) : "")
@@ -299,7 +308,7 @@ function bookingOf(v: unknown): PlanBooking | null {
   const specialistNamed = s(b.specialistNamed, 60)
   const serviceNamed = s(b.serviceNamed, 60)
   const at = time(b.at)
-  return { kind, date, ...(dateEnd ? { dateEnd } : {}), ...(window !== "none" ? { window } : {}), ...(window === "next_days" && windowDays > 1 ? { windowDays } : {}), ...(at ? { at } : {}), personal, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes, ...(tz && validZone(tz) ? { tz } : {}), ...(venue ? { venue } : {}), ...(match.length ? { match } : {}), ...(area.length ? { area } : {}), ...(contacts.length ? { contacts } : {}), ...(specialists.length ? { specialists } : {}), ...(services.length ? { services } : {}), ...(specialistNamed ? { specialistNamed } : {}), ...(serviceNamed ? { serviceNamed } : {}) }
+  return { kind, date, ...(dateEnd ? { dateEnd } : {}), ...(window !== "none" ? { window } : {}), ...(window === "next_days" && windowDays > 1 ? { windowDays } : {}), ...(window === "range" ? { windowEnd } : {}), ...(at ? { at } : {}), personal, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes, ...(tz && validZone(tz) ? { tz } : {}), ...(venue ? { venue } : {}), ...(match.length ? { match } : {}), ...(area.length ? { area } : {}), ...(contacts.length ? { contacts } : {}), ...(specialists.length ? { specialists } : {}), ...(services.length ? { services } : {}), ...(specialistNamed ? { specialistNamed } : {}), ...(serviceNamed ? { serviceNamed } : {}) }
 }
 
 /**
@@ -818,11 +827,13 @@ const weekday = (iso: string) => new Date(`${iso}T12:00:00Z`).getUTCDay()
  * - this_week: to the coming Sunday (today when it's Sunday); next_week: next Monday to its Sunday;
  * - this_weekend: its Saturday and Sunday (Friday and Saturday in zones whose weekend that is), from today when it's one;
  * - next_days: windowDays days from the first day; this_month: to the month's last day;
- * - first_free (no window named): the standing rule's «up to N days later»; none: the one day.
+ * - first_free (no window named): the standing rule's «up to N days later»; none: the one day;
+ * - range (both ends stated, decision 12): to windowEnd as the request writes it.
+ * A kind whose end falls before the first day, or a bad windowEnd, takes the standing rule's days from the first day.
  * A stay (nights known, else one) still ends inside the window: its last check-in is the window's end less its nights.
  * Returns the first day and the last (no last when the window has one day only).
  */
-export function windowOf(b: Pick<PlanBooking, "kind" | "date" | "window" | "windowDays">, today: string, ruleDays: number, nights: number, zone = ""): { date: string; dayLast?: string } {
+export function windowOf(b: Pick<PlanBooking, "kind" | "date" | "window" | "windowDays" | "windowEnd">, today: string, ruleDays: number, nights: number, zone = ""): { date: string; dayLast?: string; windowFixed?: boolean } {
   const first = b.date > today ? b.date : today
   const w = b.window ?? "none"
   let date = first
@@ -845,6 +856,18 @@ export function windowOf(b: Pick<PlanBooking, "kind" | "date" | "window" | "wind
     d.setUTCDate(0)
     end = d.toISOString().slice(0, 10)
   } else if (w === "first_free") end = ruleDays > 0 ? isoDay(first, ruleDays) : ""
+  else if (w === "range") {
+    // (Both ends stated, decision 12: the last day as the request writes it — a date, not before the first day, at most
+    // 45 days after it; else rule 4 below.)
+    const e = b.windowEnd ?? ""
+    end = /^\d{4}-\d{2}-\d{2}$/.test(e) && !Number.isNaN(Date.parse(e)) && e >= b.date && Date.parse(e) - Date.parse(b.date) <= 45 * 86_400_000 ? e : "bad"
+  }
+  // A window that contradicts its first day (decision 12, rule 4: this_week with 1 December, a bad windowEnd) is never
+  // one day by accident: it is the standing rule's days from that day, as first_free gives. Kind none stays the one day.
+  if (w !== "none" && w !== "first_free" && (end === "bad" || (end && end < first))) {
+    const last = ruleDays > 0 ? isoDay(first, ruleDays) : ""
+    return last ? { date: first, dayLast: last, windowFixed: true } : { date: first, windowFixed: true }
+  }
   if (!end) return { date: w === "none" ? b.date : date }
   if (DAY_KINDS.has(b.kind) && w !== "first_free") end = isoDay(end, -Math.max(1, nights))
   return end > date ? { date, dayLast: end } : { date }
