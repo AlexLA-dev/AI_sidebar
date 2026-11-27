@@ -163,3 +163,52 @@ test("through the runner: set_dates sets the plan's day; a day the page or the m
   assert.equal(entry.call.date, "2026-12-04")
   assert.match(entry.result, /4 Dec shows 18:30/)
 })
+
+// ---- round 141's real sites: a window's stay has no check-out in the plan; set_dates found no control again and again
+import { nightsIn } from "../src/shared/agent/runner.ts"
+
+test("a stay's nights from the request when the plan gives no check-out, in the panel's languages", () => {
+  assert.equal(nightsIn("Book a stay in Seoul for 2 adults, 2 nights, any dates in the next two weeks"), 2)
+  assert.equal(nightsIn("이번 달 안에 서울에서 2박, 성인 2명"), 2)
+  assert.equal(nightsIn("東京で2泊3日"), 2)
+  assert.equal(nightsIn("3 noches en Madrid"), 3)
+  assert.equal(nightsIn("на 2 ночи в Москве"), 2)
+  assert.equal(nightsIn("حجز ليلتين في دبي"), 2)
+  assert.equal(nightsIn("Book a table for 2 at 19:00"), 0)
+})
+
+async function runStay(calls: ToolCall[], range = true) {
+  const io0 = picker({ month: 11, range })
+  const replies: ActReply[] = [...calls.map((c) => step(c, "free", "read")), step({ tool: "done", summary: "", why: "" }, "free", "read")]
+  const io: RunnerIO = {
+    map: async () => io0.map(), act: async (c) => {
+      const m = (await io0.map())!
+      const it = m.items.find((i) => i.id === c.id)!
+      if (c.tool === "type") await io0.type(it, c.text ?? "")
+      else await io0.press(it)
+      return { ok: true, note: "the page changed", changed: true }
+    },
+    waitPage: async () => {}, ask: async () => replies.shift() ?? step({ tool: "done", summary: "", why: "" }, "free", "read"),
+    save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30
+  }
+  const st = newState("sd141s", "Book a stay for 2 adults, 2 nights, any dates in the first week of December 2026", "en", "https://salon.example/book")
+  st.plan = { steps: [], questions: [], perms: [], self: [], prices: [], risky: [], approved: true, booking: { kind: "stay", date: "2026-12-01", dayLast: "2026-12-07", from: "09:00", until: "21:00", minutes: 0, personal: false } } as unknown as TaskPlan
+  return { st: await drive(st, io), io0 }
+}
+
+test("a window's stay with no check-out in the plan: both days set, the nights from the request", async () => {
+  const { io0 } = await runStay([{ tool: "set_dates", why: "" }])
+  assert.deepEqual(io0.s.picked, ["2026-12-01", "2026-12-03"])
+})
+
+test("set_dates isn't run again on a page where it found no date control", async () => {
+  const io0: DatesIO = { map: async () => ({ url: "https://x.example/p", title: "", lang: "", forms: [], more: 0, part: 1, parts: 1, text: "", items: [{ id: "1", role: "button", label: "Menu" }] }) as PageMap, press: async () => "done", type: async () => "done", stopped: async () => false }
+  const replies: ActReply[] = [step({ tool: "set_dates", why: "" }, "free", "read"), step({ tool: "set_dates", why: "" }, "free", "read"), step({ tool: "done", summary: "", why: "" }, "free", "read")]
+  const io: RunnerIO = { map: async () => io0.map(), act: async () => ({ ok: true, note: "", changed: false }), waitPage: async () => {}, ask: async () => replies.shift() ?? step({ tool: "done", summary: "", why: "" }, "free", "read"), save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 30 }
+  const st = newState("sd141n", "Book a haircut on 4 December 2026", "en", "https://x.example/p")
+  st.plan = { steps: [], questions: [], perms: [], self: [], prices: [], risky: [], approved: true, booking: { kind: "appointment", date: "2026-12-04", from: "09:00", until: "21:00", minutes: 45, personal: false } } as unknown as TaskPlan
+  await drive(st, io)
+  const sd = st.log.filter((e) => e.call.tool === "set_dates").map((e) => e.result)
+  assert.match(sd[0], /no date control recognised/)
+  assert.match(sd[1], /^refused: set_dates found no date control on this page before/)
+})

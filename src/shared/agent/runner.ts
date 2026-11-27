@@ -158,6 +158,9 @@ export interface AgentState {
   trail?: string[]
   // A «done» sent back once on a page that asks for the person's details (details_next).
   detailsNudged?: boolean
+  // Pages (origin and path) where set_dates found no date control: it isn't run there again (round 141's real sites: up
+  // to nine calls in a run, each «no date control recognised»).
+  datesNone?: string[]
   // The outline's parts the model opened on this page (read_page with an outline): they stay open (round 139).
   openParts?: { page: string; parts: number[] }
   slotRefusals?: number
@@ -2130,10 +2133,17 @@ async function datesStep(state: AgentState, io: RunnerIO, map: PageMap, call: To
     state.log.push({ call, result: "set_dates is for a booking's days: there's no booking in this task" })
     return null
   }
+  const page = pageKey(map.url)
+  if (state.datesNone?.includes(page)) {
+    const why = "set_dates found no date control on this page before: set the day with the page's own controls (its date button or field, its calendar and «next month» arrow, a date strip), or open the place's own booking page first"
+    if (!auto) state.log.push({ call, result: `refused: ${why}` })
+    return { line: why, full: [], presses: 0, fallback: true }
+  }
   const last = b.dayLast && b.dayLast > b.date ? b.dayLast : b.date
   // (Only the request and the person's answers set the days: a day the model names counts only inside the window.)
   const from = call.date && call.date >= b.date && call.date <= last ? call.date : b.date
-  const nights = b.dateEnd ? Math.max(1, Math.round((Date.parse(b.dateEnd) - Date.parse(b.date)) / 86_400_000)) : 0
+  // A stay's nights: from the plan's check-out, else the request's own «2 nights» (a window's plan has no check-out).
+  const nights = b.dateEnd ? Math.max(1, Math.round((Date.parse(b.dateEnd) - Date.parse(b.date)) / 86_400_000)) : DAY_KINDS.has(b.kind) ? nightsIn(state.request) : 0
   let current = map
   const ctx = (m: PageMap) => ({ map: m, startHost: state.startHost, request: state.request, confirmedHere: confirmedOn(state, hostOf(m.url)), policy: io.policy })
   const dio: DatesIO = {
@@ -2157,6 +2167,7 @@ async function datesStep(state: AgentState, io: RunnerIO, map: PageMap, call: To
     stopped: async () => !!(await io.isStopped?.().catch(() => false))
   }
   const r = await setDates({ date: from, end: nights ? addDays(from, nights) : undefined, last, from: b.from, until: b.until, byDays: DAY_KINDS.has(b.kind) }, dio)
+  if (r.fallback) state.datesNone = [...(state.datesNone ?? []), page].slice(-12)
   if (r.landed) {
     state.sawDate = true
     state.picked = { date: r.landed }
@@ -2167,6 +2178,24 @@ async function datesStep(state: AgentState, io: RunnerIO, map: PageMap, call: To
   state.lines.push(line({ ...call, date: r.landed ?? from }, { cls: "free", reason: "dates" }, null, !r.fallback && !r.stopped, moved || undefined))
   if (r.stopped) state.status = "stopped"
   return r
+}
+
+/** The page as set_dates remembers it: origin and path. */
+function pageKey(url: string): string {
+  try {
+    const u = new URL(url)
+    return `${u.origin}${u.pathname}`
+  } catch {
+    return url
+  }
+}
+
+/** A stay's or rental's nights or days as the request says them («2 nights», «2박», «2泊», «2 noches», «ليلتين»), or 0. */
+export function nightsIn(request: string): number {
+  if (/ليلتين|ليلتان/u.test(request)) return 2
+  const m = /(\d{1,2})\s*(?:-\s*)?(nights?|noches?|nuits?|nächte|nachten|nacht|notti|notte|noites?|ноч(?:и|ей|ь)|суток|nocy|noce|gece|geceler|泊|박|晚|夜|ليال[يٍ]?|ليلة|đêm|malam|nätter|natt)/iu.exec(request)
+  const n = m ? Number(m[1]) : 0
+  return n >= 1 && n <= 30 ? n : 0
 }
 
 /** The request's own words for the map (a site menu's link with one of them stays in the outline): letters only, 4 or more. */
