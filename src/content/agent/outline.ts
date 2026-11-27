@@ -16,7 +16,7 @@
 import type { MapItem } from "../../shared/agent/types"
 import { isOwnHost } from "../insert/field"
 import { DENSE, weightedLength } from "../../shared/agent/length"
-import { styleOf } from "./style"
+import { hiddenNatively, styleOf } from "./style"
 
 export const OUTLINE_MAX = 9000
 const LINE_MAX = 400
@@ -169,7 +169,11 @@ export function buildOutline(input: OutlineInput): Outline {
       const r = el.getBoundingClientRect()
       const far = r.width > 0 && r.height > 0 && (r.top + frameDy > height * 2 || r.bottom + frameDy < -height)
       // (Within a screen of the screen the style decides; beyond it only the attributes do: no style read.)
-      if (far ? el.getAttribute("aria-hidden") === "true" || el.hasAttribute("hidden") : hidden(el, view)) return
+      // (The browser's own answer where it has one, near or far — round 141; without it — Safari before 17.4 — the styles,
+      // read once per build, near or far: a far hidden link's words never reach the model either way.)
+      const native = hiddenNatively(el)
+      if (native === true || el.getAttribute("aria-hidden") === "true" || el.hasAttribute("hidden") || el.hasAttribute("inert")) return
+      if (native === null && hidden(el, view)) return
       // (An editor's text is the person's typing: never read, whether or not the map lists the editor.)
       if (el.matches("[contenteditable]:not([contenteditable=false])") && !item) return
       if (item) {

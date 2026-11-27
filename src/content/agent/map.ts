@@ -19,7 +19,7 @@ import { hostOf, sameSite } from "../../shared/agent/sites"
 import type { Lock, MapItem, PageForm, PageMap, Role } from "../../shared/agent/types"
 import { isOwnHost } from "../insert/field"
 import { buildOutline } from "./outline"
-import { beginStyles, styleOf } from "./style"
+import { beginStyles, hiddenNatively, styleOf } from "./style"
 import { OVERLAY } from "../translate/pageControls"
 
 const CONTROL = [
@@ -734,11 +734,14 @@ function buildMapNow(doc: Document, opts: MapOptions): PageMap {
       if (outerRole && LEAF_ROLES.has(outerRole) && outerRole !== "editor" && role !== "textbox" && role !== "checkbox" && role !== "radio" && !inLink) return
     }
     if ((el as HTMLElement).isContentEditable && el.parentElement && (el.parentElement as HTMLElement).isContentEditable) return
-    // (Far from the screen — beyond it and one screen around it — a control is checked by its attributes only: it is
-    // laid out where it is, so it isn't display:none, and a fixed layer is never there. Round 140, the map's cost.)
+    // Hidden or not: the browser's own answer where it has one (round 141: visibility hidden, opacity 0 or skipped content
+    // anywhere above it — a folded menu's links, planted text — near the screen or far from it); where it hasn't, the
+    // styles, read once per build. Its attributes (aria-hidden, inert, hidden) always.
     const at = el.getBoundingClientRect()
     const far = at.width > 0 && at.height > 0 && (at.top + f.dy > height * 2 || at.bottom + f.dy < -height)
-    if (hiddenByStyle(el, far)) return
+    const native = hiddenNatively(el, !(role === "checkbox" || role === "radio" || role === "switch"))
+    if (native === true) return
+    if (hiddenByStyle(el, native === false)) return
     const box = boxOf(f, role)
     if (!box) return
     seen.add(el)

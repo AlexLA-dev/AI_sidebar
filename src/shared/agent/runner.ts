@@ -152,6 +152,9 @@ export interface AgentState {
   disabledWaits?: number
   // The map's part the model asked for (read_page), read at the next step only.
   readPart?: number
+  // The pages this task has been on, in order (origin and path): «back» goes only to the one before, never past the
+  // task's first page (round 141: a second «back» left the site for a blank page).
+  trail?: string[]
   // The outline's parts the model opened on this page (read_page with an outline): they stay open (round 139).
   openParts?: { page: string; parts: number[] }
   slotRefusals?: number
@@ -1379,6 +1382,8 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       break
     }
     state.host = hostOf(map.url)
+    const pageNow = pageLink(map.url)
+    if (pageNow && state.trail?.[state.trail.length - 1] !== pageNow) state.trail = [...(state.trail ?? []), pageNow].slice(-30)
     // (The address the last tap's page tried to open in a new tab: a link on this map, only while it's the same page.)
     if (state.openedLink && state.openedLink.page && state.openedLink.page !== map.url) state.openedLink = undefined
     if (state.openedLink && !state.openedLink.page) state.openedLink.page = map.url
@@ -1477,6 +1482,19 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (reply.strong) state.strongUsed++
     const call = reply.call
     const target = reply.target ?? null
+    // «back» only to a page this task was on before, on the task's site: the task's first page is the floor.
+    if (call.tool === "back") {
+      const trail = state.trail ?? []
+      const before = trail.length >= 2 ? trail[trail.length - 2] : ""
+      if (!before || siteOfHost(hostOf(before)) !== siteOfHost(state.startHost)) {
+        rule(state, "back_floor")
+        state.log.push({ call, result: `refused: «back» here would leave the pages of this task (this is the first page it opened, or the one before it is another site's): use this page's own links or search instead` })
+        state.refused = "«back» would leave this task's pages: use the page's own links or search"
+        await io.save(state)
+        continue
+      }
+      state.trail = trail.slice(0, -1)
+    }
     if (call.tool === "done") {
       // A press the plan lists as the agent's own hasn't happened: one more step for it, or «done» again with the
       // reason in the summary (the stand: a cart «done» before its «Add to cart»).
