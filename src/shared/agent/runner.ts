@@ -848,10 +848,13 @@ export function contactGiven(c: { kind: "email" | "phone"; value: string }, said
   if (contactsQuoted(said).some((q) => q.kind === "phone" && digits(q.value) === d)) return true
   return d.length >= 7 && saved.some((e) => digits(e.value) === d)
 }
-/** The first contact field of a kind the person gave that is still empty on this page (decision 13c), or null. */
-export function emptyGivenField(map: PageMap, given: Set<string>, done: string[]): { item: MapItem; kind: string } | null {
+/** The first contact field of a kind the person gave that is still empty on this page (decision 13c), or null. Only the
+ *  pressed control's own form counts: a field in another form (a sign-up or newsletter beside the booking) is skipped;
+ *  a field in no form, or a press in no form, counts as before (the director's follow-up 1). */
+export function emptyGivenField(map: PageMap, given: Set<string>, done: string[], pressForm?: number): { item: MapItem; kind: string } | null {
   for (const item of map.items) {
     if (item.role !== "textbox" || done.includes(item.id) || item.state?.some((x) => x === "disabled" || x === "readonly")) continue
+    if (pressForm !== undefined && item.form !== undefined && item.form !== pressForm) continue
     const kind = contactField(item)
     if (!kind || !given.has(kind)) continue
     const empty = item.lock ? !!item.state?.includes("empty") : !(item.value ?? "").trim()
@@ -1763,9 +1766,16 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (call.tool === "ask_user" && !state.givenAsk) {
       const quoted = contactsQuoted(`${call.question ?? ""}\n${(call.choices ?? []).join("\n")}`)
       const hit = quoted.find((c) => contactGiven(c, words(state), liveEntries(entries)))
-      if (hit) {
+      // The same question with no value quoted (the director's follow-up 2: «Salon Mira needs your phone number… What
+      // is it?» while the request gives it): one e-mail or phone asked for by contactAsked's own words, and the person's
+      // words carry one of that kind by pattern. Never for a name; one allowance with the quoted kind.
+      const askedKind = quoted.length ? null : contactKind(contactAsked(call.question ?? "") ?? "")
+      const inWords = askedKind === "email" || askedKind === "phone" ? contactsQuoted(words(state)).find((c) => c.kind === askedKind) : undefined
+      if (hit || inWords) {
         state.givenAsk = true
-        const why = `the person gave «${hit.value}» themselves: type it as written (or fill the saved one); ask only for a detail they didn't give`
+        const why = hit
+          ? `the person gave «${hit.value}» themselves: type it as written (or fill the saved one); ask only for a detail they didn't give`
+          : `the person's request gives their ${inWords!.kind}: «${inWords!.value}»: type it as written; ask only for a detail they didn't give`
         rule(state, "given_ask")
         state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: `refused: ${why}` })
         state.refused = why
@@ -1956,7 +1966,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // The press that sends a booking while a contact the person gave is still empty on the page (decision 13c, ru book:
     // name and phone typed, the e-mail the request gave never, «Забронировать» pressed): sent back once per field; the
     // second press goes through. Saved details alone don't trigger it.
-    const emptyGiven = verdict.cls !== "blocked" && verdict.reason === "submit" && call.tool === "click" ? emptyGivenField(map, new Set([...requestGives(state.plan, words(state)), ...contactsQuoted(words(state)).map((c) => c.kind)]), [...(state.contactEmpty ?? []), ...typedIds(state)]) : null
+    const emptyGiven = verdict.cls !== "blocked" && verdict.reason === "submit" && call.tool === "click" ? emptyGivenField(map, new Set([...requestGives(state.plan, words(state)), ...contactsQuoted(words(state)).map((c) => c.kind)]), [...(state.contactEmpty ?? []), ...typedIds(state)], seenItem?.form) : null
     if (emptyGiven) {
       state.contactEmpty = [...(state.contactEmpty ?? []), emptyGiven.item.id]
       const why = `«${emptyGiven.item.label.slice(0, 60)}» is still empty and the person gave their ${emptyGiven.kind}: type it first, then press; if this field is for something else, press again`

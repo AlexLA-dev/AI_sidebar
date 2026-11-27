@@ -155,3 +155,51 @@ test("13c: saved details alone, or a contact the person didn't give, never trigg
   const r = await run([ar], [press], "احجز طاولة. الهاتف +٩٧١ ٤ ١٢٣ ٤٥٦٧.", { cls: "confirm", reason: "submit" })
   assert.equal(r.st.ruleCounts?.contact_empty, 1)
 })
+
+// The director's follow-ups to decision 13.
+test("13c follow-up 1: only the pressed control's own form — a newsletter's empty e-mail beside the booking isn't sent back", async () => {
+  const twoForms = page([
+    { id: "1", role: "textbox", label: "Name", value: "Anna Petrova", form: 1 }, { id: "2", role: "textbox", label: "Phone", type: "tel", lock: "personal", state: ["filled"], form: 1 },
+    { id: "4", role: "button", label: "Book", form: 1 },
+    { id: "8", role: "textbox", label: "Email", type: "email", lock: "personal", state: ["empty"], form: 2 }, { id: "9", role: "button", label: "Subscribe", form: 2 }
+  ] as PageMap["items"], { forms: [{ n: 1, fillable: true }, { n: 2, fillable: true }] as PageMap["forms"] })
+  const { st } = await run([twoForms], [{ tool: "click", id: "4" }], "Book a table for 2. Name Anna Petrova, phone +44 20 7946 0000, email anna@example.com.", { cls: "confirm", reason: "submit" })
+  assert.equal(st.ruleCounts?.contact_empty, undefined)
+  assert.equal(emptyGivenField(twoForms, given(["email"]), [], 1), null)
+  assert.equal(emptyGivenField(twoForms, given(["email"]), [], 2)?.item.id, "8", "the newsletter's own press would count it")
+  assert.equal(emptyGivenField(twoForms, given(["email"]), [])?.item.id, "8", "a press in no form: as before")
+  // The ru book case, its fields and press in one form: still sent back once.
+  const ruOne = { ...RU_FORM, items: RU_FORM.items.map((i) => ({ ...i, form: 1 })) }
+  const r = await run([ruOne], [{ tool: "click", id: "4" }, { tool: "click", id: "4" }], "Забронируй столик на 4 на 5 декабря 19:30. Имя Анна Петрова, телефон +7 495 123-45-67, почта anna@example.com.", { cls: "confirm", reason: "submit" })
+  assert.equal(r.st.ruleCounts?.contact_empty, 1)
+  // A formless page: as now.
+  assert.equal(emptyGivenField(FORM, given(["phone"]), [], 1)?.item.id, "2")
+})
+
+test("13b follow-up 2: a question for a given contact with no value quoted is sent back once, in Latin, Cyrillic, Japanese and Arabic", async () => {
+  for (const [request, question] of [
+    ["Book a haircut at Salon Mira on 4 December 2026 at 18:30. Name Anna Petrova, phone +44 20 7946 0000.", "Salon Mira needs your phone number to finish the booking. What is it?"],
+    ["Забронируй на 4 декабря в 18:30. Имя Анна Петрова, телефон +7 495 123-45-67.", "Какой у вас номер телефона для записи?"],
+    ["2026年12月4日18:30に予約して。名前はアンナ・ペトロワ、電話 +81 3-1234-5678。", "予約に電話番号が必要です。電話番号を教えてください。"],
+    ["احجز يوم 4 ديسمبر الساعة 18:30. الاسم آنا بيتروفا، الهاتف +٩٧١ ٤ ١٢٣ ٤٥٦٧.", "ما هو رقم هاتفك لإتمام الحجز؟"],
+    ["Book a table for 2. Name Anna Petrova, email anna@example.com.", "What email address should I use for the booking?"]
+  ]) {
+    const { st } = await run([FORM], [{ tool: "ask_user", question }, { tool: "ask_user", question }], request)
+    assert.equal(st.ruleCounts?.given_ask, 1, request)
+    assert.match(st.log.find((l) => /^refused: the person's request gives their/.test(l.result ?? ""))?.result ?? "", /gives their (phone|email): «.+»: type it as written/, request)
+    assert.equal(st.status, "asked", "the second such question goes to the person")
+  }
+})
+
+test("13b follow-up 2: detail-missing, another kind, two kinds and a name all pass", async () => {
+  const ask = async (request: string, question: string) => (await run([FORM], [{ tool: "ask_user", question }], request)).st
+  const missing = await ask("Book a table for 2 on 4 December at 18:30. Name Anna Petrova.", "What phone number should I use for the booking?")
+  assert.equal(missing.status, "asked")
+  assert.equal(missing.ruleCounts?.given_ask, undefined, "no phone in the words")
+  const other = await ask("Book a table for 2. Name Anna Petrova, phone +44 20 7946 0000.", "What email address should I use for the booking?")
+  assert.equal(other.ruleCounts?.given_ask, undefined, "the e-mail isn't the kind given")
+  const both = await ask("Book a table for 2. Phone +44 20 7946 0000, email anna@example.com.", "Which phone number and email address should I use?")
+  assert.equal(both.ruleCounts?.given_ask, undefined, "two kinds asked")
+  const name = await ask("Book a table for 2. Name Anna Petrova, phone +44 20 7946 0000.", "What name should the booking be under?")
+  assert.equal(name.ruleCounts?.given_ask, undefined, "never for a name")
+})
