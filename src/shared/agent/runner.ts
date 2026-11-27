@@ -190,6 +190,13 @@ export interface AgentState {
   // Layers over the page the device closed itself (at most three a task), and the presses they came after.
   popups?: number
   closedAfter?: string[]
+  // Cookie layers the device refused itself (decision 13a: at most three a task, once per page address).
+  cookieDevice?: number
+  cookiePages?: string[]
+  // A question asking leave to use a contact the person gave was sent back (decision 13b: once a task).
+  givenAsk?: boolean
+  // Contact fields a booking's sending press was sent back for while empty (decision 13c: once per field).
+  contactEmpty?: string[]
   // The booking's day as the page shows it greyed (a strip greys days it hasn't loaded: a booking site's «Sat 26 Dec» answered
   // «full», with its next free day once pressed), and whether it was pressed once to hear the page.
   greyTarget?: string
@@ -806,6 +813,56 @@ function confirmHere(state: AgentState): void {
 /** Whether a «Да» was given on this host's site in this task. */
 export function confirmedOn(state: AgentState, host: string): boolean {
   return !!host && !!state.confirmedSites?.includes(siteOfHost(host))
+}
+
+// Decision 13 (round 142): contacts quoted in a text, by pattern only — an e-mail address, or a run of 7+ digits of any
+// script with «+», spaces, dashes, brackets or dots and no words; dates written with digits aren't phones.
+const DIGIT_ZEROS = [0x30, 0x660, 0x6f0, 0x966, 0x9e6, 0xe50, 0xff10]
+export function asciiDigits(s: string): string {
+  return s.replace(/\p{Nd}/gu, (d) => {
+    const c = d.codePointAt(0) ?? 0
+    const z = DIGIT_ZEROS.find((z) => c >= z && c <= z + 9)
+    return z === undefined ? d : String(c - z)
+  })
+}
+const EMAIL_RUN = /[^\s@<>()«»"“”'、，。：:;,]+@[^\s@<>()«»"“”'、，。：:;,]+\.\p{L}{2,}/gu
+const PHONE_RUN = /\+?\p{Nd}[\p{Nd}\s().\-]{5,}\p{Nd}/gu
+// (A run that is itself a date — «2026-12-05», «05.12.2026» — isn't a phone; a phone's own «123-45-67» is.)
+const DATE_RUN = /^(?:\p{Nd}{4}[-./]\p{Nd}{1,2}[-./]\p{Nd}{1,2}|\p{Nd}{1,2}[-./]\p{Nd}{1,2}[-./]\p{Nd}{2,4})$/u
+export function contactsQuoted(text: string): Array<{ kind: "email" | "phone"; value: string }> {
+  const emails = [...text.matchAll(EMAIL_RUN)].map((m) => m[0].replace(/[.。]+$/u, ""))
+  const rest = text.replace(EMAIL_RUN, " ")
+  const phones = [...rest.matchAll(PHONE_RUN)].map((m) => m[0].trim()).filter((v) => !DATE_RUN.test(v) && asciiDigits(v).replace(/\D/g, "").length >= 7)
+  return [...emails.map((value) => ({ kind: "email" as const, value })), ...phones.map((value) => ({ kind: "phone" as const, value }))]
+}
+/** Whether the person gave this contact: in their words (as saidInWords reads them, or the same digits in any script),
+ *  or it is a live saved entry's value. */
+export function contactGiven(c: { kind: "email" | "phone"; value: string }, said: string, saved: FormEntry[]): boolean {
+  if (c.kind === "email") {
+    const v = c.value.toLocaleLowerCase()
+    return saidInWords(said, c.value) || said.toLocaleLowerCase().includes(v) || saved.some((e) => e.value.trim().toLocaleLowerCase() === v)
+  }
+  const digits = (x: string) => asciiDigits(x).replace(/\D/g, "")
+  const d = digits(c.value)
+  if (saidInWords(said, c.value)) return true
+  if (contactsQuoted(said).some((q) => q.kind === "phone" && digits(q.value) === d)) return true
+  return d.length >= 7 && saved.some((e) => digits(e.value) === d)
+}
+/** The first contact field of a kind the person gave that is still empty on this page (decision 13c), or null. */
+export function emptyGivenField(map: PageMap, given: Set<string>, done: string[]): { item: MapItem; kind: string } | null {
+  for (const item of map.items) {
+    if (item.role !== "textbox" || done.includes(item.id) || item.state?.some((x) => x === "disabled" || x === "readonly")) continue
+    const kind = contactField(item)
+    if (!kind || !given.has(kind)) continue
+    const empty = item.lock ? !!item.state?.includes("empty") : !(item.value ?? "").trim()
+    if (empty) return { item, kind }
+  }
+  return null
+}
+
+/** The fields this task typed or filled (a page that keeps a field's old «empty» after typing isn't sent back for it). */
+function typedIds(state: AgentState): string[] {
+  return state.log.filter((l) => (l.call.tool === "type" || l.call.tool === "fill") && l.call.id && !/^(refused|held)/.test(l.result ?? "")).map((l) => l.call.id!)
 }
 
 /** The task's request as the server and the checks hear it: the person's words with the plan's answers. */
@@ -1445,6 +1502,28 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       if (logged) logged.result = `${logged.result} (the device closed a layer over the page that wasn't the task)`
       continue
     }
+    // A cookie layer the product's closer left (decision 13a): the device refuses optional cookies itself by the
+    // layer's own control the classifier calls cookies_reject — never an accept, which stays the person's — once per
+    // page address and three a task; when that changes nothing the banner is the model's, as before.
+    if ((!io.planning || state.plan?.approved) && (state.cookieDevice ?? 0) < 3 && !(state.cookiePages ?? []).includes(map.url)) {
+      const ctx = { map, startHost: state.startHost, request: words(state), confirmedHere: confirmedOn(state, hostOf(map.url)), policy: io.policy }
+      const reject = map.items.find((i) => {
+        if (i.where !== "dialog" || (i.role !== "button" && i.role !== "link")) return false
+        const v = classify({ tool: "click", id: i.id, why: "" }, ctx)
+        return v.cls === "free" && v.reason === "cookies_reject"
+      })
+      if (reject) {
+        state.cookieDevice = (state.cookieDevice ?? 0) + 1
+        state.cookiePages = [...(state.cookiePages ?? []), map.url]
+        rule(state, "cookie_device")
+        await perform(state, io, { tool: "click", id: reject.id, why: "" }, { cls: "free", reason: "cookies_reject" }, `button "${reject.label.slice(0, 60)}"`)
+        const shown = state.lines[state.lines.length - 1]
+        if (shown) shown.popup = true
+        const logged = state.log[state.log.length - 1]
+        if (logged) logged.result = `${logged.result} (the device refused optional cookies itself: «${reject.label.slice(0, 60)}»)`
+        continue
+      }
+    }
     if (state.plan?.approved && state.plan.booking?.date && !state.sawDate) {
       const days = dayItems(map, state.plan.booking.date)
       // (Or set in the page's own date field: a stay list with «Check-in 2026-12-04», 129.)
@@ -1679,6 +1758,20 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       state.refused = placeAgain
       continue
     }
+    // A question asking leave to use a contact the person gave (decision 13b: «please confirm +44 20 7946 0000 so I can
+    // type it»): sent back once a task; a second such question goes to the person.
+    if (call.tool === "ask_user" && !state.givenAsk) {
+      const quoted = contactsQuoted(`${call.question ?? ""}\n${(call.choices ?? []).join("\n")}`)
+      const hit = quoted.find((c) => contactGiven(c, words(state), liveEntries(entries)))
+      if (hit) {
+        state.givenAsk = true
+        const why = `the person gave «${hit.value}» themselves: type it as written (or fill the saved one); ask only for a detail they didn't give`
+        rule(state, "given_ask")
+        state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: `refused: ${why}` })
+        state.refused = why
+        continue
+      }
+    }
     if (call.tool === "ask_user") {
       // The person answers (a button or their own words) and the task goes on (TestFlight 118: «На завтра мест нет…
       // Записать на 24-е? [Да] [Другой день] [Отмена]»).
@@ -1858,6 +1951,18 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       rule(state, "count_other")
       state.log.push({ call, target: target ?? undefined, result: `refused: ${countWhy}` })
       state.refused = countWhy
+      continue
+    }
+    // The press that sends a booking while a contact the person gave is still empty on the page (decision 13c, ru book:
+    // name and phone typed, the e-mail the request gave never, «Забронировать» pressed): sent back once per field; the
+    // second press goes through. Saved details alone don't trigger it.
+    const emptyGiven = verdict.cls !== "blocked" && verdict.reason === "submit" && call.tool === "click" ? emptyGivenField(map, new Set([...requestGives(state.plan, words(state)), ...contactsQuoted(words(state)).map((c) => c.kind)]), [...(state.contactEmpty ?? []), ...typedIds(state)]) : null
+    if (emptyGiven) {
+      state.contactEmpty = [...(state.contactEmpty ?? []), emptyGiven.item.id]
+      const why = `«${emptyGiven.item.label.slice(0, 60)}» is still empty and the person gave their ${emptyGiven.kind}: type it first, then press; if this field is for something else, press again`
+      rule(state, "contact_empty")
+      state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
+      state.refused = why
       continue
     }
     // A time slot that clashes with the person's Calendar is never pressed (checked on the device).
