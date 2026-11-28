@@ -136,6 +136,8 @@ export interface ToolCall {
   link?: string
   // More presses on the same page after this one (each checked and classed on the device first).
   also?: Array<{ id: string; why?: string }>
+  // Set by the device only: after typing, leave the field as a person would (blur), so the page checks it (decision 15b).
+  leave?: boolean
 }
 
 /**

@@ -151,7 +151,7 @@ function setNative(el: HTMLInputElement | HTMLTextAreaElement, value: string): v
   else el.value = value
 }
 
-async function typeInto(el: Element, text: string, mode: "replace" | "append"): Promise<StepResult> {
+async function typeInto(el: Element, text: string, mode: "replace" | "append", leave = false): Promise<StepResult> {
   const view = el.ownerDocument.defaultView ?? window
   if (tag(el) === "input" || tag(el) === "textarea") {
     const field = el as HTMLInputElement
@@ -164,6 +164,11 @@ async function typeInto(el: Element, text: string, mode: "replace" | "append"): 
     el.dispatchEvent(new view.KeyboardEvent("keyup", { bubbles: true, cancelable: true, composed: true, key: "Unidentified" }))
     el.dispatchEvent(new view.Event("change", { bubbles: true }))
     el.dispatchEvent(new view.FocusEvent("focusout", { bubbles: true, composed: true }))
+    // (Decision 15b: the device leaving a phone field as a person would, so a page that checks on blur says so now.)
+    if (leave) {
+      el.dispatchEvent(new view.FocusEvent("blur", { composed: true }))
+      if (el.ownerDocument.activeElement === el) (el as HTMLElement).blur?.()
+    }
     const settled = await stepSettle(200, 1500)
     const now = field.value
     const note = now === value ? "typed" : now ? `typed; the field shows "${now.slice(0, 80)}"` : "the field didn't take the text"
@@ -363,7 +368,7 @@ async function actOnly(call: ToolCall, doc: Document): Promise<StepResult> {
       // A site's own slider (a price from–to): stepped with its keys to the number asked (a restaurant site, 121 sweep: «до 50 €»
       // couldn't be set). A native range input takes its value as typed.
       if (roleOf(el!) === "slider" && tag(el!) !== "input") return slideTo(el as HTMLElement, call.text ?? "")
-      const r = await typeInto(el!, call.text ?? "", call.mode ?? "replace")
+      const r = await typeInto(el!, call.text ?? "", call.mode ?? "replace", call.leave === true)
       if (r.undo) r.undo.id = call.id!
       return r
     }

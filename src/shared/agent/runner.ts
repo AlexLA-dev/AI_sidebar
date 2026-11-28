@@ -191,6 +191,14 @@ export interface AgentState {
   // Layers over the page the device closed itself (at most three a task), and the presses they came after.
   popups?: number
   closedAfter?: string[]
+  // Decision 15 (amended): the dial-code controls this task selected (the page's own selection counts only before that),
+  // the phone the device last put in beside one (its control, its field, the other options of its code, the national
+  // part), and whether the one extra option a task was used.
+  dialTouched?: string[]
+  phoneDial?: { dialId: string; dialLabel: string; dialRole: MapItem["role"]; fieldId: string; others: string[]; national: string }
+  phoneExtra?: boolean
+  // The person's international phone, given in the request or saved (the device owns the dial-code control then: 15a2).
+  phoneKnown?: string
   // A window's days pressed in this task, in order (decision 14a), whether a later one was sent back for an earlier
   // offered one, and whether the question for a window with no offered day passed (14c).
   windowPressed?: string[]
@@ -396,19 +404,23 @@ interface PhoneFirst {
 /** Before a phone goes in: its field's country or dial-code control set to the number's calling code (the national part
  *  then typed), or a fixed code the field shows as its prefix (the national part when it's the number's). Null when the
  *  field isn't a phone's, the number has no code, or no control or prefix is there: as before. */
-async function phoneFirst(io: RunnerIO, call: ToolCall, text: string): Promise<PhoneFirst | null> {
+async function phoneFirst(state: AgentState, io: RunnerIO, call: ToolCall, text: string): Promise<PhoneFirst | null> {
   if (!internationalDigits(text)) return null
   const map = await io.map({}).catch(() => null)
   const field = map?.items.find((i) => i.id === call.id)
   if (!map || !field || !(field.type === "tel" || contactField(field) === "phone" || (call.tool === "fill" && keyKind(call.key ?? "") === "phone"))) return null
   const dial = dialControl(map, field)
   if (dial && (dial.role === "select" || dial.role === "combobox") && dial.options?.length) {
-    const pick = pickDialOption(dial.options, text, { selected: dial.value, region: deviceRegion(), lang: map.lang })
+    // (15a amended: the selected option counts only when the page selected it, before this task touched the control.)
+    const touched = state.dialTouched?.includes(dial.id)
+    const pick = pickDialOption(dial.options, text, { ...(touched ? {} : { selected: dial.value }), region: deviceRegion(), lang: map.lang })
     if (!pick) return null
     if (pick.option !== dial.value) {
       const r = await io.act({ tool: "select", id: dial.id, option: pick.option, why: "", expect: { label: dial.label, role: dial.role } }).catch(() => null)
       if (!r?.ok) return null
     }
+    state.dialTouched = [...new Set([...(state.dialTouched ?? []), dial.id])]
+    state.phoneDial = { dialId: dial.id, dialLabel: dial.label, dialRole: dial.role, fieldId: field.id, others: pick.others, national: pick.national }
     return { text: pick.national, dial, others: pick.others }
   }
   if (dial && (dial.role === "button" || dial.role === "listbox")) {
@@ -429,25 +441,58 @@ async function phoneFirst(io: RunnerIO, call: ToolCall, text: string): Promise<P
   return { text }
 }
 
-/** After a phone went in: still marked invalid with another option of the same code left — that one, once; a field that
- *  didn't take the text — the number whole, its digits with «+», its national digits, each only while the field stays
- *  empty (decision 15a, 15d). */
-async function phoneAfter(io: RunnerIO, call: ToolCall, text: string, phone: PhoneFirst, result: StepResult): Promise<StepResult> {
+/** After a phone went in (typed with the field left, as a person would): still marked invalid with another option of the
+ *  same code left — that one, once a task; a field that didn't take the text — the number whole, its digits with «+»,
+ *  its national digits, each only while the field stays empty (decision 15a, 15b, 15d). */
+async function phoneAfter(state: AgentState, io: RunnerIO, call: ToolCall, text: string, phone: PhoneFirst, result: StepResult): Promise<StepResult> {
   if (/didn't take the text/.test(result.note ?? "")) {
     const tries = [text, `+${text.replace(/\D/g, "")}`, ...(phone.text !== text ? [phone.text.replace(/\D/g, "")] : [])].filter((t, i, a) => t && a.indexOf(t) === i)
     for (const t of tries) {
-      const r = await io.act({ ...call, tool: "type", text: t, mode: "replace" }).catch(() => null)
+      const r = await io.act({ ...call, tool: "type", text: t, mode: "replace", leave: true }).catch(() => null)
       if (r && !/didn't take the text/.test(r.note ?? "")) return r
     }
     return result
   }
-  if (!phone.dial || !phone.others?.length) return result
+  if (!phone.dial || !phone.others?.length || state.phoneExtra) return result
   const after = await io.map({}).catch(() => null)
   const field = after?.items.find((i) => i.id === call.id)
   if (!field?.state?.includes("invalid")) return result
-  const r = await io.act({ tool: "select", id: phone.dial.id, option: phone.others[0], why: "", expect: { label: phone.dial.label, role: phone.dial.role } }).catch(() => null)
-  if (!r?.ok) return result
-  return (await io.act({ ...call, tool: "type", text: phone.text, mode: "replace" }).catch(() => null)) ?? result
+  return (await phoneOtherOption(state, io, call.id!)) ?? result
+}
+
+/** The one extra option a task (decision 15b): the other option of the number's code chosen, the national part typed
+ *  again with the field left; the result says which. Null when there's none left or it's been used. */
+async function phoneOtherOption(state: AgentState, io: RunnerIO, fieldId: string): Promise<StepResult | null> {
+  const d = state.phoneDial
+  if (!d || state.phoneExtra || !d.others.length || d.fieldId !== fieldId) return null
+  state.phoneExtra = true
+  const option = d.others[0]
+  const r = await io.act({ tool: "select", id: d.dialId, option, why: "", expect: { label: d.dialLabel, role: d.dialRole } }).catch(() => null)
+  if (!r?.ok) return null
+  const t = await io.act({ tool: "type", id: fieldId, text: d.national, mode: "replace", why: "", leave: true }).catch(() => null)
+  return t ? { ...t, note: `${t.note ?? "typed"} (the page marked the phone invalid: the device chose «${option.slice(0, 40)}», the other country of its code, and typed it again)` } : null
+}
+
+/** A model's select on a dial-code control while the person's international number is known (15a2): the option the
+ *  device's own rules give, and why; null when the control isn't a dial-code one or no option carries the code. */
+async function dialOwn(state: AgentState, io: RunnerIO, call: ToolCall): Promise<{ option: string; why: string } | null> {
+  const map = await io.map({}).catch(() => null)
+  const item = map?.items.find((i) => i.id === call.id)
+  if (!map || !item || !(item.options ?? []).some((o) => codesIn(o).length)) return null
+  const region = deviceRegion()
+  const pick = pickDialOption(item.options!, state.phoneKnown!, { region, lang: map.lang })
+  if (!pick) return null
+  state.dialTouched = [...new Set([...(state.dialTouched ?? []), item.id])]
+  const byRegion = region && pick.others.length && pick.option !== (call.option ?? "")
+  const why = pick.others.length ? `the person's number has the code +${pick.code}, shared by several countries; chosen by ${byRegion ? "the device's region, else the code's main territory" : "the code"}` : `the person's number has the code +${pick.code}`
+  return { option: pick.option, why }
+}
+
+/** The person's international phone (given in the request, else saved), for the dial-code control (15a2). */
+function knownPhone(state: AgentState, entries: FormEntry[]): string | undefined {
+  const said = contactsQuoted(words(state)).find((c) => c.kind === "phone" && internationalDigits(c.value))
+  if (said) return said.value
+  return liveEntries(entries).find((e) => contactKind(modelKey(e)) === "phone" && internationalDigits(e.value))?.value
 }
 
 /** Does a step on the page and writes it down. A fill types its value in; the log keeps only the key. */
@@ -471,9 +516,22 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
   const opening = (call.tool === "go" || call.tool === "click") && call.id === NEW_TAB_ID && state.openedLink && io.open ? state.openedLink : null
   // A phone beside a country or dial-code control, or behind a fixed code (decision 15): the control set to the number's
   // calling code first, and the national part typed.
-  const phone = !opening && (call.tool === "fill" || call.tool === "type") && call.id ? await phoneFirst(io, call, doing.text ?? "") : null
-  let result = opening ? await io.open!(opening.url).then(() => ({ ok: true, navigated: true, note: "the page went on" }) as StepResult, () => ({ ok: false, note: "it couldn't be opened" }) as StepResult) : await io.act(phone ? { ...doing, text: phone.text } : doing)
-  if (phone && result) result = await phoneAfter(io, call, doing.text ?? "", phone, result)
+  const phone = !opening && (call.tool === "fill" || call.tool === "type") && call.id ? await phoneFirst(state, io, call, doing.text ?? "") : null
+  // (15a2: a select on a dial-code control while the person's international number is known is the device's: the option
+  // its own rules give — the number's code, the device's region, the code's main territory — whatever the model named.)
+  const dialPick = !opening && call.tool === "select" && call.id && state.phoneKnown ? await dialOwn(state, io, call) : null
+  const acting: ToolCall = phone ? { ...doing, text: phone.text, leave: true } : dialPick ? { ...doing, option: dialPick.option } : doing
+  let result = opening ? await io.open!(opening.url).then(() => ({ ok: true, navigated: true, note: "the page went on" }) as StepResult, () => ({ ok: false, note: "it couldn't be opened" }) as StepResult) : await io.act(acting)
+  if (phone && result) result = await phoneAfter(state, io, call, doing.text ?? "", phone, result)
+  if (dialPick && result) result = { ...result, note: `${result.note ?? "chosen"} (the device chose «${dialPick.option.slice(0, 40)}»: ${dialPick.why})` }
+  // (15b, once more: the booking's press came back with the page marking the phone invalid — the other option of its code.)
+  if (result && call.tool === "click" && verdict.reason === "submit" && state.phoneDial && !state.phoneExtra) {
+    const after = await io.map({}).catch(() => null)
+    if (after?.items.find((i) => i.id === state.phoneDial!.fieldId)?.state?.includes("invalid")) {
+      const again = await phoneOtherOption(state, io, state.phoneDial.fieldId)
+      if (again) result = { ...result, note: `${result.note ?? ""}; ${again.note}` }
+    }
+  }
   if (opening) state.openedLink = undefined
   state.inflight = undefined
   if (!result || result.navigated) {
@@ -1708,6 +1766,8 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // The card's contact answers not kept in «Мои данные» count for this task (filled by key, like saved ones).
     const extra = (state.oneTime ?? []).filter((o) => !liveEntries(stored).some((e) => e.key === o.key))
     const entries = extra.length ? [...stored, ...extra.map((o) => ({ id: `once-${o.key}`, key: o.key, label: "", value: o.value, updatedAt: 0 }) as FormEntry)] : stored
+    // (15a2: the person's international phone, known for this step.)
+    state.phoneKnown = knownPhone(state, entries)
     const keys = [...new Set(liveEntries(entries).map(modelKey))]
     const here = (await io.device?.().catch(() => null)) ?? null
     if (state.step === 0 && io.planning && !state.plan) {
@@ -1919,7 +1979,9 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // type it»): sent back once a task; a second such question goes to the person.
     if (call.tool === "ask_user" && !state.givenAsk) {
       const quoted = contactsQuoted(`${call.question ?? ""}\n${(call.choices ?? []).join("\n")}`)
-      const hit = quoted.find((c) => contactGiven(c, words(state), liveEntries(entries)))
+      // (15e amended, «c»: a question quoting a value of a kind the page refused isn't sent back either.)
+      const refused = (kind: string) => map.items.some((i) => i.state?.includes("invalid") && contactField(i) === kind) || lastContactRefused(state, kind)
+      const hit = quoted.find((c) => contactGiven(c, words(state), liveEntries(entries)) && !refused(c.kind))
       // The same question with no value quoted (the director's follow-up 2: «Salon Mira needs your phone number… What
       // is it?» while the request gives it): one e-mail or phone asked for by contactAsked's own words, and the person's
       // words carry one of that kind by pattern. Never for a name; one allowance with the quoted kind.
