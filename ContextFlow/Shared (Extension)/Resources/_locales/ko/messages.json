@@ -3188,6 +3188,9 @@
  "agentStepClick": {
   "message": "‘{0}’ 누르기"
  },
+ "agentStepPricedChoice": {
+  "message": "‘{0}’ 선택 — 가격이 표시된 선택이며 결제가 아닙니다"
+ },
  "agentStepType": {
   "message": "‘{1}’에 ‘{0}’ 입력"
  },

@@ -3188,6 +3188,9 @@
  "agentStepClick": {
   "message": "Натиснути «{0}»"
  },
+ "agentStepPricedChoice": {
+  "message": "Вибрати «{0}» — це вибір із ціною, а не оплата"
+ },
  "agentStepType": {
   "message": "Ввести «{0}» у поле «{1}»"
  },

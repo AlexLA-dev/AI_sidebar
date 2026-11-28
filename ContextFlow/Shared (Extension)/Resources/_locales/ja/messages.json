@@ -3188,6 +3188,9 @@
  "agentStepClick": {
   "message": "「{0}」を押す"
  },
+ "agentStepPricedChoice": {
+  "message": "「{0}」を選ぶ（価格付きの選択で、支払いではありません）"
+ },
  "agentStepType": {
   "message": "「{1}」に「{0}」と入力"
  },

@@ -3188,6 +3188,9 @@
  "agentStepClick": {
   "message": "“{0}” düğmesine bas"
  },
+ "agentStepPricedChoice": {
+  "message": "“{0}” seç — fiyatı olan bir seçim, ödeme değil"
+ },
  "agentStepType": {
   "message": "“{1}” alanına “{0}” yaz"
  },

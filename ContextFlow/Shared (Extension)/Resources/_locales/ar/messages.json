@@ -3188,6 +3188,9 @@
  "agentStepClick": {
   "message": "الضغط على «{0}»"
  },
+ "agentStepPricedChoice": {
+  "message": "اختيار «{0}» — اختيار بسعره، وليس دفعًا"
+ },
  "agentStepType": {
   "message": "كتابة «{0}» في «{1}»"
  },

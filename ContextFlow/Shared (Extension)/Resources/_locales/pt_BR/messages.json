@@ -3188,6 +3188,9 @@
  "agentStepClick": {
   "message": "Apertar “{0}”"
  },
+ "agentStepPricedChoice": {
+  "message": "Escolher “{0}” — uma opção com preço, não um pagamento"
+ },
  "agentStepType": {
   "message": "Digitar “{0}” em “{1}”"
  },

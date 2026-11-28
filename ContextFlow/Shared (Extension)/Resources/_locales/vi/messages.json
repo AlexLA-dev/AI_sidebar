@@ -3188,6 +3188,9 @@
  "agentStepClick": {
   "message": "Nhấn “{0}”"
  },
+ "agentStepPricedChoice": {
+  "message": "Chọn “{0}” — một lựa chọn có giá, không phải thanh toán"
+ },
  "agentStepType": {
   "message": "Nhập “{0}” vào “{1}”"
  },

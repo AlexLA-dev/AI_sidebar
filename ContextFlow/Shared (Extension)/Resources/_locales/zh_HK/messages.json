@@ -3188,6 +3188,9 @@
  "agentStepClick": {
   "message": "點一下「{0}」"
  },
+ "agentStepPricedChoice": {
+  "message": "選擇「{0}」——這是附價格的選項，不是付款"
+ },
  "agentStepType": {
   "message": "在「{1}」中輸入「{0}」"
  },
