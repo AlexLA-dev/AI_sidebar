@@ -3194,6 +3194,15 @@
  "agentRecapAgainTo": {
   "message": "Asked again: the page refused the first try for “{0}”; it was changed to “{1}”."
  },
+ "agentStepServiceOther": {
+  "message": "The page has no “{0}”. Choose “{1}” instead?"
+ },
+ "agentRecapService": {
+  "message": "Service: {0}"
+ },
+ "agentRecapServiceOther": {
+  "message": "Not “{0}”, the one asked for: you chose this one."
+ },
  "agentStepPricedChoice": {
   "message": "Choose “{0}” — a choice with its price, not a payment"
  },

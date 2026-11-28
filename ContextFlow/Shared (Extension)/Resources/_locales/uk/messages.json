@@ -3194,6 +3194,15 @@
  "agentRecapAgainTo": {
   "message": "Питаю знову: сторінка не прийняла першу спробу через поле «{0}»; вибрано «{1}»."
  },
+ "agentStepServiceOther": {
+  "message": "На сторінці немає «{0}». Обрати замість неї «{1}»?"
+ },
+ "agentRecapService": {
+  "message": "Послуга: {0}"
+ },
+ "agentRecapServiceOther": {
+  "message": "Не «{0}», про яку просили: цю ви обрали самі."
+ },
  "agentStepPricedChoice": {
   "message": "Вибрати «{0}» — це вибір із ціною, а не оплата"
  },

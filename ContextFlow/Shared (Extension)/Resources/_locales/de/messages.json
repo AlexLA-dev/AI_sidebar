@@ -3194,6 +3194,15 @@
  "agentRecapAgainTo": {
   "message": "Erneut gefragt: Die Seite hat den ersten Versuch wegen „{0}“ abgelehnt; gewählt ist jetzt „{1}“."
  },
+ "agentStepServiceOther": {
+  "message": "Die Seite hat kein „{0}“. Stattdessen „{1}“ wählen?"
+ },
+ "agentRecapService": {
+  "message": "Leistung: {0}"
+ },
+ "agentRecapServiceOther": {
+  "message": "Nicht „{0}“ wie gewünscht: diese haben Sie gewählt."
+ },
  "agentStepPricedChoice": {
   "message": "„{0}“ wählen – eine Auswahl mit Preis, keine Zahlung"
  },

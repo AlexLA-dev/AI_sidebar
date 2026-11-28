@@ -3194,6 +3194,15 @@
  "agentRecapAgainTo": {
   "message": "再次确认：页面因“{0}”未接受第一次提交；已改为“{1}”。"
  },
+ "agentStepServiceOther": {
+  "message": "页面上没有“{0}”。改选“{1}”吗？"
+ },
+ "agentRecapService": {
+  "message": "服务：{0}"
+ },
+ "agentRecapServiceOther": {
+  "message": "不是您要的“{0}”：这是您选的。"
+ },
  "agentStepPricedChoice": {
   "message": "选择“{0}”——这是带价格的选项，不是付款"
  },

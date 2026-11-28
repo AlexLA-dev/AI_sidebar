@@ -3194,6 +3194,15 @@
  "agentRecapAgainTo": {
   "message": "Yeniden soruluyor: sayfa ilk denemeyi “{0}” yüzünden kabul etmedi; şimdi “{1}” seçili."
  },
+ "agentStepServiceOther": {
+  "message": "Sayfada “{0}” yok. Bunun yerine “{1}” seçilsin mi?"
+ },
+ "agentRecapService": {
+  "message": "Hizmet: {0}"
+ },
+ "agentRecapServiceOther": {
+  "message": "İstenen “{0}” değil: bunu siz seçtiniz."
+ },
  "agentStepPricedChoice": {
   "message": "“{0}” seç — fiyatı olan bir seçim, ödeme değil"
  },
