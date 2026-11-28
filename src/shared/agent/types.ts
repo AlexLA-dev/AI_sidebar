@@ -146,6 +146,8 @@ export interface ToolCall {
   codes?: string[]
   names?: string[]
   keep?: boolean
+  // (dial) the options the page refused in this task: never chosen again.
+  avoid?: string[]
 }
 
 /**

@@ -19,7 +19,7 @@ export function withDial(io: RunnerIO): RunnerIO {
         map = await io.map({})
         opts = map?.items.filter((i) => i.role === "option").map((i) => i.label) ?? []
       }
-      const pick = chooseDial((opts ?? []).map((label) => ({ label })), item?.value, (c.codes ?? [])[0] ?? "", c.names ?? [], c.keep === true, c.option)
+      const pick = chooseDial((opts ?? []).map((label) => ({ label })), item?.value, (c.codes ?? [])[0] ?? "", c.names ?? [], c.keep === true, [...(c.avoid ?? []), ...(c.option ? [c.option] : [])])
       if (!pick) return { ok: false, note: "no option carries the code" }
       if (item?.role === "button") {
         const o = map!.items.find((i) => i.role === "option" && i.label === pick.chosen)

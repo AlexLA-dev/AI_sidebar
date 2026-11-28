@@ -250,7 +250,7 @@ async function dial(el: Element, call: ToolCall): Promise<StepResult> {
     const select = el as HTMLSelectElement
     const opts = Array.from(select.options)
     const selected = select.selectedOptions[0] ? text(select.selectedOptions[0]) : undefined
-    const pick = chooseDial(opts.map((o) => ({ label: text(o), value: o.value })), selected, codes[0] ?? "", names, call.keep === true, call.option)
+    const pick = chooseDial(opts.map((o) => ({ label: text(o), value: o.value })), selected, codes[0] ?? "", names, call.keep === true, [...(call.avoid ?? []), ...(call.option ? [call.option] : [])])
     if (!pick) return { ok: false, note: "no option carries the number's code" }
     const r = pick.chosen === selected ? { ok: true, note: `kept "${pick.chosen.slice(0, 60)}"` } as StepResult : await choose(el, pick.chosen)
     return { ...r, data: JSON.stringify(pick) }
@@ -274,7 +274,7 @@ async function dial(el: Element, call: ToolCall): Promise<StepResult> {
     await stepSettle(300, 1500)
   }
   const opts = listOf()
-  const pick = chooseDial(opts.map((o) => ({ label: text(o), value: o.getAttribute("data-value") ?? o.getAttribute("value") ?? undefined })), undefined, codes[0] ?? "", names, false, call.option)
+  const pick = chooseDial(opts.map((o) => ({ label: text(o), value: o.getAttribute("data-value") ?? o.getAttribute("value") ?? undefined })), undefined, codes[0] ?? "", names, false, [...(call.avoid ?? []), ...(call.option ? [call.option] : [])])
   const match = pick ? opts.find((o) => text(o) === pick.chosen) : undefined
   if (!pick || !match) {
     if (el.getAttribute("aria-expanded") === "true") press(el)

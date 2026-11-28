@@ -134,16 +134,17 @@ export function optionCode(text: string): string {
  *  rest of +1); among those, the selected one when `keep` (the page's own selection, untouched by the task), else the
  *  first whose label names one of `names` in their order (the device region's country, then the code's main territory),
  *  else the first; `exclude` (the option just refused) is never chosen. Null when no option's code starts the number. */
-export function chooseDial(options: Array<{ label: string; value?: string }>, selected: string | undefined, digits: string, names: string[], keep: boolean, exclude?: string): DialChoice | null {
+export function chooseDial(options: Array<{ label: string; value?: string }>, selected: string | undefined, digits: string, names: string[], keep: boolean, exclude?: string | string[]): DialChoice | null {
+  const avoid = new Set(Array.isArray(exclude) ? exclude : exclude ? [exclude] : [])
   const codeOf = (o: { label: string; value?: string }) => optionCode(o.label) || optionCode(o.value ?? "")
   const fits = options.filter((o) => { const c = codeOf(o); return !!c && digits.startsWith(c) })
   if (!fits.length) return null
   const code = fits.map(codeOf).sort((a, b) => b.length - a.length)[0]
   const withCode = fits.filter((o) => codeOf(o) === code)
-  const pool = withCode.filter((o) => o.label !== exclude)
+  const pool = withCode.filter((o) => !avoid.has(o.label))
   if (!pool.length) return null
   const low = (s: string) => s.toLocaleLowerCase()
-  const kept = keep && selected ? pool.find((o) => o.label === selected || o.value === selected) : undefined
+  const kept = keep && selected && !avoid.has(selected) ? pool.find((o) => o.label === selected || o.value === selected) : undefined
   const named = names.map((n) => pool.find((o) => low(o.label).includes(low(n)) || (n.startsWith("-") && (o.value ?? "").endsWith(n)))).find(Boolean)
   const pick = kept ?? named ?? pool[0]
   return { code, chosen: pick.label, others: withCode.filter((o) => o !== pick).map((o) => o.label) }
