@@ -3188,6 +3188,12 @@
  "agentStepClick": {
   "message": "Pulsar «{0}»"
  },
+ "agentRecapAgain": {
+  "message": "Se pregunta de nuevo: la página rechazó el primer intento por «{0}»."
+ },
+ "agentRecapAgainTo": {
+  "message": "Se pregunta de nuevo: la página rechazó el primer intento por «{0}»; ahora está elegido «{1}»."
+ },
  "agentStepPricedChoice": {
   "message": "Elegir «{0}»: una opción con su precio, no un pago"
  },

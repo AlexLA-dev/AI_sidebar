@@ -3188,6 +3188,12 @@
  "agentStepClick": {
   "message": "「{0}」を押す"
  },
+ "agentRecapAgain": {
+  "message": "もう一度確認します：「{0}」のため、ページが最初の送信を受け付けませんでした。"
+ },
+ "agentRecapAgainTo": {
+  "message": "もう一度確認します：「{0}」のため、ページが最初の送信を受け付けませんでした。「{1}」に変更しました。"
+ },
  "agentStepPricedChoice": {
   "message": "「{0}」を選ぶ（価格付きの選択で、支払いではありません）"
  },

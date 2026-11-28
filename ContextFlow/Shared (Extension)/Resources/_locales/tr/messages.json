@@ -3188,6 +3188,12 @@
  "agentStepClick": {
   "message": "“{0}” düğmesine bas"
  },
+ "agentRecapAgain": {
+  "message": "Yeniden soruluyor: sayfa ilk denemeyi “{0}” yüzünden kabul etmedi."
+ },
+ "agentRecapAgainTo": {
+  "message": "Yeniden soruluyor: sayfa ilk denemeyi “{0}” yüzünden kabul etmedi; şimdi “{1}” seçili."
+ },
  "agentStepPricedChoice": {
   "message": "“{0}” seç — fiyatı olan bir seçim, ödeme değil"
  },

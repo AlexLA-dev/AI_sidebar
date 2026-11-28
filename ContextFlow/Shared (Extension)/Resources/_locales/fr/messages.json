@@ -3188,6 +3188,12 @@
  "agentStepClick": {
   "message": "Appuyer sur « {0} »"
  },
+ "agentRecapAgain": {
+  "message": "Nouvelle demande : la page a refusé le premier essai à cause de « {0} »."
+ },
+ "agentRecapAgainTo": {
+  "message": "Nouvelle demande : la page a refusé le premier essai à cause de « {0} » ; « {1} » est maintenant choisi."
+ },
  "agentStepPricedChoice": {
   "message": "Choisir « {0} » — un choix avec son prix, pas un paiement"
  },
