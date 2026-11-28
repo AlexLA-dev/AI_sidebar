@@ -160,6 +160,11 @@ export interface PlanBooking {
   windowFixed?: boolean
   // The time the request itself names (HH:MM), before the rules widen it: a booked time that isn't it is a deviation.
   at?: string
+  // Decision 20: a clock time the request states as a bound, with its direction (the plan reports it): «after 18:00»,
+  // «не раньше 18:00», «18時以降» → notBefore 18:00; «before 20:00», «until 20:00» → notAfter 20:00. The window can't
+  // cross it (bookingOf clamps from/until to it); the rules widen a window only on the side the request left open.
+  notBefore?: string
+  notAfter?: string
   // Which place or who gives it matters to the person, so they choose it (a doctor, a tutor, a stylist, a hotel for a
   // trip); false: any one fits and the rules choose (any parking spot, any table at «any Italian», any yoga class then).
   personal?: boolean
@@ -226,6 +231,8 @@ export const PLAN_SCHEMA = {
         windowDays: { type: "integer" },
         windowEnd: { type: "string" },
         at: { type: "string" },
+        notBefore: { type: "string" },
+        notAfter: { type: "string" },
         personal: { type: "boolean" },
         from: { type: "string" },
         until: { type: "string" },
@@ -240,7 +247,7 @@ export const PLAN_SCHEMA = {
         specialistNamed: { type: "string" },
         serviceNamed: { type: "string" }
       },
-      required: ["kind", "date", "dateEnd", "window", "windowDays", "windowEnd", "at", "personal", "from", "until", "minutes", "tz", "venue", "match", "area", "contacts", "specialists", "services", "specialistNamed", "serviceNamed"],
+      required: ["kind", "date", "dateEnd", "window", "windowDays", "windowEnd", "at", "notBefore", "notAfter", "personal", "from", "until", "minutes", "tz", "venue", "match", "area", "contacts", "specialists", "services", "specialistNamed", "serviceNamed"],
       additionalProperties: false
     }
   },
@@ -308,7 +315,23 @@ function bookingOf(v: unknown): PlanBooking | null {
   const specialistNamed = s(b.specialistNamed, 60)
   const serviceNamed = s(b.serviceNamed, 60)
   const at = time(b.at)
-  return { kind, date, ...(dateEnd ? { dateEnd } : {}), ...(window !== "none" ? { window } : {}), ...(window === "next_days" && windowDays > 1 ? { windowDays } : {}), ...(window === "range" ? { windowEnd } : {}), ...(at ? { at } : {}), personal, from: time(b.from) || "08:00", until: time(b.until) || "21:00", minutes, ...(tz && validZone(tz) ? { tz } : {}), ...(venue ? { venue } : {}), ...(match.length ? { match } : {}), ...(area.length ? { area } : {}), ...(contacts.length ? { contacts } : {}), ...(specialists.length ? { specialists } : {}), ...(services.length ? { services } : {}), ...(specialistNamed ? { specialistNamed } : {}), ...(serviceNamed ? { serviceNamed } : {}) }
+  // (Decision 20: a stated bound is hard — the window the plan wrote is clamped to it, never crossing it.)
+  const notBefore = time(b.notBefore)
+  const notAfter = time(b.notAfter) && (!notBefore || time(b.notAfter) >= notBefore) ? time(b.notAfter) : ""
+  const win = clampWindow(time(b.from) || "08:00", time(b.until) || "21:00", notBefore, notAfter)
+  return { kind, date, ...(dateEnd ? { dateEnd } : {}), ...(window !== "none" ? { window } : {}), ...(window === "next_days" && windowDays > 1 ? { windowDays } : {}), ...(window === "range" ? { windowEnd } : {}), ...(at ? { at } : {}), ...(notBefore ? { notBefore } : {}), ...(notAfter ? { notAfter } : {}), personal, from: win.from, until: win.until, minutes, ...(tz && validZone(tz) ? { tz } : {}), ...(venue ? { venue } : {}), ...(match.length ? { match } : {}), ...(area.length ? { area } : {}), ...(contacts.length ? { contacts } : {}), ...(specialists.length ? { specialists } : {}), ...(services.length ? { services } : {}), ...(specialistNamed ? { specialistNamed } : {}), ...(serviceNamed ? { serviceNamed } : {}) }
+}
+
+/** Decision 20: a window clamped to the request's stated bounds; a window wholly on the wrong side keeps its length
+ *  from the bound (a plan of 15:00–17:00 for «after 18:00» is 18:00–20:00). */
+export function clampWindow(from: string, until: string, notBefore = "", notAfter = ""): { from: string; until: string } {
+  const min = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5))
+  const hhmm = (m: number) => `${String(Math.floor(Math.min(m, 1439) / 60)).padStart(2, "0")}:${String(Math.min(m, 1439) % 60).padStart(2, "0")}`
+  let f = from, u = until
+  if (notBefore && f < notBefore) { if (u < notBefore) u = hhmm(min(notBefore) + Math.max(60, min(until) - min(from))); f = notBefore }
+  if (notAfter && u > notAfter) { if (f > notAfter) f = hhmm(Math.max(0, min(notAfter) - Math.max(60, min(until) - min(from)))); u = notAfter }
+  if (notBefore && f < notBefore) f = notBefore
+  return { from: f, until: u < f ? f : u }
 }
 
 /**

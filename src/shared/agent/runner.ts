@@ -223,6 +223,8 @@ export interface AgentState {
   serviceOffer?: { asked: string; row: string }
   serviceOK?: string
   servicePressed?: string
+  // (Service-deep at medium: the row a press is choosing, said in its result line once it goes through.)
+  serviceChoosing?: { row: string; asked: string; id?: string }
   // The part the last read_page read (a second read of it, unchanged, is answered with what the device knows).
   lastReadPart?: number
   // Decision 18: the day the person's last answer gave, for the device to set on the page before the model's next step.
@@ -607,7 +609,14 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
   if (result.data) state.data = result.data
   // A fill's log line has its key, never its value (the log goes to the server with the next step).
   const logged: ToolCall = call.tool === "fill" ? { tool: "fill", id: call.id, key: call.key, why: call.why } : call
-  state.log.push({ call: logged, target: target ?? undefined, result: `${noteOf(result)}${byPlan ? " (allowed in the plan)" : ""}` })
+  // (Round 145, service-deep at medium: after pressing the right row the model doubted it — the page's control says
+  // only «Choose». The result line says which row is now chosen, and that it's the plan's service.)
+  const choosing = state.serviceChoosing
+  state.serviceChoosing = undefined
+  const chose = choosing && choosing.id === call.id && result.ok && (call.tool === "click" || call.tool === "go") && !/^nothing changed on the page/.test(result.note ?? "")
+    ? `; the service chosen now is «${choosing.row.replace(/\s+/g, " ").slice(0, 70)}»${choosing.asked ? ` — the plan's service («${choosing.asked.slice(0, 40)}»): keep it and go on with its day and time` : ""}`
+    : ""
+  state.log.push({ call: logged, target: target ?? undefined, result: `${noteOf(result)}${chose}${byPlan ? " (allowed in the plan)" : ""}` })
   // A tap that changed nothing isn't done (128: five ✓ «Opening Harbour View Suites again…» on a card that never opened).
   const idle = (call.tool === "click" || call.tool === "go") && /^nothing changed on the page/.test(result.note ?? "")
   state.lines.push(line(call, verdict, target, result.ok && !idle, undefined, byPlan))
@@ -946,6 +955,13 @@ export function checkDayLine(state: AgentState, map: PageMap): void {
  */
 const SERVICE_LIKE = /\d\s?(?:min|мин|хв|分|분|dk|phút|دقيقة|h\s?\d{1,2})|[€£$₽¥₩₺₴]|(?<![\p{L}])(?:EUR|RUB|USD|GBP|TRY|AED|JPY|KRW|UAH|руб)(?![\p{L}])/iu
 
+/** A row's words without its own control's word at the end («… €26 Choose» → «… €26»). */
+function rowName(row: string, label: string): string {
+  const r = row.replace(/\s+/g, " ").trim()
+  const l = label.replace(/\s+/g, " ").trim()
+  return l && r.length > l.length && r.endsWith(l) ? r.slice(0, -l.length).replace(/[\s·|,-]+$/u, "") : r
+}
+
 /** Decision 19g: whether this press chooses a service row that isn't the plan's named one (no answer of the person
  *  names it, no card approved another): then it's the person's card. A row that fits is noted as the one pressed. */
 async function serviceOther(state: AgentState, io: RunnerIO, map: PageMap, call: ToolCall, item: MapItem | undefined): Promise<boolean> {
@@ -962,12 +978,14 @@ async function serviceOther(state: AgentState, io: RunnerIO, map: PageMap, call:
   if (!row || !SERVICE_LIKE.test(row)) return false
   if (terms.some((t) => termFits(row, t))) {
     state.servicePressed = row.slice(0, 80)
+    state.serviceChoosing = { row: rowName(row, label), asked: terms[0], id: call.id }
     return false
   }
   // (The person named this row in an answer: theirs.)
   if ((state.replies ?? []).some((r) => r.trim().length >= 3 && termFits(row, r))) {
     state.serviceOK = row.slice(0, 80)
     state.servicePressed = state.serviceOK
+    state.serviceChoosing = { row: rowName(row, label), asked: "", id: call.id }
     return false
   }
   state.serviceOffer = { asked: terms[0], row: row.slice(0, 80) }
@@ -1787,9 +1805,18 @@ async function slotRefusal(state: AgentState, io: RunnerIO, call: ToolCall, labe
   return why
 }
 
+/** Decision 20: a time across the request's stated bound («after 18:00»: 17:30), said to the model; null inside it. */
+export function boundWhy(b: PlanBooking, time: string): string | null {
+  if (b.notBefore && time < b.notBefore) return `${time} is outside the time the request states (not before ${b.notBefore}): choose a slot at ${b.notBefore} or later, or ask with the page's nearest real slots`
+  if (b.notAfter && time > b.notAfter) return `${time} is outside the time the request states (not after ${b.notAfter}): choose a slot at ${b.notAfter} or earlier, or ask with the page's nearest real slots`
+  return null
+}
+
 async function slotWhy(state: AgentState, io: RunnerIO, b: PlanBooking, date: string, time: string, map?: PageMap, call?: ToolCall, item?: MapItem): Promise<string | null> {
   // The request's window (its time widened by the rules), checked with or without the Calendar (a restaurant, 121 sweep:
   // 13:15 pressed for «17:30»).
+  const bound = boundWhy(b, time)
+  if (bound) return bound
   if (b.from && b.until && (time < b.from || time > b.until)) return `${time} is outside the time the request and the rules allow (${b.from}–${b.until}): choose a slot inside it, or ask with the page's nearest real slots`
   // The nearest free time to the one the request names is the device's sum, not the model's (127: 19:30 booked for
   // «19:10» with 19:00 free, 19:30 for «20:10» with 20:00 free): a nearer one the page offers is chosen instead.
@@ -1799,7 +1826,7 @@ async function slotWhy(state: AgentState, io: RunnerIO, b: PlanBooking, date: st
   const target = b.at || (b.from && b.until ? b.from : "")
   const once = `${date} ${time}`
   if (target && map && !state.nearSaid?.includes(once)) {
-    let nearer = nearerTimes(target, time, freeTimes(map, call!, item), b.from, b.until)
+    let nearer = nearerTimes(target, time, freeTimes(map, call!, item), b.from, b.until).filter((t) => !boundWhy(b, t))
     if (nearer.length && state.calendar && io.slotFree) {
       const fits: string[] = []
       for (const t of nearer.slice(0, 3)) {
@@ -2501,6 +2528,17 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
         state.refused = why
         continue
       }
+      // (Decision 20: the time chosen across the request's stated bound, which no answer of the person's approved: no
+      // booking's press — the question.)
+      const chosenTime = state.picked?.time ?? (/^([01]\d|2[0-3]):[0-5]\d$/.test(call.time ?? "") ? call.time! : "")
+      const across = chosenTime ? boundWhy(state.plan.booking, chosenTime) : null
+      if (across) {
+        const why = `the time chosen, ${chosenTime}, is outside the time the request states${state.plan.booking.notBefore ? ` (not before ${state.plan.booking.notBefore})` : ""}${state.plan.booking.notAfter ? ` (not after ${state.plan.booking.notAfter})` : ""} and the person hasn't agreed to it: no booking's press — choose a time inside it, or ask them with the page's nearest real times (ask_user), or end with what you found`
+        rule(state, "time_bound")
+        state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
+        state.refused = why
+        continue
+      }
       const entering = !!seenItem && entryPress(seenItem) && !dateControlShown(map)
       const unset0 = entering ? null : unsetDays(state, map)
       const unset = unset0 && !lastPressPage(map) && dayNote(state, io, "days_unset", unset0) ? null : unset0
@@ -3058,6 +3096,9 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
     // isn't 12:01.)
     const agreed = b && !DAY_KINDS.has(b.kind) ? [...new Set(timesIn(text.replace(/\d{4}[-./]\d{1,2}[-./]\d{1,2}|\d{1,2}[./]\d{1,2}[./]\d{2,4}/g, " ")))] : []
     if (b && agreed.length === 1) {
+      // (Decision 20: the person's own time approves it, across the request's bound or not.)
+      b.notBefore = undefined
+      b.notAfter = undefined
       b.at = agreed[0]
       b.from = agreed[0]
       b.until = agreed[0]
@@ -3099,6 +3140,7 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
       if (verdict.reason === "service_other" && pending.serviceOther) {
         state.serviceOK = pending.serviceOther.row
         state.servicePressed = pending.serviceOther.row
+        state.serviceChoosing = { row: pending.serviceOther.row, asked: "", id: call.id }
         state.serviceNone = undefined
         if (state.plan?.booking) state.plan.booking.serviceNamed = pending.serviceOther.row.slice(0, 60)
       }

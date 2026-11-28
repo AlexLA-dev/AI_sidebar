@@ -111,3 +111,13 @@ test("19g: the card's and the recap's words exist in the 15 languages", () => {
     assert.ok(l.agentRecapServiceOther?.includes("{0}"), `${loc} agentRecapServiceOther`)
   }
 })
+
+test("145 (service-deep at medium): the row pressed that fits is said in its result line — chosen, and the plan's service", async () => {
+  ROWS.r5 = "Men's haircut · 60 min · €26 · Choose"
+  const t = io([{ tool: "click", id: "r5" }, { tool: "click", id: "r1", verdict: { cls: "free", reason: "click" } }], () => venue(undefined, [{ id: "r5", role: "button", label: "Choose" }]))
+  const st = await drive(planned(), t.x)
+  delete ROWS.r5
+  const line = st.log.find((l) => l.call.tool === "click" && l.call.id === "r5")?.result ?? ""
+  assert.match(line, /the service chosen now is «Men's haircut · 60 min · €26» — the plan's service \(«Men's haircut»\): keep it/)
+  assert.ok(!st.log.filter((l) => l.call.id !== "r5").some((l) => /the service chosen now/.test(l.result ?? "")), "said for that press only")
+})

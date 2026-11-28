@@ -33,7 +33,7 @@ export const AGENT_RULES = [
   "contact_kind", "given_words", "other_person", "search_first", "list_open", "date_step", "link_dates", "place_ask",
   "place_unfit", "made_up", "slot_time", "slot_window", "slot_nearer", "slot_busy", "book_again", "book_hold",
   "days_unset", "blocked", "apple_access", "said_no", "book_unseen", "count_other", "place_other",
-  "back_floor", "details_next", "dates_none", "cookie_device", "given_ask", "contact_empty", "dial_set", "service_unasked"
+  "back_floor", "details_next", "dates_none", "cookie_device", "given_ask", "contact_empty", "dial_set", "service_unasked", "time_bound"
 ] as const
 export type AgentRule = (typeof AGENT_RULES)[number]
 
