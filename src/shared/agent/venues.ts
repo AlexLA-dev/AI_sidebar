@@ -140,6 +140,17 @@ function unratedOn(map: PageMap, area: string[]): Venue[] {
 
 const fold = (s: string) => s.toLocaleLowerCase().normalize("NFKD").replace(/\p{M}/gu, "")
 
+/** A term fits a text when each of its words is in it, in any order («men's haircut» on «Men's Wash, Haircut & Style»;
+ *  a possessive or plural ending aside), case and accents aside. */
+export function termFits(text: string, term: string): boolean {
+  const t = fold(text)
+  const w = fold(term)
+  if (!wordLong(w)) return false
+  const stem = (x: string) => x.replace(/['’]s$|s$/u, "")
+  const parts = w.split(/[\s\-–,&/]+/).map(stem).filter(wordLong)
+  return t.includes(w) || (parts.length > 0 && parts.every((x) => t.includes(x)))
+}
+
 /**
  * The places that fit, best first: the request's words on the card (when it has any), rated at least `minRating`
  * with 20 reviews or more; the page's own order kept among them (a site sorts by distance or relevance).
@@ -155,11 +166,7 @@ export function rankVenues(list: Venue[], cards: Map<string, string>, match: str
   const near = places.length ? list.filter((v) => places.some((w) => card(v).includes(w))) : []
   if (strict && places.length && !near.length) return []
   const inArea = near.length ? near : list
-  // A term fits when each of its words is on the card, in any order («men's haircut» on «Men's Wash, Haircut & Style»;
-  // a possessive or plural ending aside).
-  const stem = (w: string) => w.replace(/['’]s$|s$/u, "")
-  const has = (text: string, term: string) => term.split(/[\s\-–,&/]+/).map(stem).filter(wordLong).every((x) => text.includes(x))
-  const fits = inArea.filter((v) => !words.length || words.some((w) => card(v).includes(w) || has(card(v), w)))
+  const fits = inArea.filter((v) => !words.length || words.some((w) => termFits(card(v), w)))
   // (A list with no ratings at all: by distance or the page's order.)
   if (fits.length && fits.every((v) => !v.rating)) return byRules(fits, cards)
   const good = fits.filter((v) => v.rating >= minRating && v.reviews >= 20)

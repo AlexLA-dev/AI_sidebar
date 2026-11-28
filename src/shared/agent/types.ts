@@ -102,6 +102,7 @@ export type ToolName =
   | "reminders" | "reminder_add" | "reminder_done" | "calendar" | "event_add"
   // The device only (decision 15f): a country or dial-code control set from its full option list on the page.
   | "dial"
+  | "rows"
 
 /** One call of the model: one tool and its arguments (the ones the tool doesn't use are left out). */
 export interface ToolCall {
@@ -148,6 +149,8 @@ export interface ToolCall {
   keep?: boolean
   // (dial) the options the page refused in this task: never chosen again.
   avoid?: string[]
+  // (rows, decision 19) the plan's service in the request's words: the page's rows that name it.
+  words?: string[]
 }
 
 /**

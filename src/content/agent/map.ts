@@ -110,6 +110,15 @@ function* roots(doc: Document, frame: string, dx: number, dy: number, depth = 0)
 // It is a button by role and classed by its words exactly as a button is (a hint never decides).
 // (Found by look in this build — the «inside one already» check — and ever, for the element's role while it lives.)
 const byLook = new WeakSet<Element>()
+// Controls the device found itself (decision 19: a service row's own choose button anywhere on the page): mapped as
+// buttons wherever they are, by the same number the device gave them.
+const promoted = new WeakSet<Element>()
+
+/** A control the device found itself, mapped as a button from now on; its map number. */
+export function promote(el: Element): string {
+  promoted.add(el)
+  return idOf(el, "")
+}
 let lookThisBuild = new Set<Element>()
 const NOT_BY_LOOK = /^(html|body|label|option|optgroup|script|style|noscript|template|svg|path|g|use|circle|rect|line|polygon|polyline|ellipse|defs|title|br|hr|img|picture|source|video|audio|canvas|iframe|frame|head|meta|link|tr|tbody|thead|table|ul|ol|main|header|footer|nav|section|form)$/i
 
@@ -165,7 +174,7 @@ function collect(doc: Document): Found[] {
     const walk = (r: Document | ShadowRoot | Element) => {
       for (const el of Array.from(r.querySelectorAll("*"))) {
         if (isOwnHost(el)) continue
-        if (el.matches(CONTROL)) out.push({ el, frame, dx, dy })
+        if (el.matches(CONTROL) || promoted.has(el)) out.push({ el, frame, dx, dy })
         else if (pressableByLook(el, dy, height, width)) {
           byLook.add(el)
           lookThisBuild.add(el)
@@ -228,7 +237,7 @@ export function roleOf(el: Element): Role | null {
     return parent && (parent as HTMLElement).isContentEditable ? null : "editor"
   }
   if (el.hasAttribute("onclick")) return "other"
-  if (byLook.has(el)) return "button"
+  if (byLook.has(el) || promoted.has(el)) return "button"
   return null
 }
 

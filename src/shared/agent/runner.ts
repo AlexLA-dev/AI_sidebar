@@ -17,7 +17,7 @@ import { countRefusal } from "./counts.ts"
 import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, withNameParts, type FormEntry } from "./formdata.ts"
 import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
 import { pageSubject, subjectLine, titleName } from "./subject.ts"
-import { cardsOf, onVenue, rankVenues, venueNote, venueOf, venuesOn, type Venue } from "./venues.ts"
+import { cardsOf, onVenue, rankVenues, termFits, venueNote, venueOf, venuesOn, type Venue } from "./venues.ts"
 import { addDays, freeLineIn, honestChoices, looksLikeSlot, nearerTimes, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
 import { setDates, type DatesIO, type DatesResult } from "./setdates.ts"
 import { codesIn, codesOf, deviceRegion, dialControl, dialNames, fixedPrefix, internationalDigits, nationalPart, type DialChoice } from "./phone.ts"
@@ -210,6 +210,11 @@ export interface AgentState {
   dialNoted?: boolean
   // (Round 145's dayNotes experiment: the day rules said once each as notes, and the note for the model's next read.)
   dayNoted?: string[]
+  // Decision 19: the page's rows naming the plan's service, found by the device across the whole page (their own
+  // controls, merged into the page's map while it's the same page), and the line said about them.
+  serviceRows?: { page: string; items: MapItem[]; line: string }
+  // The part the last read_page read (a second read of it, unchanged, is answered with what the device knows).
+  lastReadPart?: number
   // Decision 18: the day the person's last answer gave, for the device to set on the page before the model's next step.
   answeredDay?: string
   noteNext?: string
@@ -929,6 +934,49 @@ export function checkDayLine(state: AgentState, map: PageMap): void {
  * booked with no dates, its steps and summary naming them). A stay's or a rental's two days are on the page it's booked
  * on; one day counts once the page showed it, or it was pressed.
  */
+/** Decision 19: the plan's service in the request's words — the named one first, then the words a fitting place shows. */
+export function serviceTerms(state: AgentState): string[] {
+  const b = state.plan?.booking
+  if (!b || b.kind !== "appointment" || !state.plan?.approved) return []
+  return [...new Set([b.serviceNamed ?? "", ...(b.match ?? [])].map((t) => t.trim()).filter((t) => t.length >= 2))].slice(0, 6)
+}
+
+/** A venue's page or its service list: not a list of places, and three or more durations or prices in its text. */
+export function servicePage(map: PageMap): boolean {
+  if (venuesOn(map).length >= 3) return false
+  const durations = (map.text.match(/\d\s?(?:min|мин|хв|分|분|dk|phút|دقيقة|h\s?\d{1,2})/giu) ?? []).length
+  const prices = (map.text.match(/[€£$₽¥₩₺₴]|(?<![\p{L}])(?:EUR|RUB|USD|GBP|TRY|AED|JPY|KRW|UAH|руб)(?![\p{L}])/gu) ?? []).length
+  return durations >= 3 || prices >= 3
+}
+
+/** Decision 19: the rows of the page naming the plan's service (the hands look through the whole page), up to five, with
+ *  their own controls; none — one line naming the page's groups. Once a page; its rows stay in the page's map. */
+async function serviceRowsOn(state: AgentState, io: RunnerIO, map: PageMap): Promise<void> {
+  const page = pageKey(map.url)
+  if (state.serviceRows && state.serviceRows.page !== page) state.serviceRows = undefined
+  if (!state.serviceRows) {
+    const terms = serviceTerms(state)
+    if (!terms.length || !servicePage(map)) return
+    const r = await io.act({ tool: "rows", words: terms, why: "" }).catch(() => null)
+    let found: { rows: Array<{ text: string; id: string; label: string }>; groups: string[] } | null = null
+    try {
+      found = r?.ok && r.data ? JSON.parse(r.data) : null
+    } catch {
+      found = null
+    }
+    if (!found) return
+    const rows = found.rows.filter((x) => terms.some((t) => termFits(x.text, t))).slice(0, 5)
+    const items: MapItem[] = rows.map((x) => ({ id: x.id, role: "button", label: x.label.slice(0, 60) }) as MapItem)
+    const line = rows.length
+      ? `the device looked through the whole page for «${terms[0]}»: ${rows.map((x) => `«${x.text.slice(0, 90)}» — its button #${x.id}`).join("; ")}. Press the one that fits (its own button) to go on; no need to read the page again`
+      : `the device looked through the whole page for «${terms.slice(0, 3).join("», «")}»: no row names it.${found.groups.length ? ` The page's groups: ${found.groups.slice(0, 10).map((g) => `«${g.slice(0, 40)}»`).join(", ")}.` : ""} Open the group that fits, or choose the closest service, instead of reading the page again`
+    state.serviceRows = { page, items, line }
+    if (!state.refused) state.refused = line
+    else state.noteNext = line
+  }
+  for (const it of state.serviceRows.items) if (!map.items.some((i) => i.id === it.id)) map.items.push(it)
+}
+
 /** Round 145's dayNotes experiment: true when the day rule is to be a note (the action goes on); the note once per
  *  rule a task, appended to the step's line the model reads next. */
 function dayNote(state: AgentState, io: RunnerIO, key: AgentRule, why: string): boolean {
@@ -1881,6 +1929,8 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
         state.refused = `the country list beside «${tel.label.slice(0, 40)}» is set by the device itself for the person's number when the number goes in: don't select it — type the number, then go on`
       }
     }
+    // (Decision 19: on a venue's page or its service list, the device finds the plan's service across the whole page.)
+    await serviceRowsOn(state, io, map)
     const keys = [...new Set(liveEntries(entries).map(modelKey))]
     const here = (await io.device?.().catch(() => null)) ?? null
     if (state.step === 0 && io.planning && !state.plan) {
@@ -2504,6 +2554,19 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       }
       break
     }
+    // (Decision 19: a second read of the part just read, the page unchanged since: answered with the service's rows the
+    // device found, or with the parts not read yet — not with the same part.)
+    if (call.tool === "read_page" && (state.stillReads ?? 0) >= 1 && Math.round(call.part ?? 1) === (state.lastReadPart ?? 1)) {
+      const unread = map.parts > 1 ? Array.from({ length: map.parts }, (_, i) => i + 1).filter((n) => n !== (state.lastReadPart ?? 1)) : []
+      const said = state.serviceRows?.page === pageKey(map.url) ? state.serviceRows.line : unread.length ? `the page has parts not read yet: ${unread.slice(0, 6).join(", ")} — read one of those (read_page with its part), or go on with what the page shows` : ""
+      if (said) {
+        state.log.push({ call, result: `the page hasn't changed since you read this part: ${said}` })
+        state.lastWasRead = true
+        await io.save(state)
+        continue
+      }
+    }
+    if (call.tool === "read_page") state.lastReadPart = Math.round(call.part ?? 1)
     if (call.tool === "read_page" && (call.part ?? 1) > 1) {
       // With the outline a read opens a part and it stays open while the page is the same (a read adds, never replaces);
       // without one, the map's next part for one step, as before.
