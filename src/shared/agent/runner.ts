@@ -71,6 +71,10 @@ export interface Recap {
   // The page refused the first try of this press for a field (marked invalid), and the field was changed since: asked
   // again, and why (the director's addition to decision 15d).
   again?: { field: string; to?: string }
+  // Decision 19g: the service chosen on the page, and whether it's another than the one asked (the person's yes on
+  // its card, or their answer, approved it).
+  service?: string
+  serviceOther?: string
 }
 
 export interface AgentState {
@@ -92,7 +96,7 @@ export interface AgentState {
   status: AgentStatus
   log: LogEntry[]
   lines: AgentLine[]
-  pending?: { call: ToolCall; verdict: StepVerdict; target: string | null; offRequest?: string; fill?: FillLine[]; price?: string; recap?: Recap }
+  pending?: { call: ToolCall; verdict: StepVerdict; target: string | null; offRequest?: string; fill?: FillLine[]; price?: string; recap?: Recap; serviceOther?: { asked: string; row: string } }
   // The plan card (status "plan"), then the approved plan the steps go by (2.7.1, the owner's autonomy note).
   plan?: TaskPlan
   summary?: string
@@ -213,6 +217,12 @@ export interface AgentState {
   // Decision 19: the page's rows naming the plan's service, found by the device across the whole page (their own
   // controls, merged into the page's map while it's the same page), and the line said about them.
   serviceRows?: { page: string; items: MapItem[]; line: string }
+  // Decision 19g: no row named the plan's service — the nearest rows for the person's question, and whether it was
+  // asked; another service's row offered on a card (and its answer); the service row pressed, as the page names it.
+  serviceNone?: { near: string[]; asked?: boolean }
+  serviceOffer?: { asked: string; row: string }
+  serviceOK?: string
+  servicePressed?: string
   // The part the last read_page read (a second read of it, unchanged, is answered with what the device knows).
   lastReadPart?: number
   // Decision 18: the day the person's last answer gave, for the device to set on the page before the model's next step.
@@ -934,6 +944,36 @@ export function checkDayLine(state: AgentState, map: PageMap): void {
  * booked with no dates, its steps and summary naming them). A stay's or a rental's two days are on the page it's booked
  * on; one day counts once the page showed it, or it was pressed.
  */
+const SERVICE_LIKE = /\d\s?(?:min|мин|хв|分|분|dk|phút|دقيقة|h\s?\d{1,2})|[€£$₽¥₩₺₴]|(?<![\p{L}])(?:EUR|RUB|USD|GBP|TRY|AED|JPY|KRW|UAH|руб)(?![\p{L}])/iu
+
+/** Decision 19g: whether this press chooses a service row that isn't the plan's named one (no answer of the person
+ *  names it, no card approved another): then it's the person's card. A row that fits is noted as the one pressed. */
+async function serviceOther(state: AgentState, io: RunnerIO, map: PageMap, call: ToolCall, item: MapItem | undefined): Promise<boolean> {
+  if ((call.tool !== "click" && call.tool !== "go") || !item || state.serviceOK) return false
+  const terms = serviceTerms(state)
+  if (!terms.length || !servicePage(map)) return false
+  const label = item.label.trim()
+  if (!label || isDateLabel(label) || looksLikeSlot(label) || /^\d{1,2}[:.]\d{2}/.test(label)) return false
+  let row = SERVICE_LIKE.test(label) ? label : ""
+  if (!row && label.length <= 40 && call.id) {
+    const r = await io.act({ tool: "rowtext", id: call.id, why: "" }).catch(() => null)
+    row = r?.ok && typeof r.data === "string" ? r.data : ""
+  }
+  if (!row || !SERVICE_LIKE.test(row)) return false
+  if (terms.some((t) => termFits(row, t))) {
+    state.servicePressed = row.slice(0, 80)
+    return false
+  }
+  // (The person named this row in an answer: theirs.)
+  if ((state.replies ?? []).some((r) => r.trim().length >= 3 && termFits(row, r))) {
+    state.serviceOK = row.slice(0, 80)
+    state.servicePressed = state.serviceOK
+    return false
+  }
+  state.serviceOffer = { asked: terms[0], row: row.slice(0, 80) }
+  return true
+}
+
 /** Decision 19: the plan's service in the request's words — the named one first, then the words a fitting place shows. */
 export function serviceTerms(state: AgentState): string[] {
   const b = state.plan?.booking
@@ -958,7 +998,7 @@ async function serviceRowsOn(state: AgentState, io: RunnerIO, map: PageMap): Pro
     const terms = serviceTerms(state)
     if (!terms.length || !servicePage(map)) return
     const r = await io.act({ tool: "rows", words: terms, why: "" }).catch(() => null)
-    let found: { rows: Array<{ text: string; id: string; label: string }>; groups: string[] } | null = null
+    let found: { rows: Array<{ text: string; id: string; label: string }>; groups: string[]; near?: Array<{ text: string; id: string; label: string }> } | null = null
     try {
       found = r?.ok && r.data ? JSON.parse(r.data) : null
     } catch {
@@ -966,10 +1006,13 @@ async function serviceRowsOn(state: AgentState, io: RunnerIO, map: PageMap): Pro
     }
     if (!found) return
     const rows = found.rows.filter((x) => terms.some((t) => termFits(x.text, t))).slice(0, 5)
-    const items: MapItem[] = rows.map((x) => ({ id: x.id, role: "button", label: x.label.slice(0, 60) }) as MapItem)
+    const near = rows.length ? [] : (found.near ?? []).slice(0, 5)
+    const items: MapItem[] = [...rows, ...near].map((x) => ({ id: x.id, role: "button", label: x.label.slice(0, 60) }) as MapItem)
+    // (19g: none names it — never a choice of the model's own: the person is asked, with the nearest rows.)
     const line = rows.length
       ? `the device looked through the whole page for «${terms[0]}»: ${rows.map((x) => `«${x.text.slice(0, 90)}» — its button #${x.id}`).join("; ")}. Press the one that fits (its own button) to go on; no need to read the page again`
-      : `the device looked through the whole page for «${terms.slice(0, 3).join("», «")}»: no row names it.${found.groups.length ? ` The page's groups: ${found.groups.slice(0, 10).map((g) => `«${g.slice(0, 40)}»`).join(", ")}.` : ""} Open the group that fits, or choose the closest service, instead of reading the page again`
+      : `the device looked through the whole page for «${terms.slice(0, 3).join("», «")}»: no row names it.${near.length ? ` Its nearest rows: ${near.map((x) => `«${x.text.slice(0, 80)}»`).join("; ")}.` : found.groups.length ? ` The page's groups: ${found.groups.slice(0, 10).map((g) => `«${g.slice(0, 40)}»`).join(", ")}.` : ""} Don't choose another service yourself: ask the person now (ask_user) whether one of ${near.length ? "those rows" : "the page's services"} will do — those as the choices, and «none of these» in their language`
+    if (!rows.length) state.serviceNone = { near: near.map((x) => x.text.slice(0, 80)) }
     state.serviceRows = { page, items, line }
     if (!state.refused) state.refused = line
     else state.noteNext = line
@@ -1564,7 +1607,9 @@ export function recapOf(state: AgentState, map: PageMap, always = false): Recap 
     ...(otherTime ? { askedTime: b.at } : {}),
     ...(otherPlace ? { otherPlace: true } : {}),
     ...(terms ? { terms: terms.slice(0, 220) } : {}),
-    ...(state.bounced ? { again: { field: state.bounced.field.slice(0, 60), ...(state.staleFix?.to ? { to: state.staleFix.to.slice(0, 60) } : {}) } } : {})
+    ...(state.bounced ? { again: { field: state.bounced.field.slice(0, 60), ...(state.staleFix?.to ? { to: state.staleFix.to.slice(0, 60) } : {}) } } : {}),
+    ...(state.servicePressed ? { service: state.servicePressed.slice(0, 80) } : {}),
+    ...(state.serviceOK && state.serviceOffer ? { serviceOther: state.serviceOffer.asked.slice(0, 60) } : {})
   }
 }
 
@@ -2039,9 +2084,12 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // The place question the plan left to the agent (askPlace), asked from a list of places: once, past the guards below.
     const placeAsk = call.tool === "ask_user" && !!state.plan?.askPlace && !state.placeAsked && !!state.venues?.list.length
     if (placeAsk) state.placeAsked = true
+    // (19g: the question about the service the page hasn't got passes at once — a true question.)
+    const serviceAsk = call.tool === "ask_user" && !!state.serviceNone && !state.serviceNone.asked
+    if (serviceAsk) state.serviceNone!.asked = true
     // (In the last two steps a question goes to the person: the device opening the next place instead spent the last
     // step and the task ended with nobody asked, 126 on a hotel site.)
-    const details = detailsForm(map) || chosenAsk || placeAsk || state.step >= io.maxSteps - 2
+    const details = detailsForm(map) || chosenAsk || placeAsk || serviceAsk || state.step >= io.maxSteps - 2
     if (call.tool === "ask_user" && !details && state.plan?.booking && !state.plan.booking.venue && state.chooseVenue && (state.venueNudges ?? 0) < 2 && (await openNext(state, io, call.question ?? ""))) {
       state.venueNudges = (state.venueNudges ?? 0) + 1
       continue
@@ -2130,7 +2178,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     // The place was the person's answer on the card: a question about the place again is refused with that answer (one
     // question, once) — unless the chosen place couldn't be opened or has nothing for the days, and the question says so.
-    const placeAgain = call.tool === "ask_user" && !chosenAsk && !placeAsk ? askedPlaceAgain(state, call, map) : null
+    const placeAgain = call.tool === "ask_user" && !chosenAsk && !placeAsk && !serviceAsk ? askedPlaceAgain(state, call, map) : null
     if (placeAgain && (state.placeAgain ?? 0) < 2) {
       state.placeAgain = (state.placeAgain ?? 0) + 1
       rule(state, "place_again")
@@ -2183,6 +2231,8 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       state.summary = call.question ?? ""
       // Times the page doesn't show (taken from the Calendar alone, a salon booking site 2) aren't offered.
       state.choices = honestChoices(pageChoices(call.choices ?? [], pageTimes(map)), map, state.dead)
+      // (19g: the service question with no choices of its own: the page's nearest rows.)
+      if (serviceAsk && !state.choices?.length && state.serviceNone?.near.length) state.choices = state.serviceNone.near
       // A contact detail «Мои данные» hasn't got (asked once): the answer may be kept there.
       const key = details ? contactAsked(call.question ?? "") : null
       state.askKey = key && !liveEntries(entries).some((e) => e.key === key) ? key : undefined
@@ -2331,6 +2381,10 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (seenItem) call.expect = { label: seenItem.label, role: seenItem.role, ...(seenItem.lock ? { lock: seenItem.lock } : {}) }
     const device = classify(call, { map, startHost: state.startHost, request: words(state), confirmedHere: confirmedOn(state, hostOf(map.url)), policy: io.policy, booking: bookingPlan(state) })
     let verdict = stricter(reply.verdict, device)
+    // (Decision 19g: a service row that isn't the plan's named service, which no answer of the person names: a card —
+    // «the page has no X. Choose Y instead?» — never the plan's permission, never a refusal.)
+    const other19 = verdict.cls === "free" || verdict.cls === "confirm" ? await serviceOther(state, io, map, call, seenItem) : false
+    if (other19) verdict = { cls: "confirm", reason: "service_other" }
     if (state.readDevice && call.tool === "type" && verdict.cls === "free" && !saidInWords(words(state), call.text ?? "")) verdict = { cls: "confirm", reason: "device_data" }
     // A contact field takes only what the person said, answered or saved — never a value made up or derived (127: «Alex»
     // typed into Name, taken from the e-mail just given).
@@ -2345,7 +2399,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     // A step the approved plan allows goes without a question (a price changed since the plan, or a step the check
     // found off the request, is never covered: those ask as before).
-    let perm: Perm | null = verdict.cls === "confirm" || verdict.cls === "self" ? covered(state.plan, call, verdict, map, words(state), reply.offRequest) : null
+    let perm: Perm | null = (verdict.cls === "confirm" || verdict.cls === "self") && !other19 ? covered(state.plan, call, verdict, map, words(state), reply.offRequest) : null
     // A saved detail whose value is the one the person wrote in the request: the plan's «type your details» covers it.
     // Typing a saved detail's own value into a field the plan meant to fill with it: the plan's fill covers it.
     if (!perm && call.tool === "type" && verdict.reason === "personal" && state.plan?.approved && !reply.offRequest && call.id) {
@@ -2430,6 +2484,15 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (verdict.cls === "confirm" && verdict.reason === "submit" && state.plan?.booking) {
       // (Round 144, the director: a press that enters the booking flow — a specialist's or a service's link, an entry
       // word — on a page with no date control isn't the booking's last press: the day is chosen further on.)
+      // (19g: another service than the asked one, which the person hasn't approved: no booking's press — the question.)
+      if (state.serviceOffer && !state.serviceOK) {
+        const why = `the service on this page isn't the one asked (${state.serviceOffer.asked.slice(0, 40)}) and the person hasn't chosen «${state.serviceOffer.row.slice(0, 60)}»: no booking's press — ask them which service will do (ask_user, the page's nearest rows and «none of these»), or end with what you found`
+        state.serviceNone = { near: state.serviceNone?.near ?? [], asked: false }
+        rule(state, "service_unasked")
+        state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
+        state.refused = why
+        continue
+      }
       const entering = !!seenItem && entryPress(seenItem) && !dateControlShown(map)
       const unset0 = entering ? null : unsetDays(state, map)
       const unset = unset0 && !lastPressPage(map) && dayNote(state, io, "days_unset", unset0) ? null : unset0
@@ -2550,7 +2613,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
         state.status = "confirm"
         // (A booking's last press: what it books goes with the question.)
         const recap = verdict.reason === "submit" && state.plan?.booking ? recapOf(state, map, true) : null
-        state.pending = { call, verdict, target, ...(reply.offRequest ? { offRequest: reply.offRequest } : {}), ...(price ? { price } : {}), ...(recap ? { recap: { ...recap, press: true } } : {}) }
+        state.pending = { call, verdict, target, ...(reply.offRequest ? { offRequest: reply.offRequest } : {}), ...(price ? { price } : {}), ...(recap ? { recap: { ...recap, press: true } } : {}), ...(other19 && state.serviceOffer ? { serviceOther: state.serviceOffer } : {}) }
       }
       break
     }
@@ -3024,6 +3087,13 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
       if (!lines.length) state.log.push({ call: { tool: "fill", id: call.id, key: call.key, why: call.why }, target: target ?? undefined, result: "the person chose not to fill it" })
       for (const l of lines) await perform(state, io, { tool: "fill", id: l.id, key: l.key, why: l.id === call.id ? call.why : "" }, verdict, l.id === call.id ? target : `field "${l.label}"`, l.value)
     } else {
+      // (19g: yes to another service's row — it's the plan's service from now on.)
+      if (verdict.reason === "service_other" && pending.serviceOther) {
+        state.serviceOK = pending.serviceOther.row
+        state.servicePressed = pending.serviceOther.row
+        state.serviceNone = undefined
+        if (state.plan?.booking) state.plan.booking.serviceNamed = pending.serviceOther.row.slice(0, 60)
+      }
       // (Yes to the booking's recap — the last «Do it?» saying what it books: that is the booking's press.)
       await perform(state, io, call, verdict, target, undefined, undefined, !!pending.recap && verdict.reason === "submit")
     }
@@ -3037,7 +3107,10 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
     // (The person pressed the booking's own last button themselves, a payment or the submit: that is the booking's press.)
     if (did && state.plan?.booking && (verdict.reason === "pay" || verdict.reason === "submit")) state.bookPress = { target: target ?? call.id ?? "", at: state.log.length, yes: true }
   } else {
-    state.log.push({ call, target: target ?? undefined, result: "the person said no" })
+    // (19g: no to another service's row — the question with the page's nearest rows, or the task's honest end.)
+    const otherNo = verdict.reason === "service_other" && pending.serviceOther
+    state.log.push({ call, target: target ?? undefined, result: otherNo ? `the person said no to «${pending.serviceOther!.row.slice(0, 60)}» instead of «${pending.serviceOther!.asked.slice(0, 40)}»: book no other service; ask them which one will do (ask_user, the page's nearest rows and «none of these»), or end with what you found` : "the person said no" })
+    if (otherNo) state.serviceNone = { near: state.serviceNone?.near ?? [], asked: false }
     state.lines.push(line(call, verdict, target, false))
   }
   await io.save(state)

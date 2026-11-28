@@ -103,6 +103,7 @@ export type ToolName =
   // The device only (decision 15f): a country or dial-code control set from its full option list on the page.
   | "dial"
   | "rows"
+  | "rowtext"
 
 /** One call of the model: one tool and its arguments (the ones the tool doesn't use are left out). */
 export interface ToolCall {

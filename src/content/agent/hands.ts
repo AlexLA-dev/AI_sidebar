@@ -439,6 +439,9 @@ async function actOnly(call: ToolCall, doc: Document): Promise<StepResult> {
       if (r.undo) r.undo.id = call.id!
       return r
     }
+    case "rowtext": {
+      return { ok: !!el, note: el ? "row" : "gone", data: el ? rowOfControl(el) : "" }
+    }
     case "rows": {
       const found = rowsOn(doc, call.words ?? [])
       return { ok: true, note: found.rows.length ? `${found.rows.length} rows` : "no row", data: JSON.stringify(found) }
@@ -531,7 +534,7 @@ function pressable(el: Element): boolean {
  * (its «Choose» / «Book» or the row itself when it's one link), up to five; and the page's headings, for the line when
  * none names it. The controls found get map numbers (promote) so the next map has them.
  */
-export function rowsOn(doc: Document, terms: string[]): { rows: Array<{ text: string; id: string; label: string }>; groups: string[] } {
+export function rowsOn(doc: Document, terms: string[]): { rows: Array<{ text: string; id: string; label: string }>; groups: string[]; near: Array<{ text: string; id: string; label: string }> } {
   const words = terms.map((t) => t.trim()).filter(Boolean)
   const rows: Array<{ text: string; id: string; label: string }> = []
   const seenText = new Set<string>()
@@ -576,5 +579,43 @@ export function rowsOn(doc: Document, terms: string[]): { rows: Array<{ text: st
     }
   }
   const groups = [...new Set(Array.from(doc.querySelectorAll("h1, h2, h3, h4, [role=heading]")).map(textOf).filter((t) => t.length >= 2 && t.length <= 60))].slice(0, 14)
-  return { rows, groups }
+  // (Decision 19g: none names it — the rows nearest to it, by the words they share with the terms, for the person's
+  // question; each with its own control.)
+  const near = rows.length ? [] : nearRows(doc, words)
+  return { rows, groups, near }
+}
+
+/** A control's row: up from it to the widest box that's still one row (its text short, a few controls in it). */
+export function rowOfControl(control: Element): string {
+  const textOf = (el: Element) => ((el as HTMLElement).innerText ?? el.textContent ?? "").replace(/\s+/g, " ").trim()
+  let row = textOf(control)
+  for (let up = control.parentElement, n = 0; up && n < 6; up = up.parentElement, n++) {
+    const text = textOf(up)
+    if (text.length > 400) break
+    const inside = Array.from(up.querySelectorAll(ROW_CONTROL)).filter(pressable)
+    if (inside.length > 4) break
+    row = text
+  }
+  return row.slice(0, 160)
+}
+
+/** The page's rows sharing the most words with the terms (three letters or more, case and accents aside), up to five. */
+function nearRows(doc: Document, terms: string[]): Array<{ text: string; id: string; label: string }> {
+  const fold = (s: string) => s.toLocaleLowerCase().normalize("NFKD").replace(/\p{M}/gu, "")
+  const words = [...new Set(terms.flatMap((t) => fold(t).split(/[^\p{L}\p{N}]+/u)).filter((w) => w.length >= 3).map((w) => w.replace(/s$/u, "")))]
+  if (!words.length) return []
+  const seen = new Set<string>()
+  const scored: Array<{ text: string; el: Element; score: number }> = []
+  for (const c of Array.from(doc.body?.querySelectorAll("*") ?? [])) {
+    if (!(c.matches(ROW_CONTROL) || pressable(c)) || !pressable(c)) continue
+    if (Array.from(c.querySelectorAll("*")).some((x) => x.matches(ROW_CONTROL))) continue
+    const text = rowOfControl(c)
+    if (!text || seen.has(text)) continue
+    seen.add(text)
+    const t = fold(text)
+    const score = words.filter((w) => t.includes(w)).length
+    if (score > 0) scored.push({ text, el: c, score })
+    if (seen.size > 400) break
+  }
+  return scored.sort((a, b) => b.score - a.score).slice(0, 5).map((x) => { const role = roleOf(x.el); return { text: x.text, id: promote(x.el), label: role ? nameOf(x.el, role) : x.text.slice(0, 40) } })
 }
