@@ -54,3 +54,8 @@
   .cf[data-glow="menu"] .cf-page-more,
   .cf[data-glow="composer"] .cf-composer textarea { animation: none; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.8); }
 }
+
+/* The cookie closer's confirmation (2.7.1): the same line by the circle, quieter (a note, not an offer), at the
+   chat's own size. */
+.cf-ph.cf-cookie-line { padding: 2px 4px; }
+.cf-cookie-line .cf-ph-text { padding: 7px 12px; font-size: var(--fs); font-weight: 500; color: var(--text-2) !important; }

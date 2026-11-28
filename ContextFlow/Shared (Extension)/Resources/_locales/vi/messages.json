@@ -66,7 +66,7 @@
   "message": "Theo dõi giá"
  },
  "plusButton": {
-  "message": "Thêm: ghi chú, ảnh chụp, cả cuộc trò chuyện"
+  "message": "Thêm: ghi chú, làm, ảnh chụp, cả cuộc trò chuyện"
  },
  "hintShow": {
   "message": "Xem"
@@ -1004,9 +1004,6 @@
  "limitFreeBack_other": {
   "message": "Có {0} câu trả lời miễn phí mới lúc {1}, sau {2} nữa."
  },
- "limitFreePro": {
-  "message": "Pro cho bạn tối đa {0} câu trả lời mỗi tuần, đọc video và PDF trên trang, Tìm kiếm AI và đặt câu hỏi trên mọi cuộc trò chuyện của bạn."
- },
  "limitNotes": {
   "message": "Ghi chú vẫn miễn phí và không giới hạn: ghi lại điều quan trọng ngay bây giờ, hỏi AI về nó sau."
  },
@@ -1022,11 +1019,8 @@
  "errKeyRate": {
   "message": "{0} đang giới hạn các yêu cầu từ khóa của bạn: đây là giới hạn tốc độ của tài khoản. Hãy chờ một phút rồi hỏi lại. Xem giới hạn của bạn tại {1}."
  },
- "offerLimit": {
-  "message": "Hoặc dùng Pro, giảm {0}% tháng đầu: tối đa {1} câu trả lời mỗi tuần, sâu và chi tiết hơn. Hủy bất cứ lúc nào."
- },
  "offerButton": {
-  "message": "Dùng Pro, giảm {0}%"
+  "message": "Tháng đầu giảm {0}%"
  },
  "offerShort": {
   "message": "Pro −{0}%"
@@ -2306,9 +2300,6 @@
  "offerMemoryLong": {
   "message": "Cuộc trò chuyện này có nhiều hơn {0} câu trả lời và ghi chú mà câu trả lời miễn phí ghi nhớ. Với Pro, AI ghi nhớ toàn bộ: mọi tin nhắn, ghi chú của bạn và các trang bạn đã hỏi."
  },
- "offerRetryAt": {
-  "message": "Câu trả lời có lại lúc {0}."
- },
  "similarWhere": {
   "message": "Tìm ở đâu"
  },
@@ -2738,6 +2729,72 @@
  "phSimilar": {
   "message": "Tìm chỗ rẻ hơn?"
  },
+ "fabFirstLabel": {
+  "message": "Hỏi về trang này"
+ },
+ "rqProductWorth": {
+  "message": "Có đáng tiền không?"
+ },
+ "rqProductCons": {
+  "message": "Nhược điểm là gì?"
+ },
+ "rqProductCheck": {
+  "message": "Cần kiểm tra gì trước khi mua?"
+ },
+ "rqArticleMain": {
+  "message": "Ý chính là gì?"
+ },
+ "rqArticleArgue": {
+  "message": "Có điểm nào ở đây đáng tranh luận?"
+ },
+ "rqArticleMe": {
+  "message": "Điều này có ý nghĩa gì với tôi?"
+ },
+ "rqVideoAbout": {
+  "message": "Video này nói về gì?"
+ },
+ "rqVideoKey": {
+  "message": "Những điểm chính là gì?"
+ },
+ "rqFormNeed": {
+  "message": "Tôi cần gì để điền mẫu này?"
+ },
+ "rqFormWatch": {
+  "message": "Cần lưu ý gì ở đây?"
+ },
+ "rqEventWhen": {
+  "message": "Khi nào, ở đâu và giá bao nhiêu?"
+ },
+ "rqEventWorth": {
+  "message": "Có đáng để đi không?"
+ },
+ "rqStayKey": {
+  "message": "Những chi tiết chính là gì?"
+ },
+ "rqStayWatch": {
+  "message": "Cần biết gì trước khi quyết định?"
+ },
+ "rqAnyMain": {
+  "message": "Điều chính ở đây là gì?"
+ },
+ "rqAnyWorth": {
+  "message": "Có gì đáng biết ở đây?"
+ },
+ "rqTitle": {
+  "message": "Hỏi về trang này"
+ },
+ "rqAgree": {
+  "message": "Đồng ý và hỏi"
+ },
+ "rqAgreeNote": {
+  "message": "Chạm vào một câu hỏi là đồng ý điều này và gửi câu hỏi."
+ },
+ "rqContinue": {
+  "message": "Tiếp tục «{0}»"
+ },
+ "rqOwnWords": {
+  "message": "Hoặc hỏi bằng lời của bạn…"
+ },
  "phWatch": {
   "message": "Theo dõi giá?"
  },
@@ -2758,6 +2815,24 @@
  },
  "phCalendar": {
   "message": "Thêm vào Lịch?"
+ },
+ "phAgent": {
+  "message": "Điền giúp bạn nhé?"
+ },
+ "googleOffer": {
+  "message": "Tìm trên Google"
+ },
+ "googleOfferFree": {
+  "message": "Không dùng lượt trả lời miễn phí: một trong {0} câu trả lời Google mỗi ngày."
+ },
+ "googleOfferPro": {
+  "message": "Một trong {0} câu trả lời Google của bạn tuần này."
+ },
+ "collectTip": {
+  "message": "Giữ các câu trả lời bạn sao chép ở một chỗ: thêm câu này vào bộ sưu tập."
+ },
+ "collectTipAdd": {
+  "message": "Thêm vào bộ sưu tập"
  },
  "phClose": {
   "message": "Ẩn gợi ý"
@@ -2824,6 +2899,27 @@
  },
  "setPageHintsHint": {
   "message": "Trong những ngày đầu, gợi ý cho bạn biết có thể làm gì trên trang."
+ },
+ "setCookies": {
+  "message": "Đóng cửa sổ cookie"
+ },
+ "setCookiesHint": {
+  "message": "Chọn “chỉ cần thiết”."
+ },
+ "setCookiesAccept": {
+  "message": "Nếu không thể từ chối thì chấp nhận"
+ },
+ "cookiesOffOnSite": {
+  "message": "Không đóng trên trang này"
+ },
+ "cookiesOnOnSite": {
+  "message": "Đóng trên trang này"
+ },
+ "cookieClosedLine": {
+  "message": "Đã đóng cửa sổ cookie: chỉ cần thiết"
+ },
+ "cookieAcceptedLine": {
+  "message": "Đã chấp nhận cookie: không có lựa chọn khác"
  },
  "phSimilarBodyUpBoth": {
   "message": "Tính năng này có trong Pro và Ultra: Pro tìm nhanh, Ultra tìm đầy đủ. Cùng sản phẩm giá rẻ hơn và sản phẩm tương tự từ cửa hàng khác. Chạm nút được làm nổi bật."
@@ -3137,6 +3233,810 @@
  "writeInserted": {
   "message": "Đã chèn"
  },
+ "agentMode": {
+  "message": "Làm"
+ },
+ "agentModeHint": {
+  "message": "Để ContextFlow làm việc này trên trang"
+ },
+ "placeholderAgent": {
+  "message": "Cần làm gì trên trang này?"
+ },
+ "agentWorking": {
+  "message": "Đang làm · bước {0}"
+ },
+ "agentConfirmTitle": {
+  "message": "Làm nhé?"
+ },
+ "agentYes": {
+  "message": "Có"
+ },
+ "agentNo": {
+  "message": "Không"
+ },
+ "agentNoUndo": {
+  "message": "Việc này không thể hoàn tác."
+ },
+ "agentOffRequest": {
+  "message": "Có vẻ bạn không yêu cầu việc này: {0}"
+ },
+ "agentStepClick": {
+  "message": "Nhấn “{0}”"
+ },
+ "agentRecapAgain": {
+  "message": "Hỏi lại: trang đã từ chối lần thử đầu vì “{0}”."
+ },
+ "agentRecapAgainTo": {
+  "message": "Hỏi lại: trang đã từ chối lần thử đầu vì “{0}”; đã đổi sang “{1}”."
+ },
+ "agentStepServiceOther": {
+  "message": "Trang không có “{0}”. Chọn “{1}” thay thế?"
+ },
+ "agentRecapService": {
+  "message": "Dịch vụ: {0}"
+ },
+ "agentRecapServiceOther": {
+  "message": "Không phải “{0}” như đã yêu cầu: bạn đã chọn dịch vụ này."
+ },
+ "agentStepPricedChoice": {
+  "message": "Chọn “{0}” — một lựa chọn có giá, không phải thanh toán"
+ },
+ "agentStepType": {
+  "message": "Nhập “{0}” vào “{1}”"
+ },
+ "agentStepSelect": {
+  "message": "Chọn “{0}” trong “{1}”"
+ },
+ "agentStepGo": {
+  "message": "Đi tới {0}"
+ },
+ "agentFillTitle": {
+  "message": "Điền từ “Thông tin của tôi”?"
+ },
+ "agentFillButton": {
+  "message": "Điền"
+ },
+ "agentFillSkip": {
+  "message": "Không cần"
+ },
+ "agentSelfTitle": {
+  "message": "Bước này là của bạn"
+ },
+ "agentSelfPay": {
+  "message": "Bạn tự thanh toán hoặc đặt hàng nhé: nhấn “{0}” khi đã kiểm tra hết."
+ },
+ "agentSelfSend": {
+  "message": "Bạn tự gửi nhé: nhấn “{0}” khi đã đọc xong."
+ },
+ "agentSelfAuth": {
+  "message": "Bạn tự đăng nhập nhé (Safari có thể điền mật khẩu). Tôi sẽ chờ."
+ },
+ "agentSelfConsent": {
+  "message": "Nếu đồng ý, bạn hãy tự đánh dấu “{0}”."
+ },
+ "agentSelfRate": {
+  "message": "Đánh giá, chấm điểm và bình chọn là việc của riêng bạn."
+ },
+ "agentSelfOther": {
+  "message": "Bạn hãy tự làm việc này: “{0}”."
+ },
+ "agentSelfNewTab": {
+  "message": "Bạn hãy tự chạm vào “{0}”: trang mở mục này trong tab mới, và chỉ thao tác của chính bạn mới làm được. Mình sẽ làm tiếp ở đó."
+ },
+ "agentSelfFile": {
+  "message": "Bạn hãy tự chọn tệp."
+ },
+ "agentSelfDone": {
+  "message": "Xong"
+ },
+ "agentSelfNotNow": {
+  "message": "Để sau"
+ },
+ "agentDoneTitle": {
+  "message": "Xong"
+ },
+ "agentAskedTitle": {
+  "message": "Tôi cần bạn trả lời"
+ },
+ "agentStopped": {
+  "message": "Đã dừng."
+ },
+ "agentUndo": {
+  "message": "Hoàn tác"
+ },
+ "agentUndone": {
+  "message": "Đã khôi phục những gì có thể khôi phục."
+ },
+ "agentLimit": {
+  "message": "Hôm nay tác nhân đã hết lượt việc ({0} mỗi ngày). Ngày mai sẽ có lại."
+ },
+ "agentProOnly": {
+  "message": "Tác nhân có trong Pro và Ultra."
+ },
+ "agentError": {
+  "message": "Đã xảy ra lỗi. Hãy thử lại."
+ },
+ "agentErrorPage": {
+  "message": "Trang không phản hồi. Hãy tải lại trang và thử lại."
+ },
+ "agentSteps": {
+  "message": "Việc này cần quá nhiều bước, nên tôi dừng ở đây."
+ },
+ "agentBlockedSite": {
+  "message": "Trên trang web ngân hàng, thanh toán, cơ quan nhà nước và các trang tương tự, ContextFlow không thao tác thay bạn. Nhưng vẫn có thể trả lời câu hỏi về trang."
+ },
+ "amazonAgent": {
+  "message": "Trên Amazon, ContextFlow chỉ có thể trả lời câu hỏi về trang: Amazon không cho phép công cụ tự động thao tác thay bạn trên trang web của họ."
+ },
+ "amazonSimilar": {
+  "message": "Chưa kiểm tra: Amazon không cho máy chủ của chúng tôi mở các trang của họ."
+ },
+ "agentStart": {
+  "message": "Bắt đầu"
+ },
+ "agentDeferredTitle": {
+  "message": "Việc để sau"
+ },
+ "agentDontAskHere": {
+  "message": "Lần sau bắt đầu ngay trên trang web này"
+ },
+ "agentLater": {
+  "message": "Làm sau"
+ },
+ "agentLaterAt": {
+  "message": "Hẹn giờ"
+ },
+ "agentLaterWatch": {
+  "message": "Khi theo dõi trang này báo thay đổi"
+ },
+ "agentLaterSet": {
+  "message": "Xong"
+ },
+ "agentLaterSaved": {
+  "message": "Vào {0}, bạn sẽ nhận được thông báo. Chạm vào đó, tôi sẽ cùng bạn làm việc này trên trang."
+ },
+ "agentLaterSavedWatch": {
+  "message": "Khi theo dõi báo thay đổi, bạn sẽ nhận được thông báo. Chạm vào đó, tôi sẽ cùng bạn làm việc này."
+ },
+ "agentLaterNotifOff": {
+  "message": "Thông báo của ContextFlow đang tắt. Hãy bật trong Cài đặt → Thông báo → ContextFlow."
+ },
+ "agentLaterNotifyWhy": {
+  "message": "Hãy bật thông báo để tôi nhắc bạn việc này."
+ },
+ "agentLaterPast": {
+  "message": "Thời điểm đó đã qua. Hãy chọn giờ muộn hơn."
+ },
+ "agentYouMark": {
+  "message": "Bạn"
+ },
+ "agentHint": {
+  "message": "Làm trên trang này?"
+ },
+ "agentWaitingStep": {
+  "message": "Bước {0} · đang chờ bạn"
+ },
+ "agentStepReminderAdd": {
+  "message": "Thêm lời nhắc “{0}” vào danh sách “{1}”"
+ },
+ "agentStepReminderAddDue": {
+  "message": "Thêm lời nhắc “{0}” vào danh sách “{1}”, hạn {2}"
+ },
+ "agentStepReminderDone": {
+  "message": "Đánh dấu “{0}” là đã xong trong Lời nhắc"
+ },
+ "agentStepEventAdd": {
+  "message": "Thêm “{0}” vào lịch của bạn: {1}"
+ },
+ "agentSelfAccessReminders": {
+  "message": "Cho phép ContextFlow dùng Lời nhắc: mở ứng dụng, chạm “Cho phép”, rồi quay lại đây và chạm “Xong”."
+ },
+ "agentSelfAccessCalendar": {
+  "message": "Cho phép ContextFlow dùng Lịch: mở ứng dụng, chạm “Cho phép truy cập đầy đủ”, rồi quay lại đây và chạm “Xong”."
+ },
+ "agentOpenApp": {
+  "message": "Mở ContextFlow"
+ },
+ "agentStepReminderAddDefault": {
+  "message": "Thêm lời nhắc “{0}” vào danh sách mặc định"
+ },
+ "agentStepReminderAddDefaultDue": {
+  "message": "Thêm lời nhắc “{0}” vào danh sách mặc định, hạn {1}"
+ },
+ "agentLaterLimit": {
+  "message": "Đã có {0} việc đang chờ, mức tối đa của gói bạn dùng."
+ },
+ "agentNotifTitle": {
+  "message": "Một việc trên {0}"
+ },
+ "agentNotifBody": {
+  "message": "Chạm vào, tôi sẽ cùng bạn làm: {0}"
+ },
+ "agentHelpLink": {
+  "message": "Những gì tác nhân không làm"
+ },
+ "agentHelp": {
+  "message": "Tác nhân làm việc trên trang đang mở: nhấn, nhập, chọn. Trước khi gửi biểu mẫu, nó hỏi “Làm nhé?”, và để bạn tự mua hàng, thanh toán, nhắn tin và đăng nhập. Nó không bao giờ thấy hay nhập mật khẩu, thẻ hoặc số giấy tờ. Captcha, chọn tệp và một số nút lạ thì nó không làm được: khi đó nó sẽ nhờ bạn làm bước ấy. Việc để sau đến dưới dạng thông báo: chạm vào, tác nhân sẽ tiếp tục cùng bạn."
+ },
+ "setAgentAuto": {
+  "message": "Việc để sau bắt đầu ngay trên"
+ },
+ "setAgentAutoHint": {
+  "message": "Ở đó, chạm vào thông báo là việc bắt đầu luôn, không cần “Bắt đầu”. “Làm nhé?” và các bước của riêng bạn vẫn sẽ hỏi."
+ },
+ "fdTitle": {
+  "message": "Thông tin của tôi"
+ },
+ "fdHint": {
+  "message": "Dùng để điền biểu mẫu trên các trang web. Lưu trên thiết bị của bạn; tác nhân chỉ điền sau khi bạn đồng ý, và AI không bao giờ thấy chúng."
+ },
+ "fdNameFull": {
+  "message": "Họ và tên"
+ },
+ "fdNameGiven": {
+  "message": "Tên"
+ },
+ "fdNameFamily": {
+  "message": "Họ"
+ },
+ "fdNameLatin": {
+  "message": "Tên bằng chữ Latinh (không dấu)"
+ },
+ "fdNamePhonetic": {
+  "message": "Cách đọc tên"
+ },
+ "fdEmail": {
+  "message": "Email"
+ },
+ "fdPhone": {
+  "message": "Điện thoại"
+ },
+ "fdAddressLine": {
+  "message": "Số nhà, tên đường"
+ },
+ "fdAddressApartment": {
+  "message": "Căn hộ, tầng"
+ },
+ "fdAddressCity": {
+  "message": "Thành phố"
+ },
+ "fdAddressRegion": {
+  "message": "Tỉnh hoặc bang"
+ },
+ "fdAddressPostal": {
+  "message": "Mã bưu chính"
+ },
+ "fdAddressCountry": {
+  "message": "Quốc gia"
+ },
+ "fdCompany": {
+  "message": "Công ty"
+ },
+ "fdJobTitle": {
+  "message": "Chức danh"
+ },
+ "fdWebsite": {
+  "message": "Trang web"
+ },
+ "fdBirthDate": {
+  "message": "Ngày sinh"
+ },
+ "fdFact": {
+  "message": "Thông tin khác"
+ },
+ "fdFactLabel": {
+  "message": "Đây là gì (ví dụ: cỡ giày)"
+ },
+ "fdAdd": {
+  "message": "Thêm"
+ },
+ "fdDelete": {
+  "message": "Xóa"
+ },
+ "fdDeleteAll": {
+  "message": "Xóa tất cả"
+ },
+ "fdDeleteAllAsk": {
+  "message": "Xóa tất cả thông tin của bạn khỏi thiết bị này (và khỏi iCloud, nếu có đồng bộ)?"
+ },
+ "fdRefused": {
+  "message": "Tôi không lưu mật khẩu, thẻ, thông tin ngân hàng, số giấy tờ, mã hay dữ liệu sức khỏe."
+ },
+ "fdICloudAsk": {
+  "message": "Đồng bộ thông tin của bạn giữa các thiết bị qua iCloud?"
+ },
+ "fdICloudHint": {
+  "message": "Qua iCloud riêng của bạn, nơi chúng tôi không thể truy cập. Nếu không bật, thông tin chỉ nằm trên thiết bị này."
+ },
+ "fdICloud": {
+  "message": "Đồng bộ qua iCloud"
+ },
+ "agentPlanTitle": {
+  "message": "Tôi sẽ làm thế này"
+ },
+ "agentPlanReading": {
+  "message": "Đang đọc trang…"
+ },
+ "agentPlanAllowed": {
+  "message": "Tôi sẽ làm mà không hỏi lại"
+ },
+ "agentPlanSelf": {
+  "message": "Bạn sẽ tự làm"
+ },
+ "agentPlanOwn": {
+  "message": "Khác…"
+ },
+ "agentPlanNow": {
+  "message": "Ngay"
+ },
+ "agentPermPersonal": {
+  "message": "Nhập thông tin bạn đã cho trong yêu cầu: {0}"
+ },
+ "agentPermFill": {
+  "message": "Điền từ “Thông tin của tôi”: {0}"
+ },
+ "agentLineFilled": {
+  "message": "Đã điền: {0}"
+ },
+ "agentLinePressed": {
+  "message": "Đã chạm: {0}"
+ },
+ "agentPermConsent": {
+  "message": "Đánh dấu đồng ý với điều khoản của {0}"
+ },
+ "agentPermReminder": {
+  "message": "Thêm vào Lời nhắc: “{0}”"
+ },
+ "agentPermReminderDone": {
+  "message": "Đánh dấu xong trong Lời nhắc: “{0}”"
+ },
+ "agentPermEvent": {
+  "message": "Thêm vào Lịch: “{0}”"
+ },
+ "agentPlanSelfPay": {
+  "message": "Thanh toán hoặc đặt hàng: “{0}”"
+ },
+ "agentPlanSelfSend": {
+  "message": "Gửi: “{0}”"
+ },
+ "agentPlanSelfAuth": {
+  "message": "Đăng nhập vào trang"
+ },
+ "agentPriceChanged": {
+  "message": "Giá ở đây khác với giá đã thấy trước đó ({0}). Hãy kiểm tra trước khi tiếp tục."
+ },
+ "agentMarkPaused": {
+  "message": "Tạm dừng"
+ },
+ "agentMarkStopped": {
+  "message": "Đã dừng"
+ },
+ "agentMarkFailed": {
+  "message": "Không được"
+ },
+ "agentShowSteps": {
+  "message": "Các bước và kết quả"
+ },
+ "agentModeOff": {
+  "message": "Tắt “Làm”"
+ },
+ "noteHintTouchDo": {
+  "message": "Vuốt nút lên để ghi chú, xuống để “Làm”"
+ },
+ "agentNoticeNeeds": {
+  "message": "Cần bạn"
+ },
+ "agentGoToTab": {
+  "message": "Đến thẻ"
+ },
+ "agentNotifPaused": {
+  "message": "Việc đang tạm dừng — mở Safari để làm xong: {0}"
+ },
+ "agentNotifDone": {
+  "message": "Xong: {0}"
+ },
+ "agentNotifNeeds": {
+  "message": "Cần bạn: {0}"
+ },
+ "agentNotifNotBooked": {
+  "message": "Chưa đặt: {0}"
+ },
+ "agentPlanStepYours": {
+  "message": "“{0}” — bạn tự nhấn"
+ },
+ "agentPlanAnswerFirst": {
+  "message": "Hãy trả lời trước: “{0}”"
+ },
+ "agentErrorNoReply": {
+  "message": "Tiện ích không phản hồi. Hãy thử lại — nếu vẫn vậy, hãy tải lại trang."
+ },
+ "agentStartFailed": {
+  "message": "Không bắt đầu được việc ({0}). Hãy thử lại."
+ },
+ "agentPlanRemember": {
+  "message": "Ghi nhớ trong “Thông tin của tôi”"
+ },
+ "agentPlanFromSaved": {
+  "message": "Từ “Thông tin của tôi” — cập nhật ở đó"
+ },
+ "agentMarkUnfinished": {
+  "message": "Chưa xong"
+ },
+ "agentNothingBooked": {
+  "message": "Chưa đặt được gì."
+ },
+ "agentLastDone": {
+  "message": "Bước cuối đã làm: {0}"
+ },
+ "agentStuck": {
+  "message": "Trang không thay đổi nữa nên tôi dừng ở đây. Những gì đã làm ở bên trên."
+ },
+ "agentNeedSignIn": {
+  "message": "đăng nhập trang"
+ },
+ "agentNeedPay": {
+  "message": "thanh toán trên trang"
+ },
+ "agentNeedAnswer": {
+  "message": "câu trả lời"
+ },
+ "agentAutoLine": {
+  "message": "Không hỏi — từ Dữ liệu của tôi và quy tắc của bạn: {0}"
+ },
+ "agentLineCalendar": {
+  "message": "Đã thêm vào Lịch: {0}"
+ },
+ "agentRulesTitle": {
+  "message": "Quy tắc đặt chỗ"
+ },
+ "agentRulesHint": {
+  "message": "Trợ lý đặt chỗ theo các quy tắc này mà không hỏi. Thanh toán, mã và đăng nhập luôn do bạn làm."
+ },
+ "agentRuleWindow": {
+  "message": "Giờ tôi nói có thể lệch, phút"
+ },
+ "agentRuleDays": {
+  "message": "Nếu ngày đó kín: muộn hơn tối đa … ngày"
+ },
+ "agentRuleParty": {
+  "message": "Số người khi tôi không nói (khách, vé, chỗ)"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "Chuyên viên bất kỳ (thợ làm tóc, bác sĩ, gia sư, huấn luyện viên, hướng dẫn viên…)"
+ },
+ "agentRuleUsual": {
+  "message": "Dịch vụ tôi chọn lần trước trên trang đó"
+ },
+ "agentRuleCalendar": {
+  "message": "Chỉ giờ trống trong Lịch của tôi"
+ },
+ "agentRuleAuto": {
+  "message": "Đặt chỗ không cần kế hoạch khi đã biết mọi thứ và không phải trả tiền"
+ },
+ "agentPlanHow": {
+  "message": "Tôi tự chọn nơi: đánh giá từ {0}, phù hợp, gần nhất"
+ },
+ "agentPlanHowCal": {
+  "message": "giờ trống trong Lịch của bạn, và thêm vào đó"
+ },
+ "agentRuleVenue": {
+  "message": "Tự chọn nơi nếu tôi không nêu tên"
+ },
+ "agentRuleRating": {
+  "message": "Đánh giá nơi từ"
+ },
+ "accessGroup": {
+  "message": "Lịch và Lời nhắc"
+ },
+ "accessHint": {
+  "message": "Tác nhân chọn giờ còn trống trong lịch của bạn và có thể thêm lượt đặt vào đó. Nội dung lịch không bao giờ rời khỏi thiết bị."
+ },
+ "accessCalendar": {
+  "message": "Lịch"
+ },
+ "accessReminders": {
+  "message": "Lời nhắc"
+ },
+ "accessYes": {
+  "message": "Đã cho phép"
+ },
+ "accessNo": {
+  "message": "Chưa có quyền"
+ },
+ "accessAllow": {
+  "message": "Cho phép"
+ },
+ "accessSettingsIos": {
+  "message": "Mở Cài đặt iOS"
+ },
+ "accessSettingsMac": {
+  "message": "Mở Cài đặt hệ thống"
+ },
+ "agentRuleCalNeeds": {
+  "message": "Cần quyền truy cập Lịch"
+ },
+ "agentPlanCalAsk": {
+  "message": "Xét đến lịch?"
+ },
+ "agentCalNotChecked": {
+  "message": "Chưa kiểm tra lịch: không có quyền"
+ },
+ "agentPlanFromChat": {
+  "message": "Từ cuộc trò chuyện: {0}"
+ },
+ "sendMenuNote": {
+  "message": "Ghi chú"
+ },
+ "noteHintPointerDo": {
+  "message": "Cuộn trên nút: lên để ghi chú, xuống để “Làm”, hoặc nhấp chuột phải vào nút"
+ },
+ "setSecGeneral": {
+  "message": "Chung"
+ },
+ "setSecButton": {
+  "message": "Nút nổi và vùng chọn"
+ },
+ "setSecWriting": {
+  "message": "Chèn nhanh và viết"
+ },
+ "setSecAgent": {
+  "message": "“Làm”: việc trên trang"
+ },
+ "setSecCookies": {
+  "message": "Cửa sổ cookie"
+ },
+ "setSecChats": {
+  "message": "Cuộc trò chuyện và không gian"
+ },
+ "setSecData": {
+  "message": "Quyền riêng tư và dữ liệu"
+ },
+ "setSecPlan": {
+  "message": "Gói và tài khoản"
+ },
+ "setSecAbout": {
+  "message": "Giới thiệu"
+ },
+ "fdICloudLocal": {
+  "message": "Hiện chỉ có trên thiết bị này"
+ },
+ "fdICloudSyncing": {
+  "message": "Đang đồng bộ…"
+ },
+ "fdICloudSynced": {
+  "message": "Đã đồng bộ · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "vừa xong"
+ },
+ "fdICloudNoAccount": {
+  "message": "Chưa đồng bộ: hãy đăng nhập iCloud trên thiết bị này"
+ },
+ "fdICloudFailed": {
+  "message": "Chưa đồng bộ: iCloud không phản hồi. Lần sau sẽ thử lại."
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "Người làm dịch vụ — thợ làm tóc, bác sĩ, gia sư, huấn luyện viên, hướng dẫn viên — ai rảnh thì người đó. Tắt: tôi hỏi bạn muốn ai."
+ },
+ "errLink": {
+  "message": "ContextFlow đã mất kết nối với trang này (iOS có thể đã tạm dừng nó khi một ứng dụng khác đang mở). Hãy thử lại, hoặc tải lại trang nếu vẫn xảy ra."
+ },
+ "reloadPage": {
+  "message": "Tải lại trang"
+ },
+ "agentPlanVenueQ": {
+  "message": "Đặt ở đâu (chọn theo quy tắc của bạn)"
+ },
+ "agentPlanEmailQ": {
+  "message": "Email của bạn để đặt chỗ (trang sẽ hỏi)"
+ },
+ "agentPlanPhoneQ": {
+  "message": "Số điện thoại của bạn để đặt chỗ (trang sẽ hỏi)"
+ },
+ "agentLinePopup": {
+  "message": "Đã đóng cửa sổ trên trang: «{0}»"
+ },
+ "agentPlanSpecialistQ": {
+  "message": "Chọn chuyên viên nào?"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "Chuyên viên bất kỳ"
+ },
+ "agentPlanServiceQ": {
+  "message": "Chọn dịch vụ nào?"
+ },
+ "agentPlanSpecialistOnPage": {
+  "message": "Tôi sẽ chọn trên trang của tiệm"
+ },
+ "agentPlanVenueAuto": {
+  "message": "Chọn giúp tôi: đánh giá {0}+, gần nhất"
+ },
+ "agentPlanLastTime": {
+  "message": "lần trước"
+ },
+ "agentPlanPlaceQ": {
+  "message": "Đặt ở đâu?"
+ },
+ "agentBubbleCheck": {
+  "message": "Kiểm tra trước khi tôi làm tiếp: {0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "Hãy đăng nhập trên trang, tôi sẽ đợi"
+ },
+ "agentBubblePlan": {
+  "message": "Kế hoạch đang chờ bạn"
+ },
+ "agentBubbleFill": {
+  "message": "Kiểm tra những gì sẽ điền vào biểu mẫu"
+ },
+ "agentBubbleDone": {
+  "message": "Xong: {0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "Chưa xong: {0}"
+ },
+ "agentBubbleOpen": {
+  "message": "Mở"
+ },
+ "agentBubbleOther": {
+  "message": "Khác…"
+ },
+ "agentBubbleShow": {
+  "message": "Xem"
+ },
+ "agentRuleFreeCancel": {
+  "message": "Chỉ đặt khi được hủy miễn phí"
+ },
+ "agentRuleVenueHint": {
+  "message": "Nơi là nhà hàng, tiệm, phòng khám, khách sạn hay căn hộ, điểm cho thuê, phòng tập hoặc chi nhánh. Khi ai hay ở đâu là quan trọng (bác sĩ, khách sạn cho chuyến đi), tôi sẽ hỏi; nếu không, tôi chọn theo các quy tắc này."
+ },
+ "agentPlanPlaceQAny": {
+  "message": "Đặt ở đâu?"
+ },
+ "agentRecapTitle": {
+  "message": "Kiểm tra trước khi tôi đặt"
+ },
+ "agentRecapWhat": {
+  "message": "Đặt: {0}"
+ },
+ "agentRecapAsked": {
+  "message": "Bạn đã yêu cầu: {0}"
+ },
+ "agentRecapOtherPlace": {
+  "message": "Nơi khác: nơi đầu tiên không có giờ phù hợp"
+ },
+ "agentRecapTerms": {
+  "message": "Hủy, theo trang: {0}"
+ },
+ "tasteListenLeft": {
+  "message": "Nghe trong Pro: tuần này còn {0}/{1} phút"
+ },
+ "tasteSimilarLeft": {
+  "message": "Tìm đầy đủ trong Pro: tuần này còn {0}/{1} lượt"
+ },
+ "tasteUltraListen": {
+  "message": "Trong Ultra: {0} phút mỗi tuần"
+ },
+ "tasteUltraSimilar": {
+  "message": "Trong Ultra: {0} lượt tìm đầy đủ mỗi tuần"
+ },
+ "tasteListenUsed": {
+  "message": "Đã dùng hết {0} phút nghe của Pro tuần này. Sẽ có lại vào {1}."
+ },
+ "tasteSimilarUsed": {
+  "message": "Đã dùng lượt tìm đầy đủ của Pro tuần này. Sẽ có lại vào {0}; tìm nhanh vẫn dùng được."
+ },
+ "tasteSimilarDone": {
+  "message": "Một lượt tìm đầy đủ như trong Ultra: Pro có một lượt mỗi tuần."
+ },
+ "boughtPro": {
+  "message": "Pro đã bật: tối đa {0} câu trả lời mỗi tuần. Cứ hỏi thoải mái."
+ },
+ "boughtUltra": {
+  "message": "Ultra đã bật: Nghe, tìm tương tự đầy đủ và mọi thứ trong Pro."
+ },
+ "boughtByok": {
+  "message": "Khóa riêng đã bật. Hãy thêm khóa API trong Cài đặt."
+ },
+ "answersBackAsk": {
+  "message": "Nhắc tôi khi {0} câu trả lời quay lại"
+ },
+ "answersBackSet": {
+  "message": "Tôi sẽ nhắc bạn lúc {0}, khi câu trả lời quay lại."
+ },
+ "answersBackOff": {
+  "message": "Thông báo của ContextFlow đang tắt. Câu trả lời sẽ quay lại lúc {0}."
+ },
+ "answersBackFailed": {
+  "message": "Không đặt được lời nhắc. Câu trả lời sẽ quay lại lúc {0}."
+ },
+ "answersBackBody": {
+  "message": "{0} câu trả lời miễn phí đã quay lại. Hãy hỏi về bất kỳ trang nào."
+ },
+ "answersBackInApp": {
+  "message": "Đặt trong ứng dụng ContextFlow"
+ },
+ "hoursMinutes": {
+  "message": "{0} giờ {1} phút"
+ },
+ "offerByCode": {
+  "message": "Áp dụng bằng mã trong App Store."
+ },
+ "limitBuyOffer": {
+  "message": "Dùng Pro — tháng đầu giảm {0}%"
+ },
+ "limitBuyPrice": {
+  "message": "Dùng Pro — {0} mỗi tháng"
+ },
+ "answersBackAt": {
+  "message": "Nhắc tôi lúc {0}"
+ },
+ "limitMore": {
+  "message": "Thêm"
+ },
+ "moreYearly": {
+  "message": "Theo năm: {0} mỗi năm"
+ },
+ "moreYearlySave": {
+  "message": "Theo năm: {0} mỗi năm, tiết kiệm {1}%"
+ },
+ "moreUltra": {
+  "message": "Ultra: {0} mỗi tháng, mọi thứ của Pro cùng Nghe và Tìm tương tự"
+ },
+ "moreUltraNoPrice": {
+  "message": "Ultra: mọi thứ của Pro cùng Nghe và Tìm tương tự"
+ },
+ "moreChoose": {
+  "message": "Chọn"
+ },
+ "moreNotes": {
+  "message": "Ghi chú vẫn miễn phí và không giới hạn"
+ },
+ "moreOwnKey": {
+  "message": "Bạn có khóa API?"
+ },
+ "moreOwnKeyLink": {
+  "message": "Dùng khóa của tôi"
+ },
+ "limitProLine": {
+  "message": "Tối đa {0} câu trả lời mỗi tuần"
+ },
+ "limitCancel": {
+  "message": "Hủy bất cứ lúc nào trong App Store."
+ },
+ "limitCardTitle": {
+  "message": "Đã hết câu trả lời miễn phí"
+ },
+ "limitCardBack": {
+  "message": "Có lại lúc {0}, sau {1} nữa."
+ },
+ "answersBackOfferAsk": {
+  "message": "Trong lời nhắc này, báo cả ưu đãi giảm giá Pro"
+ },
+ "answersBackOfferBody": {
+  "message": "{0} câu trả lời miễn phí đã quay lại. Nếu bạn cần nhiều hơn, tháng đầu Pro được giảm {1}%."
+ },
+ "setOfferNotify": {
+  "message": "Giảm giá Pro trong lời nhắc"
+ },
+ "setOfferNotifyHint": {
+  "message": "Chỉ trong lời nhắc bạn đặt khi hết câu trả lời miễn phí. Tắt cho đến khi bạn bật."
+ },
+ "limitCardBackNow": {
+  "message": "Câu trả lời miễn phí đã quay lại."
+ },
+ "limitCardTitleBack": {
+  "message": "Câu trả lời miễn phí đã quay lại"
+ },
+ "gAgentTitle": {
+  "message": "Đặt chỗ giúp bạn, ngay trên trang"
+ },
+ "gAgentLine": {
+  "message": "ContextFlow chọn giờ, điền tên và thông tin liên hệ của bạn từ Thông tin của tôi rồi đặt chỗ. Thanh toán và đăng nhập vẫn do bạn tự làm, và Dừng luôn ở đó."
+ },
+ "gAgentRequest": {
+  "message": "bàn cho hai người lúc 19:00 ngày mai"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },
@@ -3220,6 +4120,15 @@
  },
  "tip_da5f7b74b1": {
   "message": "Đi sâu hơn"
+ },
+ "tip_8f191972e8": {
+  "message": "Đặt chỗ giúp bạn, ngay trên trang"
+ },
+ "tip_363625547a": {
+  "message": "Cần đặt bàn, đặt chỗ ở, hay hẹn lịch với bác sĩ hoặc thợ làm tóc? Trên trang đặt chỗ, mở bảng, chạm + cạnh ô nhập, chọn Làm và nói điều bạn cần: “bàn cho hai người lúc 19:00 ngày mai”. ContextFlow chọn giờ, điền tên và thông tin liên hệ của bạn từ Thông tin của tôi rồi đặt chỗ. Bạn có thể đóng bảng: câu hỏi hoặc kết quả sẽ hiện cạnh ✦. Thanh toán và đăng nhập vẫn do bạn tự làm, và Dừng luôn ở đó. Với Pro hoặc Ultra."
+ },
+ "tip_232e049197": {
+  "message": "Cần đặt bàn, đặt chỗ ở, hay hẹn lịch với bác sĩ hoặc thợ làm tóc? Trên trang đặt chỗ, mở bảng, bấm + cạnh ô nhập, chọn Làm và nói điều bạn cần: “bàn cho hai người lúc 19:00 ngày mai”. ContextFlow chọn giờ, điền tên và thông tin liên hệ của bạn từ Thông tin của tôi rồi đặt chỗ. Bạn có thể đóng bảng: câu hỏi hoặc kết quả sẽ hiện cạnh ✦. Thanh toán và đăng nhập vẫn do bạn tự làm, và Dừng luôn ở đó. Với Pro hoặc Ultra."
  },
  "tip_6ba198cbff": {
   "message": "Ghi chú của riêng bạn"
@@ -3463,6 +4372,15 @@
  },
  "tip_6cc366173d": {
   "message": "Không cần ✦ trên một trang web? Ẩn nút trên trang đó, hoặc tắt ở mọi nơi trong phần cài đặt tiện ích mở rộng. ContextFlow vẫn mở được từ menu tiện ích mở rộng của Safari."
+ },
+ "tip_92470c1789": {
+  "message": "Cửa sổ cookie tự đóng"
+ },
+ "tip_8534da4bd8": {
+  "message": "Mệt vì phải chạm qua từng cửa sổ cookie? ContextFlow trả lời thay bạn bằng “chỉ cần thiết”, và vài lần đầu sẽ có một dòng ngắn cạnh ✦ báo cho bạn biết. Muốn chúng hiện lại trên một trang web? Tắt cho trang đó trong phần cài đặt tiện ích mở rộng, ở mục Cửa sổ cookie."
+ },
+ "tip_fc1a61bcfa": {
+  "message": "Mệt vì phải bấm qua từng cửa sổ cookie? ContextFlow trả lời thay bạn bằng “chỉ cần thiết”, và vài lần đầu sẽ có một dòng ngắn cạnh ✦ báo cho bạn biết. Muốn chúng hiện lại trên một trang web? Tắt cho trang đó trong phần cài đặt tiện ích mở rộng, ở mục Cửa sổ cookie."
  },
  "tip_cc54dd5946": {
   "message": "Gợi ý cạnh nút ✦"

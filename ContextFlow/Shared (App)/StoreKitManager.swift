@@ -53,6 +53,17 @@ final class StoreKitManager: ObservableObject {
     private init() {
         // Before anything here writes the App Group: the app's first launch is told from an update by it.
         _ = Activation.shared
+        // 2.8 diagnostics (the director's acceptance 2, C3): what the app sees of notifications, at launch and each time it
+        // comes to the front, for the extension's line when a reminder can't be set (MessageReminders).
+        Task { await MessageReminders.noteAppStatus() }
+        #if os(iOS)
+        let active = UIApplication.didBecomeActiveNotification
+        #else
+        let active = NSApplication.didBecomeActiveNotification
+        #endif
+        NotificationCenter.default.addObserver(forName: active, object: nil, queue: .main) { _ in
+            Task { await MessageReminders.noteAppStatus() }
+        }
         updates = Task.detached { [weak self] in
             for await result in StoreKit.Transaction.updates {
                 if case .verified(let transaction) = result {
@@ -222,6 +233,10 @@ final class StoreKitManager: ObservableObject {
         return entitlement.active && ["pro", "ultra"].contains(PlanProducts.plan(of: entitlement.productId))
     }
 
+    /// Listen plays for Ultra, and (2.8, В7.4) for Pro while the server gives it a weekly taste (known once the plan facts
+    /// came; until then the server decides when Pro asks).
+    var canListen: Bool { isUltra || (isPro && (planFacts.tasteSpeakSeconds ?? 0) > 0) }
+
     /// Ultra is active (2.6): read aloud, find similar, more watched pages. `-CFDebugUltra YES` in Debug builds.
     var isUltra: Bool {
         #if DEBUG
@@ -258,7 +273,14 @@ final class StoreKitManager: ObservableObject {
         case purchased, cancelled, pending
     }
 
+    /// Any path into the App Store's purchase sheet (or its sign-in) is under way: nothing else of ours comes on screen
+    /// meanwhile (2.8, the director's acceptance: a promo sheet under the Apple sign-in). Paywall.shared.purchasing
+    /// (the limit session) also covers the moments before this is called, from the panel's purchase link on.
+    @Published private(set) var purchasing = false
+
     func purchase(_ product: Product, offer: ChatAI.PromoSignature? = nil) async throws -> PurchaseOutcome {
+        purchasing = true
+        defer { purchasing = false }
         // The install id travels with the transaction (appAccountToken), so the server can tell which
         // install subscribed — still without accounts.
         var options: Set<Product.PurchaseOption> = Activation.shared.accountToken.map { [.appAccountToken($0)] } ?? []

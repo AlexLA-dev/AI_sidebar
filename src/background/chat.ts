@@ -44,7 +44,12 @@ export async function askServer(req: ServerRequest, emit: Emit, signal: AbortSig
         ...(req.payload.context === "history" ? { context: "history", history: req.payload.history ?? [], ...(req.payload.links ? { links: true } : {}) } : {}),
         ...(req.payload.stats ? { stats: req.payload.stats } : {}),
         ...(req.payload.tour ? { tour: true } : {}),
-        ...(req.payload.items ? { items: true } : {})
+        ...(req.payload.items ? { items: true } : {}),
+        ...(req.payload.agent ? { agent: true } : {}),
+        // 2.8: two follow-up questions with a chat's first answer (src/shared/nextQuestions.ts), and how the question
+        // came (src/shared/usage.ts uiFields: via, the page's kind).
+        ...(req.payload.next ? { next: true } : {}),
+        ...(req.payload.ui ? { ui: req.payload.ui } : {})
       }),
       signal: timeout.signal
     })

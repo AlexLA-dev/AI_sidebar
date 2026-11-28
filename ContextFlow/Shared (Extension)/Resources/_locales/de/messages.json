@@ -66,7 +66,7 @@
   "message": "Preis beobachten"
  },
  "plusButton": {
-  "message": "Mehr: Notiz, Schnappschuss, ganzer Chat"
+  "message": "Mehr: Notiz, Erledigen, Schnappschuss, ganzer Chat"
  },
  "hintShow": {
   "message": "Anzeigen"
@@ -1004,9 +1004,6 @@
  "limitFreeBack_other": {
   "message": "{0} neue Gratis-Antworten um {1}, in {2}."
  },
- "limitFreePro": {
-  "message": "Mit Pro bekommst du bis zu {0} Antworten pro Woche, Videos und PDFs auf der Seite, KI-Suche und Fragen über alle deine Chats."
- },
  "limitNotes": {
   "message": "Notizen bleiben gratis und unbegrenzt: Schreib jetzt auf, was zählt, und frag die KI später danach."
  },
@@ -1022,11 +1019,8 @@
  "errKeyRate": {
   "message": "{0} bremst gerade die Anfragen mit deinem Schlüssel: Das ist das Limit deines Kontos. Warte eine Minute und frag noch mal. Deine Limits findest du unter {1}."
  },
- "offerLimit": {
-  "message": "Oder hol dir Pro mit {0} % Rabatt im ersten Monat: bis zu {1} Antworten pro Woche, ausführlicher und gründlicher. Jederzeit kündbar."
- },
  "offerButton": {
-  "message": "Pro mit {0} % Rabatt"
+  "message": "Erster Monat mit {0} % Rabatt"
  },
  "offerShort": {
   "message": "Pro −{0} %"
@@ -2306,9 +2300,6 @@
  "offerMemoryLong": {
   "message": "Dieser Chat hat mehr als die {0} Antworten und Notizen, die eine kostenlose Antwort kennt. Mit Pro merkt sich die KI alles: jede Nachricht, deine Notizen und die Seiten, zu denen du gefragt hast."
  },
- "offerRetryAt": {
-  "message": "Antworten gibt es wieder um {0}."
- },
  "similarWhere": {
   "message": "Wo suchen"
  },
@@ -2738,6 +2729,72 @@
  "phSimilar": {
   "message": "Günstiger finden?"
  },
+ "fabFirstLabel": {
+  "message": "Fragen zu dieser Seite"
+ },
+ "rqProductWorth": {
+  "message": "Ist es sein Geld wert?"
+ },
+ "rqProductCons": {
+  "message": "Welche Nachteile hat es?"
+ },
+ "rqProductCheck": {
+  "message": "Was sollte ich vor dem Kauf prüfen?"
+ },
+ "rqArticleMain": {
+  "message": "Was ist die Kernaussage?"
+ },
+ "rqArticleArgue": {
+  "message": "Was lässt sich hier bestreiten?"
+ },
+ "rqArticleMe": {
+  "message": "Was bedeutet das für mich?"
+ },
+ "rqVideoAbout": {
+  "message": "Worum geht es in dem Video?"
+ },
+ "rqVideoKey": {
+  "message": "Was sind die wichtigsten Punkte?"
+ },
+ "rqFormNeed": {
+  "message": "Was brauche ich zum Ausfüllen?"
+ },
+ "rqFormWatch": {
+  "message": "Worauf sollte ich hier achten?"
+ },
+ "rqEventWhen": {
+  "message": "Wann, wo und was kostet es?"
+ },
+ "rqEventWorth": {
+  "message": "Lohnt es sich hinzugehen?"
+ },
+ "rqStayKey": {
+  "message": "Was sind die wichtigsten Details?"
+ },
+ "rqStayWatch": {
+  "message": "Was sollte ich vorher wissen?"
+ },
+ "rqAnyMain": {
+  "message": "Worum geht es hier im Kern?"
+ },
+ "rqAnyWorth": {
+  "message": "Was ist hier wissenswert?"
+ },
+ "rqTitle": {
+  "message": "Fragen zu dieser Seite"
+ },
+ "rqAgree": {
+  "message": "Zustimmen und fragen"
+ },
+ "rqAgreeNote": {
+  "message": "Ein Tippen auf eine Frage gibt diese Zustimmung und stellt die Frage."
+ },
+ "rqContinue": {
+  "message": "„{0}“ fortsetzen"
+ },
+ "rqOwnWords": {
+  "message": "Oder frag in deinen eigenen Worten…"
+ },
  "phWatch": {
   "message": "Preis beobachten?"
  },
@@ -2758,6 +2815,24 @@
  },
  "phCalendar": {
   "message": "Zum Kalender hinzufügen?"
+ },
+ "phAgent": {
+  "message": "Für dich ausfüllen?"
+ },
+ "googleOffer": {
+  "message": "Bei Google danach suchen"
+ },
+ "googleOfferFree": {
+  "message": "Verbraucht keine Gratis-Antworten: eine von {0} Google-Antworten pro Tag."
+ },
+ "googleOfferPro": {
+  "message": "Eine deiner {0} Google-Antworten diese Woche."
+ },
+ "collectTip": {
+  "message": "Kopierte Antworten an einem Ort behalten: diese zu einer Sammlung hinzufügen."
+ },
+ "collectTipAdd": {
+  "message": "Zur Sammlung hinzufügen"
  },
  "phClose": {
   "message": "Tipp ausblenden"
@@ -2824,6 +2899,27 @@
  },
  "setPageHintsHint": {
   "message": "In den ersten Tagen zeigen sie, was du auf einer Seite tun kannst."
+ },
+ "setCookies": {
+  "message": "Cookie-Fenster schließen"
+ },
+ "setCookiesHint": {
+  "message": "Wählt „Nur notwendige“."
+ },
+ "setCookiesAccept": {
+  "message": "Wenn Ablehnen nicht geht: akzeptieren"
+ },
+ "cookiesOffOnSite": {
+  "message": "Auf dieser Website nicht schließen"
+ },
+ "cookiesOnOnSite": {
+  "message": "Auf dieser Website schließen"
+ },
+ "cookieClosedLine": {
+  "message": "Cookie-Fenster geschlossen: nur notwendige"
+ },
+ "cookieAcceptedLine": {
+  "message": "Cookies akzeptiert: es gab keine andere Wahl"
  },
  "phSimilarBodyUpBoth": {
   "message": "Das gibt es in Pro und Ultra: in Pro die schnelle Suche, in Ultra die volle. Dasselbe günstiger und Ähnliches aus anderen Shops. Tippe auf die hervorgehobene Taste."
@@ -3137,6 +3233,810 @@
  "writeInserted": {
   "message": "Eingefügt"
  },
+ "agentMode": {
+  "message": "Erledigen"
+ },
+ "agentModeHint": {
+  "message": "Lass ContextFlow das auf dieser Seite erledigen"
+ },
+ "placeholderAgent": {
+  "message": "Was soll ich auf dieser Seite tun?"
+ },
+ "agentWorking": {
+  "message": "Läuft · Schritt {0}"
+ },
+ "agentConfirmTitle": {
+  "message": "Soll ich das machen?"
+ },
+ "agentYes": {
+  "message": "Ja"
+ },
+ "agentNo": {
+  "message": "Nein"
+ },
+ "agentNoUndo": {
+  "message": "Das kann nicht widerrufen werden."
+ },
+ "agentOffRequest": {
+  "message": "Das passt wohl nicht zu deiner Bitte: {0}"
+ },
+ "agentStepClick": {
+  "message": "„{0}“ drücken"
+ },
+ "agentRecapAgain": {
+  "message": "Erneut gefragt: Die Seite hat den ersten Versuch wegen „{0}“ abgelehnt."
+ },
+ "agentRecapAgainTo": {
+  "message": "Erneut gefragt: Die Seite hat den ersten Versuch wegen „{0}“ abgelehnt; gewählt ist jetzt „{1}“."
+ },
+ "agentStepServiceOther": {
+  "message": "Die Seite hat kein „{0}“. Stattdessen „{1}“ wählen?"
+ },
+ "agentRecapService": {
+  "message": "Leistung: {0}"
+ },
+ "agentRecapServiceOther": {
+  "message": "Nicht „{0}“ wie gewünscht: diese haben Sie gewählt."
+ },
+ "agentStepPricedChoice": {
+  "message": "„{0}“ wählen – eine Auswahl mit Preis, keine Zahlung"
+ },
+ "agentStepType": {
+  "message": "„{0}“ in „{1}“ eingeben"
+ },
+ "agentStepSelect": {
+  "message": "„{0}“ in „{1}“ auswählen"
+ },
+ "agentStepGo": {
+  "message": "{0} öffnen"
+ },
+ "agentFillTitle": {
+  "message": "Aus „Meine Daten“ ausfüllen?"
+ },
+ "agentFillButton": {
+  "message": "Ausfüllen"
+ },
+ "agentFillSkip": {
+  "message": "Lieber nicht"
+ },
+ "agentSelfTitle": {
+  "message": "Dieser Schritt ist deiner"
+ },
+ "agentSelfPay": {
+  "message": "Bezahle oder bestelle selbst: Drück auf „{0}“, wenn du alles geprüft hast."
+ },
+ "agentSelfSend": {
+  "message": "Schick es selbst ab: Drück auf „{0}“, wenn du es gelesen hast."
+ },
+ "agentSelfAuth": {
+  "message": "Melde dich selbst an (Safari kann dein Passwort einsetzen). Ich warte."
+ },
+ "agentSelfConsent": {
+  "message": "Setz das Häkchen bei „{0}“ selbst, wenn du einverstanden bist."
+ },
+ "agentSelfRate": {
+  "message": "Bewertungen, Sterne und Stimmen gibst nur du ab."
+ },
+ "agentSelfOther": {
+  "message": "Mach das bitte selbst: „{0}“."
+ },
+ "agentSelfNewTab": {
+  "message": "Tippe bitte selbst auf „{0}“: Die Seite öffnet das in einem neuen Tab, und das geht nur mit deinem eigenen Tippen. Ich mache dort weiter."
+ },
+ "agentSelfFile": {
+  "message": "Wähl die Datei bitte selbst aus."
+ },
+ "agentSelfDone": {
+  "message": "Fertig"
+ },
+ "agentSelfNotNow": {
+  "message": "Nicht jetzt"
+ },
+ "agentDoneTitle": {
+  "message": "Erledigt"
+ },
+ "agentAskedTitle": {
+  "message": "Kurze Frage an dich"
+ },
+ "agentStopped": {
+  "message": "Gestoppt."
+ },
+ "agentUndo": {
+  "message": "Widerrufen"
+ },
+ "agentUndone": {
+  "message": "Alles zurückgesetzt, was sich zurücksetzen ließ."
+ },
+ "agentLimit": {
+  "message": "Die Agent-Aufgaben für heute sind aufgebraucht ({0} pro Tag). Morgen gibt es neue."
+ },
+ "agentProOnly": {
+  "message": "Den Agenten gibt es mit Pro und Ultra."
+ },
+ "agentError": {
+  "message": "Etwas ist schiefgelaufen. Versuch es noch mal."
+ },
+ "agentErrorPage": {
+  "message": "Die Seite reagiert nicht. Lade sie neu und versuch es noch mal."
+ },
+ "agentSteps": {
+  "message": "Das hat zu viele Schritte gebraucht, deshalb habe ich hier aufgehört."
+ },
+ "agentBlockedSite": {
+  "message": "Auf Websites von Banken, Zahlungsdiensten, Behörden und Ähnlichem handelt ContextFlow nicht für dich. Fragen zur Seite beantwortet es aber trotzdem."
+ },
+ "amazonAgent": {
+  "message": "Auf Amazon kann ContextFlow nur Fragen zur Seite beantworten: Amazon erlaubt nicht, dass automatische Tools auf seiner Website für dich handeln."
+ },
+ "amazonSimilar": {
+  "message": "Nicht geprüft: Amazon lässt unseren Server seine Seiten nicht öffnen."
+ },
+ "agentStart": {
+  "message": "Starten"
+ },
+ "agentDeferredTitle": {
+  "message": "Aufgabe für später"
+ },
+ "agentDontAskHere": {
+  "message": "Auf dieser Website künftig sofort starten"
+ },
+ "agentLater": {
+  "message": "Später"
+ },
+ "agentLaterAt": {
+  "message": "Zu einer Uhrzeit"
+ },
+ "agentLaterWatch": {
+  "message": "Wenn die Beobachtung dieser Seite anschlägt"
+ },
+ "agentLaterSet": {
+  "message": "Einstellen"
+ },
+ "agentLaterSaved": {
+  "message": "Du bekommst eine Mitteilung: {0}. Tippe darauf, dann mache ich es mit dir auf dieser Seite."
+ },
+ "agentLaterSavedWatch": {
+  "message": "Wenn die Beobachtung anschlägt, bekommst du eine Mitteilung. Tippe darauf, dann mache ich es mit dir."
+ },
+ "agentLaterNotifOff": {
+  "message": "Mitteilungen für ContextFlow sind aus. Schalte sie ein unter Einstellungen → Mitteilungen → ContextFlow."
+ },
+ "agentLaterNotifyWhy": {
+  "message": "Schalte Mitteilungen ein, damit ich dich an diese Aufgabe erinnern kann."
+ },
+ "agentLaterPast": {
+  "message": "Diese Zeit ist schon vorbei. Wähle eine spätere."
+ },
+ "agentYouMark": {
+  "message": "Du"
+ },
+ "agentHint": {
+  "message": "Auf dieser Seite erledigen?"
+ },
+ "agentWaitingStep": {
+  "message": "Schritt {0} · wartet auf dich"
+ },
+ "agentStepReminderAdd": {
+  "message": "Erinnerung „{0}“ zur Liste „{1}“ hinzufügen"
+ },
+ "agentStepReminderAddDue": {
+  "message": "Erinnerung „{0}“ zur Liste „{1}“ hinzufügen, fällig {2}"
+ },
+ "agentStepReminderDone": {
+  "message": "„{0}“ in Erinnerungen als erledigt markieren"
+ },
+ "agentStepEventAdd": {
+  "message": "„{0}“ zu deinem Kalender hinzufügen: {1}"
+ },
+ "agentSelfAccessReminders": {
+  "message": "Erlaube ContextFlow den Zugriff auf Erinnerungen: Öffne die App, tippe auf „Erlauben“, komm dann zurück und tippe auf „Fertig“."
+ },
+ "agentSelfAccessCalendar": {
+  "message": "Erlaube ContextFlow den Zugriff auf deinen Kalender: Öffne die App, tippe auf „Vollzugriff erlauben“, komm dann zurück und tippe auf „Fertig“."
+ },
+ "agentOpenApp": {
+  "message": "ContextFlow öffnen"
+ },
+ "agentStepReminderAddDefault": {
+  "message": "Erinnerung „{0}“ zu deiner Standardliste hinzufügen"
+ },
+ "agentStepReminderAddDefaultDue": {
+  "message": "Erinnerung „{0}“ zu deiner Standardliste hinzufügen, fällig {1}"
+ },
+ "agentLaterLimit": {
+  "message": "Es warten schon {0} Aufgaben – mehr fasst dein Tarif nicht."
+ },
+ "agentNotifTitle": {
+  "message": "Eine Aufgabe auf {0}"
+ },
+ "agentNotifBody": {
+  "message": "Tippe, dann mache ich es mit dir: {0}"
+ },
+ "agentHelpLink": {
+  "message": "Was der Agent nicht macht"
+ },
+ "agentHelp": {
+  "message": "Der Agent erledigt Dinge auf der geöffneten Seite: Er drückt, schreibt und wählt aus. Bevor er ein Formular abschickt, fragt er „Soll ich das machen?“, und Kaufen, Bezahlen, Nachrichten und Anmelden überlässt er dir. Passwörter, Karten und Ausweisnummern sieht er nie und gibt sie nie ein. Ein Captcha, die Auswahl einer Datei und manche ungewöhnliche Tasten schafft er nicht: Dann bittet er dich, diesen Schritt selbst zu machen. Eine Aufgabe für später kommt als Mitteilung: Tippe darauf, und der Agent macht mit dir weiter."
+ },
+ "setAgentAuto": {
+  "message": "Aufgaben für später starten sofort auf"
+ },
+ "setAgentAutoHint": {
+  "message": "Dort startet eine Aufgabe direkt über ihre Mitteilung, ohne „Starten“. „Soll ich das machen?“ und deine eigenen Schritte fragen trotzdem nach."
+ },
+ "fdTitle": {
+  "message": "Meine Daten"
+ },
+ "fdHint": {
+  "message": "Zum Ausfüllen von Formularen auf Websites. Sie bleiben auf deinem Gerät; der Agent setzt sie nur ein, wenn du zustimmst, und die KI sieht sie nie."
+ },
+ "fdNameFull": {
+  "message": "Vor- und Nachname"
+ },
+ "fdNameGiven": {
+  "message": "Vorname"
+ },
+ "fdNameFamily": {
+  "message": "Nachname"
+ },
+ "fdNameLatin": {
+  "message": "Name in lateinischer Schrift"
+ },
+ "fdNamePhonetic": {
+  "message": "Aussprache des Namens"
+ },
+ "fdEmail": {
+  "message": "E-Mail"
+ },
+ "fdPhone": {
+  "message": "Telefon"
+ },
+ "fdAddressLine": {
+  "message": "Straße und Hausnummer"
+ },
+ "fdAddressApartment": {
+  "message": "Wohnung, Etage"
+ },
+ "fdAddressCity": {
+  "message": "Ort"
+ },
+ "fdAddressRegion": {
+  "message": "Region oder Bundesland"
+ },
+ "fdAddressPostal": {
+  "message": "Postleitzahl"
+ },
+ "fdAddressCountry": {
+  "message": "Land"
+ },
+ "fdCompany": {
+  "message": "Firma"
+ },
+ "fdJobTitle": {
+  "message": "Position"
+ },
+ "fdWebsite": {
+  "message": "Website"
+ },
+ "fdBirthDate": {
+  "message": "Geburtsdatum"
+ },
+ "fdFact": {
+  "message": "Sonstiges"
+ },
+ "fdFactLabel": {
+  "message": "Was ist das (z. B. Schuhgröße)"
+ },
+ "fdAdd": {
+  "message": "Hinzufügen"
+ },
+ "fdDelete": {
+  "message": "Löschen"
+ },
+ "fdDeleteAll": {
+  "message": "Alle löschen"
+ },
+ "fdDeleteAllAsk": {
+  "message": "Alle deine Daten von diesem Gerät löschen (und aus iCloud, falls sie synchronisiert werden)?"
+ },
+ "fdRefused": {
+  "message": "Passwörter, Karten, Bank- und Ausweisnummern, Codes und Gesundheitsdaten speichere ich nicht."
+ },
+ "fdICloudAsk": {
+  "message": "Deine Daten über iCloud auf deinen Geräten synchronisieren?"
+ },
+ "fdICloudHint": {
+  "message": "Über deine private iCloud, auf die wir keinen Zugriff haben. Ohne sie bleiben die Daten auf diesem Gerät."
+ },
+ "fdICloud": {
+  "message": "Über iCloud synchronisieren"
+ },
+ "agentPlanTitle": {
+  "message": "Das mache ich"
+ },
+ "agentPlanReading": {
+  "message": "Ich lese die Seite …"
+ },
+ "agentPlanAllowed": {
+  "message": "Mache ich ohne Rückfrage"
+ },
+ "agentPlanSelf": {
+  "message": "Das machen Sie selbst"
+ },
+ "agentPlanOwn": {
+  "message": "Anderes …"
+ },
+ "agentPlanNow": {
+  "message": "Jetzt"
+ },
+ "agentPermPersonal": {
+  "message": "Ihre Angaben aus der Bitte eintragen: {0}"
+ },
+ "agentPermFill": {
+  "message": "Aus „Meine Daten“ ausfüllen: {0}"
+ },
+ "agentLineFilled": {
+  "message": "Ausgefüllt: {0}"
+ },
+ "agentLinePressed": {
+  "message": "Getippt: {0}"
+ },
+ "agentPermConsent": {
+  "message": "Zustimmung zu den Bedingungen von {0} ankreuzen"
+ },
+ "agentPermReminder": {
+  "message": "Zu Erinnerungen hinzufügen: „{0}“"
+ },
+ "agentPermReminderDone": {
+  "message": "In Erinnerungen als erledigt markieren: „{0}“"
+ },
+ "agentPermEvent": {
+  "message": "Zum Kalender hinzufügen: „{0}“"
+ },
+ "agentPlanSelfPay": {
+  "message": "Bezahlen oder bestellen: „{0}“"
+ },
+ "agentPlanSelfSend": {
+  "message": "Senden: „{0}“"
+ },
+ "agentPlanSelfAuth": {
+  "message": "Bei der Website anmelden"
+ },
+ "agentPriceChanged": {
+  "message": "Der Preis hier ist ein anderer als vorhin ({0}). Prüf ihn, bevor es weitergeht."
+ },
+ "agentMarkPaused": {
+  "message": "Pausiert"
+ },
+ "agentMarkStopped": {
+  "message": "Gestoppt"
+ },
+ "agentMarkFailed": {
+  "message": "Hat nicht geklappt"
+ },
+ "agentShowSteps": {
+  "message": "Schritte und Ergebnis"
+ },
+ "agentModeOff": {
+  "message": "„Erledigen“ ausschalten"
+ },
+ "noteHintTouchDo": {
+  "message": "Knopf nach oben wischen: Notiz, nach unten: „Erledigen“"
+ },
+ "agentNoticeNeeds": {
+  "message": "Braucht Sie"
+ },
+ "agentGoToTab": {
+  "message": "Zum Tab"
+ },
+ "agentNotifPaused": {
+  "message": "Aufgabe pausiert – öffnen Sie Safari, um sie abzuschließen: {0}"
+ },
+ "agentNotifDone": {
+  "message": "Erledigt: {0}"
+ },
+ "agentNotifNeeds": {
+  "message": "Braucht Sie: {0}"
+ },
+ "agentNotifNotBooked": {
+  "message": "Nicht gebucht: {0}"
+ },
+ "agentPlanStepYours": {
+  "message": "„{0}“ – drücken Sie selbst"
+ },
+ "agentPlanAnswerFirst": {
+  "message": "Bitte zuerst beantworten: „{0}“"
+ },
+ "agentErrorNoReply": {
+  "message": "Die Erweiterung hat nicht geantwortet. Versuchen Sie es noch einmal – passiert es wieder, laden Sie die Seite neu."
+ },
+ "agentStartFailed": {
+  "message": "Die Aufgabe konnte nicht starten ({0}). Versuchen Sie es noch einmal."
+ },
+ "agentPlanRemember": {
+  "message": "In „Meine Daten“ merken"
+ },
+ "agentPlanFromSaved": {
+  "message": "Aus „Meine Daten“ – dort aktualisieren"
+ },
+ "agentMarkUnfinished": {
+  "message": "Nicht fertig"
+ },
+ "agentNothingBooked": {
+  "message": "Es wurde nichts gebucht."
+ },
+ "agentLastDone": {
+  "message": "Zuletzt erledigt: {0}"
+ },
+ "agentStuck": {
+  "message": "Die Seite hat sich nicht mehr verändert, deshalb habe ich hier aufgehört. Was ich geschafft habe, steht oben."
+ },
+ "agentNeedSignIn": {
+  "message": "Anmeldung auf der Website"
+ },
+ "agentNeedPay": {
+  "message": "Bezahlen auf der Website"
+ },
+ "agentNeedAnswer": {
+  "message": "eine Antwort"
+ },
+ "agentAutoLine": {
+  "message": "Ohne Fragen – aus „Meine Daten“ und deinen Regeln: {0}"
+ },
+ "agentLineCalendar": {
+  "message": "Zum Kalender hinzugefügt: {0}"
+ },
+ "agentRulesTitle": {
+  "message": "Buchungsregeln"
+ },
+ "agentRulesHint": {
+  "message": "Danach bucht der Agent ohne Fragen. Bezahlen, Codes und Anmelden bleiben bei dir."
+ },
+ "agentRuleWindow": {
+  "message": "Eine genannte Zeit darf sich verschieben um, Min."
+ },
+ "agentRuleDays": {
+  "message": "Ist der Tag voll: bis zu … Tage später"
+ },
+ "agentRuleParty": {
+  "message": "Personen, wenn ich nichts sage (Gäste, Tickets, Plätze)"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "Beliebige Fachperson (Friseur, Ärztin, Nachhilfe, Trainer, Guide …)"
+ },
+ "agentRuleUsual": {
+  "message": "Die Leistung, die ich dort zuletzt gewählt habe"
+ },
+ "agentRuleCalendar": {
+  "message": "Nur Zeiten, die in meinem Kalender frei sind"
+ },
+ "agentRuleAuto": {
+  "message": "Ohne Plan buchen, wenn alles bekannt ist und nichts kostet"
+ },
+ "agentPlanHow": {
+  "message": "Den Ort wähle ich: ab {0} bewertet, passend, am nächsten"
+ },
+ "agentPlanHowCal": {
+  "message": "eine Zeit, die im Kalender frei ist, dort eingetragen"
+ },
+ "agentRuleVenue": {
+  "message": "Den Ort selbst wählen, wenn ich keinen nenne"
+ },
+ "agentRuleRating": {
+  "message": "Bewertung des Orts ab"
+ },
+ "accessGroup": {
+  "message": "Kalender und Erinnerungen"
+ },
+ "accessHint": {
+  "message": "Der Agent wählt Zeiten, die in deinem Kalender frei sind, und kann Buchungen eintragen. Was in deinem Kalender steht, verlässt das Gerät nicht."
+ },
+ "accessCalendar": {
+  "message": "Kalender"
+ },
+ "accessReminders": {
+  "message": "Erinnerungen"
+ },
+ "accessYes": {
+  "message": "Zugriff erlaubt"
+ },
+ "accessNo": {
+  "message": "Kein Zugriff"
+ },
+ "accessAllow": {
+  "message": "Erlauben"
+ },
+ "accessSettingsIos": {
+  "message": "iOS-Einstellungen öffnen"
+ },
+ "accessSettingsMac": {
+  "message": "Systemeinstellungen öffnen"
+ },
+ "agentRuleCalNeeds": {
+  "message": "Braucht Zugriff auf den Kalender"
+ },
+ "agentPlanCalAsk": {
+  "message": "Kalender berücksichtigen?"
+ },
+ "agentCalNotChecked": {
+  "message": "Kalender nicht geprüft: kein Zugriff"
+ },
+ "agentPlanFromChat": {
+  "message": "Aus dem Chat: {0}"
+ },
+ "sendMenuNote": {
+  "message": "Notiz"
+ },
+ "noteHintPointerDo": {
+  "message": "Auf der Taste scrollen: nach oben für eine Notiz, nach unten für „Erledigen“ – oder Rechtsklick"
+ },
+ "setSecGeneral": {
+  "message": "Allgemein"
+ },
+ "setSecButton": {
+  "message": "Schwebender Button und Auswahl"
+ },
+ "setSecWriting": {
+  "message": "Schnelleinfügen und Schreiben"
+ },
+ "setSecAgent": {
+  "message": "„Erledigen“: Aufgaben auf Seiten"
+ },
+ "setSecCookies": {
+  "message": "Cookie-Fenster"
+ },
+ "setSecChats": {
+  "message": "Chats und Bereiche"
+ },
+ "setSecData": {
+  "message": "Datenschutz und Daten"
+ },
+ "setSecPlan": {
+  "message": "Tarif und Konto"
+ },
+ "setSecAbout": {
+  "message": "Über die App"
+ },
+ "fdICloudLocal": {
+  "message": "Vorerst nur auf diesem Gerät"
+ },
+ "fdICloudSyncing": {
+  "message": "Wird synchronisiert …"
+ },
+ "fdICloudSynced": {
+  "message": "Synchronisiert · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "gerade eben"
+ },
+ "fdICloudNoAccount": {
+  "message": "Nicht synchronisiert: Melde dich auf diesem Gerät bei iCloud an"
+ },
+ "fdICloudFailed": {
+  "message": "Nicht synchronisiert: iCloud hat nicht geantwortet. Beim nächsten Mal wird es erneut versucht."
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "Wer die Leistung erbringt – Friseur, Ärztin, Nachhilfe, Trainer, Kursleitung oder Guide –, wer gerade frei ist. Aus: Ich frage, zu wem."
+ },
+ "errLink": {
+  "message": "ContextFlow hat die Verbindung zu dieser Seite verloren (iOS hat es vielleicht beendet, während eine andere App offen war). Versuche es noch einmal oder lade die Seite neu, falls es wieder passiert."
+ },
+ "reloadPage": {
+  "message": "Seite neu laden"
+ },
+ "agentPlanVenueQ": {
+  "message": "Wo buchen (nach deinen Regeln gewählt)"
+ },
+ "agentPlanEmailQ": {
+  "message": "Deine E-Mail für die Buchung (die Seite fragt danach)"
+ },
+ "agentPlanPhoneQ": {
+  "message": "Deine Telefonnummer für die Buchung (die Seite fragt danach)"
+ },
+ "agentLinePopup": {
+  "message": "Fenster über der Seite geschlossen: «{0}»"
+ },
+ "agentPlanSpecialistQ": {
+  "message": "Welche Fachkraft?"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "Beliebige Fachkraft"
+ },
+ "agentPlanServiceQ": {
+  "message": "Welche Leistung?"
+ },
+ "agentPlanSpecialistOnPage": {
+  "message": "Wähle ich auf der Seite des Ladens"
+ },
+ "agentPlanVenueAuto": {
+  "message": "Für mich wählen: ab {0} Sternen, am nächsten"
+ },
+ "agentPlanLastTime": {
+  "message": "letztes Mal"
+ },
+ "agentPlanPlaceQ": {
+  "message": "Wo buchen?"
+ },
+ "agentBubbleCheck": {
+  "message": "Bitte prüfen, bevor ich weitermache: {0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "Melde dich auf der Website an – ich warte"
+ },
+ "agentBubblePlan": {
+  "message": "Der Plan wartet auf dich"
+ },
+ "agentBubbleFill": {
+  "message": "Prüfe, was ins Formular kommt"
+ },
+ "agentBubbleDone": {
+  "message": "Erledigt: {0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "Nicht abgeschlossen: {0}"
+ },
+ "agentBubbleOpen": {
+  "message": "Öffnen"
+ },
+ "agentBubbleOther": {
+  "message": "Anderes…"
+ },
+ "agentBubbleShow": {
+  "message": "Anzeigen"
+ },
+ "agentRuleFreeCancel": {
+  "message": "Nur mit kostenloser Stornierung buchen"
+ },
+ "agentRuleVenueHint": {
+  "message": "Ein Ort ist ein Restaurant, Salon, eine Praxis, ein Hotel oder eine Wohnung, ein Verleih, ein Studio oder eine Filiale. Wo es zählt, wer oder wo (eine Ärztin, ein Hotel für die Reise), frage ich; sonst wähle ich nach diesen Regeln."
+ },
+ "agentPlanPlaceQAny": {
+  "message": "Wo buchen?"
+ },
+ "agentRecapTitle": {
+  "message": "Bitte prüfen, bevor ich buche"
+ },
+ "agentRecapWhat": {
+  "message": "Ich buche: {0}"
+ },
+ "agentRecapAsked": {
+  "message": "Gewünscht war: {0}"
+ },
+ "agentRecapOtherPlace": {
+  "message": "Anderer Ort: Der erste hatte keine passende Zeit"
+ },
+ "agentRecapTerms": {
+  "message": "Stornierung laut Seite: {0}"
+ },
+ "tasteListenLeft": {
+  "message": "Anhören in Pro: diese Woche noch {0} von {1} Min."
+ },
+ "tasteSimilarLeft": {
+  "message": "Volle Suche in Pro: diese Woche noch {0} von {1}"
+ },
+ "tasteUltraListen": {
+  "message": "In Ultra: {0} Min. pro Woche"
+ },
+ "tasteUltraSimilar": {
+  "message": "In Ultra: {0} volle Suchen pro Woche"
+ },
+ "tasteListenUsed": {
+  "message": "Die {0} Minuten Anhören in Pro für diese Woche sind aufgebraucht. Am {1} gibt es neue."
+ },
+ "tasteSimilarUsed": {
+  "message": "Die volle Suche in Pro für diese Woche ist verbraucht. Am {0} gibt es eine neue; die schnelle Suche geht weiter."
+ },
+ "tasteSimilarDone": {
+  "message": "Eine volle Suche wie in Ultra: Pro hat eine pro Woche."
+ },
+ "boughtPro": {
+  "message": "Pro ist aktiv: bis zu {0} Antworten pro Woche. Frag einfach."
+ },
+ "boughtUltra": {
+  "message": "Ultra ist aktiv: Anhören, die volle Suche nach Ähnlichem und alles aus Pro."
+ },
+ "boughtByok": {
+  "message": "Eigener Schlüssel ist aktiv. Füge deinen API-Schlüssel in den Einstellungen hinzu."
+ },
+ "answersBackAsk": {
+  "message": "Erinnere mich, wenn meine {0} Antworten zurück sind"
+ },
+ "answersBackSet": {
+  "message": "Ich erinnere dich um {0}, wenn deine Antworten zurück sind."
+ },
+ "answersBackOff": {
+  "message": "Mitteilungen für ContextFlow sind aus. Deine Antworten sind um {0} zurück."
+ },
+ "answersBackFailed": {
+  "message": "Die Erinnerung ließ sich nicht setzen. Deine Antworten sind um {0} zurück."
+ },
+ "answersBackBody": {
+  "message": "Deine {0} Gratis-Antworten sind zurück. Frag zu jeder Seite."
+ },
+ "answersBackInApp": {
+  "message": "In der ContextFlow-App einstellen"
+ },
+ "hoursMinutes": {
+  "message": "{0} Std. {1} Min."
+ },
+ "offerByCode": {
+  "message": "Wird mit einem Code im App Store eingelöst."
+ },
+ "limitBuyOffer": {
+  "message": "Pro holen – erster Monat −{0} %"
+ },
+ "limitBuyPrice": {
+  "message": "Pro holen – {0} pro Monat"
+ },
+ "answersBackAt": {
+  "message": "Um {0} erinnern"
+ },
+ "limitMore": {
+  "message": "Mehr"
+ },
+ "moreYearly": {
+  "message": "Jährlich: {0} pro Jahr"
+ },
+ "moreYearlySave": {
+  "message": "Jährlich: {0} pro Jahr, {1} % sparen"
+ },
+ "moreUltra": {
+  "message": "Ultra: {0} pro Monat – alles aus Pro, dazu „Anhören“ und „Ähnliches finden“"
+ },
+ "moreUltraNoPrice": {
+  "message": "Ultra: alles aus Pro, dazu „Anhören“ und „Ähnliches finden“"
+ },
+ "moreChoose": {
+  "message": "Wählen"
+ },
+ "moreNotes": {
+  "message": "Notizen bleiben gratis und unbegrenzt"
+ },
+ "moreOwnKey": {
+  "message": "Eigener API-Schlüssel?"
+ },
+ "moreOwnKeyLink": {
+  "message": "Verwenden"
+ },
+ "limitProLine": {
+  "message": "Bis zu {0} Antworten pro Woche"
+ },
+ "limitCancel": {
+  "message": "Jederzeit im App Store kündbar."
+ },
+ "limitCardTitle": {
+  "message": "Gratis-Antworten aufgebraucht"
+ },
+ "limitCardBack": {
+  "message": "Wieder da um {0}, in {1}."
+ },
+ "answersBackOfferAsk": {
+  "message": "In dieser Erinnerung auch über einen Pro-Rabatt informieren"
+ },
+ "answersBackOfferBody": {
+  "message": "Deine {0} Gratis-Antworten sind zurück. Und wenn du mehr willst: Der erste Monat Pro ist {1} % günstiger."
+ },
+ "setOfferNotify": {
+  "message": "Pro-Rabatte in Erinnerungen"
+ },
+ "setOfferNotifyHint": {
+  "message": "Nur in der einen Erinnerung, die du stellst, wenn deine Gratis-Antworten aufgebraucht sind. Aus, bis du es einschaltest."
+ },
+ "limitCardBackNow": {
+  "message": "Deine Gratis-Antworten sind wieder da."
+ },
+ "limitCardTitleBack": {
+  "message": "Gratis-Antworten sind wieder da"
+ },
+ "gAgentTitle": {
+  "message": "Es bucht für dich, direkt auf der Seite"
+ },
+ "gAgentLine": {
+  "message": "ContextFlow wählt die Uhrzeit, trägt deinen Namen und deine Kontaktdaten aus „Meine Daten“ ein und bucht. Bezahlen und Anmelden übernimmst du selbst, und „Stopp“ ist immer da."
+ },
+ "gAgentRequest": {
+  "message": "einen Tisch für zwei morgen um 19 Uhr"
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },
@@ -3220,6 +4120,15 @@
  },
  "tip_da5f7b74b1": {
   "message": "Tiefer einsteigen"
+ },
+ "tip_8f191972e8": {
+  "message": "Es bucht für dich, direkt auf der Seite"
+ },
+ "tip_363625547a": {
+  "message": "Musst du einen Tisch oder eine Unterkunft buchen oder einen Termin beim Arzt oder Friseur machen? Öffne auf der Buchungsseite das Panel, tippe auf + neben dem Feld, wähle „Erledigen“ und schreib, was du brauchst: „einen Tisch für zwei morgen um 19 Uhr“. ContextFlow wählt die Uhrzeit, trägt deinen Namen und deine Kontaktdaten aus „Meine Daten“ ein und bucht. Du kannst das Panel schließen: Eine Frage oder das Ergebnis erscheint bei ✦. Bezahlen und Anmelden übernimmst du selbst, und „Stopp“ ist immer da. Mit Pro oder Ultra."
+ },
+ "tip_232e049197": {
+  "message": "Musst du einen Tisch oder eine Unterkunft buchen oder einen Termin beim Arzt oder Friseur machen? Öffne auf der Buchungsseite das Panel, klick auf + neben dem Feld, wähle „Erledigen“ und schreib, was du brauchst: „einen Tisch für zwei morgen um 19 Uhr“. ContextFlow wählt die Uhrzeit, trägt deinen Namen und deine Kontaktdaten aus „Meine Daten“ ein und bucht. Du kannst das Panel schließen: Eine Frage oder das Ergebnis erscheint bei ✦. Bezahlen und Anmelden übernimmst du selbst, und „Stopp“ ist immer da. Mit Pro oder Ultra."
  },
  "tip_6ba198cbff": {
   "message": "Eigene Notizen"
@@ -3463,6 +4372,15 @@
  },
  "tip_6cc366173d": {
   "message": "Brauchst du ✦ auf einer Website nicht? Blende die Taste dort aus oder schalte sie in den Erweiterungseinstellungen überall ab. ContextFlow öffnet sich weiterhin über das Erweiterungsmenü von Safari."
+ },
+ "tip_92470c1789": {
+  "message": "Cookie-Fenster schließen sich von selbst"
+ },
+ "tip_8534da4bd8": {
+  "message": "Keine Lust mehr, dich durch Cookie-Fenster zu tippen? ContextFlow beantwortet sie für dich mit „Nur notwendige“, und die ersten paar Male sagt dir eine kurze Zeile bei ✦ Bescheid. Willst du sie auf einer Website wieder sehen? Schalte das für diese Website in den Erweiterungseinstellungen unter „Cookie-Fenster“ aus."
+ },
+ "tip_fc1a61bcfa": {
+  "message": "Keine Lust mehr, dich durch Cookie-Fenster zu klicken? ContextFlow beantwortet sie für dich mit „Nur notwendige“, und die ersten paar Male sagt dir eine kurze Zeile bei ✦ Bescheid. Willst du sie auf einer Website wieder sehen? Schalte das für diese Website in den Erweiterungseinstellungen unter „Cookie-Fenster“ aus."
  },
  "tip_cc54dd5946": {
   "message": "Tipps an der ✦-Taste"

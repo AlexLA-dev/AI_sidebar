@@ -2,6 +2,7 @@
 // worker and the server share. The panel asks only engine A (ours, every link opened and checked on our server); engine B (Google)
 // stays off the panel's path.
 
+import { isAmazon } from "./amazon.ts"
 import { hasPro, isUltra, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, type Plan } from "./plan.ts"
 import type { Usage } from "./types.ts"
 import { isOutOfStock } from "./watch/detect.ts"
@@ -134,6 +135,8 @@ export interface SimilarAnswer {
   at: number
   // 2.7: a light search (not Ultra): fewer searches and pages, no reviews or delivery check.
   light?: boolean
+  // 2.8 (В7.4): Ultra's full search, as Pro's taste of it this week.
+  taste?: boolean
 }
 
 export type SimilarStep = "plan" | "search" | "check" | "write"
@@ -146,7 +149,8 @@ export type SimilarStreamEvent =
   | { type: "done" }
   // LIMIT_REACHED: the week's searches are used (`usage`: how many, and when they come back).
   // 2.7, answers: Pro's answers left are fewer than a light search counts as (`usage`: the answers').
-  | { type: "error"; code: string; plan?: Plan; usage?: Usage | null; answers?: number }
+  // 2.8, taste: Pro's taste of the full search is used this week (`usage`: the taste's).
+  | { type: "error"; code: string; plan?: Plan; usage?: Usage | null; answers?: number; taste?: boolean }
 
 /** The request the panel makes: the page as it is now, and the condition in the person's words. */
 export interface SimilarPayload {
@@ -162,6 +166,8 @@ export interface SimilarPayload {
   // Build 98: every chip they tapped (`chip` is the first, for a server before it).
   chips?: SimilarChip[]
   words?: string
+  // 2.8 (В7.4): Pro asks for its taste of Ultra's full search (only while the status says one is left).
+  taste?: boolean
 }
 
 /** The longest selection sent as Find similar's subject. */
@@ -188,8 +194,13 @@ export function similarAllowed(plan: Plan | string | null | undefined): boolean 
  * (SIMILAR_LIGHT_WEEKLY a week per device, a Pro search counting as SIMILAR_PRO_ANSWERS answers: fewer searches and
  * pages, no reviews, no "near me", no delivery check).
  */
-export function similarMode(plan: Plan | string | null | undefined): "full" | "light" {
-  return isUltra(plan as Plan | null | undefined) ? "full" : "light"
+export function similarMode(plan: Plan | string | null | undefined, taste?: Usage | null): "full" | "light" {
+  return isUltra(plan as Plan | null | undefined) || similarTaste(plan, taste) ? "full" : "light"
+}
+
+/** 2.8 (В7.4): Pro has its taste of Ultra's full search left this week (`taste`: the status's taste.similar). */
+export function similarTaste(plan: Plan | string | null | undefined, taste?: Usage | null): boolean {
+  return plan === "pro" && !!taste && taste.used < taste.limit
 }
 
 export { SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS }
@@ -227,6 +238,8 @@ export interface MarkdownWords {
   outOfStock: string
   notConfirmed: string
   notOpened: string
+  // 2.7.1: an Amazon item can't be checked (Amazon doesn't let our server open its pages), said so (src/shared/amazon.ts).
+  notOpenedAmazon?: string
   // Build 95: the rest of what the panel shows, so the app's copy (and a copy or share) carries it too.
   percent?: (n: number) => string
   estimated?: string
@@ -257,7 +270,7 @@ export function similarMarkdown(a: Pick<SimilarAnswer, "intro" | "items" | "note
       it.stock === "in" ? words.inStock : it.stock === "out" ? words.outOfStock : "",
       it.similarity !== undefined && words.percent && !it.same ? `${words.percent(it.similarity)}${it.estimated && words.estimated ? `, ${words.estimated}` : ""}` : "",
       it.met === "unknown" ? words.notConfirmed : it.met === "no" && words.misses ? words.misses : "",
-      it.checked ? "" : words.notOpened
+      it.checked ? "" : (words.notOpenedAmazon && isAmazon(it.url) ? words.notOpenedAmazon : words.notOpened)
     ].filter(Boolean).join(" · ")
     const r = it.reviews
     const said = r && words.say ? [

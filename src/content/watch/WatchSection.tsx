@@ -137,7 +137,7 @@ export function WatchSection(p: WatchSectionProps) {
           {/* The section's main button stays in view over the question field (chat UX's sheet row). With every
               watch taken, Pro is the way on (Free) or there's nothing to press (Pro). */}
           {state.at === "consent" ? (
-            <ConsentCard again={state.again} onAccept={() => void giveConsent().then(start)} onDecline={() => setState({ at: "edit" })} />
+            <ConsentCard via="watch" again={state.again} onAccept={() => void giveConsent().then(start)} onDecline={() => setState({ at: "edit" })} />
           ) : state.at === "full" ? (
             !state.ultra && (!state.paid || TARGET === "safari") && (
               <div class="cf-sheet-actions">

@@ -1,0 +1,162 @@
+/* The agent in the panel (2.7.1): the working strip, its steps, what it waits for, «Мои данные».
+   One type scale with the chat (the owner on 118: «шрифты разных размеров… полирнуть»): a title (the request) and the
+   body at the chat's own --fs (it follows Normal / Large), a section's name and meta at the chat's 12 px, chips and
+   buttons the panel's own. A card is the chat's cf-card; what it waits for is a section of it, not a box inside it. */
+/* A section's name and meta: the chat's 12 px at Normal, and larger with Large as the body is. */
+.cf { --fs-small: calc(var(--fs) - 2px); }
+.cf-agent { display: flex; flex-direction: column; gap: 8px; }
+.cf-card.cf-agent { gap: 10px; }
+.cf-card.cf-agent p, .cf-agent-float p { margin: 0; font-size: var(--fs); color: var(--text); }
+.cf-card.cf-agent strong, .cf-agent-label { display: block; margin: 0; font-size: var(--fs-small); font-weight: 600; line-height: 1.4; color: var(--text-2); }
+.cf-agent-meta, .cf-card.cf-agent p.cf-agent-meta { margin: 0; font-size: var(--fs-small); line-height: 1.45; color: var(--text-3); }
+.cf-agent-strip { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 12px; background: var(--accent-soft); color: var(--accent-text); }
+.cf-agent-step { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.cf-agent-step b { font-weight: 600; color: var(--accent-text); }
+.cf-agent-strip.waiting .cf-agent-step b { color: var(--text-2); }
+.cf-agent-step span { color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cf-agent-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); opacity: .5; }
+/* A few pulses when a step starts, then still (2.7.1, the owner on 117: no animation running between steps). */
+.cf-agent-dot.on { animation: cf-agent-pulse 1.2s ease-in-out 2; opacity: 1; }
+@keyframes cf-agent-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(.55); opacity: .45; } }
+@media (prefers-reduced-motion: reduce) { .cf-agent-dot.on { animation: none; } }
+.cf-agent-stop { flex: none; padding: 6px 11px; }
+.cf-card.cf-agent p.cf-agent-request, .cf-agent-request { margin: 0; font-size: var(--fs); font-weight: 600; color: var(--text); }
+.cf-agent-lines { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; color: var(--text-2); }
+.cf-agent-lines li.no { color: var(--text-3); }
+.cf-agent-mark { display: inline-block; width: 1em; color: var(--ok); }
+.cf-agent-lines li.no .cf-agent-mark { color: var(--text-3); }
+.cf-agent-ask, .cf-agent-plan, .cf-agent-end { display: flex; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 1px solid var(--border); }
+.cf-card.cf-agent p.cf-agent-warn, .cf-agent-warn { color: var(--note-text); background: var(--note-soft); padding: 8px 10px; border-radius: 10px; display: flex; gap: 6px; align-items: flex-start; }
+.cf-agent-fill { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.cf-agent-fill b { font-weight: 600; word-break: break-word; }
+.cf-agent .cf-row, .cf-fd-icloud .cf-row { justify-content: flex-start; gap: 8px; text-align: start; }
+.cf-agent .cf-row span { flex: 1; }
+.cf-agent-help p { margin: 0; font-size: var(--fs); color: var(--text-2); }
+.cf-mode.cf-agent-mode.on { background: var(--accent) !important; color: #fff; }
+.cf-input-line { font: inherit; padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); min-width: 0; }
+.cf-mydetails .cf-fd-list { margin: 6px 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.cf-mydetails .cf-fd-list li { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.cf-fd-name { color: var(--text-2); font-size: 13px; min-width: 8em; }
+.cf-fd-value { flex: 1; word-break: break-word; }
+.cf-fd-add { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 6px 0; }
+.cf-fd-add select { font: inherit; padding: 6px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+.cf-fd-add .cf-input-line { flex: 1 1 10em; }
+.cf-fd-error { color: var(--danger); }
+.cf-fd-sites { display: flex; flex-wrap: wrap; gap: 6px; }
+.cf-agent-float { position: fixed; left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom)); z-index: 3; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 16px; background: var(--bg); color: var(--text); box-shadow: var(--shadow); border: 1px solid var(--border); font-family: var(--font); font-size: var(--fs); line-height: 1.4; }
+.cf-agent-float-main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 0; color: inherit; font: inherit; text-align: start; cursor: pointer; }
+.cf-agent-float-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cf-agent-float-text .cf-agent-meta { white-space: normal; color: var(--text-3); }
+.cf-agent-float-text b { color: var(--accent-text); font-weight: 600; }
+.cf-agent-float-text span { color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cf-agent-float.ask { flex-direction: column; align-items: stretch; }
+.cf-agent-float-text span.wrap { white-space: normal; }
+.cf-agent-float-actions { display: flex; gap: 8px; }
+.cf-agent-float-actions button { flex: 1; justify-content: center; text-align: center; }
+/* Safari on iPhone zooms the page into a field whose text is under 16 px when it gets the focus: «Мои данные» and «Позже»
+   fields are 16 px there. */
+@media (pointer: coarse) { .cf-input-line, .cf-fd-add select { font-size: 16px; } }
+/* «Сделать на этой странице?» under an answer to an action request: the Do action's own violet (the Do-mode send and
+   field edge), filled lightly with its edge, so it reads as a button, not a link (the owner on 122). The violet's text,
+   fill and edge tokens are the ones checked for 4.5:1 in both themes. */
+.cf-chip.cf-agent-hint, .cf-chip.cf-agent-hint:hover {
+  align-self: flex-end; margin-top: 6px; display: inline-flex; align-items: center; gap: 6px;
+  color: var(--ultra-text); background: var(--ultra-soft); border-color: var(--ultra-line); font-weight: 600;
+}
+.cf-chip.cf-agent-hint:hover { background: color-mix(in srgb, var(--ultra-soft) 100%, var(--ultra-text) 8%); }
+.cf-chip.cf-agent-hint svg { color: var(--ultra-text); }
+/* The agent cards' buttons the size of the panel's own («Cancel», the answer chips): «Start», «Yes», «Fill in», «Go to
+   the tab» stay filled but no bigger (the owner on 122: «Start» was bigger than the chat's other buttons). */
+.cf-agent .cf-primary, .cf-agent .cf-secondary, .cf-agent-float .cf-primary, .cf-agent-float .cf-secondary,
+.cf-agent-notice .cf-primary, .cf-agent-notice .cf-secondary {
+  padding: 8px 13px; line-height: 1.25; border-radius: 11px; min-height: 0;
+}
+.cf-agent .cf-primary, .cf-agent-float .cf-primary, .cf-agent-notice .cf-primary { border: 1px solid transparent !important; box-shadow: none; }
+/* The person's own step in the list: «Вы», not the agent's ✓. */
+.cf-agent-you { display: inline-block; padding: 0 6px; margin-inline-end: 2px; border-radius: 6px; background: var(--accent-soft); color: var(--accent-text); font-size: 12px; font-weight: 600; line-height: 18px; vertical-align: 1px; }
+
+/* The plan card (2.7.1): what it will do, its questions, what may go without a question, «Сейчас / Позже», «Начать». */
+.cf-agent-plan-steps { margin: 0; padding-inline-start: 1.4em; display: flex; flex-direction: column; gap: 4px; color: var(--text); }
+.cf-card.cf-agent p.cf-agent-plan-h { margin: 4px 0 0; font-size: var(--fs-small); font-weight: 600; line-height: 1.4; color: var(--text-2); }
+.cf-agent-plan-self { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.cf-card.cf-agent .cf-agent-q > p { margin: 0 0 8px; font-weight: 500; }
+.cf-agent-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.cf-agent-options .cf-chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.cf-agent .cf-row { min-height: 30px; }
+.cf-agent .cf-row + .cf-row { margin-top: 2px; }
+.cf-agent-q .cf-input-line { margin-top: 6px; width: 100%; box-sizing: border-box; }
+.cf-agent-when { align-self: flex-start; }
+/* Do mode's row (2.7.1): the chip says how to leave it; nothing else stands by the field. */
+.cf-agent-mode-x { margin-left: 2px; font-size: 11px; opacity: 0.85; }
+.cf-input.agent .cf-mode.cf-agent-mode { flex: 0 0 auto; white-space: nowrap; }
+/* A finished task in the chat (2.7.1): one line, the request and its mark; a tap opens its steps and result. */
+.cf-card.cf-agent.folded { padding: 0; }
+.cf-agent-row { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 10px 14px; text-align: start; border-radius: 14px; color: var(--text); font-size: var(--fs); }
+.cf-card.cf-agent:not(.folded) > .cf-agent-row { padding: 0; min-height: 0; }
+.cf-agent-row-mark { flex: 0 0 auto; display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; font-size: 12px; font-weight: 700; background: var(--bg-3); color: var(--text-2); }
+.cf-agent-row-mark.ok { background: var(--accent-soft); color: var(--accent-text); }
+.cf-agent-row-mark.fail { background: rgba(220, 60, 60, 0.12); color: #c0392b; }
+.cf-agent-row-text { flex: 1 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 600; }
+.cf-agent-row-text.open { white-space: normal; }
+.cf-agent-row-more { flex: 0 0 auto; color: var(--text-3, var(--text-2)); transition: transform 0.15s ease; }
+.cf-agent-row-more.open { transform: rotate(90deg); }
+[dir="rtl"] .cf-agent-row-more:not(.open) { transform: scaleX(-1); }
+.cf-agent-row-answer { padding: 0 14px 12px 44px; }
+.cf-agent-row-answer > :first-child { margin-top: 0; }
+/* Another tab's task (2.7.1): a ring on the circle, and its card beside it. */
+.cf-fab.agent-ring { box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--accent), 0 6px 18px rgba(0, 0, 0, 0.22); }
+.cf-fab.agent-ring.needs { animation: cf-agent-ring 1.6s ease-in-out 3; }
+@keyframes cf-agent-ring { 50% { box-shadow: 0 0 0 3px var(--bg), 0 0 0 9px var(--accent), 0 6px 18px rgba(0, 0, 0, 0.22); } }
+@media (prefers-reduced-motion: reduce) { .cf-fab.agent-ring.needs { animation: none; } }
+.cf-agent-notice { position: fixed; z-index: 3; width: min(300px, calc(100vw - 96px)); transform: translateY(-50%); display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 14px; background: var(--bg); color: var(--text); border: 1px solid var(--border); box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18); font-family: var(--font); font-size: var(--fs); line-height: var(--lh); }
+.cf-agent-notice.right { right: 76px; }
+.cf-agent-notice.left { left: 76px; }
+.cf-agent-notice-head { display: flex; align-items: center; gap: 8px; }
+.cf-agent-notice-head b { flex: 1 1 auto; font-size: var(--fs-small); font-weight: 600; color: var(--text-2); }
+.cf-agent-notice-req { margin: 0; font-weight: 600; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.cf-agent-notice-sum { margin: 0; color: var(--text-2); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.cf-agent-notice .cf-primary { align-self: flex-start; }
+/* The agent's bubble by the circle (2.7.1): a question with up to three short answers, the person's own step, or how the
+   task ended, with the chat closed. The chat's type scale and buttons; beside the circle, never over the page's middle. */
+.cf-agent-bubble { position: fixed; z-index: 3; width: min(300px, calc(100vw - 96px)); max-height: calc(100vh - 24px); overflow: auto; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px 12px 14px; border-radius: 14px; background: var(--bg); color: var(--text); border: 1px solid var(--border); box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18); font-family: var(--font); font-size: var(--fs); line-height: var(--lh); animation: cf-agent-bubble-in 0.18s ease-out; }
+/* Level with the circle (48 px, its `top` is its center): ending at its bottom edge in the lower half, starting at its
+   top edge in the upper half, so it never runs off the screen. */
+.cf-agent-bubble.low { transform: translateY(calc(-100% + 24px)); }
+.cf-agent-bubble.high { transform: translateY(-24px); }
+.cf-agent-bubble.right { right: 76px; }
+.cf-agent-bubble.left { left: 76px; }
+@keyframes cf-agent-bubble-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .cf-agent-bubble { animation: none; } }
+.cf-agent-bubble-head { display: flex; align-items: flex-start; gap: 8px; }
+.cf-agent-bubble-head p { flex: 1 1 auto; margin: 0; font-weight: 600; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow-wrap: anywhere; }
+.cf-agent-bubble-head .cf-ph-x { flex: none; margin: -4px -6px 0 0; }
+.cf-agent-bubble-mark { flex: none; width: 8px; height: 8px; margin-top: 0.55em; border-radius: 50%; background: var(--accent); }
+.cf-agent-bubble-mark.done { background: var(--ok); }
+.cf-agent-bubble-mark.notdone { background: var(--danger); }
+.cf-agent-bubble-meta { margin: -4px 0 0; font-size: var(--fs-small); color: var(--text-2); }
+.cf-agent-bubble-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+/* (An answer longer than the bubble wraps to two lines, never cut: «Попробовать понедельник, 28 декабря».) */
+.cf-agent-bubble-actions .cf-primary, .cf-agent-bubble-actions .cf-secondary { padding: 8px 13px; line-height: 1.25; border-radius: 11px; min-height: 0; max-width: 100%; white-space: normal; text-align: start; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.cf-agent-bubble-actions .cf-primary { border: 1px solid transparent !important; box-shadow: none; }
+/* The plan card's question left unanswered when «Начать» was pressed; «Начать» softer until all are answered. */
+.cf-agent-q.missing p { color: var(--danger, #c0392b); }
+.cf-agent-q.missing .cf-agent-options .cf-chip { border-color: var(--danger, #c0392b); }
+.cf-agent-reply { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.cf-agent-reply .cf-input-line { flex: 1 1 10em; }
+/* «Правила поручений» in «Мои данные»: a line each, the number on the right. */
+.cf-fd-rules { display: flex; flex-direction: column; gap: 2px; margin: 10px 0 14px; }
+.cf-fd-rules .cf-row span { flex: 1; }
+.cf-fd-rule { font: inherit; padding: 4px 6px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+@media (pointer: coarse) { .cf-fd-rule { font-size: 16px; } }
+
+/* 2.7.1: Calendar and Reminders access (Settings, the calendar rule, a booking's plan card), in the chat's type scale. */
+.cf-access-row { gap: 8px; }
+.cf-access-row .cf-label { flex: 1; }
+.cf-access-state { font-size: var(--fs-small); color: var(--text-3); }
+.cf-access-state.on { color: var(--accent-text); }
+.cf-access-ask { font-size: var(--fs-small); padding: 4px 10px; }
+.cf-access-need { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+.cf-access-need .cf-link { font-size: var(--fs-small); padding: 0 2px !important; }
+.cf-access-x { margin-inline-start: auto; font-size: var(--fs-small); color: var(--text-3); padding: 0 4px; }
+/* A place's rating and area, or «last time», beside its option on the plan card. */
+.cf-agent-options .cf-chip .cf-chip-note { opacity: 0.7; font-weight: 400; }

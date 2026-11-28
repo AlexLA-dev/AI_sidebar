@@ -53,6 +53,7 @@ export function ProUpsell({ feature, offer, byok, onPro, onOffer, onClose }: {
         )}
         <button type="button" class="cf-secondary" onClick={onClose}>{t("offerLater")}</button>
       </div>
+      {!byok && offer && <p class="cf-offer-code">{t("offerByCode")}</p>}
     </div>
   )
 }

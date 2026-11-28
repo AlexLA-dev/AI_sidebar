@@ -75,7 +75,7 @@ test("the background counts only an answer that streamed to its end, and sends d
   assert.match(bg, /if \(event\.type === "done"\) \{\s*void countValueMoment\(\)\.then\(\(moment\) => \{\s*if \(moment && TARGET === "safari"\) void reportUse\(\{ type: "useEvent", f: "rate", a: "due", via: "ext_moment", moment \}\)/)
   // reportUse passes the milestone on (s "panel": Safari's side): every field of the step but its type (2.7), the
   // server keeping the feature's own (usage.ts useFields).
-  assert.match(bg, /body: JSON\.stringify\(\{ \.\.\.useStep\(message\), kind: "use", installId: id, client, s: "panel" \}\)/)
+  assert.match(bg, /return \{ \.\.\.useStep\(message\), kind: "use", installId: id, client, s: "panel" \}/)
   assert.match(bg, /function useStep\([^)]*\)[^{]*\{\s*const \{ type: _type, \.\.\.fields \} = message\s*return fields/)
   // An error, a refusal or a stop never emits "done" (chat.ts): only a finished answer counts.
   const chat = read("src/background/chat.ts")
@@ -110,7 +110,7 @@ test("every ask goes through ReviewAsk: one requestReview, at the root, and each
   assert.match(content, /\.onReceive\(ReviewAsk\.shared\.requests\) \{ askForReview\(\$0\) \}/)
   assert.match(content, /if ReviewAsk\.shared\.take\(request, busy: busy\) \{ requestReview\(\) \}/)
   // Not over something being done; Listen's player only unless its text was just heard to its end.
-  assert.match(content, /var busy = tour\.run != nil \|\| showingSetup \|\| whatsNew \|\| \(listenShown\.visible && request\.via != \.listen\)/)
+  assert.match(content, /var busy = tour\.run != nil \|\| showingSetup \|\| whatsNew \|\| Paywall\.shared\.purchasing \|\| \(listenShown\.visible && request\.via != \.listen\)/)
   assert.match(content, /if notify\.ask != nil \{ busy = true \}/)
   // Safari's moment: at launch and whenever the app comes to the front (iOS: twice over, one ask waits at a time).
   assert.equal([...content.matchAll(/ReviewAsk\.shared\.cameToFront\(\)/g)].length, 4)
@@ -158,7 +158,7 @@ const swiftc = spawnSync("which", ["swiftc"]).status === 0
 const skip = process.platform !== "darwin" ? "the app's Foundation is Apple's: run on a Mac" : !swiftc && "no swiftc here"
 const NOW = 1_800_000_000
 const DAY = 86_400
-const base = { firstSession: false, goodAnswers: 5, lastAsk: null as number | null, sinceTaskLink: null as number | null, busy: false, now: NOW }
+const base = { firstSession: false, goodAnswers: 5, lastAsk: null as number | null, sinceTaskLink: null as number | null, busy: false, now: NOW, firstDay: false }
 const CASES: Array<{ name: string; via: string; goes: boolean } & Partial<typeof base>> = [
   { name: "Safari's milestone, back from Safari", via: "ext_moment", goes: true },
   { name: "Safari's milestone in the app's first session (Apple: never then)", via: "ext_moment", firstSession: true, goes: false },
@@ -179,7 +179,9 @@ const CASES: Array<{ name: string; via: string; goes: boolean } & Partial<typeof
   { name: "Find similar's answer opened", via: "similar", goes: true },
   { name: "What's new left after an update", via: "whatsnew", goes: true },
   { name: "a suggestion taken", via: "organize", goes: true },
-  { name: "a suggestion taken over a sheet", via: "organize", busy: true, goes: false }
+  { name: "a suggestion taken over a sheet", via: "organize", busy: true, goes: false },
+  // 2.8 (В3.3): nothing on a new install's first day, at any moment.
+  ...["ext_moment", "app_answer", "tour", "purchase", "listen", "similar", "whatsnew", "organize"].map((via) => ({ name: `${via} on the install's first day`, via, firstDay: true, goes: false }))
 ]
 const FIRST = [
   { name: "the very first launch (not recorded yet)", firstLaunch: null, now: NOW, left: false, first: true },
@@ -304,4 +306,33 @@ test("/analytics shows due, ask and link per platform (cf_rate_report), and ever
   for (const way of FEATURES.rate.via ?? []) assert.match(via, new RegExp(`\\b${way}: "`), way)
   const action = page.slice(page.indexOf("const ACTION_RU"), page.indexOf("}", page.indexOf("const ACTION_RU")))
   for (const a of FEATURES.rate.actions) assert.match(action, new RegExp(`\\b${a}: "`), a)
+})
+
+test("2.8: a rating milestone reached on the first day waits for a good answer on a later day", async () => {
+  const H = 3_600_000
+  const day1 = new Date(2026, 10, 24, 12).getTime()
+  const store: Record<string, unknown> = { "cf:coach": { v: 1, first: day1 } }
+  const native: Array<Record<string, unknown>> = []
+  const g = globalThis as any
+  const before = { chrome: g.chrome, browser: g.browser }
+  g.chrome = {
+    storage: { local: { get: async (key: string) => ({ [key]: store[key] }), set: async (items: Record<string, unknown>) => Object.assign(store, items) } },
+    runtime: {}
+  }
+  g.browser = { runtime: { sendNativeMessage: async (_id: string, message: Record<string, unknown>) => { native.push(message); return { success: true } } } }
+  try {
+    const out = join(mkdtempSync(join(tmpdir(), "cf-review-day1-")), "sync.mjs")
+    await build({ entryPoints: [join(root, "src/background/sync.ts")], bundle: true, format: "esm", platform: "neutral", outfile: out, logLevel: "silent" })
+    const { countValueMoment } = await import(pathToFileURL(out).href)
+    const due: Array<number | null> = []
+    for (let i = 0; i < 4; i++) due.push(await countValueMoment(day1 + i * H))
+    assert.deepEqual(due, [null, null, null, null], "three good answers on day 1: nothing asked")
+    assert.equal(native.length, 0)
+    assert.equal(await countValueMoment(day1 + 24 * H), 3, "the next day's first good answer asks")
+    assert.deepEqual(native, [{ command: "reviewMoment", count: 3 }])
+    assert.equal(await countValueMoment(day1 + 25 * H), null, "once")
+  } finally {
+    g.chrome = before.chrome
+    g.browser = before.browser
+  }
 })

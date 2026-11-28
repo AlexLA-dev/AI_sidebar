@@ -26,17 +26,21 @@ test("the registry keeps the activation steps and the ways in, nothing else, fro
 test("the app sends each step where it happens, in order", () => {
   const setup = app("Setup.swift")
   // Settings from the home card (iPhone, iPad): counted as it opens, after the guide's video when that started.
-  assert.match(setup, /private func openExtensionSettings\(\) \{\s*activation\.wentToSettings\("card"\)/)
-  assert.match(setup, /pictureInPictureControllerDidStartPictureInPicture[\s\S]{0,120}?Activation\.shared\.guideStarted\(\)\s*self\.openPending\(\)/)
-  // A failed start opens Settings without a "video".
-  assert.match(setup, /failedToStartPictureInPictureWithError error: Error\) \{\s*Task \{ @MainActor in self\.openPending\(\) \}/)
+  // 2.8: "card" from the switch-it-on step, "allow" from the «Open Safari» step's way to All Websites: Allow.
+  assert.match(setup, /private func openExtensionSettings\(\) \{ openExtensionSettings\(via: "card"\) \}/)
+  assert.match(setup, /private func openExtensionSettings\(via: String\) \{\s*activation\.wentToSettings\(via\)/)
+  assert.match(setup, /pictureInPictureControllerDidStartPictureInPicture[\s\S]{0,300}?Activation\.shared\.guideStarted\(\)\s*self\.openPending\(\)/)
+  // A failed start opens Settings without a "video" (2.8: and the frames stop playing in the card first).
+  assert.match(setup, /failedToStartPictureInPictureWithError error: Error\) \{[\s\S]{0,500}?Task \{ @MainActor in self\.openPending\(\) \}/)
+  assert.doesNotMatch(setup, /failedToStartPictureInPictureWithError[\s\S]{0,300}?guideStarted/)
   // Back counts once a trip, and only after the app really left the front.
-  assert.match(setup, /func wentToSettings\(_ via: String\) \{\s*trip = \.going\s*UserDefaults\.standard\.set\(Date\(\)\.timeIntervalSince1970, forKey: Self\.tripKey\)\s*step\("settings", \["via": via\]\)/)
+  assert.match(setup, /func wentToSettings\(_ via: String\) \{\s*trip = \.going\s*settingsHow = nil\s*UserDefaults\.standard\.set\(Date\(\)\.timeIntervalSince1970, forKey: Self\.tripKey\)\s*UserDefaults\.standard\.removeObject\(forKey: Self\.howKey\)\s*step\("settings", \["via": via\]\)/)
   assert.match(setup, /private func wentAway\(\) \{\s*if trip == \.going \{ trip = \.away \}/)
   // "Left" from the system (the views get no scene phase in the background): iPhone and iPad, and the Mac.
   assert.match(setup, /#if os\(iOS\)\s*let left = UIApplication\.didEnterBackgroundNotification\s*#else\s*let left = NSApplication\.didResignActiveNotification\s*#endif\s*NotificationCenter\.default\.addObserver\(forName: left, object: nil, queue: \.main\) \{ \[weak self\] _ in\s*Task \{ @MainActor in self\?\.wentAway\(\) \}/)
   // Switching it on in Settings can end the app: the trip is kept on disk, and a relaunch within the hour is the way back.
-  assert.match(setup, /func cameBack\(\) \{[\s\S]*?guard at > 0, trip != \.going else \{ return \}\s*trip = nil\s*defaults\.removeObject\(forKey: Self\.tripKey\)\s*if Date\(\)\.timeIntervalSince1970 - at < 3600 \{ step\("back"\) \}/)
+  // 2.8 (В2.1): "back" says how Settings was opened ("direct" or "app"), known only once the app has started leaving.
+  assert.match(setup, /func cameBack\(\) \{[\s\S]*?guard at > 0, trip != \.going else \{ return \}\s*trip = nil\s*defaults\.removeObject\(forKey: Self\.tripKey\)\s*let how = settingsHow \?\? defaults\.string\(forKey: Self\.howKey\)\s*defaults\.removeObject\(forKey: Self\.howKey\)\s*if Date\(\)\.timeIntervalSince1970 - at < 3600 \{ step\("back", how\.map \{ \["how": \$0\] \} \?\? \[:\]\) \}/)
   assert.match(setup, /func launched\(\) async \{[\s\S]{0,120}?cameBack\(\)\s*await refresh\(\)/)
   // Enabled: the first time the app sees it go from off to on, once an install.
   assert.match(setup, /let before = state\s*state = next[\s\S]{0,80}?if before == \.off, next != \.off \{ reportEnabled\(\) \}/)
@@ -45,7 +49,7 @@ test("the app sends each step where it happens, in order", () => {
   assert.match(setup, /var request = URLRequest\(url: ChatAI\.base\.appendingPathComponent\("api\/v2\/event"\)\)/)
   assert.doesNotMatch(setup, /aisidebar\.netlify\.app/)
   // Steps a moment apart go a second apart, so the server gets them in order; none waits on another's answer.
-  assert.match(setup, /let at = max\(now, nextStepAt\)\s*nextStepAt = at\.addingTimeInterval\(1\)\s*ChatAI\.reportUse\("activation", action, fields, after: at\.timeIntervalSince\(now\)\)/)
+  assert.match(setup, /let at = max\(now, nextStepAt\)\s*nextStepAt = at\.addingTimeInterval\(1\)\s*ChatAI\.reportUse\(feature, action, fields, after: at\.timeIntervalSince\(now\)\)/)
   const chatAI = app("ChatAI.swift")
   assert.match(chatAI, /after delay: TimeInterval\) \{[\s\S]*?if delay > 0 \{ try\? await Task\.sleep\(nanoseconds: UInt64\(delay \* 1_000_000_000\)\) \}\s*_ = try\? await URLSession\.shared\.data\(for: request\)/)
   assert.doesNotMatch(chatAI, /await previous/)
@@ -59,16 +63,24 @@ test("the app sends each step where it happens, in order", () => {
   assert.match(app("ChatsView.swift"), /Activation\.shared\.wentToSettings\("chats"\)\s*SFSafariApplication\.showPreferencesForExtension/)
 })
 
-test("the extension's side links the two random ids once, and sends nothing else", () => {
+test("the extension's side links the two random ids until the server has them, and sends nothing else", () => {
   const handler = read("ContextFlow/Shared (Extension)/SafariWebExtensionHandler.swift")
-  // Only when getEntitlement brings an install id this side didn't have yet, and the app has been opened.
-  assert.match(handler, /let knewInstall = command == "getEntitlement" \? SharedDefaults\.shared\.readExtensionStatus\(\)\.installId : nil/)
-  assert.match(handler, /if command == "getEntitlement", knewInstall == nil, let install = SharedDefaults\.shared\.readExtensionStatus\(\)\.installId,\s*let app = SharedDefaults\.shared\.appId\(\) \{\s*Self\.reportLinked/)
-  const body = /let body: \[String: Any\] = \[([\s\S]*?)\n {8}\]/.exec(handler)?.[1] ?? ""
-  assert.deepEqual([...body.matchAll(/"(\w+)":/g)].map((m) => m[1]), ["kind", "f", "a", "s", "appId", "installId", "client", "platform", "version"])
-  // Release builds send only over https, to the base the panel uses.
-  assert.match(handler, /#else\s*let allowed = base\.hasPrefix\("https:\/\/"\)\s*#endif/)
-  assert.match(read("src/background/index.ts"), /callNative<NativeEntitlement>\("getEntitlement", \{ installId: await installId\(\), base: API_BASE \}, 6000\)/)
+  // 2.7.1: the native side only answers the app's id with the ping; the background sends the link (src/background/link.ts).
+  assert.doesNotMatch(handler, /reportLinked|knewInstall/)
+  // 2.8 (В1.9): and whether this is one of our simulator or debug builds (tests/our-builds-marked.test.mts).
+  assert.match(handler, /case "ping":[\s\S]{0,700}?if let app = SharedDefaults\.shared\.appId\(\) \{ data\["app"\] = app \}[\s\S]{0,200}?Self\.reply\(context, \["success": true, "data": data\]\)/)
+  const background = read("src/background/index.ts")
+  assert.match(background, /callNative<NativeEntitlement>\("getEntitlement", \{ installId: await installId\(\), base: API_BASE \}, 6000\)/)
+  // The ping carries the install id (the app learns it from the extension's first message), and is asked again while
+  // the app hasn't made its id.
+  assert.match(background, /callNative<\{ build\?: string; app\?: string; test\?: boolean \}>\("ping", \{ installId: id \}, 1500\)/)
+  assert.match(background, /if \(!data\?\.build\) \{\s*nativeAsk = null/)
+  assert.match(background, /if \(nativeAsk && nativeAppAskedAt && Date\.now\(\) - nativeAppAskedAt > 60_000\) nativeAsk = null/)
+  assert.match(background, /nativeAppAskedAt = app \? 0 : Date\.now\(\)/)
+  // Sent when the background starts and when the panel gets the subscription, Safari only.
+  assert.match(background, /\/\/ 2\.7\.1: the app's id with this install's[\s\S]{0,160}?void reportLinked\(\)\.catch/)
+  assert.match(background, /entitlementCache = \{ at: Date\.now\(\), value \}\s*\/\/[^\n]*\n\s*void reportLinked\(\)/)
+  assert.match(background, /function reportLinked\(\): Promise<boolean> \{\s*if \(TARGET !== "safari"\) return Promise\.resolve\(false\)/)
   // Read-only on the extension's side: the app's id is made by the app alone.
   for (const copy of ["ContextFlow/Shared (App)/SharedDefaults.swift", "ContextFlow/Shared (Extension)/SharedDefaults.swift"]) {
     assert.match(read(copy), /func appId\(\) -> String\? \{\s*defaults\.dictionary\(forKey: appKey\)\?\["id"\] as\? String\s*\}/, copy)

@@ -16,7 +16,7 @@ import BackgroundTasks
 // - After an update the tab opens once by itself (not on a first install: that has the setup guide).
 enum WhatsNew {
     /// The version the cards are about (major.minor).
-    static let version = "2.7"
+    static let version = "2.8"
     /// The version whose tab was shown (or that was installed first).
     static let seenKey = "cf_whatsnew_seen"
     /// The App Store version a notification was sent for: one per version.
@@ -42,12 +42,13 @@ enum WhatsNew {
         return false
     }
 
-    /// The main features of 2.7, as Tips shows them (the same words, in every language): the five that everyone has,
-    /// the strongest first (the director, from the owner: «не забыть включить новые функции … в онбординг с Tips»).
+    /// The main features of 2.8, as Tips shows them (the same words, in every language), the strongest first: the agent,
+    /// then cookie windows (the director, tracker А11, Д3.9). 2.7's five stay in Tips with their clips.
     /// Their clips aren't made yet: each card plays one as soon as its Tip names it (the owner on 2.6: What's new has a
     /// video wherever there is one), and the line under the heading says so only when all of them do.
+    /// (The agent's card only while the server hasn't switched it off: AgentSwitch.)
     static var items: [Tip] {
-        [TipGroup.translateTip, TipGroup.writeTip, TipGroup.spacesTip, TipGroup.appleTip, TipGroup.shotTip]
+        [TipGroup.agentTip, TipGroup.cookiesTip].filter(AgentSwitch.keeps)
     }
 
     /// Every card has its clip in this language.
@@ -110,7 +111,8 @@ enum WhatsNew {
         guard newer(found.version, than: installed), defaults.string(forKey: notifiedKey) != found.version else { return }
         let center = UNUserNotificationCenter.current()
         let settings = await center.notificationSettings()
-        guard settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional else { return }
+        // Not with quiet permission: that's the setup reminders' only (2.8).
+        guard NotifyStatus.on(settings.authorizationStatus) else { return }
         let content = UNMutableNotificationContent()
         content.title = String(localized: "ContextFlow \(found.version) is here")
         content.body = String(localized: "See what's new in this version.")
@@ -166,7 +168,11 @@ struct WhatsNewView: View {
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                         if let url = URL(string: store.url) {
-                            Button("Update") { openURL(url) }
+                            Button("Update") {
+                                // 2.8 (В1.7): the tab's one action.
+                                ChatAI.reportUse("whatsnew", "tap")
+                                openURL(url)
+                            }
                                 .buttonStyle(.borderedProminent)
                         }
                     }

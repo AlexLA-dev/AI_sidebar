@@ -218,7 +218,7 @@ test("a space's toggle reaches the server with its val and spaces (the backgroun
   // The background passes the whole step on, only its message type left out.
   const bg = readFileSync(new URL("../src/background/index.ts", import.meta.url), "utf8")
   assert.match(bg, /function useStep\([^)]*\)[^{]*\{\s*const \{ type: _type, \.\.\.fields \} = message\s*return fields\s*\}/)
-  assert.match(bg, /body: JSON\.stringify\(\{ \.\.\.useStep\(message\), kind: "use", installId: id, client, s: "panel" \}\)/)
+  assert.match(bg, /return \{ \.\.\.useStep\(message\), kind: "use", installId: id, client, s: "panel" \}/)
   // The server keeps them.
   assert.deepEqual(useFields({ f: "space", a: "toggle", via: "settings", val: "off", spaces: 3 }), { f: "space", a: "toggle", via: "settings", val: "off", spaces: 3 })
 })
@@ -252,12 +252,73 @@ test("109–110: a switch to the matching chat's space is plain to see over the 
   assert.match(css, /\.cf-space-toast\.act\.held \{ animation: none; opacity: 1; \}/)
 })
 
-test("109: the page's own controls take the ✦ circle's space colour, paler, through one switch; text stays readable", () => {
+test("2.7.1: the ✦ circle is always our blue; its space glows around it as a halo, once brighter as it changes", async () => {
+  const css = readFileSync(new URL("../src/content/styles.css", import.meta.url), "utf8")
+  const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
+  const insert = readFileSync(new URL("../src/content/insert/insert.css", import.meta.url), "utf8")
+  const spacesTsx = readFileSync(new URL("../src/content/Spaces.tsx", import.meta.url), "utf8")
+  const { fabHalo, HALO_ON_FIRST, HALO_STRENGTH, HALO_ALPHAS, COLOR_NAMES } = await import("../src/shared/spaces.ts")
+  const rule = (sel: string) => {
+    const at = css.indexOf(`${sel} {`)
+    assert.ok(at >= 0, sel)
+    return css.slice(at, css.indexOf("}", at))
+  }
+  // The fill: our blue, whatever the space (no space variable in it).
+  const fab = rule(".cf-fab")
+  assert.match(fab, /background: linear-gradient\(135deg, #38bdf8 0%, #2563eb 100%\) !important;/)
+  assert.doesNotMatch(fab, /var\(--space/)
+  // The halo is a glow, not a border (the owner: «свечение легкое, как ореол»): three blurred layers, no solid ring,
+  // no white gap; from the space's colours (its base close in, its light colour further out) at one strength.
+  const halo = rule(".cf-fab[data-halo]")
+  assert.match(halo, /box-shadow: 0 0 2\.5px 0\.5px var\(--halo-1\), 0 0 6\.5px 1\.5px var\(--halo-2\), 0 0 13\.5px 4px var\(--halo-3\)/)
+  for (const shadow of halo.slice(halo.indexOf("box-shadow:") + 11).split(/,(?![^(]*\))/)) {
+    const blur = shadow.trim().split(/\s+/)[2]
+    assert.ok(blur && parseFloat(blur) > 0, `every layer is blurred: ${shadow.trim()}`)
+  }
+  assert.doesNotMatch(halo, /rgba\(255, 255, 255/)
+  assert.match(spacesTsx, /const \[h1, h2, h3\] = HALO_ALPHAS\[HALO_STRENGTH\]/)
+  assert.match(spacesTsx, /"--halo-1": `\$\{base\}\$\{h1\}`, "--halo-2": `\$\{base\}\$\{h2\}`, "--halo-3": `\$\{light\}\$\{h3\}`/)
+  // The owner picked the strong glow on #235 («Сделай сильное свечение»), then medium after 113 on his device («Сейчас
+  // свечение слишком яркое. Давай попробуем среднее»), then soft after 114 («Я бы сделал свечение ещё меньше»).
+  assert.equal(HALO_STRENGTH, 1)
+  for (const k of [1, 2, 3] as const) assert.ok(HALO_ALPHAS[k].every((a) => /^[0-9a-f]{2}$/.test(a)))
+  // Shadows only: no size, margin, padding, outline, inset or transform, so the tap target and the drag stay.
+  assert.doesNotMatch(halo, /width|height|margin|padding|outline|inset|transform/)
+  // None outside spaces and none in the blue (first) space unless the one switch says so; every other colour has one.
+  assert.equal(HALO_ON_FIRST, false)
+  assert.equal(fabHalo(undefined), false)
+  assert.equal(fabHalo("blue"), false)
+  for (const c of COLOR_NAMES.filter((x) => x !== "blue")) assert.equal(fabHalo(c), true)
+  assert.match(app, /data-halo=\{halo \? spaces\.fabSpace\?\.color : undefined\}/)
+  // Brighter once as the space changes, then still: a single run, none with Reduce Motion, nothing that keeps running.
+  assert.match(css, /\.cf-fab\[data-halo\]\.flash \{ animation: cf-fab-halo 1\.1s ease-out 1; \}/)
+  assert.match(css, /prefers-reduced-motion: reduce\) \{ \.cf-fab\[data-halo\]\.flash \{ animation: none; \} \}/)
+  assert.doesNotMatch(css, /cf-fab-halo[^;]*infinite/)
+  assert.match(app, /if \(!haloNow \|\| was === null \|\| was === haloNow\) return\s*setHaloFlash\(true\)/)
+  // Quick insert's and Write's small circle: the same blue; a small glow in the circle's space only while the page tint is
+  // on (off since 2.7.1, the next test).
+  assert.match(insert, /\.cf-qi-btn \{[^}]*linear-gradient\(135deg, #38bdf8 0%, #2563eb 100%\) !important;/)
+  const small = insert.slice(insert.indexOf(".cf[data-tint] .cf-qi-btn {"), insert.indexOf("}", insert.indexOf(".cf[data-tint] .cf-qi-btn {")))
+  assert.match(small, /var\(--tint\)/)
+  assert.doesNotMatch(small, /0 0 0 /)
+})
+
+test("2.7.1 (the owner on 117): no space halo on the send button inside the chat; the ✦ circle keeps its glow", () => {
+  const css = readFileSync(new URL("../src/content/styles.css", import.meta.url), "utf8")
+  const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
+  assert.doesNotMatch(css, /\.cf-send\[data-halo\]/)
+  assert.doesNotMatch(app, /sendHalo/)
+  assert.doesNotMatch(app, /class=\{`cf-send[^`]*`\}\s*data-halo/)
+  assert.match(css, /\.cf-fab\[data-halo\] \{\s*box-shadow: 0 0 2\.5px 0\.5px var\(--halo-1\), 0 0 6\.5px 1\.5px/)
+})
+
+test("109: the page's own controls can take the ✦ circle's space colour, paler, through one switch (off since 2.7.1); text stays readable", () => {
   const css = readFileSync(new URL("../src/content/styles.css", import.meta.url), "utf8")
   const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
   const spaces = readFileSync(new URL("../src/content/Spaces.tsx", import.meta.url), "utf8")
-  // One switch, and none for the first (blue) colour: the page looks as it always did there.
-  assert.match(spaces, /export const PAGE_TINT = true/)
+  // One switch, and none for the first (blue) colour: the page looks as it always did there. Off since 2.7.1 (the owner
+  // on #235: «Сделай всегда синим»): the page's buttons are our blue in every space.
+  assert.match(spaces, /export const PAGE_TINT = false/)
   assert.match(spaces, /if \(!PAGE_TINT \|\| !color \|\| color === "blue"\) return null/)
   // The circle's space (a bound site's, else the panel's), on the root, so every control on the page has it.
   assert.match(app, /const tint = pageTint\(spaces\.fabSpace\?\.color\)/)
@@ -275,13 +336,14 @@ test("109: the page's own controls take the ✦ circle's space colour, paler, th
   // The circle's pair for the page's solid buttons and glows: the blue it always was, a paler pair of the space's with one.
   assert.match(css, /--accent-from: #38bdf8;\s*--accent-to: #2563eb;/)
   assert.match(light, /--accent-from: color-mix\(in srgb, var\(--tint-2\) \d+%, #ffffff\);\s*--accent-to: color-mix\(in srgb, var\(--tint\) \d+%, #ffffff\);/)
-  // «Ask AI» on the selection bar, its chips, the selection's glow and Quick insert's circle take it; no blue left there.
+  // «Ask AI» on the selection bar, its chips and the selection's glow take it; no blue left there. (Quick insert's circle
+  // stays blue with a halo since 2.7.1, as the ✦ circle: the test after this one.)
   assert.match(css, /\.cf-bubble\.touch button\.primary \{[^}]*linear-gradient\(135deg, var\(--accent-from\), var\(--accent-to\)\)/)
   assert.match(css, /\.cf-sel-glow \{[^}]*var\(--accent-from\)/)
   const bubble = css.slice(css.indexOf(".cf-bubble.touch button.cf-sel-chip {"), css.indexOf("@keyframes cf-pop"))
   assert.doesNotMatch(bubble, /37, 99, 235|#2563eb|#38bdf8/)
   const insert = readFileSync(new URL("../src/content/insert/insert.css", import.meta.url), "utf8")
-  assert.match(insert, /\.cf-qi-btn \{[^}]*linear-gradient\(135deg, var\(--accent-from\) 0%, var\(--accent-to\) 100%\)/)
+  assert.doesNotMatch(insert, /\.cf-qi-btn \{[^}]*var\(--accent-from\)/)
   // The system's dark appearance is the dark theme's.
   const decls = (r: string) => r.match(/--[\w-]+: [^;]+;/g)!.join(" ")
   assert.equal(decls(auto), decls(dark))

@@ -4,6 +4,9 @@
 //
 //   node --experimental-strip-types tools/preview/server.mts   (port 8787)
 //   CF_API_BASE=http://localhost:8787 npm run build:chrome      (extension pointing at it)
+//   PREVIEW_RESET_IN_S=180 …                                   (2.8: the free answers come back 3 minutes after the stand
+//                                                              starts, as resetsAt says; past it, an install that hit the
+//                                                              limit ran out «on an earlier day»)
 //   LIMITED_BEFORE=1 …                                         (every install ran out of free answers before:
 //                                                              the panel offers the Pro code)
 //   PREVIEW_PLAN=byok …                                        (the same with the Own key plan)
@@ -28,6 +31,13 @@
 //                                                              502, as a connection lost mid-text)
 //   PREVIEW_CLAUDE=credits|overloaded|refusal|off …            (answers come from a scripted Claude; these make
 //                                                              it fail that way, so OpenAI answers; off: no key)
+//   AGENT=off …                                                (2.8: the agent switched off: the status says so and
+//                                                              /api/v2/act answers OFF; GET /agent?on=0|1 flips it
+//                                                              while the stand runs)
+//   PREVIEW_ACT=1 …                                            (2.8: /api/v2/act scripted, no model: the plan step
+//                                                              plans nothing, then each step (ACT_STEP_MS apart, 6 s)
+//                                                              types into the page's next empty text field, then done;
+//                                                              time to flip the switch mid-task)
 //   STATUS_DELAY_MS=800 …                                      (/api/v2/status answers that late, as over a phone's
 //                                                              network: what waiting for the plan costs)
 //   FIRST_WORD_DELAY_MS=4000 …                                 (an answer's first word comes that late: time to
@@ -68,15 +78,22 @@ let lastChatRequest: unknown = null
 let lastWriteRequest: unknown = null
 // How /api/v2/write answers from now on (GET /set-write?delay=<ms>&mode=ok|hang|fail, 2.7 (107): the owner's Check that
 // hung for a minute): after a delay, never (the socket stays open), or with a 502. Live checks only when live=1.
+// PREVIEW_RESET_IN_S=N (2.8): the free answers come back N seconds after the stand starts, as the server would say it
+// (resetsAt in status and in a 402), so a reminder set at the limit fires within minutes. The counters don't reset.
+const fakeReset = Number(process.env.PREVIEW_RESET_IN_S) > 0 ? new Date(Date.now() + Number(process.env.PREVIEW_RESET_IN_S) * 1000).toISOString() : null
+let limitHit = false
 let writeMode: { delay: number; mode: "ok" | "hang" | "fail"; live: boolean } = { delay: Number(process.env.WRITE_DELAY_MS ?? 0), mode: "ok", live: false }
 // Every /api/v2/write since /reset: when it came, whether it was a live check, how it ended ("ok", "hang", "fail", "aborted").
 const writeLog: Array<{ at: number; live: boolean; action: string; chars: number; end: string; ms: number }> = []
 // The last answer's analytics event: provider, fallback reason, tokens, cost (GET /last-answer).
 let lastAnswerEvent: unknown = null
 type Item = { subject: string; limit: number | null; amount?: number }
+// Each counter's limit as last asked (GET /use-up fills the free day's counters to it).
+const limits = new Map<string, number>()
 const rpc: Record<string, (a: any) => unknown> = {
   cf_consume: ({ p_items }) => {
     const items = p_items as Item[]
+    for (const i of items) if (i.limit !== null) limits.set(i.subject, i.limit)
     // As cf_consume: an item counts as its amount (a long page), allowed only when all of it fits.
     const blocked = items.find((i) => i.limit !== null && (counters.get(i.subject) ?? 0) + (i.amount ?? 1) > i.limit)
     if (!blocked) items.forEach((i) => counters.set(i.subject, (counters.get(i.subject) ?? 0) + (i.amount ?? 1)))
@@ -91,12 +108,15 @@ const rpc: Record<string, (a: any) => unknown> = {
   cf_touch_install: () => null,
   cf_log: ({ p_kind, p_data }) => {
     if (p_kind === "chat") lastAnswerEvent = p_data
+    if (p_kind === "limit") limitHit = true
     return null
   },
   cf_entitlement_upsert: ({ p }) => p,
   cf_entitlement_get: () => null,
   cf_entitlement_by_token: () => null,
-  cf_limited_before: () => process.env.LIMITED_BEFORE === "1",
+  // PREVIEW_RESET_IN_S: an install that hit the free limit counts as one that ran out on an earlier day once the
+  // stand's own reset time has passed (2.8's return, watched on a device without waiting for midnight UTC).
+  cf_limited_before: () => process.env.LIMITED_BEFORE === "1" || (fakeReset !== null && limitHit && Date.now() >= Date.parse(fakeReset)),
   cf_tour_take: ({ p_install, p_max }) => {
     const n = tours.get(p_install) ?? 0
     if (n >= p_max) return false
@@ -606,6 +626,26 @@ const speak: typeof chat = (async (req: Request, context: Parameters<typeof chat
   return speakAny(new Request(req.url, { method: req.method, headers: req.headers, body: text }), context)
 }) as typeof chat
 const speakScript: typeof chat = (await proxied("/api/v2/speak-script")) ?? localScript
+// 2.8: the agent's switch (netlify/shared/config.mts agent.enabled, AGENT=off), flipped by GET /agent?on=0|1.
+const serverConfig = (await import("../../netlify/shared/config.mts")).config
+const realAct = (await import("../../netlify/functions/v2-act.mts")).default
+const ACT_STEP_MS = Number(process.env.ACT_STEP_MS ?? 6000)
+const actTyped = new Map<string, number>()
+const act: typeof chat = (async (req: Request, context: Parameters<typeof chat>[1]) => {
+  if (!serverConfig.agent.enabled || process.env.PREVIEW_ACT !== "1") return realAct(req, context)
+  const body = JSON.parse((await req.text()) || "{}") as Record<string, any>
+  const task = body.task ?? {}
+  // The plan step: no plan (every «Сделать?» asks), the task counted.
+  if (task.phase === "plan") return Response.json({ ok: true, token: "stand", left: 4 })
+  await new Promise((r) => setTimeout(r, ACT_STEP_MS))
+  // (Switched off while this step waited: the switch decides, as the real one would on the next request.)
+  if (!serverConfig.agent.enabled) return Response.json({ code: "OFF" }, { status: 503 })
+  const n = actTyped.get(task.id) ?? 0
+  const field = ((body.map?.items ?? []) as Array<{ id: string; role: string; label: string; value?: string }>).filter((i) => i.role === "textbox" && !i.value)[0]
+  if (!field || n >= 3) return Response.json({ ok: true, token: "stand", left: 4, call: { tool: "done", summary: "Filled in the stand's fields." }, verdict: { cls: "free", reason: "done" } })
+  actTyped.set(task.id, n + 1)
+  return Response.json({ ok: true, token: "stand", left: 4, call: { tool: "type", id: field.id, text: `Test ${n + 1}`, why: `«${field.label}»` }, verdict: { cls: "free", reason: "type" } })
+}) as typeof chat
 const STATUS_DELAY_MS = Number(process.env.STATUS_DELAY_MS ?? 0)
 const statusLate: typeof chat = (async (req: Request, context: Parameters<typeof chat>[1]) => {
   if (STATUS_DELAY_MS) await new Promise((r) => setTimeout(r, STATUS_DELAY_MS))
@@ -643,7 +683,7 @@ const invite: typeof chat = (async (req: Request) => {
   return Response.json({ ok: true, code, link: code ? `https://context-flow.app/i/${code}` : null, joined: 0, active: 0, reward: null,
     answersUntil: null, entered: null, canEnter: false, friendDaily: 5, friendDays: 7 })
 }) as typeof chat
-const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/speak-heard": speakHeard, "/api/v2/chat": chat, "/api/v2/status": statusLate, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch, "/api/v2/item": item, "/api/v2/write": write, "/api/v2/collect": collect, "/api/v2/translate": translatePage, "/api/v2/invite": invite }
+const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/speak-heard": speakHeard, "/api/v2/chat": chat, "/api/v2/status": statusLate, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch, "/api/v2/item": item, "/api/v2/write": write, "/api/v2/collect": collect, "/api/v2/translate": translatePage, "/api/v2/invite": invite, "/api/v2/act": act }
 
 // Page watch's test shop (2.5): /shop shows a mug whose price and stock /shop-set changes
 // (/shop-set?price=39&stock=OutOfStock), /shop-js draws the price with a script (the background sees none, the
@@ -861,7 +901,9 @@ async function similarProxied(body: Record<string, unknown>, res: import("node:h
 }
 
 async function similarStub(body: Record<string, unknown>, res: import("node:http").ServerResponse) {
-  if (process.env.PREVIEW_PLAN !== "ultra") {
+  // 2.8: Pro gets the light search, or Ultra's full one as its weekly taste when the panel asks (taste: true).
+  const kind = process.env.PREVIEW_PLAN === "pro" ? (body.taste === true ? { taste: true } : { light: true }) : {}
+  if (process.env.PREVIEW_PLAN !== "ultra" && process.env.PREVIEW_PLAN !== "pro") {
     res.writeHead(403, { "Content-Type": "application/json" })
     res.end(JSON.stringify({ code: "PRO_ONLY", plan: "free", feature: "similar" }))
     return
@@ -891,7 +933,7 @@ async function similarStub(body: Record<string, unknown>, res: import("node:http
   }
   await wait(200)
   const intro = ru ? "Беспроводные наушники с шумоподавлением, похожие на Aero 2; каждую страницу мы только что открыли и проверили." : "Wireless noise-cancelling headphones like the Aero 2, each page opened and checked just now."
-  send({ type: "result", engine: "a", intro, items, note: "", condition: condition ? "cheaper" : "none" })
+  send({ type: "result", engine: "a", intro, items, note: "", condition: condition ? "cheaper" : "none", ...kind })
   send({ type: "done", ms: 9000, usd: 0 })
   res.end()
 }
@@ -907,6 +949,22 @@ createServer(async (req, res) => {
     lastSimilarRequest = body
     if (process.env.SIMILAR_PROXY && process.env.SIMILAR_EVAL_TOKEN_FILE) await similarProxied(body, res)
     else await similarStub(body, res)
+    return
+  }
+  // 2.8: the free answers of today used up at once (every install counter asked so far filled to its limit), for a
+  // check of the limit card without asking five questions first.
+  if (url.pathname === "/use-up") {
+    const filled: string[] = []
+    for (const [subject, limit] of limits) if (subject.startsWith("install:")) { counters.set(subject, limit); filled.push(subject) }
+    res.writeHead(200, { "Content-Type": "application/json" })
+    res.end(JSON.stringify({ filled: filled.length }))
+    return
+  }
+  // 2.8: the agent's switch, flipped while the stand runs (the status says it; /api/v2/act answers OFF when off).
+  if (url.pathname === "/agent") {
+    if (url.searchParams.has("on")) serverConfig.agent.enabled = url.searchParams.get("on") !== "0"
+    res.writeHead(200, { "Content-Type": "application/json" })
+    res.end(JSON.stringify({ on: serverConfig.agent.enabled }))
     return
   }
   // 2.7: the plan every request comes as from now on (free, byok, pro, ultra), for a check of several plans in one run.
@@ -997,6 +1055,12 @@ createServer(async (req, res) => {
     })
     const t0 = Date.now()
     const response = await handler(request, { ip: "127.0.0.1", waitUntil: () => undefined } as any)
+    if (fakeReset && /^\/api\/v2\/(status|chat|write|translate)$/.test(url.pathname) && (response.headers.get("Content-Type") ?? "").includes("application/json")) {
+      const text = (await response.text()).replace(/"resetsAt":"[^"]*"/g, `"resetsAt":"${fakeReset}"`)
+      res.writeHead(response.status, { ...Object.fromEntries(response.headers), "content-length": String(Buffer.byteLength(text)) })
+      res.end(text)
+      return
+    }
     res.writeHead(response.status, Object.fromEntries(response.headers))
     let bytes = 0
     // Read aloud's minutes as the server counts them (build 92: what's heard), for the stand's log.

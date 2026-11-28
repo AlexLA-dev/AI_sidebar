@@ -1,0 +1,23 @@
+/* 2.8 (В4.1, В6.1): ready questions in the empty chat, and the follow-up questions under the latest answer. Full-width
+   rows that read as questions (start-aligned, wrapping), not chips; the consent's text under them while it isn't given. */
+.cf-ready { align-self: stretch; display: flex; flex-direction: column; gap: 8px; margin: 2px 0 12px; text-align: start; }
+.cf-ready-q, .cf-next-q {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  width: 100%; padding: 10px 14px; border-radius: 14px;
+  border: 1px solid var(--border) !important; background: var(--bg) !important; color: var(--text) !important;
+  font-size: 14.5px !important; font-weight: 550; line-height: 1.3; text-align: start;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.cf-ready-q:hover, .cf-next-q:hover { background: var(--accent-soft) !important; border-color: transparent !important; color: var(--accent-text) !important; }
+.cf-ready-agree { font-size: 12.5px; font-weight: 600; color: var(--accent-text); }
+.cf-ready-last { color: var(--text-2) !important; font-weight: 500; }
+.cf-ready-consent { margin: 2px 2px 0 !important; max-width: none !important; font-size: 12px; line-height: 1.4; color: var(--text-3) !important; text-align: start; }
+.cf-ready-consent .cf-link { display: inline; padding: 0; font-size: 12px; color: var(--accent-text) !important; text-decoration: underline; }
+.cf-next { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 4px; }
+.cf-next-q { padding: 8px 12px; border-radius: 12px; font-size: 14px !important; font-weight: 500; color: var(--accent-text) !important; }
+/* 2.8 (В5.6, В5.8): the Google answer offered under an answer that needs what isn't on the page; keeping copied
+   answers in a collection, under the second one copied. */
+.cf-google-offer { display: inline-flex; align-items: center; gap: 6px; margin: 6px 0 2px; }
+.cf-collect-tip { margin: 8px 0 4px; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--border); background: var(--bg-2); }
+.cf-collect-tip p { margin: 0 0 8px; font-size: 13.5px; line-height: 1.35; color: var(--text); }
+.cf-google-cost { margin: 2px 2px 6px; font-size: 12px; line-height: 1.35; color: var(--text-3); }

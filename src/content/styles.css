@@ -155,8 +155,8 @@
   border-radius: 24px;
   display: flex; align-items: center; justify-content: center;
   color: #fff !important;
-  /* 2.7: the space's colour when there are spaces (--space-2, --space; spaces.css), else the blue it always had. */
-  background: linear-gradient(135deg, var(--space-2, #38bdf8) 0%, var(--space, #2563eb) 100%) !important;
+  /* 2.7.1, the owner: always our blue, in every space (a space shows as the halo below). */
+  background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%) !important;
   box-shadow: 0 6px 20px rgba(37, 99, 235, 0.42), 0 1px 3px rgba(0, 0, 0, 0.2);
   z-index: 3;
   touch-action: none !important;
@@ -173,6 +173,45 @@
 .cf-fab.glide { transition: transform 0.15s ease, opacity 0.2s ease, top 0.22s ease; }
 .cf-fab:hover { opacity: 1; transform: scale(1.05); }
 .cf-fab:active { transform: scale(0.94); }
+/* 2.7.1, the owner: «свечение легкое, как ореол», not a border. A space other than the first shows as a soft glow of its
+   colours around the blue circle, fading out in three layers (its base colour close in, its light colour further out;
+   Spaces.tsx spaceVars, spaces.ts HALO_STRENGTH). Shadows only: the circle's size, its tap target and its drag stay as
+   they were. It glows up once as the space changes (App.tsx haloFlash), never on its own after that.
+   2.7.1 (119 → 120), the owner: the radius 2.5 times smaller («сократил бы раза в 2,5»): every blur and spread / 2.5. */
+.cf-fab[data-halo] {
+  box-shadow: 0 0 2.5px 0.5px var(--halo-1), 0 0 6.5px 1.5px var(--halo-2), 0 0 13.5px 4px var(--halo-3), 0 3px 10px rgba(0, 0, 0, 0.14);
+}
+.cf-fab[data-halo].flash { animation: cf-fab-halo 1.1s ease-out 1; }
+@keyframes cf-fab-halo {
+  0% { box-shadow: 0 0 2.5px 0.5px var(--halo-1), 0 0 6.5px 1.5px var(--halo-2), 0 0 13.5px 4px var(--halo-3), 0 3px 10px rgba(0, 0, 0, 0.14); }
+  35% { box-shadow: 0 0 4px 1px var(--halo-1), 0 0 10.5px 3.5px var(--halo-2), 0 0 21px 7px var(--halo-3), 0 3px 10px rgba(0, 0, 0, 0.14); }
+  100% { box-shadow: 0 0 2.5px 0.5px var(--halo-1), 0 0 6.5px 1.5px var(--halo-2), 0 0 13.5px 4px var(--halo-3), 0 3px 10px rgba(0, 0, 0, 0.14); }
+}
+@media (prefers-reduced-motion: reduce) { .cf-fab[data-halo].flash { animation: none; } }
+
+/* 2.8 (В2.5): until the panel's first opening, a soft pulse (a ring that widens and fades) and a short label beside
+   the circle, on its side, like the page hints' line. Gone once the panel has opened. */
+.cf-fab.first-pulse::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.45);
+  animation: cf-fab-first 2.2s ease-out infinite;
+}
+@keyframes cf-fab-first {
+  0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.45); }
+  70% { box-shadow: 0 0 0 14px rgba(37, 99, 235, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+}
+.cf-fab-label {
+  position: fixed; z-index: 3; transform: translateY(-50%);
+  max-width: calc(100vw - 96px); padding: 8px 14px; border-radius: 18px;
+  background: var(--bg) !important; color: var(--accent-text) !important; border: 1px solid var(--border) !important;
+  box-shadow: 0 6px 20px rgba(20, 14, 40, 0.18), 0 1px 3px rgba(20, 14, 40, 0.10);
+  font-size: 14px !important; font-weight: 600 !important; line-height: 1.25; text-align: start;
+  animation: cf-ph-in 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.cf-fab-label.right { right: max(70px, calc(env(safe-area-inset-right) + 56px)); }
+.cf-fab-label.left { left: max(70px, calc(env(safe-area-inset-left) + 56px)); }
+@media (prefers-reduced-motion: reduce) { .cf-fab.first-pulse::before { animation: none; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.25); } }
 
 /* ------------------------------------------------- selection bubble */
 .cf-bubble {
@@ -414,6 +453,13 @@
   -webkit-overflow-scrolling: touch;
   padding: 14px 14px 6px;
 }
+/* 2.7.1 (the owner on build 121): the page doesn't scroll on once one of our lists reaches its end. Every list of
+   ours that scrolls up and down, besides the chat's and Settings' (and the sideways chips, which keep their own rule:
+   a vertical swipe on them still scrolls the chat). The rest is scrollGuard.ts. */
+.cf-sheet, .cf-move-list, .cf-pages-pop, .cf-space-pop, .cf-col-list, .cf-col-menu, .cf-pinbar-list, .cf-qi-view,
+.cf-qi-pick, .cf-qi-fill-text, .cf-wr-text, .cf-tr-consent .cf-card, .cf-input textarea, .cf-textarea, textarea.cf-watch-cond {
+  overscroll-behavior: contain;
+}
 
 .cf-empty { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 22px 6px 10px; }
 .cf-empty-icon {
@@ -578,6 +624,8 @@
 .cf-card.offer p { margin-bottom: 0; }
 /* Out of answers, notes still work: a quiet line in the note colour. */
 .cf-card p.cf-limit-notes { padding: 8px 10px; border-radius: 10px; background: var(--note-soft); color: var(--note-text); font-size: 13px; }
+/* The offer's first month goes through the App Store's code page: said under its button (2.8, acceptance 3). */
+.cf-card p.cf-offer-code { margin: 6px 0 0; font-size: 12px; color: var(--text-3); }
 .cf-limit-notes svg { display: inline-block; width: 13px; height: 13px; vertical-align: -2px; margin-inline-end: 2px; }
 .cf-limit-notes .cf-link { color: var(--note-text) !important; font-weight: 600; text-decoration: underline; padding: 0 !important; font-size: 13px; }
 .cf-card.error p { color: var(--text); }
@@ -666,6 +714,10 @@
 }
 .cf-send.stop { background: var(--text) !important; color: var(--bg) !important; }
 .cf-send.note { background: var(--note) !important; }
+/* Do (2.7.1): the send button's own state, as Note's — its colour and ✦; the field's edge in it too. */
+.cf-send.do { background: linear-gradient(135deg, #8b5cf6, #6366f1) !important; }
+.cf-input.agent { border-color: rgba(124, 92, 246, 0.55); }
+.cf-input.agent:focus-within { border-color: #7c5cf6; box-shadow: 0 0 0 3px rgba(124, 92, 246, 0.18); }
 .cf-send-wrap { display: flex; flex-shrink: 0; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 .cf-send-icon { display: flex; animation: cf-flip 0.22s ease-out; }
 @keyframes cf-flip { from { transform: translateY(70%); opacity: 0; } to { transform: none; opacity: 1; } }
@@ -680,6 +732,8 @@
 .cf-note-hint::after { content: ""; position: absolute; inset-inline-end: 14px; top: 100%; border: 6px solid transparent; border-top-color: var(--snack-bg); }
 @keyframes cf-hint { from { transform: translateY(4px); opacity: 0; } to { transform: none; opacity: 1; } }
 .cf-send:disabled { background: var(--bg-3) !important; color: var(--text-3) !important; opacity: 1; }
+/* Do with nothing typed yet: still its colour, softer (the button is how Do mode shows). */
+.cf-send.do:disabled { background: linear-gradient(135deg, rgba(139, 92, 246, 0.45), rgba(99, 102, 241, 0.45)) !important; color: #fff !important; }
 /* One look for every toast and bar (2.5): "… · Undo", "Moved to …", "Saved", "Reminder: …", quick insert's. In the
    panel it sits over the question field; over the page, 64 px above the bottom of what's visible. */
 .cf-snack { background: var(--snack-bg); color: var(--snack-text); border-radius: 14px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25); font-size: 14px; font-weight: 500; line-height: 1.35; }
@@ -696,6 +750,30 @@
 
 /* --------------------------------------------------------- settings */
 .cf-settings { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 12px 14px 18px; }
+/* Settings in sections by feature (2.7.1, settingsFold.ts), folding as Tips blocks do: a line between them, the title
+   in Tips' size, the chevron turning down when open; folded, a line under the title says what's set there. */
+.cf-set-sec { border-top: 1px solid var(--border); }
+.cf-set-sec:first-child { border-top: 0; }
+/* The head reaches across the list's side padding (14px), so when it stays at the top (below) nothing shows beside it. */
+.cf-set-head { display: flex; align-items: center; gap: 8px; width: calc(100% + 28px); margin: 0 -14px; padding: 12px 18px !important; text-align: start; color: var(--text); background: var(--bg); }
+/* 2.7.1 (123, the owner: «удерживать шапку раздела, когда листаем вниз блок»): an open section's head stays at the top
+   of the list while its settings scroll under it, until the next section's head pushes it off (sticky within its own
+   section); a hairline under it while it's there. The list's own 12px top padding is above it. */
+.cf-set-sec.open > .cf-set-head:not(.static) { position: sticky; top: -12px; z-index: 2; }
+.cf-set-head[data-stuck] { box-shadow: 0 1px 0 var(--border); }
+/* «О приложении»: always open, its head a plain title. */
+.cf-set-head.static { cursor: default; padding-bottom: 6px !important; }
+.cf-set-head-text { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.cf-set-title { font-size: 15px; font-weight: 600; }
+.cf-set-sum { font-size: 12.5px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cf[data-touch] .cf-set-sum { font-size: 13px; }
+.cf-set-chev { flex-shrink: 0; color: var(--text-3); transition: transform 0.15s ease; }
+.cf-set-sec.open .cf-set-chev { transform: rotate(90deg); }
+.cf-set-body { padding-bottom: 4px; }
+.cf-set-body .cf-links { padding-bottom: 10px; }
+@media (prefers-reduced-motion: reduce) { .cf-set-chev { transition: none; } }
+:host([dir="rtl"]) .cf-set-chev { transform: scaleX(-1); }
+:host([dir="rtl"]) .cf-set-sec.open .cf-set-chev { transform: scaleX(-1) rotate(90deg); }
 .cf-chats-button { position: relative; }
 .cf-badge {
   position: absolute; top: 3px; inset-inline-end: 2px; min-width: 15px; height: 15px; padding: 0 4px; border-radius: 8px;

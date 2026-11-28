@@ -40,7 +40,39 @@ export function pluralForm(count: number, lang?: string): "one" | "two" | "few" 
 
 /** "5 new free answers at 2:00, in 17 h", in the form the number takes (2.6: Russian said «1 бесплатных ответов»). */
 export function freeAnswersBack(count: number, at: string, until: string, lang?: string): string {
-  return t(`limitFreeBack_${pluralForm(count, lang)}`, count, at, until)
+  // A time ending in an abbreviation's point («1 Std. 40 Min.») before the sentence's own: one point (2.8, Р19).
+  return t(`limitFreeBack_${pluralForm(count, lang)}`, count, unbroken(at), unbroken(until)).replace(/\.\.(?=\s|$)/g, ".")
+}
+
+/** The simpler limit card's line (2.8, Р19): when the free answers are back, short enough for one line on the
+ *  smallest iPhone in the longest languages; the time kept whole. */
+export function answersBackShort(at: string, until: string): string {
+  return t("limitCardBack", unbroken(at), unbroken(until)).replace(/\.\.(?=\s|$)/g, ".")
+}
+
+/**
+ * How long until something comes back, short ("40 min", "1 h 40 min", "17 h"). Under 3 hours it says hours and minutes,
+ * past that the nearest hour (2.8, the director's acceptance 3: «at 2:00 AM, in 1 h» shown with 1 h 40 left read as wrong,
+ * the hours were cut down).
+ */
+export function timeLeft(ms: number): string {
+  return unbroken(timeLeftText(ms))
+}
+
+function timeLeftText(ms: number): string {
+  const minutes = Math.max(1, Math.ceil(ms / 60_000))
+  if (minutes < 60) return t("minutes", minutes)
+  if (minutes < 180) {
+    const h = Math.floor(minutes / 60), m = minutes % 60
+    return m ? t("hoursMinutes", h, m) : t("hours", h)
+  }
+  return t("hours", Math.round(minutes / 60))
+}
+
+/** A number kept on one line with its unit («16 ч», «1 h 40 min», «2:00 AM»): its spaces made non-breaking (2.8, Р19:
+ *  «через 16» at a line's end and «ч.» alone on the next). */
+export function unbroken(text: string): string {
+  return text.replace(/[ \u202f]/g, "\u00a0")
 }
 
 /**

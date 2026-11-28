@@ -15,7 +15,7 @@
 import { similarAllowed } from "../../shared/similar"
 import type { PageKind } from "./detect"
 
-export type HintId = "similar" | "watch" | "summary" | "listen" | "video" | "templates" | "remind" | "calendar"
+export type HintId = "similar" | "watch" | "summary" | "listen" | "video" | "templates" | "remind" | "calendar" | "agent"
 
 /** What a hint's tap points at in the panel: the button that glows until it's used. */
 export type GlowTarget = "summarize" | "similar" | "menu" | "composer"
@@ -39,7 +39,9 @@ export const HINTS: Record<HintId, HintSpec> = {
   video: { bubble: "phVideo", title: "phVideoTitle", body: "phVideoBody", bodyUp: "phVideoBodyUp", glow: "composer", needs: "pro" },
   templates: { bubble: "phTemplates", title: "phTemplatesTitle", body: "phTemplatesBody", glow: "menu" },
   remind: { bubble: "phRemind", title: "phRemindTitle", body: "phRemindBody", glow: "composer" },
-  calendar: { bubble: "phCalendar", title: "phCalendarTitle", body: "phCalendarBody", glow: "composer" }
+  calendar: { bubble: "phCalendar", title: "phCalendarTitle", body: "phCalendarBody", glow: "composer" },
+  // 2.8 (В5.4): a form to fill in: the agent does it on this page (its tap opens the panel in Do; Pro's).
+  agent: { bubble: "phAgent", title: "phAgent", body: "phAgent", bodyUp: "phAgent", glow: "composer", needs: "pro" }
 }
 
 export type Plan = "free" | "byok" | "pro" | "ultra"
@@ -56,7 +58,7 @@ export function candidates(kind: PageKind, plan: Plan): HintId[] {
     case "video":
       return ["video"]
     case "form":
-      return ["templates"]
+      return ["agent", "templates"]
     case "event":
       return ["calendar", "remind"]
     case "stay":

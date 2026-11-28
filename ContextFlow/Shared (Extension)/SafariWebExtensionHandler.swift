@@ -4,8 +4,6 @@ import StoreKit
 import UserNotifications
 #if os(macOS)
 import AppKit
-#else
-import UIKit
 #endif
 
 /// Native side of the Safari extension. The extension's background script calls
@@ -43,7 +41,12 @@ import UIKit
 /// - `shot_put` / `shot_get` / `shot_delete` → a note's picture of the page (2.7, see ShotStore): from the panel in parts
 ///   (`id`, `part`, `of`, base64 `data`, `cloud`: chats sync with iCloud), kept in the App Group and in iCloud; back in
 ///   parts of `ShotStore.readLength` bytes (`offset`; `total`), from iCloud when another device made it; deleted.
-/// - `ping` → health check.
+/// - `agent_schedule` / `agent_notify` / `agent_cancel` / `agent_sync` → deferred agent tasks (2.7.1, see AgentTasks):
+///   the notification at a time or now (a watch's condition came true), cancelled, and this device's tasks for the
+///   app's list (back: the ones cancelled in the app).
+/// - `formdata_get` / `formdata_put` / `formdata_icloud` → «Мои данные» (2.7.1, see FormData): the entries (the panel's
+///   changes merged in, iCloud only after the person's yes) and the iCloud choice; the choice set (off: iCloud's copy goes).
+/// - `ping` → health check: the app's version and build, and (2.7.1) the app's random id once it has made one.
 ///
 /// Every message also tells the app that the extension is switched on (and, for `getEntitlement`, which
 /// the panel sends when it opens, that it is in use), so the app can drop its setup guide and reminders.
@@ -70,47 +73,20 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         if !products.isEmpty { SharedDefaults.shared.writePrices(PlanProducts.priceTable(products, storefront: await Storefront.current?.countryCode)) }
     }
 
-    /// 2.7 (the activation funnel, src/shared/usage.ts "activation"): once, when the panel first gives this side its
-    /// install id, the server gets it with the app's id, so the steps in the app (Settings, back) join Safari's (switched
-    /// on, the first answer). Both ids are random; nothing else goes.
-    private static func reportLinked(app: String, install: String, base: String) {
-        #if DEBUG
-        let allowed = base.hasPrefix("https://") || base.hasPrefix("http://localhost:")
-        #else
-        let allowed = base.hasPrefix("https://")
-        #endif
-        guard allowed, let url = URL(string: base + "/api/v2/event") else { return }
-        #if os(macOS)
-        let platform = "macos"
-        #else
-        let platform = UIDevice.current.userInterfaceIdiom == .pad ? "ipados" : "ios"
-        #endif
-        let body: [String: Any] = [
-            "kind": "use", "f": "activation", "a": "linked", "s": "app", "appId": app, "installId": install,
-            "client": ["platform": platform, "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""]
-        ]
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
-        request.timeoutInterval = 15
-        Task { _ = try? await URLSession.shared.data(for: request) }
-    }
-
     func beginRequest(with context: NSExtensionContext) {
         let item = context.inputItems.first as? NSExtensionItem
         let message = item?.userInfo?[SFExtensionMessageKey] as? [String: Any] ?? [:]
         let command = message["command"] as? String ?? ""
-        let knewInstall = command == "getEntitlement" ? SharedDefaults.shared.readExtensionStatus().installId : nil
+        // 2.8: the panel opened on a page: the app's guide over Settings, if it's still up, goes.
+        if command == "getEntitlement" || command == "page_seen" { SharedDefaults.postPanelOpened() }
+        #if DEBUG
+        NSLog("[cf-setup] native %@", command)
+        #endif
         if SharedDefaults.shared.recordExtensionSeen(used: command == "getEntitlement", installId: message["installId"] as? String) {
             // Switched on: the reminders to finish setup the app scheduled are no longer needed.
             let center = UNUserNotificationCenter.current()
             center.removePendingNotificationRequests(withIdentifiers: SharedDefaults.setupReminderIds)
             center.removeDeliveredNotifications(withIdentifiers: SharedDefaults.setupReminderIds)
-        }
-        if command == "getEntitlement", knewInstall == nil, let install = SharedDefaults.shared.readExtensionStatus().installId,
-           let app = SharedDefaults.shared.appId() {
-            Self.reportLinked(app: app, install: install, base: message["base"] as? String ?? "")
         }
 
         switch command {
@@ -256,6 +232,18 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                                                               title: title, body: body, open: page, ask: message["ask"] as? Bool ?? false)
                 Self.reply(context, ["success": true, "data": ["outcome": outcome.rawValue]])
             }
+        case "remind_pending":
+            // 2.8: whether a reminder is waiting on the device (the app may have set it, the panel's fallback when the
+            // extension couldn't): its time, or none.
+            let chat = message["chat"] as? String ?? ""
+            let key = message["message"] as? String ?? ""
+            Task {
+                let at = await MessageReminders.isPending(chat: chat, message: key)
+                Self.reply(context, ["success": true, "data": at.map { ["at": $0.timeIntervalSince1970 * 1000] } ?? [:]])
+            }
+        case "offer_tap_take":
+            // 2.8: the discount reminder's tap, noted by the app moments before (OfferTap); taken once.
+            Self.reply(context, ["success": true, "data": OfferTap.take().map { ["age": $0] } ?? [:]])
         case "unremind":
             if let chat = message["chat"] as? String, let key = message["message"] as? String {
                 MessageReminders.cancel(chat: chat, message: key)
@@ -280,6 +268,48 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             // This device's watches for the app's list; back, the ones stopped in the app.
             let stopped = WatchStore.sync(message["watches"] as? [[String: Any]] ?? [])
             Self.reply(context, ["success": true, "data": ["cancelled": stopped]])
+        case "agent_schedule", "agent_notify":
+            // A deferred agent task (2.7.1): its notification at a time (schedule) or now, a watch's condition came
+            // true (notify). The tap opens the page in Safari with #cf-task=<id> (AgentTasks).
+            guard let id = message["id"] as? String, let page = (message["url"] as? String).flatMap(URL.init(string:)) else {
+                Self.reply(context, ["success": false, "error": "\(command): id and url"])
+                return
+            }
+            let title = message["title"] as? String ?? "ContextFlow"
+            let body = message["body"] as? String ?? ""
+            let at = (message["at"] as? NSNumber)?.doubleValue
+            Task {
+                let outcome = command == "agent_notify" || at == nil
+                    ? await AgentTasks.notify(id: id, title: title, body: body, open: page)
+                    : await AgentTasks.schedule(id: id, at: Date(timeIntervalSince1970: at! / 1000), title: title, body: body, open: page)
+                Self.reply(context, ["success": true, "data": ["outcome": outcome.rawValue]])
+            }
+        case "formdata_get", "formdata_put":
+            // «Мои данные» (2.7.1, see FormData): the panel's changes into this device's store, then iCloud when the
+            // person said yes to it; the merged entries and the iCloud choice (true, false, or not asked) back.
+            if command == "formdata_put" {
+                FormDataStore.merge((message["changes"] as? [[String: Any]] ?? []).compactMap { FormDataEntry.decode($0["data"] as? String) })
+            }
+            Task {
+                if FormDataStore.syncChoice == true { _ = await Self.withTimeout(seconds: 12) { await FormDataSync.syncNoted() } }
+                Self.reply(context, ["success": true, "data": Self.formDataReply()])
+            }
+        case "formdata_icloud":
+            // The answer to «Синхронизировать через iCloud?», or a change of it in the settings. Off: the iCloud copy
+            // goes, the entries stay here.
+            let on = message["on"] as? Bool ?? false
+            FormDataStore.syncChoice = on
+            Task {
+                if on { _ = await Self.withTimeout(seconds: 12) { await FormDataSync.syncNoted() } } else { await FormDataSync.removeCloud() }
+                Self.reply(context, ["success": true, "data": Self.formDataReply()])
+            }
+        case "agent_cancel":
+            if let id = message["id"] as? String { AgentTasks.cancel(id) }
+            Self.reply(context, ["success": true])
+        case "agent_sync":
+            // This device's deferred tasks for the app's list; back, the ones cancelled in the app.
+            let cancelled = AgentTasks.sync(message["tasks"] as? [[String: Any]] ?? [])
+            Self.reply(context, ["success": true, "data": ["cancelled": cancelled]])
         case "listen":
             let parts = (message["parts"] as? [String] ?? []).prefix(80).map { String($0.prefix(4000)) }
             guard !parts.isEmpty else {
@@ -495,8 +525,31 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 #endif
             }
         case "apple_remove":
-            if let key = message["key"] as? String { AppleItems.remove(key: key) }
+            if let key = message["key"] as? String {
+                if message["done"] as? Bool == true { AppleItems.complete(key: key) } else { AppleItems.remove(key: key) }
+            }
             Self.reply(context, ["success": true])
+        // 2.7.1, the agent's Calendar and Reminders (AgentApple): read, find, add, mark done, free times.
+        case "agent_apple":
+            guard AppleItems.available else {
+                Self.reply(context, ["success": true, "data": ["access": "unavailable"]])
+                return
+            }
+            Task {
+                let out = await AgentApple.handle(message)
+                Self.reply(context, ["success": true, "data": out])
+            }
+        // The agent needs access the app hasn't asked for: on a Mac the extension opens the app, which asks.
+        case "agent_access_open":
+            #if os(macOS)
+            let kind = (message["kind"] as? String) == "calendar" ? "calendar" : "reminders"
+            DispatchQueue.main.async {
+                let opened = NSWorkspace.shared.open(URL(string: "contextflow://access?kind=\(kind)")!)
+                Self.reply(context, ["success": true, "data": ["opened": opened]])
+            }
+            #else
+            Self.reply(context, ["success": true, "data": ["opened": false]])
+            #endif
         // 2.7, invite a friend: what the app kept (a friend's code entered there, the inviter's own code), a DeviceCheck
         // token for a code entered in the panel, and the panel's marks back (linked, its code).
         case "invite":
@@ -516,10 +569,20 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             default:
                 Self.reply(context, ["success": true, "data": SharedDefaults.shared.readInvite()])
             }
+        // 2.8: the first page this background heard from (the notice above has gone to the app).
+        case "page_seen":
+            Self.reply(context, ["success": true])
         case "ping":
             let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
             let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
-            Self.reply(context, ["success": true, "data": ["pong": true, "version": version, "build": build]])
+            var data: [String: Any] = ["pong": true, "version": version, "build": build]
+            // 2.7.1: the app's random id (made by the app alone, on its first launch), so the extension sends it with its
+            // own install id until the server has the two together (src/background/link.ts). Nothing when the app hasn't
+            // been opened yet: the extension asks again later.
+            if let app = SharedDefaults.shared.appId() { data["app"] = app }
+            // 2.8 (В1.9): a simulator or debug build: the extension marks its requests as ours too.
+            if OurBuild.isOurs { data["test"] = true }
+            Self.reply(context, ["success": true, "data": data])
         default:
             Self.reply(context, ["success": false, "error": "Unknown command: \(command)"])
         }
@@ -531,6 +594,16 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         return await withCheckedContinuation { done in
             DCDevice.current.generateToken { data, _ in done.resume(returning: data?.base64EncodedString()) }
         }
+    }
+
+    /// «Мои данные» as the panel takes them: every entry (tombstones too, for merging) and the iCloud choice.
+    private static func formDataReply() -> [String: Any] {
+        var out: [String: Any] = ["entries": FormDataStore.all().map { ["id": $0.id, "updatedAt": $0.updatedAt, "data": $0.json] as [String: Any] }]
+        if let choice = FormDataStore.syncChoice { out["icloud"] = choice }
+        // 2.7.1: the last sync's result, for the line under the switch.
+        if let at = FormDataStore.syncedAt { out["syncedAt"] = at }
+        if let error = FormDataStore.syncError { out["syncError"] = error }
+        return out
     }
 
     private static func reply(_ context: NSExtensionContext, _ payload: [String: Any]) {
@@ -615,7 +688,8 @@ enum ListenAway {
         case .authorized: return "authorized"
         case .denied: return "denied"
         case .notDetermined: return "notDetermined"
-        case .provisional: return "provisional"
+        // Quiet permission is the setup reminders' only (2.8): for the panel, not asked yet.
+        case .provisional: return "notDetermined"
         #if os(iOS)
         case .ephemeral: return "ephemeral"
         #endif
@@ -645,7 +719,7 @@ enum ListenAway {
 
         let center = UNUserNotificationCenter.current()
         let status = await center.notificationSettings().authorizationStatus
-        guard status == .authorized || status == .provisional else { return }
+        guard NotifyStatus.on(status) else { return }
         let content = UNMutableNotificationContent()
         let title = String((message["title"] as? String ?? "").prefix(200))
         content.title = title.isEmpty ? "ContextFlow" : title

@@ -26,7 +26,8 @@ function say(lang: string, count: number): string {
   const messages = strings(lang)
   ;(globalThis as { chrome?: unknown }).chrome = { i18n: { getMessage: (key: string) => messages[key] ?? "" } }
   try {
-    return i18n.freeAnswersBack(count, "2:00", "17 h", lang)
+    // As read: the time's spaces are non-breaking (a number stays with its unit, 2.8).
+    return i18n.freeAnswersBack(count, "2:00", "17 h", lang).replace(/\u00a0/g, " ")
   } finally {
     delete (globalThis as { chrome?: unknown }).chrome
   }

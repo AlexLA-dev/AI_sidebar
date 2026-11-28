@@ -39,12 +39,15 @@ nonisolated enum ReviewGate {
         /// Something is on screen being done: the plan's tour, the notifications question, the setup guide, the player.
         var busy: Bool
         var now: Double
+        /// 2.8 (В3.3, the quiet first day): the install's first day (a new install, not an update). No ask at all then:
+        /// the director's acceptance saw Apple's sheet 11 s into the second launch, after six answers in Safari.
+        var firstDay = false
     }
 
     /// Whether Apple is asked now. Not now: Safari's moment waits for the next time the app comes to the front; the
     /// others are let go.
     static func goesNow(_ via: Via, _ s: State) -> Bool {
-        if s.busy { return false }
+        if s.busy || s.firstDay { return false }
         let linked = s.sinceTaskLink.map { $0 < linkQuiet } ?? false
         switch via {
         case .appAnswer, .tour, .purchase:

@@ -5,16 +5,18 @@
 // all of them; each place adds its own (the discount, a note, the own key, Retry).
 
 import type { ComponentChildren, VNode } from "preact"
-import { useEffect, useState } from "preact/hooks"
+import { useEffect, useRef, useState } from "preact/hooks"
 
-import { t, uiLanguage } from "../../shared/i18n"
-import { productOf, type PaidPlan, type Period } from "../../shared/plan"
+import { t } from "../../shared/i18n"
+import { productOf, startPeriod, type PaidPlan, type Period } from "../../shared/plan"
 import type { StatusInfo } from "../../shared/types"
 import { currencyCode, tierLines, yearlySaving } from "../Plans"
 import * as Icon from "../icons"
 import { lastPrices } from "../store"
 
-export type OfferPlace = "limit" | "memory" | "pro_only" | "ultra_only"
+// "agent" (2.8): the agent asked for without Pro (the «Do it on this page?» chip, Do in «+», the quick chip, the server's
+// PRO_ONLY), the same plans message as the other Pro features.
+export type OfferPlace = "limit" | "memory" | "pro_only" | "ultra_only" | "agent"
 
 export interface OfferChoice {
   plan: Exclude<PaidPlan, "byok">
@@ -25,6 +27,41 @@ export interface OfferChoice {
 export function savingOf(prices: Record<string, string>, plan: PaidPlan): number | null {
   const yearly = productOf(plan, "yearly")
   return Number(prices[`${yearly}#percent`]) || yearlySaving(prices[productOf(plan, "monthly")], prices[yearly])
+}
+
+/** The App Store's prices, or the last ones this device had (build 92: "Choose Pro" came with no price at all). */
+export function usePrices(status: StatusInfo | null): Record<string, string> {
+  const [keptPrices, setKeptPrices] = useState<Record<string, string>>({})
+  useEffect(() => void lastPrices().then(setKeptPrices), [])
+  const given = status?.store?.prices ?? {}
+  return Object.keys(given).length ? given : keptPrices
+}
+
+/** Whether the answers are back (Retry shows up then): from `at` (ms) on; null is now; "unknown" while the server hasn't
+ *  said when (2.8: no made-up time, Retry waits). Turns true by itself at that moment. */
+export function useAnswersBack(at: number | null | "unknown" | undefined): boolean {
+  const [now, setNow] = useState(Date.now())
+  useEffect(() => {
+    if (!at || at === "unknown" || at <= now) return
+    const timer = setTimeout(() => setNow(Date.now()), Math.min(at - now + 500, 2_147_000_000))
+    return () => clearTimeout(timer)
+  }, [at, now])
+  return at !== "unknown" && (!at || at <= now)
+}
+
+/**
+ * How far to scroll the chat (px, down) so a plans message that just appeared is in view (the director on #273: the
+ * agent's opened below the fold on iPhone, only its title above the field). The whole card when it fits; else its plan
+ * and the button under it (the button's bottom at the list's), the title scrolled off rather than the button. Never up.
+ */
+export function revealDelta(list: { top: number; bottom: number }, card: { top: number; bottom: number }, button: { bottom: number } | null, pad = 8): number {
+  const room = list.bottom - list.top - pad
+  const fits = card.bottom - card.top <= room
+  const end = fits || !button ? card.bottom : button.bottom + pad
+  const delta = end - (list.bottom - pad)
+  if (delta <= 0) return 0
+  // A card that fits never goes above the list's top.
+  return fits ? Math.min(delta, Math.max(0, card.top - list.top)) : delta
 }
 
 export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "ultra"], focus, extra, retryAt, onRetry, onChoose, onEvent, onClose }: {
@@ -39,31 +76,40 @@ export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "
   focus?: OfferChoice["plan"]
   // The place's own actions under the button (the discount, a note, the own key).
   extra?: ComponentChildren
-  // Retry the question: possible from `retryAt` (ms) on (when the answers are back); null when it is now.
-  retryAt?: number | null
+  // Retry the question: shown from `retryAt` (ms) on (when the answers are back); null when it is now; "unknown"
+  // while the server hasn't said when (2.8: no made-up time, Retry waits).
+  retryAt?: number | null | "unknown"
   onRetry?: () => void
   onChoose: (choice: OfferChoice) => void
   onEvent: (action: "shown" | "choose" | "retry" | "close", choice?: OfferChoice) => void
   onClose?: () => void
 }): VNode {
-  // The App Store's prices, or the last ones this device had (build 92: "Choose Pro" came with no price at all).
-  const [keptPrices, setKeptPrices] = useState<Record<string, string>>({})
-  useEffect(() => void lastPrices().then(setKeptPrices), [])
-  const given = status?.store?.prices ?? {}
-  const prices = Object.keys(given).length ? given : keptPrices
+  const prices = usePrices(status)
   const facts = status?.plans
   const [plan, setPlan] = useState<OfferChoice["plan"]>(focus && plans.includes(focus) ? focus : plans[0])
-  const [period, setPeriod] = useState<Period>("yearly")
+  // Monthly first (DEFAULT_PERIOD); a subscriber's own period when they're changing plan.
+  const [period, setPeriod] = useState<Period>(startPeriod(status?.store?.active ? status.store.productId : null))
   // Shown once per message.
   useEffect(() => onEvent("shown", { plan, period }), [])
-  // Retry comes alive when the answers are back.
-  const [now, setNow] = useState(Date.now())
+  // In view as it comes, and again while its prices and the plan's facts come in (each makes it taller): it answers a
+  // tap, like an answer (the chat scrolled to its end before it was this tall). Only while it settles.
+  const ref = useRef<HTMLDivElement>(null)
+  const since = useRef(Date.now())
+  const priced = Object.keys(prices).length > 0
   useEffect(() => {
-    if (!retryAt || retryAt <= now) return
-    const timer = setTimeout(() => setNow(Date.now()), Math.min(retryAt - now + 500, 2_147_000_000))
+    if (Date.now() - since.current > 2_000) return
+    const timer = setTimeout(() => {
+      const card = ref.current
+      const list = card?.closest<HTMLElement>(".cf-messages")
+      if (!card || !list) return
+      const button = card.querySelector<HTMLElement>(".cf-card-actions .cf-primary")
+      const delta = revealDelta(list.getBoundingClientRect(), card.getBoundingClientRect(), button?.getBoundingClientRect() ?? null)
+      if (delta > 0) list.scrollTop += delta
+    }, 40)
     return () => clearTimeout(timer)
-  }, [retryAt, now])
-  const canRetry = Boolean(onRetry) && (!retryAt || retryAt <= now)
+  }, [priced, Boolean(facts)])
+  const answersBack = useAnswersBack(retryAt)
+  const canRetry = Boolean(onRetry) && answersBack
 
   const monthly = prices[productOf(plan, "monthly")]
   const yearly = prices[productOf(plan, "yearly")]
@@ -79,7 +125,7 @@ export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "
   }
 
   return (
-    <div class={`cf-card cf-offer ${place}`} role="group" aria-label={title}>
+    <div ref={ref} class={`cf-card cf-offer ${place}`} role="group" aria-label={title}>
       <div class="cf-upsell-head">
         <span class="cf-upsell-icon"><Icon.Sparkle size={18} /></span>
         <strong>{title}</strong>
@@ -119,13 +165,14 @@ export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "
       )}
       <div class="cf-card-actions">
         <button type="button" class="cf-primary" onClick={choose}><Icon.Sparkle size={14} /> {t("plansChoose", name(plan))}</button>
-        {onRetry && (
-          <button type="button" class="cf-secondary" disabled={!canRetry} onClick={() => { onEvent("retry"); onRetry() }} title={canRetry ? t("retry") : undefined}>
+        {/* Only once the answers are back (the director's acceptance 3: a greyed Retry beside «Choose» while they're out
+            could only hit the limit again; when they're back is in the card's own text). */}
+        {canRetry && (
+          <button type="button" class="cf-secondary" onClick={() => { onEvent("retry"); onRetry!() }}>
             <Icon.Retry /> {t("retry")}
           </button>
         )}
       </div>
-      {onRetry && !canRetry && retryAt && <p class="cf-offer-retry-at">{t("offerRetryAt", new Intl.DateTimeFormat(uiLanguage(), { hour: "numeric", minute: "2-digit" }).format(retryAt))}</p>}
       {extra}
     </div>
   )

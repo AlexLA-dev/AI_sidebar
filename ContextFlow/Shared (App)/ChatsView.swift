@@ -1429,7 +1429,7 @@ struct ChatDetailView: View {
                                                     // chat's name): the one its question was asked on, as in the panel.
                                                     ListenPlayer.shared.listen(answer: entry.content, id: "chat-\(thread.id)-\(index)", title: answerTitle(thread, index))
                                                 },
-                                                mark: !entry.isNote && store.isUltra ? voiced.mark("answer", entry.content) : nil
+                                                mark: !entry.isNote && store.canListen ? voiced.mark("answer", entry.content) : nil
                                             )
                                             .frame(maxWidth: .infinity, alignment: entry.isUser ? .trailing : .leading)
                                             if tagging == index {
@@ -2770,7 +2770,7 @@ private struct MessageTools: View {
             if let listen {
                 Button(action: listen) {
                     HStack(spacing: 3) {
-                        Image(systemName: store.isUltra ? "speaker.wave.2.fill" : "speaker.wave.2")
+                        Image(systemName: store.canListen ? "speaker.wave.2.fill" : "speaker.wave.2")
                         if titles { Text("Listen").lineLimit(1) }
                         if !store.isUltra { UltraMark() }
                         if let mark {

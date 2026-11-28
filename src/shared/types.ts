@@ -2,11 +2,12 @@ import type { Attachment, MediaKind } from "./attachments.ts"
 import { COPIED_DEFAULT_ON } from "./copied.ts"
 import type { ChatDigest } from "./history.ts"
 import type { AppleItem } from "./appleItems.ts"
+import type { AgentSwitch } from "./agentSwitch.ts"
 import type { OrganizeConfig } from "./organize.ts"
 import type { RenewalReason } from "./renewal.ts"
 // Messages exchanged between the content script (UI) and the background worker.
 
-import type { PaidPlan, Period, Plan } from "./plan.ts"
+import type { BuyVia, PaidPlan, Period, Plan } from "./plan.ts"
 import type { UseKind } from "./spent.ts"
 import type { OrgState } from "./threads.ts"
 export type { Plan } from "./plan.ts"
@@ -36,6 +37,9 @@ export interface StatusInfo {
   // A free install that ran out of free answers on an earlier day, and the offer for it (from the server).
   limitedBefore: boolean
   offer: ProOffer | null
+  // 2.8 (the server with the code only on return): what a return would bring, for the one notification that may carry
+  // it (to someone who opted in). Absent from older servers: the panel then goes by the offer it was given.
+  returnOffer?: { discount: number } | null
   // An Own key subscriber can move to Pro at this discount (the app asks the server to sign the offer).
   upgradeOffer: { discount: number } | null
   // Google search allowances (free a day, Pro a week), for what the panel tells Own key subscribers.
@@ -43,6 +47,8 @@ export interface StatusInfo {
   // 2.6: an Ultra subscriber's week of read aloud (seconds) and find similar (searches); null for other plans or
   // offline. plans: the allowances the plans sheet names, from the server (defaults offline).
   ultra: { speak: Usage | null; similar: Usage | null } | null
+  // 2.8 (В7.4): Pro's weekly tastes of Ultra, this week's use (only the tastes the server has on; absent: none).
+  taste?: { speak?: Usage; similar?: Usage }
   plans: PlanFacts
   // What the device's App Store account says (may be ahead of the server).
   // autoRenew: false when the user turned auto-renew off (null: not known); period and renewalAsked: the
@@ -63,6 +69,9 @@ export interface StatusInfo {
   offline: boolean
   // Organizing the chats (2.5): switched on on the server, the vector space and the thresholds; null offline.
   organize: { on: boolean; space: string; config: OrganizeConfig } | null
+  // 2.8: the agent switched on on the server (src/shared/agentSwitch.ts): "unknown" until a status was heard on this
+  // device; offline, the last one heard. Absent (tests' statuses): unknown.
+  agent?: AgentSwitch
   // 2.7, invite a friend: friends who came with this install's code and asked on two different days (only once the
   // install has a code).
   invite?: { active: number }
@@ -120,6 +129,14 @@ export interface AskPayload {
   // 2.7: this device can add reminders and events (Safari, iOS 17+ and macOS 14+): the answer may end with the marker
   // for a card (appleItems.ts ITEM_MARKER). Older clients don't send it and never get the marker.
   items?: true
+  // 2.7.1: the panel can hand an action to the agent («Сделать на этой странице?» under the question).
+  agent?: true
+  // The chip's own words (the answer names the button with them).
+  agentLabel?: string
+  // 2.8 (В6.1): the answer ends with two follow-up questions (src/shared/nextQuestions.ts).
+  next?: true
+  // 2.8: how the question came and the page's kind, for the answer's row (src/shared/usage.ts uiFields).
+  ui?: { via: string; page: string }
 }
 
 /** Where an Own key subscriber met Pro: a refusal (answers, Google, a Pro-only feature), the discount card, Settings. */
@@ -177,6 +194,8 @@ export type ErrorCode =
   | "BUSY"
   | "UPSTREAM"
   | "NETWORK"
+  // The tab lost its link to the extension (iOS put it away while another app was open; 123).
+  | "LINK"
   | "STREAM"
   | "EMPTY"
   | "BAD_KEY"
@@ -193,6 +212,11 @@ export type ErrorCode =
 
 export type BackgroundRequest =
   | { type: "status"; refresh?: boolean; fresh?: boolean; platform?: Platform }
+  // 2.8.1: the panel says its platform as it starts, before its first event (the first fab.shown went out as "other").
+  | { type: "platform"; platform: Platform }
+  | { type: "alive" }
+  // 2.8.1 (R10): the install's id when the panel doesn't find it stored yet (its arm must be the background's).
+  | { type: "installId" }
   // 2.6 (91): a Tips clip from the app (App Group) for the clip page.
   | { type: "tipClip"; name: string; lang: string }
   // «Снимок страницы в заметке» (2.7): the tab's visible area captured; a note's picture kept, and fetched to open it.
@@ -206,7 +230,7 @@ export type BackgroundRequest =
   // feature "ai": the Pro screen opens on AI search and "Ask your chats".
   // feature "organize": on organizing the chats (2.5).
   // plan, period (2.6): what was chosen in the panel's plans sheet; the app opens on it.
-  | { type: "openApp"; target: "subscribe" | "manage" | "home"; feature?: "ai" | "organize" | "listen" | "watch"; plan?: PaidPlan; period?: Period }
+  | { type: "openApp"; target: "subscribe" | "manage" | "home"; feature?: "ai" | "organize" | "listen" | "watch"; plan?: PaidPlan; period?: Period; via?: BuyVia; back?: string }
   // Read aloud on iPhone and iPad (2.6): the parts go to the app (App Group), which plays them with the screen
   // locked; answers { url } (contextflow://listen?id=…) for the page to follow, or { url: null } (no app).
   // text, script (2.6): the raw text and whether the app should write it for the ear first (parts: when it can't).
@@ -272,6 +296,9 @@ export type BackgroundRequest =
   // A reminder on an answer or a note (2.5): a local notification on this device (Safari); answers
   // { outcome: "scheduled" | "denied" | "not-asked" | "failed" | "unavailable" }. `at` null: cancel it.
   | { type: "remind"; chat: string; message: string; at: number | null; title?: string; body?: string; url?: string; ask?: boolean }
+  | { type: "remindPending"; chat: string; message: string }
+  // 2.8: the discount reminder's tap, as the app noted it (seconds ago), taken once; none: the mark isn't ours.
+  | { type: "offerTapTake" }
   // 2.7, Calendar and Reminders (appleItems.ts): whether this device can add them and with what access ("appleStatus");
   // a reminder or an event written on the device, or handed to the app with `handoff` (its id, the link the page already
   // followed) when the extension can't write it ("appleAdd" → { outcome: "saved" | "app" | "denied" | "failed" |
@@ -284,7 +311,10 @@ export type BackgroundRequest =
   // Chat UX counts (2.5), no text: see UX_KINDS in netlify/functions/v2-event.mts.
   | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind"; action: string; what?: string; how?: string; preset?: string }
   // A step for the feature counters: the analytics registry's "use" kind (src/shared/usage.ts), named values only.
-  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate" | "apple" | "space" | "match" | "write" | "shot" | "similar" | "collect"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number; val?: string; spaces?: number; match?: number; where?: string; screens?: number; cards?: number }
+  // The cookie closer in a consent platform's own frame (2.7.1).
+  | { type: "cookieFrameInject" }
+  | { type: "cookieFrameDone"; via: string; accepted?: boolean }
+  | { type: "useEvent"; f: "agent" | "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate" | "apple" | "space" | "match" | "write" | "shot" | "similar" | "collect" | "cookies"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; from?: string; state?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number; val?: string; spaces?: number; match?: number; where?: string; screens?: number; cards?: number; count?: number; task?: string; did?: string; options?: number; card?: string; page?: string; result?: string; err?: string; steps?: number; secs?: number; calls?: number; recap?: string }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =
@@ -391,6 +421,8 @@ export const STORAGE = {
   // false from install until the server heard that the extension was switched on (the funnel's step
   // after "app opened"); missing for installs from before 2.4, which never report it.
   extOnPending: "cf:extOnPending",
+  // 2.7.1: the app's random id the server last confirmed together with this install's (src/background/link.ts).
+  appLinked: "cf:appLinked",
   // How many times the Pro offer card for installs that ran out of free answers before was shown,
   // or -1 once it was answered.
   offerCard: "cf:offerCard",
@@ -460,6 +492,10 @@ export interface Settings {
   // nothing shows while there's one space. Off: no switcher, colours or site bindings, every chat in one list; the
   // spaces and which chat is in which stay, for when it's on again. Shared with the app, like the rest.
   spaces: boolean
+  // 2.8: the answers-back reminder may also say there's a Pro discount (App Review 4.5.4: promotions in notifications
+  // only after an explicit opt-in in the app, and a way to opt out). Off until the person turns it on, by the reminder
+  // or in Settings.
+  offerNotify: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -479,7 +515,8 @@ export const DEFAULT_SETTINGS: Settings = {
   shareMarks: false,
   insertButton: true,
   keepCopied: COPIED_DEFAULT_ON,
-  spaces: true
+  spaces: true,
+  offerNotify: false
 }
 
 /** AI search's answer: the matching chats with a reason, or why there are none. */

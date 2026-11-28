@@ -18,31 +18,87 @@ interface Feature {
   actions: readonly string[]
   /** How people got to it. */
   via?: readonly string[]
-  /** Extra named values; "int" is a whole number 0–9999, "code" 2–3 capital letters (a currency, a country). */
-  fields?: Record<string, readonly string[] | "int" | "code">
+  /** Extra named values; "int" is a whole number 0–9999, "code" 2–3 capital letters (a currency, a country), "uuid" a
+   *  random id (an agent task's, never anything about the person), "rules" the agent's rule codes with counts
+   *  ("contact_kind:1,slot_time:2": codes from AGENT_RULES, counts 1–99). */
+  fields?: Record<string, readonly string[] | "int" | "code" | "uuid" | "rules">
   /** Sent as its own event kind (or logged by the server), never as "use": named here for prev and reports. */
   own?: true
 }
 
+/** The device's rules that refuse or hold an agent's step (runner.ts), as the end event names them: codes only, never
+ *  what was refused. */
+export const AGENT_RULES = [
+  "done_press", "place_find", "day_grey", "next_free", "date_field", "day_unseen", "place_again", "field_kind",
+  "contact_kind", "given_words", "other_person", "search_first", "list_open", "date_step", "link_dates", "place_ask",
+  "place_unfit", "made_up", "slot_time", "slot_window", "slot_nearer", "slot_busy", "book_again", "book_hold",
+  "days_unset", "blocked", "apple_access", "said_no", "book_unseen", "count_other", "place_other",
+  "back_floor", "details_next", "dates_none", "cookie_device", "given_ask", "contact_empty", "dial_set", "service_unasked", "time_bound"
+] as const
+export type AgentRule = (typeof AGENT_RULES)[number]
+
 const ENTRIES = ["list", "search", "ai_search", "move_bar", "reminder", "deeplink"] as const
 
+/** A page's kind, decided on the device (src/content/pagehints/detect.ts); "other" for none of them. */
+const PAGE_KINDS = ["product", "article", "video", "form", "event", "stay", "other"] as const
+
+/** The hints of the 2.8 coordinator (src/content/coach/rules.ts HINT_IDS; tests/coach.test.mts keeps them the same). */
+export const COACH_HINTS = [
+  "fab_pulse", "sel_ask", "translate_pill", "cookie_line", "sel_icons", "write_tip", "note_tip",
+  "organize_consent", "organize_mess", "organize_tags", "byok_offer", "renewal", "media_tip", "chats_tip",
+  "whatsnew", "invite",
+  "page_similar", "page_watch", "page_summary", "page_listen", "page_video", "page_templates", "page_remind", "page_calendar",
+  "page_agent", "google_offer", "collect_tip"
+] as const
+
 export const FEATURES: Record<string, Feature> = {
+  // The browser agent (2.7.1): one task's start and end, tied by its random id (also on the server's agent_step rows);
+  // the person's answer to the recap before a booking; a question and where it was answered; the end's «Show».
+  // Kinds and counts only: never a site, a name, a time or the request.
+  agent: {
+    since: "2.8", tracked: "2.8", on: "ext",
+    actions: ["start", "end", "accepted", "rejected", "question", "result"],
+    via: ["card", "bubble", "chat"],
+    fields: {
+      task: "uuid",
+      what: ["book_table", "book_stay", "book_visit", "cart", "form", "other"],
+      page: ["product", "article", "video", "form", "event", "stay", "other"],
+      card: ["shown", "skipped"],
+      result: ["done", "failed", "stopped", "asked"],
+      err: ["steps", "stuck", "page", "unbooked", "blocked", "upstream", "other"],
+      recap: ["yes", "no"],
+      did: ["answered", "dismissed", "show"],
+      steps: "int", secs: "int", calls: "int", options: "int",
+      rules: "rules"
+    }
+  },
+  // 2.8 (events-2.8 §2, rungs 8 and 9): sent by the panel from 2.8. "open": how ("hint": a hint's tap), its layout, the
+  // page's kind, what the first screen showed (the guide, ready questions, an empty chat, a chat, an agent task's card)
+  // and `first` on the first opening ever; "close": seconds open (`open_s`) and what it came to (`did`). 2.8.1: a close
+  // the page couldn't send (it went away, Safari was put away) is sent from the next page, `cut` 1, its seconds up to
+  // when it was last seen (kept every 15 s): every open has its close. Via "back": the panel was left open on a page
+  // put away for over half an hour (that opening ended at its last sight) and the person came back to it.
   panel: {
-    since: "2.0", on: "ext", actions: ["open", "close"],
-    via: ["toolbar", "shortcut", "fab", "bubble", "note_open", "qi", "app"],
-    fields: { lay: ["side", "sheet", "popup"] }
+    since: "2.0", tracked: "2.8", on: "ext", actions: ["open", "close"],
+    via: ["toolbar", "shortcut", "fab", "bubble", "note_open", "qi", "app", "hint", "back"],
+    fields: { lay: ["side", "sheet", "popup"], page: PAGE_KINDS, screen: ["guide", "tour", "ask", "empty", "chat", "agent", "plans"], first: "int", open_s: "int", did: ["none", "chip", "ask", "tour", "settings", "other"], cut: "int" }
   },
   // Answers are logged by the server (/api/v2/chat with "ui"); the panel sends the rest.
   ask: {
     since: "2.0", tracked: "2.0", actions: ["answer", "error", "stop", "retry", "google_on", "google_off", "whole_on", "whole_off", "source"],
-    via: ["composer", "chip", "followup", "newpage", "bubble", "qi_adapt", "retry", "app_chat"]
+    // 2.8.1: "ready", a ready question about the page (src/content/ready); "followup", one under an answer; "hint", a hint's
+  // tap (the Google answer offered under an answer).
+    via: ["composer", "chip", "followup", "newpage", "bubble", "qi_adapt", "retry", "app_chat", "ready", "hint"]
   },
   ai_search: { since: "2.4", tracked: "2.4", actions: ["on", "answer", "error", "open"], fields: { hits: ["0", "1-5", "6+"] } },
   // Build 94: "link", a chat opened from a link to it in an answer.
   ask_chats: { since: "2.4", tracked: "2.4", actions: ["open", "chip", "answer", "error", "link"] },
+  // 2.8: sent by the extension's consent card (src/content/Consent.tsx), where it was asked; step 2: asked again for a
+  // newer text.
   consent: {
-    since: "2.0", actions: ["shown", "accepted", "declined"],
-    via: ["ask", "find", "ask_chats", "qi", "organize", "translate"], fields: { step: "int" }
+    since: "2.0", tracked: "2.8", actions: ["shown", "accepted", "declined"],
+    // "ready": given by tapping a ready question that says so (В6.3).
+    via: ["ask", "find", "ask_chats", "qi", "organize", "translate", "write", "watch", "ready"], fields: { step: "int" }
   },
   note: { since: "2.3", actions: ["saved"], via: ["composer", "limit", "selection", "app"] },
   // 2.6: "action" by a chip in the field (via "chip", what: the action) on iPhone and iPad.
@@ -50,7 +106,9 @@ export const FEATURES: Record<string, Feature> = {
     since: "2.0", on: "ext", actions: ["shown", "ask", "action", "question", "note", "template", "remind"], via: ["chip", "button"],
     fields: { what: ["sel_summarize", "sel_translate", "sel_explain", "sel_improve", "sel_reply", "sel_similar"] }
   },
-  fab: { since: "2.0", on: "ext", actions: ["tap", "drag", "hide_site"] },
+  // 2.8 (events-2.8 §2, rung 7): "shown" once a device day when the circle first shows on a page, with the page's kind
+  // (and `first` the first time ever); "tap" when it opens the panel.
+  fab: { since: "2.0", tracked: "2.8", on: "ext", actions: ["tap", "drag", "hide_site", "shown"], fields: { page: PAGE_KINDS, first: "int" } },
   msg: { since: "2.0", actions: ["copy", "share"], fields: { what: ["answer", "note", "ask_chats"] } },
   share_chat: { since: "2.3", actions: ["open", "copy", "share"], fields: { picked: "int" } },
   page_open: { since: "2.3", actions: ["tap"], via: ["divider", "chat_pages", "note_link", "source", "reminder", "watch"] },
@@ -74,11 +132,17 @@ export const FEATURES: Record<string, Feature> = {
   },
   offer: { since: "2.4", actions: ["shown", "redeem", "later"] },
   // The app's notifications screen before the system's question (2.6): why it came up, and what was answered.
-  notify: { since: "2.6", tracked: "2.6", on: "app", actions: ["shown", "on", "later"], fields: { why: ["launch", "ultra", "listen"], status: ["denied", "not_asked"] } },
+  // 2.8 (В3.2): no longer at launch ("launch" stays for older builds); asked at the panel's moments of value: "later"
+  // (a reminder set), "watch", "answers_back". "quiet": only the setup reminders' provisional permission so far.
+  notify: { since: "2.6", tracked: "2.6", on: "app", actions: ["shown", "on", "later"], fields: { why: ["launch", "ultra", "listen", "later", "watch", "answers_back"], status: ["denied", "not_asked", "quiet"] } },
+  // 2.8 (В1.5, sent from 2.8): the app's plans screen shown, a plan's Buy ("plan"), and how the App Store's sheet ended,
+  // with where it started (the tab, a link; from the panel: its plans sheet, the plans in the chat, Settings' yearly line,
+  // straight to the sheet in one tap), the plan, its period and the offer it went with.
   paywall: {
-    since: "2.0", on: "app", actions: ["shown", "plan", "buy_ok", "buy_cancel", "buy_pending", "buy_fail", "restore", "manage"],
-    via: ["tab", "home", "deeplink", "ai_lock", "ask_chats", "limit", "offer", "organize", "tips", "whatsnew"],
-    fields: { plan: ["monthly", "yearly", "own_key", "promo"] }
+    since: "2.0", tracked: "2.8", on: "app", actions: ["shown", "plan", "buy_ok", "buy_cancel", "buy_pending", "buy_fail", "restore", "manage"],
+    via: ["tab", "home", "deeplink", "ai_lock", "ask_chats", "limit", "offer", "organize", "tips", "whatsnew", "panel", "panel_sheet", "panel_chat", "panel_settings", "panel_yearly"],
+    // The 2.8 schema (events-2.8.md, rung 15): `plan` is the plan bought (its old values were never sent).
+    fields: { plan: ["pro", "ultra", "byok"], period: ["monthly", "yearly"], offer: ["none", "promo", "intro", "code"] }
   },
   renewal: { since: "2.4", tracked: "2.4", actions: ["shown", "answer"] },
   // 2.6: the guided first request (src/content/Guide.tsx) reports these; "what" is the step it was on (or, for "exit",
@@ -90,12 +154,22 @@ export const FEATURES: Record<string, Feature> = {
       what: ["summarize", "consent", "answer", "select", "pick", "ask", "askSel", "answer2", "swipe", "chats", "chatList", "menu", "pro_media", "pro_chats", "pro_chatList", "pro_sort", "pro_templates", "pro_watch", "ultra_listen", "ultra_similar", "ultra_watch", "declined", "limit", "error", "closed"]
     }
   },
-  hint: { since: "2.3", actions: ["shown", "done"], fields: { what: ["chats", "video", "pdf", "note", "bubble", "qi", "app_chats", "side"] } },
+  // 2.8.1 (events-2.8 §3): the hint coordinator (src/content/coach) — each hint shown (a second on screen, or tapped
+  // sooner), tapped, closed with ✕, its feature used; which one, the ladder's rung the person is on and the day since the
+  // first (device days). The ✦ pulse (fab_pulse) reports shown once a device day. A page line by the circle is ALSO sent
+  // as page_hint.* (2.7's series, kept so 2.7 and 2.8.1 compare): reports count a page line once, from one of the two.
+  hint: {
+    since: "2.3", tracked: "2.8", actions: ["shown", "done", "tap", "dismiss"],
+    fields: {
+      what: ["chats", "video", "pdf", "note", "bubble", "qi", "app_chats", "side", ...COACH_HINTS],
+      rung: "int", day: "int"
+    }
+  },
   // 2.7 (plan section 6): page hints in the first days — the line by the circle shown, tapped, ✕ (and two in a row
   // turning them off), the feature used after it; the Settings switch. what: which hint (src/content/pagehints).
   page_hint: {
     since: "2.7", tracked: "2.7", on: "ext", actions: ["shown", "tap", "dismiss", "off", "used", "switch_on", "switch_off"],
-    fields: { what: ["similar", "watch", "summary", "listen", "video", "templates", "remind", "calendar"] }
+    fields: { what: ["similar", "watch", "summary", "listen", "video", "templates", "remind", "calendar", "agent"] }
   },
   // 2.7 (plan section 9): the circle dragged to the other edge, the panel dragged by its header (iPad, Mac), the side
   // picked in Settings; what: the side it went to.
@@ -107,24 +181,47 @@ export const FEATURES: Record<string, Feature> = {
     since: "2.7", tracked: "2.7", actions: ["open", "share", "copy", "code_ok", "code_bad", "reward_shown", "reward_pro", "reward_ultra", "reward_answers"],
     via: ["settings", "card", "app", "first_screen"]
   },
-  tab: { since: "2.0", on: "app", actions: ["open"], fields: { what: ["start", "chats", "templates", "tips", "pro", "settings"] } },
+  // 2.8 (В1.7): first sent in 2.8, on every change of tab (What's new and the Mac's Collections too).
+  tab: { since: "2.0", tracked: "2.8", on: "app", actions: ["open"], fields: { what: ["start", "chats", "templates", "tips", "pro", "settings", "whats_new", "collections"] } },
   tips: {
     since: "2.0", on: "app", actions: ["open", "play"],
     fields: { what: ["summary", "translate", "selection", "note", "video", "pdf", "chats", "search", "tags", "ai_search", "ask_chats", "quick_insert", "templates", "copied", "organize"] }
   },
-  setup: { since: "2.4", on: "app", actions: ["open_settings", "open_safari", "mac_settings", "notif_granted", "notif_denied", "banner_tap"] },
+  // 2.8 (events-2.8.md): "open_safari" the «Open Safari» button ("via": "step" the step after switching it on, "card"
+  // once it's been used, "guide" an iOS that can't say it's on), "safari_shown" that step on screen (once an install);
+  // "reminder" the reminders to finish setup scheduled ("perm": "quiet" provisional, "on" full permission),
+  // "reminder_seen" one of them in Notification Center when the app came to the front ("what": which). Its tap is
+  // notif.tap with what "setup". "ask_shown" (once an install): back from Safari with the panel still unused, the step
+  // names Safari's page menu first (with All Websites on Ask no ✦ shows).
+  setup: {
+    since: "2.4", tracked: "2.8", on: "app",
+    actions: ["open_settings", "open_safari", "mac_settings", "notif_granted", "notif_denied", "banner_tap", "safari_shown", "reminder", "reminder_seen", "ask_shown"],
+    via: ["step", "card", "guide"],
+    fields: { perm: ["quiet", "on"], what: ["15m", "24h"] }
+  },
+  // 2.8 (В1.7): the What's new tab shown, its Update button tapped, the tab left.
+  whatsnew: { since: "2.6", tracked: "2.8", on: "app", actions: ["shown", "tap", "close"] },
   // 2.7 (plan section 8, «Активация»): the way from the app to ContextFlow switched on, counted, never what's on screen.
   // "video": the guide started floating over Settings (iPhone, iPad); "settings": Settings opened from the app (the
   // home card, or on a Mac the chats' empty state too); "back": the app in front again after that trip; "enabled": the
   // app saw ContextFlow switched on (once an install). "linked": once, the extension's own side, when the panel first
   // gives it the install id, sends it with the app's id (both random), so the steps in the app join the ones Safari's
-  // side logs: switched on there (ext_on) and the first answer.
+  // side logs: switched on there (ext_on) and the first answer. 2.7.1: sent by the extension's background instead, until
+  // the server confirms it, and again when the app's id changes (src/background/link.ts); still both ids only.
+  // 2.8 (В1.1, events-2.8.md): "shown" the instruction to switch it on was on screen (once an install, "via" card: the
+  // funnel's zero step); "back" carries how Settings was opened ("how": "direct" Safari's settings for ContextFlow,
+  // "app" the app's own page). The «Open Safari» step and the reminders are setup.*.
   activation: {
-    since: "2.7", tracked: "2.7", on: "app", actions: ["video", "settings", "back", "enabled", "linked"], via: ["card", "chats"]
+    since: "2.7", tracked: "2.7", on: "app",
+    actions: ["video", "settings", "back", "enabled", "linked", "shown"],
+    // "allow" (2.8): Settings opened from the «Open Safari» step to set All Websites to Allow.
+    via: ["card", "chats", "allow"],
+    fields: { how: ["direct", "app"] }
   },
   // "similar": Find similar's "found" notification (the search ended after the person left Safari); "panel": the page
   // its tap opened showed the panel on that chat (the chat named in the page's address, the panel's step).
-  notif: { since: "2.4", on: "app", actions: ["tap", "panel"], fields: { what: ["remind", "remind_page", "setup", "watch", "similar"] } },
+  // "when" (2.8): which reminder to finish setup was tapped.
+  notif: { since: "2.4", on: "app", actions: ["tap", "panel"], fields: { what: ["remind", "remind_page", "setup", "watch", "similar", "offer"], when: ["15m", "24h"] } },
   app: {
     since: "2.4", tracked: "2.4", on: "app", actions: ["open"], via: ["icon", "deeplink", "notif"],
     fields: { what: ["subscribe", "manage", "tips", "chats", "chat", "templates", "open"] }
@@ -150,23 +247,32 @@ export const FEATURES: Record<string, Feature> = {
   // Build 95: a text whose audio played out but isn't marked ("unvoiced"), and why: skipped ahead here, skipped in Safari
   // before it was carried on ("before"), or the end not reached by `gap_s` seconds ("short").
   listen: {
-    since: "2.6", tracked: "2.6", actions: ["start", "app", "ultra", "limit", "error", "apple", "interrupted", "retry", "heard", "notify", "notify_on", "notify_later", "carried_on", "back_safari", "back_play", "go", "voiced", "unvoiced"],
+    since: "2.6", tracked: "2.6", actions: ["start", "app", "ultra", "limit", "error", "apple", "interrupted", "retry", "heard", "notify", "notify_on", "notify_later", "carried_on", "back_safari", "back_play", "go", "voiced", "unvoiced", "taste_used", "notify_was_on"],
     fields: { what: ["answer", "page"], heard_s: "int", cache_s: "int", icloud_s: "int", server_s: "int", charged_s: "int", why: ["skipped", "before", "short"], gap_s: "int" }
   },
   // 2.6: the plans sheet (Own key, Pro, Ultra): opened from where, and the plan and period chosen (to the app).
   plans: {
-    since: "2.6", tracked: "2.6", on: "ext", actions: ["open", "choose", "yearly"],
+    // 2.8 (В7.2): "bought", back from the App Store's sheet with the plan on (the period chosen).
+    since: "2.6", tracked: "2.6", on: "ext", actions: ["open", "choose", "yearly", "bought"],
     via: ["listen", "settings", "watch", "limit", "similar", "translate", "spaces", "collections"],
     // Build 93: the currency of the prices shown and the App Store country they came from (none: no prices came).
-    fields: { plan: ["byok", "pro", "ultra"], period: ["monthly", "yearly"], cur: "code", sf: "code" }
+    // 2.8 (В7.4): the Ultra feature it opened on (Pro's taste of it used, or its «In Ultra» link).
+    fields: { plan: ["byok", "pro", "ultra"], period: ["monthly", "yearly"], cur: "code", sf: "code", feature: ["listen", "similar"] }
   },
   // Build 91: the plans message in the chat — out of answers ("limit"), the chat's memory ("memory": the switch, or a
   // free chat past its last messages), a Pro or Ultra feature refused; shown, and what was tapped: a plan and period
   // (to the app), the discount, a note, the own key, Retry.
   chat_plans: {
-    since: "2.6", tracked: "2.6", on: "ext", actions: ["shown", "choose", "discount", "note", "own_key", "retry", "close"],
-    via: ["limit", "memory", "pro_only", "ultra_only"],
-    fields: { plan: ["pro", "ultra"], period: ["monthly", "yearly"] }
+    // 2.8 (В7.1): «Remind me when my answers are back» tapped, set, or notifications off.
+    // 2.8 (Р19, the simpler limit card): "more" opened; what was tapped inside it is its own action (choose with the
+    // plan and period, note, own_key) with from "more".
+    // 2.8 (the owner: full price first, the code on return): `state` on shown, and on remind_set (what the reminder
+    // will say); the opt-in to a discount in that reminder turned on or off, on the card or in Settings; the «once
+    // more» card on return ("return": shown, discount, later).
+    since: "2.6", tracked: "2.6", on: "ext", actions: ["shown", "choose", "discount", "note", "own_key", "retry", "close", "remind", "remind_set", "remind_off", "remind_notify", "remind_app", "more", "offer_notify_on", "offer_notify_off", "later"],
+    // "agent" (2.8): the plans message when the agent was asked for without Pro.
+    via: ["limit", "memory", "pro_only", "ultra_only", "return", "settings", "agent"],
+    fields: { plan: ["pro", "ultra"], period: ["monthly", "yearly"], from: ["more"], state: ["full", "discount"] }
   },
   // 2.7: the page translated in place (src/content/translate): the pill by the circle shown on a page in another
   // language, tapped, the consent asked from it, the translation shown, "Original", × (hidden on that site), the
@@ -181,7 +287,8 @@ export const FEATURES: Record<string, Feature> = {
   // 2.7: Find similar — Ultra's full search, the light one for Own key and Pro (`what`). The panel: its card opened
   // ("pick"), a search asked ("find"), the light search's week or Pro's answers used ("limit"); the panel and the app: an
   // item opened ("open"). Each search itself, its plan and cost, is logged by the server ("similar", with `mode`).
-  similar: { since: "2.6", tracked: "2.7", actions: ["pick", "find", "limit", "open"], fields: { what: ["light", "full"] } },
+  // 2.8 (В7.4): "taste", Pro's taste of the full search (asked, or its week used).
+  similar: { since: "2.6", tracked: "2.7", actions: ["pick", "find", "limit", "open"], fields: { what: ["light", "full", "taste"] } },
   watch: {
     since: "2.5", actions: ["create", "alert", "stop", "error", "daily"],
     via: ["bubble", "later", "panel", "app", "notif", "list", "auto"],
@@ -254,7 +361,8 @@ export const FEATURES: Record<string, Feature> = {
   // the count opened to what the answers went on ("spent", via where).
   quiet: {
     since: "2.7", tracked: "2.7", on: "ext",
-    actions: ["chip", "plus", "plus_pick", "more_pick", "moved", "move_undone", "spent"],
+    // 2.8: "swipe_do" (Pro's swipe on the send button to the agent's Do), sent since 2.7.1 but not listed until now.
+    actions: ["chip", "plus", "plus_pick", "more_pick", "moved", "move_undone", "spent", "swipe_do"],
     fields: {
       what: ["check", "rewrite", "templates", "translate_page", "watch", "similar", "summarize", "key_points", "explain", "translate", "google", "note", "shot", "whole", "tag", "collect", "move"],
       lay: ["compact", "roomy"],
@@ -302,6 +410,26 @@ export const FEATURES: Record<string, Feature> = {
     since: "2.7", tracked: "2.7", actions: ["create", "add", "move", "section_add", "section_rename", "section_delete", "delete", "layout", "compare", "summary", "pdf", "open", "limit"],
     via: ["panel", "app", "suggested", "picked", "header", "list", "sidebar", "chats", "mark"],
     fields: { cards: "int", what: ["collection", "card"] }
+  },
+
+  // 2.7.1, the cookie closer (src/content/cookies): a day's counts, sent once the next day — banners answered with
+  // «only necessary» by each consent platform's rule, the generic closer or a TCF page ("closed", what, count), and
+  // banners left to the person and why ("left": only «Accept» offered, no button we know, pressed but it stayed, a
+  // «pay or accept» wall).
+  // Settings: the switch and the per-site exception. Never a site or an address.
+  cookies: {
+    since: "2.8", tracked: "2.8", on: "ext",
+    // 121, the owner: "accepted" — no way to refuse, «Если отказаться нельзя — принимать» on ("accept_on"/"accept_off").
+    actions: ["closed", "accepted", "left", "switch_on", "switch_off", "site_off", "site_on", "accept_on", "accept_off"],
+    fields: {
+      what: [
+        "onetrust", "cookiebot", "didomi", "quantcast", "trustarc", "usercentrics", "sourcepoint", "cookieyes", "complianz",
+        "iubenda", "osano", "termly", "klaro", "consentmanager", "axeptio", "funding_choices", "cookie_notice", "cookieconsent",
+        "borlabs", "shopify", "evidon", "just_eat", "tcf", "generic"
+      ],
+      why: ["only_accept", "none", "stuck", "wall"],
+      count: "int"
+    }
   },
 
   // Their own kinds (2.4 and 2.5) and server rows, under the names reports and prev use.
@@ -353,6 +481,16 @@ export function sessionFields(body: Record<string, unknown> | null | undefined):
   }
 }
 
+// 2.8 (growth plan, ~/ContextFlow-work/director/growth-plan/events-2.8.md): the test arms an install is in, from its
+// first event on: "<test>=<arm>", at most three joined by commas. Names only, never an id.
+const VARIANT = /^[a-z0-9_]{1,16}=[a-z0-9_]{1,16}(?:,[a-z0-9_]{1,16}=[a-z0-9_]{1,16}){0,2}$/
+
+/** The client's test variant (client.variant) as an event field, or nothing when it isn't one. */
+export function variantFields(client: Record<string, unknown> | null | undefined): { variant?: string } {
+  const value = client?.variant
+  return typeof value === "string" && VARIANT.test(value) ? { variant: value } : {}
+}
+
 /** A "use" step's own fields, or null when the feature or the action isn't in the registry (or is sent as its
  * own kind). Unknown extra fields and values are left out. */
 export function useFields(body: Record<string, unknown>): Record<string, unknown> | null {
@@ -363,17 +501,35 @@ export function useFields(body: Record<string, unknown>): Record<string, unknown
   if (has(spec.via, body.via)) out.via = body.via
   for (const [name, allowed] of Object.entries(spec.fields ?? {})) {
     const value = allowed === "int" ? count(body[name]) : body[name]
-    const ok = allowed === "int" ? whole(value, 9999) : allowed === "code" ? typeof value === "string" && /^[A-Z]{2,3}$/.test(value) : has(allowed, value)
-    if (ok) out[name] = value
+    const ok = allowed === "int" ? whole(value, 9999) : allowed === "code" ? typeof value === "string" && /^[A-Z]{2,3}$/.test(value) : allowed === "uuid" ? typeof value === "string" && UUID.test(value) : allowed === "rules" ? rulesField(value) : has(allowed, value)
+    if (ok) out[name] = allowed === "uuid" ? (value as string).toLowerCase() : value
   }
   return out
+}
+
+/** Whether a value is the agent's rule codes with their counts: "code:n" pairs from AGENT_RULES, each once, n 1–99. */
+export function rulesField(value: unknown): boolean {
+  if (typeof value !== "string" || !value || value.length > 400) return false
+  const seen = new Set<string>()
+  return value.split(",").every((pair) => {
+    const m = /^([a-z_]+):([1-9]\d?)$/.exec(pair)
+    if (!m || seen.has(m[1]) || !(AGENT_RULES as readonly string[]).includes(m[1])) return false
+    seen.add(m[1])
+    return true
+  })
+}
+
+/** The agent's rule counts as the end event's field ("" for none). */
+export function rulesValue(rules: Partial<Record<string, number>> | undefined): string {
+  return Object.entries(rules ?? {}).filter(([k, n]) => (AGENT_RULES as readonly string[]).includes(k) && (n ?? 0) > 0).sort(([a], [b]) => a.localeCompare(b)).map(([k, n]) => `${k}:${Math.min(99, n!)}`).join(",")
 }
 
 /** The entry point an AI request came through (ask, ai_search, ask_chats), for the server's own row. */
 export function uiFields(ui: unknown, feature: "ask" | "ai_search" | "ask_chats"): Record<string, unknown> {
   if (!ui || typeof ui !== "object" || Array.isArray(ui)) return {}
   const body = ui as Record<string, unknown>
-  return { ...sessionFields(body), ...(has(FEATURES[feature].via, body.via) ? { via: body.via } : {}) }
+  // 2.8 (events-2.8 §3): the page's kind as the device decided it (one of PAGE_KINDS, never the page itself).
+  return { ...sessionFields(body), ...(has(FEATURES[feature].via, body.via) ? { via: body.via } : {}), ...(has(PAGE_KINDS, body.page) ? { page: body.page } : {}) }
 }
 
 const later = (a: string, b: string) => {

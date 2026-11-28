@@ -1404,15 +1404,9 @@ final class ChatLibrary: ObservableObject {
     func open(_ url: String, chat: String? = nil, at: String? = nil) {
         guard var link = URL(string: url), ["http", "https"].contains(link.scheme?.lowercased() ?? "") else { return }
         if let chat { link = SimilarAway.pageOpening(link, thread: chat, at: at, mark: "cf-chat") }
-        let address = link.absoluteString
         #if os(iOS)
-        if #available(iOS 17, *), let safari = URL(string: "x-safari-\(address)") {
-            UIApplication.shared.open(safari) { opened in
-                if !opened { UIApplication.shared.open(link) }
-            }
-        } else {
-            UIApplication.shared.open(link)
-        }
+        // 2.8: x-safari- for https only (SafariPage, Setup.swift).
+        SafariPage.open(link)
         #else
         if let safari = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.Safari") {
             NSWorkspace.shared.open([link], withApplicationAt: safari, configuration: NSWorkspace.OpenConfiguration())

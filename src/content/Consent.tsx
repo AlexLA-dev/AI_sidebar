@@ -24,7 +24,7 @@ const Chevron = (): VNode => (
 )
 
 /** Scrolls the nearest scrolling box around `card` so all of it shows (its top first when it's taller than the box). */
-function showIn(card: HTMLElement): void {
+export function showIn(card: HTMLElement): void {
   let box = card.parentElement
   while (box && !(box.scrollHeight > box.clientHeight && /(auto|scroll)/.test(getComputedStyle(box).overflowY))) box = box.parentElement
   if (!box) return
@@ -34,8 +34,14 @@ function showIn(card: HTMLElement): void {
   else if (c.top < b.top) box.scrollTop -= b.top - c.top
 }
 
+/** Where the consent was asked (events-2.8 §2, rung 10: `consent.*`, src/shared/usage.ts). */
+export type ConsentVia = "ask" | "find" | "qi" | "translate" | "write" | "watch"
+
+const consentStep = (a: "shown" | "accepted" | "declined", via: ConsentVia, again: boolean) =>
+  void sendBackground({ type: "useEvent", f: "consent", a, via, ...(again ? { step: 2 } : {}) })
+
 /** `again`: agreed to an earlier text, asked once more for this one. */
-export function ConsentCard({ again, onAccept, onDecline }: { again: boolean; onAccept: () => void; onDecline: () => void }): VNode {
+export function ConsentCard({ again, onAccept, onDecline, via = "ask" }: { again: boolean; onAccept: () => void; onDecline: () => void; via?: ConsentVia }): VNode {
   const ref = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
   const [listId] = useState(() => `cf-consent-list-${++lists}`)
@@ -43,6 +49,7 @@ export function ConsentCard({ again, onAccept, onDecline }: { again: boolean; on
   useEffect(() => {
     const card = ref.current
     if (card) showIn(card)
+    consentStep("shown", via, again)
   }, [])
   const title = t(again ? "consentAgainTitle" : "consentTitle")
   return (
@@ -50,8 +57,14 @@ export function ConsentCard({ again, onAccept, onDecline }: { again: boolean; on
       <strong>{title}</strong>
       <p>{t("consentBody")}</p>
       <div class="cf-card-actions">
-        <button type="button" class="cf-primary" onClick={onAccept}>{t("consentAccept")}</button>
-        <button type="button" class="cf-link" onClick={onDecline}>{t("consentDecline")}</button>
+        <button type="button" class="cf-primary" onClick={() => {
+          consentStep("accepted", via, again)
+          onAccept()
+        }}>{t("consentAccept")}</button>
+        <button type="button" class="cf-link" onClick={() => {
+          consentStep("declined", via, again)
+          onDecline()
+        }}>{t("consentDecline")}</button>
       </div>
       <button type="button" class={`cf-consent-more ${open ? "open" : ""}`} aria-expanded={open} aria-controls={listId} onClick={() => setOpen(!open)}>
         {t("consentWhat")} <Chevron />

@@ -6,12 +6,14 @@
 import type { VNode } from "preact"
 import { useRef, useState } from "preact/hooks"
 
+import { agentSold } from "../shared/agentSwitch"
 import { t } from "../shared/i18n"
 import type { PlanFacts } from "../shared/types"
 import { speedLabel } from "../shared/stretch"
 import * as Icon from "./icons"
 import { SpeakerIcon } from "./listen/useListen"
 import { OrganizePreview } from "./Organize"
+import { useAgentSwitch } from "./agentSwitch"
 
 /** Small line icons for the samples (24-unit grid, current colour). */
 const Svg = ({ size = 13, children }: { size?: number; children: VNode | VNode[] }) => (
@@ -24,25 +26,31 @@ const BackIcon = () => <Svg size={18}><path d="M4 12a8 8 0 1 0 2.4-5.7" /><path 
 const AheadIcon = () => <Svg size={18}><path d="M20 12a8 8 0 1 1-2.4-5.7" /><path d="M20 4v4h-4" /></Svg>
 const PauseIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4.5" width="4" height="15" rx="1" /><rect x="14" y="4.5" width="4" height="15" rx="1" /></svg>
 
-type Slide = "media" | "search" | "organize" | "templates" | "watch" | "answers" | "listen" | "similar" | "watchMore"
-const SLIDES: Slide[] = ["media", "search", "organize", "templates", "watch", "answers", "listen", "similar", "watchMore"]
-const ULTRA_FROM = SLIDES.indexOf("listen")
+// 2.8: the agent first (the release's main feature, Pro and Ultra only), as in the app's PaidGallery.swift.
+type Slide = "agent" | "media" | "search" | "organize" | "templates" | "watch" | "answers" | "listen" | "similar" | "watchMore"
+const SLIDES: Slide[] = ["agent", "media", "search", "organize", "templates", "watch", "answers", "listen", "similar", "watchMore"]
 
 const price = (value: number, currency = "USD") => value.toLocaleString(undefined, { style: "currency", currency, maximumFractionDigits: 0 })
 
-export function Gallery({ facts, ultra = false }: { facts: PlanFacts | undefined; ultra?: boolean }): VNode {
-  const [index, setIndex] = useState(ultra ? ULTRA_FROM : 0)
+export function Gallery({ facts, ultra = false, start }: { facts: PlanFacts | undefined; ultra?: boolean; start?: "listen" | "similar" }): VNode {
+  // 2.8 (the director): the agent's slide only while the server's switch is known to be on (a promise at purchase
+  // that isn't kept is the worst case). The slide on screen is kept by name: the switch may be heard after it opened.
+  const slides = agentSold(useAgentSwitch()) ? SLIDES : SLIDES.filter((s) => s !== "agent")
+  const ULTRA_FROM = slides.indexOf("listen")
+  // 2.8 (В7.4): the sheet opened on an Ultra feature starts on its slide.
+  const [at, setAt] = useState<Slide>(start ?? (ultra ? "listen" : SLIDES[0]))
+  const index = Math.max(0, slides.indexOf(at))
   const [forward, setForward] = useState(true)
   const touch = useRef<{ x: number; y: number; horizontal: boolean | null } | null>(null)
   // A trackpad's two-finger swipe (Mac, iPad with a Magic Keyboard): the sideways scroll adds up to one step, then
   // waits for the gesture (and its glide) to end before the next one.
   const wheel = useRef({ sum: 0, lockedUntil: 0, last: 0 })
-  const slide = SLIDES[index]
+  const slide = slides[index]
   const isUltra = index >= ULTRA_FROM
   const go = (to: number) => {
-    if (to < 0 || to >= SLIDES.length || to === index) return
+    if (to < 0 || to >= slides.length || to === index) return
     setForward(to > index)
-    setIndex(to)
+    setAt(slides[to])
   }
   const watchPro = facts?.watch.pro ?? 20
   const watchUltra = facts?.watch.ultra ?? 50
@@ -50,6 +58,7 @@ export function Gallery({ facts, ultra = false }: { facts: PlanFacts | undefined
   const daily = facts?.freeDaily ?? 5
 
   const title: Record<Slide, string> = {
+    agent: t("gAgentTitle"),
     media: t("gMediaTitle"),
     search: t("gSearchTitle"),
     organize: t("upsellOrganizeName"),
@@ -61,6 +70,8 @@ export function Gallery({ facts, ultra = false }: { facts: PlanFacts | undefined
     watchMore: t("gWatchTitle", String(watchUltra))
   }
   const line: Record<Slide, string> = {
+    // The approved What's New text's own two sentences (2.8): no claim beyond it.
+    agent: t("gAgentLine"),
     media: t("gMediaLine"),
     search: t("gSearchLine"),
     organize: t("upsellOrganizeText"),
@@ -129,11 +140,11 @@ export function Gallery({ facts, ultra = false }: { facts: PlanFacts | undefined
       {/* Every slide in the same place, only one shown: the gallery is as tall as its tallest slide, so turning a
           slide never moves the sheet. */}
       <div class="cf-gallery-stage">
-        {SLIDES.map((s, i) => {
+        {slides.map((s, i) => {
           const on = i === index
           const ultraSlide = i >= ULTRA_FROM
           return (
-            <div key={on ? `${s}-on` : s} class={`cf-gallery-slide ${on ? `on ${forward ? "fwd" : "back"}` : ""}`} role="group" aria-roledescription="slide" aria-label={`${i + 1} / ${SLIDES.length}`} aria-hidden={on ? undefined : "true"}>
+            <div key={on ? `${s}-on` : s} class={`cf-gallery-slide ${on ? `on ${forward ? "fwd" : "back"}` : ""}`} role="group" aria-roledescription="slide" aria-label={`${i + 1} / ${slides.length}`} aria-hidden={on ? undefined : "true"}>
               <div class="cf-gallery-title">
                 <span class={`cf-tier-chip ${ultraSlide ? "ultra" : "pro"}`}>{ultraSlide ? t("planUltra") : t("planPro")}</span>
                 <strong>{title[s]}</strong>
@@ -147,9 +158,9 @@ export function Gallery({ facts, ultra = false }: { facts: PlanFacts | undefined
       <div class="cf-gallery-nav">
         <button type="button" class="cf-icon-btn" disabled={index === 0} onClick={() => go(index - 1)} aria-label={t("galleryPrevious")}>‹</button>
         <div class="cf-gallery-dots" aria-hidden="true">
-          {SLIDES.map((s, i) => <i key={s} class={`${i === index ? "on" : ""} ${i >= ULTRA_FROM ? "ultra" : ""}`} />)}
+          {slides.map((s, i) => <i key={s} class={`${i === index ? "on" : ""} ${i >= ULTRA_FROM ? "ultra" : ""}`} />)}
         </div>
-        <button type="button" class="cf-icon-btn" disabled={index === SLIDES.length - 1} onClick={() => go(index + 1)} aria-label={t("galleryNext")}>›</button>
+        <button type="button" class="cf-icon-btn" disabled={index === slides.length - 1} onClick={() => go(index + 1)} aria-label={t("galleryNext")}>›</button>
       </div>
     </section>
   )
@@ -157,6 +168,14 @@ export function Gallery({ facts, ultra = false }: { facts: PlanFacts | undefined
 
 function sample(slide: Slide, watchUltra: number, weekly: number, daily: number): VNode {
   switch (slide) {
+    case "agent":
+      // The request as said in Do (the approved example), and what the agent fills it from.
+      return (
+        <>
+          <p class="cf-g-ask">{t("gAgentRequest")}</p>
+          <div class="cf-g-chips"><span class="cf-g-chip"><Icon.Sparkle size={12} /> {t("agentMode")}</span><span class="cf-g-chip"><DocIcon /> {t("fdTitle")}</span></div>
+        </>
+      )
     case "media":
       return (
         <>

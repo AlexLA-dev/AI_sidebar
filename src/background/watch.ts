@@ -20,11 +20,16 @@ import {
 } from "../shared/watch/messages"
 import { watchLimit, type Plan } from "../shared/plan"
 import { WATCH_EVERY_MS, WATCH_FAILS_TO_LIVE, WATCH_ROUND_MS, WATCH_STORAGE, type Watch, type WatchKind } from "../shared/watch/types"
+import { deferredWatchMet } from "./agent"
 import { callNative } from "./native"
+import { postEvent } from "./events"
 
 export interface WatchDeps {
   installId: () => Promise<string>
   clientInfo: () => Promise<Record<string, unknown>>
+  // 2.8.1: the client fields for an event, which wait briefly for the app's build and «ours» mark (index.ts
+  // clientForEvent): a simulator install that only used this feature reached the events unmarked. Requests keep clientInfo.
+  eventClient?: () => Promise<Record<string, unknown>>
   // The AI only with the person's consent (the same as for answers); without it, the device's own rules.
   consented: () => Promise<boolean>
   // The plan: Pro or Own key watch 20 pages at once instead of Free's 5 (the owner's limit), Ultra 50 (2.6).
@@ -377,6 +382,8 @@ async function notify(w: Watch, value: string, line: string): Promise<void> {
     body: watchBody(w.note, line || t("watchChangedBody", w.what === "page" ? w.title : shown(value))),
     url: w.url
   }, 10_000)
+  // Deferred agent tasks waiting for this watch (2.7.1): their notification now.
+  void deferredWatchMet(w.id).catch(() => undefined)
   void syncApp()
 }
 
@@ -414,12 +421,10 @@ async function syncApp(): Promise<void> {
 
 /** A step for the counters: the "use" kind, f "watch" (the analytics registry). Never the page or its text. */
 async function report(step: WatchStep): Promise<void> {
-  const [installId, client] = await Promise.all([deps.installId(), deps.clientInfo()])
-  await fetch(`${API_BASE}/api/v2/event`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ kind: "use", installId, client, f: "watch", ...step })
-  }).catch(() => undefined)
+  await postEvent(async () => {
+    const [installId, client] = await Promise.all([deps.installId(), (deps.eventClient ?? deps.clientInfo)()])
+    return { kind: "use", installId, client, f: "watch", ...step }
+  })
 }
 
 interface Tally { day: string; bg: number; live: number }

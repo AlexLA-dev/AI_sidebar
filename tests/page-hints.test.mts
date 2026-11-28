@@ -154,7 +154,10 @@ test("wiring: never on a page in another language, the glow on the right button,
   assert.match(app, /data-glow=\{pageHints\.glow \?\? undefined\}/)
   assert.match(app, /<div ref=\{revealOnce\}><Hint/, "the how-to scrolled into full view (it came under the question field on iPhone)")
   assert.match(app, /<HintLine id=\{pageHints\.line\} side=\{side\} top=\{fabTop\}/)
-  assert.match(app, /partial === null && !pageHints\.chat && contextKind === "page" && source\.kind\(\) !== "page" && hintDue/, "one hint at a time: the video's or PDF's waits")
+  // One hint at a time: the video's or PDF's waits (2.8: the coordinator's slot, src/content/coach).
+  assert.match(app, /const chatFree = open && view === "chat" && !historyMode && partial === null && !pending && !pageHints\.chat/)
+  assert.match(app, /const mediaDue = contextKind === "page" && source\.kind\(\) !== "page" && hintDue\(source\.kind\(\) as HintKey\)/)
+  assert.match(app, /wantIf\("media_tip", chatFree && mediaDue\)/)
   const css = readFileSync(new URL("../src/content/pagehints/hints.css", import.meta.url), "utf8")
   for (const target of ["summarize", "similar", "menu", "composer"]) assert.match(css, new RegExp(`\\.cf\\[data-glow="${target}"\\]`), target)
   assert.match(css, /\.cf-ph\.left \{ left:/)

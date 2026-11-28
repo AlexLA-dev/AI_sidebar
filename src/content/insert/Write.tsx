@@ -551,7 +551,7 @@ export function WriteCard(p: CardProps): VNode {
           </div>
         )}
         {state.step === "consent" && (
-          <ConsentCard again={p.consent === "old"} onAccept={() => {
+          <ConsentCard via="write" again={p.consent === "old"} onAccept={() => {
             writeStep("consent", p.job.via)
             void p.onConsent().then(ask)
           }} onDecline={p.onClose} />

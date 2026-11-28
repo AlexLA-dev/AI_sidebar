@@ -34,6 +34,18 @@ export function periodOfProduct(productId: string | null | undefined): Period | 
   return productId.endsWith(".yearly") ? "yearly" : productId.endsWith(".monthly") ? "monthly" : null
 }
 
+/**
+ * The period every plan choice opens on (2.8, the owner: «всегда лучше поначалу показывать месячные подписки»; all
+ * subscriptions so far are monthly). Yearly stays one tap away, with its saving. The one place it's set in the panel;
+ * the app has its own (PlanDefaults.period).
+ */
+export const DEFAULT_PERIOD: Period = "monthly"
+
+/** The period a plan choice opens on: a subscriber's own (changing plan, they see where they are), else the default. */
+export function startPeriod(productId: string | null | undefined): Period {
+  return periodOfProduct(productId) ?? DEFAULT_PERIOD
+}
+
 /** Everything Pro unlocks: Pro itself and Ultra (Ultra is everything in Pro and more). Own key is not Pro. */
 export function hasPro(plan: Plan | null | undefined): plan is "pro" | "ultra" {
   return plan === "pro" || plan === "ultra"
@@ -64,6 +76,14 @@ export function watchLimit(plan: Plan | null | undefined): number {
 export const ULTRA_DEFAULTS = { speakWeeklySeconds: 1800, similarWeekly: 10 } as const
 
 /**
+ * Pro's weekly tastes of Ultra (2.8, В7.4, the owner's idea: «Pro gets small weekly tastes of Ultra»): seconds of Listen
+ * and full Find similar searches a week per subscription, on Ultra's own counters (speak:tx, similar:tx), so what was
+ * used carries over to Ultra. The server's defaults (env PRO_TASTE_SPEAK_SECONDS, PRO_TASTE_SIMILAR_WEEKLY override them
+ * there, 0 turns a taste off, and the status then says so); the panel shows a taste only when the status has it.
+ */
+export const PRO_TASTE_DEFAULTS = { speakWeeklySeconds: 300, similarWeekly: 1 } as const
+
+/**
  * Find similar's light search for Own key and Pro (2.7, the owner: «Свой ключ и Pro получают тоже поиск похожего, но до
  * 5 в неделю»): searches a week per device. The one number: the server's default (env SIMILAR_LIGHT_WEEKLY overrides it
  * there, and the status then says so), and what the panel says before a status came. Free has no Find similar.
@@ -73,9 +93,47 @@ export const SIMILAR_LIGHT_WEEKLY = 5
 /** What one light search costs a Pro subscriber in answers (2.7, the owner: «У Pro каждый поиск = 10 ответов»). */
 export const SIMILAR_PRO_ANSWERS = 10
 
-/** The link that opens the ContextFlow app on a plan and period (2.6), or on its plans or home. */
-export function appLink(target: "subscribe" | "manage" | "home", feature?: "ai" | "organize" | "listen" | "watch", plan: PaidPlan = "pro", period?: Period): string {
-  const query = [`plan=${plan}`, period ? `period=${period}` : "", feature ? `feature=${feature}` : ""].filter(Boolean).join("&")
+/**
+ * The agent (2.7.1, «Сделай на этой странице»): Pro and Ultra only. Tasks a day per subscription, and deferred tasks
+ * waiting at once on a device (the owner, 2026-11-21: Pro 5 / Ultra 20 a day; «Отложенных дел тоже сделай 5 и 20»).
+ * The server's defaults (env AGENT_PRO_DAILY, AGENT_ULTRA_DAILY, AGENT_DEFERRED_PRO, AGENT_DEFERRED_ULTRA override them
+ * there, and the status then says so), and what the panel says before a status came. Own key has no agent.
+ */
+export const AGENT_DEFAULTS = { proDaily: 5, ultraDaily: 20, deferredPro: 5, deferredUltra: 20, maxSteps: 30 } as const
+
+export interface AgentLimits {
+  proDaily: number
+  ultraDaily: number
+  deferredPro: number
+  deferredUltra: number
+  maxSteps: number
+}
+
+/** Agent tasks a day on a plan (0: no agent on it). */
+export function agentDaily(plan: Plan | null | undefined, limits: AgentLimits = AGENT_DEFAULTS): number {
+  return isUltra(plan) ? limits.ultraDaily : hasPro(plan) ? limits.proDaily : 0
+}
+
+/** Deferred agent tasks a device keeps waiting at once on a plan. */
+export function agentDeferred(plan: Plan | null | undefined, limits: AgentLimits = AGENT_DEFAULTS): number {
+  return isUltra(plan) ? limits.deferredUltra : hasPro(plan) ? limits.deferredPro : 0
+}
+
+/** Where in the panel a purchase started (2.8, В1.5): the plans sheet, the plans in the chat, Settings. */
+export const BUY_VIA = ["sheet", "chat", "settings", "yearly"] as const
+export type BuyVia = (typeof BUY_VIA)[number]
+
+/**
+ * The link that opens the ContextFlow app on a plan and period (2.6), or on its plans or home. 2.8 (В7.2): `back`, the
+ * page to come back to after the App Store's sheet (one tap: the app buys at once and sends the person back; the
+ * address stays on the device), and `via`, where in the panel it started.
+ */
+export function appLink(target: "subscribe" | "manage" | "home", feature?: "ai" | "organize" | "listen" | "watch", plan: PaidPlan = "pro", period?: Period, extra: { back?: string; via?: BuyVia } = {}): string {
+  const back = extra.back && /^https?:\/\//.test(extra.back) && extra.back.length <= 2000 ? extra.back.split("#")[0] : ""
+  const query = [
+    `plan=${plan}`, period ? `period=${period}` : "", feature ? `feature=${feature}` : "",
+    extra.via ? `via=${extra.via}` : "", back && period ? `back=${encodeURIComponent(back)}` : ""
+  ].filter(Boolean).join("&")
   return target === "subscribe" ? `contextflow://subscribe?${query}` : target === "manage" ? "contextflow://manage" : "contextflow://open"
 }
 

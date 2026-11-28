@@ -1,5 +1,6 @@
 import Foundation
 import StoreKit
+import UserNotifications
 
 /// State shared between the ContextFlow app and its Safari extension
 /// (App Group `group.com.contextflow.shared`):
@@ -14,6 +15,41 @@ import StoreKit
 ///
 /// This file is compiled into both the app and the extension targets
 /// (two copies: "Shared (App)" and "Shared (Extension)" — keep them identical).
+/// Our own builds (2.8, В1.9): a debug build, or any build running in a simulator. Every request they send is marked
+/// `audience: "test"` (the app's own, and the extension's through the native ping), which the server keeps and the
+/// reports leave out (contextflow.test_ids). Before this nothing marked them: each erase-and-install of a simulator
+/// reached production as a new person (160 "installs" on 14–22.11). A release build on a real device is never marked;
+/// TestFlight builds are told apart by their server, as before.
+enum OurBuild {
+    static let isOurs: Bool = {
+        #if DEBUG
+        return true
+        #elseif targetEnvironment(simulator)
+        return true
+        #else
+        return false
+        #endif
+    }()
+}
+
+/// Whether notifications may be sent (2.8, В2.6). The setup reminders go with quiet (provisional) permission, which the
+/// app takes on a new install without asking; everything else counts quiet permission as not asked, so nothing else
+/// arrives quietly and the question still comes at its moment (NotifyAsk in the app).
+enum NotifyStatus {
+    /// Fully on: the person said yes (or an App Clip's ephemeral permission).
+    static func on(_ status: UNAuthorizationStatus) -> Bool {
+        #if os(iOS)
+        if status == .ephemeral { return true }
+        #endif
+        return status == .authorized
+    }
+
+    /// Not asked yet: never, or only the quiet permission the setup reminders use.
+    static func notAsked(_ status: UNAuthorizationStatus) -> Bool {
+        status == .notDetermined || status == .provisional
+    }
+}
+
 /// The products we sell, by plan (2.6: Ultra, and yearly plans). src/shared/plan.ts and App Store Connect match it.
 enum PlanProducts {
     static let ultra = ["com.contextflow.ultra.monthly", "com.contextflow.ultra.yearly"]
@@ -134,6 +170,15 @@ final class SharedDefaults {
 
     /// Local notifications the app schedules on a new install until the extension is switched on.
     static let setupReminderIds = ["cf.setup.15m", "cf.setup.24h"]
+
+    /// The panel was opened on a page (2.8): a system-wide (Darwin) notice from the extension to the app, which may be
+    /// in the background playing the guide over Settings. People go from Settings straight to Safari, so the app wasn't
+    /// in front again to stop it; it stops on this. Carries nothing.
+    static let panelOpenedNotice = "com.contextflow.shared.panel-opened"
+
+    static func postPanelOpened() {
+        CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName(panelOpenedNotice as CFString), nil, nil, true)
+    }
 
     private init() {
         defaults = UserDefaults(suiteName: SharedDefaults.suiteName) ?? .standard

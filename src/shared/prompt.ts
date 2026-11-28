@@ -3,6 +3,7 @@
 
 import type { Attachment, MediaKind } from "./attachments.ts"
 import { ITEM_MARKER } from "./appleItems.ts"
+import { NEXT_MARKER, WEB_MARKER } from "./nextQuestions.ts"
 import { fitTokens, GAP, PAGE_TOKENS } from "./pagefit.ts"
 
 export interface PageContext {
@@ -52,12 +53,43 @@ export const MARK_RULE =
 export const ITEM_RULE =
   `- When the user asks you to remind them of something, or to put something in their calendar or reminders ("remind me on Friday to book the hotel", "add my flight to the calendar"), you can't create it yourself: ContextFlow shows them a card to confirm. Say in one short sentence what it will be and when, and end your answer with a line that is exactly ${ITEM_MARKER}. Also end with that line when your answer gives the user a specific upcoming date or time they will likely want to keep (their flight, a booking, a deadline, an appointment). Otherwise never write it, and never mention it.`
 
+/**
+ * 2.7.1, the agent: a panel that offers «Сделать на этой странице?» under a question that asks for an action
+ * (`agent: true`). The answer doesn't say ContextFlow can't press buttons; it points at the chip.
+ */
+export const AGENT_RULE =
+  "- When the user asks you to do something on the page (press, choose, fill in, add to the cart, book), don't say you can't press buttons: under your answer ContextFlow shows a button «Do it on this page?» (in their language) that hands it to its agent. Say so in one short sentence, then give the steps briefly in case they'd rather do it themselves."
+
+export function withAgentRule(parts: [string, string], agent: boolean, label = ""): [string, string] {
+  if (!agent) return parts
+  const [rules, rest] = parts
+  // The button's exact words when the panel says them: quoted as they are, never translated.
+  const rule = label ? AGENT_RULE.replace("«Do it on this page?» (in their language)", `«${label}» (exactly these words)`) : AGENT_RULE
+  const at = rules.indexOf("\n\n", rules.indexOf("Rules:"))
+  return at < 0 ? [`${rules}\n${rule}`, rest] : [`${rules.slice(0, at)}\n${rule}${rules.slice(at)}`, rest]
+}
+
 /** The rules with ITEM_RULE when the client can add items (the first, cached part of systemPromptParts). */
 export function withItemRule(parts: [string, string], items: boolean): [string, string] {
   if (!items) return parts
   const [rules, rest] = parts
   const at = rules.indexOf("\n\n", rules.indexOf("Rules:"))
   return at < 0 ? [`${rules}\n${ITEM_RULE}`, rest] : [`${rules.slice(0, at)}\n${ITEM_RULE}${rules.slice(at)}`, rest]
+}
+
+/**
+ * 2.8 (В6.1): two follow-up questions written with the answer (nextQuestions.ts), for a panel that asks for them
+ * (`next: true`). They come last, after any other marker line, and the panel shows them as buttons.
+ */
+export const NEXT_RULE =
+  `- After everything else in your answer (after any other marker line too), write a line that is exactly ${NEXT_MARKER}, then exactly two short follow-up questions the user might want to ask next about this page, one per line: in the language of your answer, each one the user's own question as they would type it to you (for example "How does it compare with the older model?"), never an offer from you ("Want me to…?"), under 70 characters each, no numbering, no quotes. Make them go deeper into what the user asked, answerable from the page. Since these questions follow, don't end your answer itself with an offer of more help. If a good answer needs information that isn't on this page (something recent, or facts from elsewhere), add one more line after them that is exactly ${WEB_MARKER}. Write nothing else after them, and never mention them or the markers.`
+
+/** The rules with NEXT_RULE when the panel asks for follow-up questions (the first, cached part of systemPromptParts). */
+export function withNextRule(parts: [string, string], next: boolean): [string, string] {
+  if (!next) return parts
+  const [rules, rest] = parts
+  const at = rules.indexOf("\n\n", rules.indexOf("Rules:"))
+  return at < 0 ? [`${rules}\n${NEXT_RULE}`, rest] : [`${rules.slice(0, at)}\n${NEXT_RULE}${rules.slice(at)}`, rest]
 }
 
 /** Whether an earlier answer in the conversation carries the user's highlights (see MARK_RULE). */

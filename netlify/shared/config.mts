@@ -2,7 +2,7 @@
 // (Project configuration → Environment variables) without a code change.
 
 import { organizeConfig } from "../../src/shared/organize.ts"
-import { PLAN_PRODUCTS, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, ULTRA_DEFAULTS, type PaidPlan } from "../../src/shared/plan.ts"
+import { AGENT_DEFAULTS, PLAN_PRODUCTS, PRO_TASTE_DEFAULTS, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, ULTRA_DEFAULTS, type PaidPlan } from "../../src/shared/plan.ts"
 
 function env(name: string): string | undefined {
   const fromNetlify = (globalThis as { Netlify?: { env: { get(k: string): string | undefined } } }).Netlify?.env.get(name)
@@ -107,6 +107,11 @@ export const config = {
     speakMadePercent: int("ULTRA_SPEAK_MADE_PERCENT", 150),
     // Find similar's daily safety caps (per install, for everyone) belong to its engine (config.similar, /api/v2/similar).
     similarWeekly: int("ULTRA_SIMILAR_WEEKLY", ULTRA_DEFAULTS.similarWeekly)
+  },
+  // 2.8 (В7.4): Pro's weekly tastes of Ultra, per subscription (src/shared/plan.ts PRO_TASTE_DEFAULTS); 0: none.
+  taste: {
+    speakWeeklySeconds: Math.max(0, int("PRO_TASTE_SPEAK_SECONDS", PRO_TASTE_DEFAULTS.speakWeeklySeconds)),
+    similarWeekly: Math.max(0, int("PRO_TASTE_SIMILAR_WEEKLY", PRO_TASTE_DEFAULTS.similarWeekly))
   },
   // Read aloud (2.6, Ultra): Gemini TTS through our server with GEMINI_API_KEY, streamed as headerless PCM.
   // "auto" picks the newest stable model of the kind from the model list (like GEMINI_MODEL); Flash-Lite speaks
@@ -369,6 +374,41 @@ export const config = {
     compareDaily: int("COLLECT_COMPARE_DAILY", 40),
     summaryDaily: int("COLLECT_SUMMARY_DAILY", 40),
     globalDaily: int("COLLECT_GLOBAL_DAILY", 20_000)
+  },
+  // The agent (2.7.1, /api/v2/act): Pro and Ultra only, one model call per step, every call checked by code
+  // (src/shared/agent). AGENT=off switches it off (the panel gets OFF). The limits: the owner's (src/shared/plan.ts
+  // AGENT_DEFAULTS); Amazon is blocked unless AGENT_BLOCK_AMAZON=off.
+  agent: {
+    enabled: (env("AGENT") ?? "on").trim() !== "off",
+    // The driver: Claude Haiku 5.5; a step it failed twice in a row goes to the stronger model (at most `strongSteps`
+    // of them a task). The check of a step against the person's request: Claude Haiku 5.5.
+    model: (env("AGENT_MODEL") ?? "claude-haiku-5-5").trim(),
+    strongModel: (env("AGENT_STRONG_MODEL") ?? "claude-sonnet-5-5").trim(),
+    checkModel: (env("AGENT_CHECK_MODEL") ?? "claude-haiku-5-5").trim(),
+    // The task's plan before its first step (the plan card): one call.
+    planModel: (env("AGENT_PLAN_MODEL") ?? "claude-haiku-5-5").trim(),
+    strongSteps: int("AGENT_STRONG_STEPS", 8),
+    effort: (env("AGENT_EFFORT") ?? "low").trim() as "low" | "medium" | "high",
+    proDaily: int("AGENT_PRO_DAILY", AGENT_DEFAULTS.proDaily),
+    ultraDaily: int("AGENT_ULTRA_DAILY", AGENT_DEFAULTS.ultraDaily),
+    deferredPro: int("AGENT_DEFERRED_PRO", AGENT_DEFAULTS.deferredPro),
+    deferredUltra: int("AGENT_DEFERRED_ULTRA", AGENT_DEFAULTS.deferredUltra),
+    maxSteps: int("AGENT_MAX_STEPS", AGENT_DEFAULTS.maxSteps),
+    // Safety caps: tasks a day per network address, and steps a day for everyone together.
+    ipDaily: int("AGENT_IP_DAILY", 60),
+    globalDailySteps: int("AGENT_GLOBAL_DAILY_STEPS", 200_000),
+    blockAmazon: (env("AGENT_BLOCK_AMAZON") ?? "on").trim() !== "off",
+    // More hosts to keep the agent off, or to let it act on (comma lists).
+    blockHosts: (env("AGENT_BLOCK_HOSTS") ?? "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean),
+    allowHosts: (env("AGENT_ALLOW_HOSTS") ?? "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean),
+    // Signs a task's token (later steps prove the task was counted). Without it, one derived from the service key.
+    taskSecret: (env("AGENT_TASK_SECRET") ?? "").trim(),
+    // USD per million tokens, for the spend in the logs (list prices: Haiku 5.5 up to 100K tokens, Sonnet 5.5; Haiku's
+    // cache read taken as a tenth of its input price, the usual ratio, not in the price list we checked).
+    prices: {
+      "claude-haiku-5-5": { in: 0.1, out: 0.5, cacheRead: 0.01 },
+      "claude-sonnet-5-5": { in: 2, out: 10, cacheRead: 0.1 }
+    } as Record<string, { in: number; out: number; cacheRead: number }>
   },
   // Site counter (/api/v2/site): visits and App Store taps accepted per address per day, and in all per day.
   siteDailyLimit: int("SITE_DAILY_LIMIT", 300),

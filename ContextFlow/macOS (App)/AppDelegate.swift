@@ -25,6 +25,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         UNUserNotificationCenter.current().delegate = self
         // Page watch: this device's watches in Watching, and the notification question when they need it.
         WatchOpen.start()
+        AgentApp.start()
         // The Tips clips for the Safari panel, into the App Group once per build (TipClipShare), as on iOS. Until
         // build 95 this sat in the Debug-only launch below, so a Mac from TestFlight or the App Store had none.
         DispatchQueue.global(qos: .utility).async { TipClipShare.publish() }
@@ -37,6 +38,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         // 2.6 (98): "ContextFlow … is here" opens the What's new tab.
         if info["whatsNew"] is String {
             await MainActor.run { DeepLinkRouter.shared.handle(WhatsNew.link) }
+            return
+        }
+        // A reminder to finish setup (2.8, В1.1): counted, and the setup guide opens.
+        if let which = info["setup"] as? String {
+            await MainActor.run {
+                ChatAI.reportOrganize("use", ["f": "notif", "a": "tap", "what": "setup", "s": "notif", "when": which == "24h" ? "24h" : "15m"])
+                if let setup = URL(string: "contextflow://setup") { DeepLinkRouter.shared.handle(setup) }
+            }
             return
         }
         // Find similar is done: its chat opens in the panel, on its page in Safari (SimilarAway), not another default
@@ -53,10 +62,30 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             }
             return
         }
+        // A deferred agent task (2.7.1): its page in Safari with #cf-task=<id> (AgentTasks).
+        if info["agentTask"] is String {
+            await MainActor.run {
+                ChatAI.reportOrganize("use", ["f": "notif", "a": "tap", "what": "agent", "s": "notif"])
+                guard let page = AgentTasks.opened(info) else { return }
+                if let safari = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.Safari") {
+                    NSWorkspace.shared.open([page], withApplicationAt: safari, configuration: NSWorkspace.OpenConfiguration())
+                } else {
+                    _ = NSWorkspace.shared.open(page)
+                }
+            }
+            return
+        }
         // Page watch: "Changed: …" opens its page (WatchOpen).
         if info["watch"] != nil {
             await MainActor.run { WatchOpen.handle(info) }
             return
+        }
+        // 2.8: the answers-back reminder that also said there's a Pro discount (only for someone who opted in): its page
+        // has #cf-offer=1, and the panel opens there on the discount.
+        if let open = info["open"] as? String, open.contains("cf-offer=1") {
+            // The panel acts on the page's mark only with this note, taken within moments (OfferTap).
+            OfferTap.record()
+            await MainActor.run { ChatAI.reportOrganize("use", ["f": "notif", "a": "tap", "what": "offer", "s": "notif"]) }
         }
         await MainActor.run { ChatAI.reportUx("ux_remind", info["open"] != nil ? ["action": "opened", "what": "page"] : ["action": "opened"]) }
         if let open = info["open"] as? String, let page = URL(string: open) {

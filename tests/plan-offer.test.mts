@@ -61,14 +61,16 @@ test("Pro or Ultra, monthly or yearly: the App Store's price, the yearly saving,
   ui.offer(el, { place: "limit", status: STATUS, title: "You're out of answers", body: "5 more at 3:00 AM.", onChoose: (c: unknown) => chosen.push(c), onEvent: (a: string, c: unknown) => events.push([a, c]) })
   // Effects run after the next frame (Preact falls back to a 100 ms timer without one).
   await new Promise((r) => setTimeout(r, 150))
-  // Shown once, on Pro yearly (the first plan, the yearly period).
-  assert.deepEqual(events, [["shown", { plan: "pro", period: "yearly" }]])
+  // Shown once, on Pro monthly (the first plan; Monthly first, 2.8).
+  assert.deepEqual(events, [["shown", { plan: "pro", period: "monthly" }]])
   const text = () => el.textContent as string
+  assert.match(text(), /\$6\.99/)
+  const segs = el.querySelectorAll(".cf-seg button")
+  assert.equal(segs.length, 4) // Pro, Ultra; Monthly, Yearly
+  await click(segs[3]) // Yearly
   assert.match(text(), /\$59\.99/)
   assert.match(text(), /28/)
   assert.match(text(), /\$5\.00/)
-  const segs = el.querySelectorAll(".cf-seg button")
-  assert.equal(segs.length, 4) // Pro, Ultra; Monthly, Yearly
   await click(segs[1]) // Ultra
   assert.match(text(), /\$119\.99/)
   await click(segs[2]) // Monthly
@@ -121,22 +123,56 @@ test("yearly (build 95): twelve months of the monthly plan, struck through, when
   ui.clear(el)
 })
 
-test("Retry: off until the answers are back, then the question goes again", async () => {
+test("plan cards open on Monthly (the owner, 2.8); yearly one tap away with its saving; a subscriber sees their own", async () => {
+  const el = dom.document.createElement("div")
+  dom.document.body.appendChild(el)
+  const events: Array<[string, unknown]> = []
+  const chosen: unknown[] = []
+  ui.offer(el, { place: "limit", status: STATUS, title: "Out", onChoose: (c: unknown) => chosen.push(c), onEvent: (a: string, c: unknown) => events.push([a, c]) })
+  await new Promise((r) => setTimeout(r, 150))
+  assert.deepEqual(events, [["shown", { plan: "pro", period: "monthly" }]])
+  const text = () => el.textContent as string
+  assert.match(text(), /\$6\.99/)
+  assert.doesNotMatch(text(), /\$59\.99/)
+  const period = el.querySelectorAll(".cf-offer-period button")
+  assert.equal(period[0].getAttribute("aria-checked"), "true")
+  assert.match(period[1].textContent, /28/)
+  await click(el.querySelector(".cf-primary"))
+  assert.deepEqual(chosen, [{ plan: "pro", period: "monthly" }])
+  await click(period[1])
+  assert.match(text(), /\$59\.99/)
+  ui.clear(el)
+  // A yearly Pro subscriber offered Ultra: their own period first.
+  const sub = dom.document.createElement("div")
+  dom.document.body.appendChild(sub)
+  const seen: Array<[string, unknown]> = []
+  ui.offer(sub, { place: "limit", status: { ...STATUS, plan: "pro", store: { active: true, productId: "com.contextflow.pro.yearly", prices: PRICES } }, title: "Out", plans: ["ultra"], onChoose() {}, onEvent: (a: string, c: unknown) => seen.push([a, c]) })
+  await new Promise((r) => setTimeout(r, 150))
+  assert.deepEqual(seen, [["shown", { plan: "ultra", period: "yearly" }]])
+  ui.clear(sub)
+})
+
+test("Retry: not there until the answers are back, then the question goes again", async () => {
   const el = dom.document.createElement("div")
   dom.document.body.appendChild(el)
   let retried = 0
+  const retryIn = (root: any) => [...root.querySelectorAll(".cf-secondary")].find((b: any) => /Retry/.test(b.textContent))
   ui.offer(el, { place: "limit", status: STATUS, title: "Out", retryAt: Date.now() + 3_600_000, onRetry: () => retried++, onChoose() {}, onEvent() {} })
   await tick()
-  const button = [...el.querySelectorAll(".cf-secondary")].find((b: any) => /Retry/.test(b.textContent))
-  assert.ok(button)
-  assert.equal(button.disabled, true)
-  assert.ok(el.querySelector(".cf-offer-retry-at"))
+  // The director's acceptance 3: a greyed Retry beside «Choose» while answers are out could only hit the limit again.
+  assert.equal(retryIn(el), undefined)
+  const unknown = dom.document.createElement("div")
+  dom.document.body.appendChild(unknown)
+  ui.offer(unknown, { place: "limit", status: STATUS, title: "Out", retryAt: "unknown", onRetry: () => retried++, onChoose() {}, onEvent() {} })
+  await tick()
+  assert.equal(retryIn(unknown), undefined)
+  ui.clear(unknown)
   const back = dom.document.createElement("div")
   dom.document.body.appendChild(back)
   ui.offer(back, { place: "limit", status: STATUS, title: "Out", retryAt: Date.now() - 1_000, onRetry: () => retried++, onChoose() {}, onEvent() {} })
   await tick()
-  const live = [...back.querySelectorAll(".cf-secondary")].find((b: any) => /Retry/.test(b.textContent))
-  assert.equal(live.disabled, false)
+  const live = retryIn(back)
+  assert.ok(live)
   await click(live)
   assert.equal(retried, 1)
   // Gone from the chat: its timer with it.

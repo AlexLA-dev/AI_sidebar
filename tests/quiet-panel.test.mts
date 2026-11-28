@@ -209,7 +209,7 @@ test("the empty chat in a phone's sheet sits by the field: chips and field toget
   assert.doesNotMatch(css, /\.cf-messages:has\(> \.cf-empty\)/)
   // With the guide's or the tour's card up the list isn't marked, so the chat stays under the header and the card lies
   // on nothing.
-  assert.match(app, /class=\{`cf-messages\$\{messages\.length === 0 && partial === null && !touring && !\(guide !== null && guideIdle && !ON_PAGE\.includes\(guide\)\) \? " is-empty" : ""\}`\}/)
+  assert.match(app, /class=\{`cf-messages\$\{messages\.length === 0 && partial === null && !agentCardShown && !touring && !\(guide !== null && guideIdle && !ON_PAGE\.includes\(guide\)\) \? " is-empty" : ""\}`\}/)
   assert.match(app, /\{touring && view === "chat" && panelRef\.current && \(/)
   assert.match(app, /\{guide && guideIdle && !ON_PAGE\.includes\(guide\) && view ===/)
   // The side panel (iPad, Mac) keeps the empty chat under the header.
@@ -219,13 +219,19 @@ test("the empty chat in a phone's sheet sits by the field: chips and field toget
 test("6. «+» by the field: Note, the page snapshot, Whole chat, the answers left; Google and the swipe stay", () => {
   const composer = app.slice(app.indexOf('<footer class="cf-composer">'), app.indexOf("</footer>", app.indexOf('<footer class="cf-composer">')))
   // In the field's row: «+», Google, the field, the count (every layout since 110), send.
-  const order = ['class={`cf-plus ${plusOpen ? "on" : ""}`}', 'class={`cf-mode ${googleMode ? "on" : ""}`}', "<textarea", "{leftNow && !noteMode && (", 'class="cf-send-wrap" {...switchGestures}']
+  const order = ['class={`cf-plus ${plusOpen ? "on" : ""}`}', 'class={`cf-mode ${googleMode ? "on" : ""}`}', "<textarea", "{leftNow && !noteMode && !agentMode && (", 'class="cf-send-wrap" {...switchGestures}']
   let at = composer.indexOf('<div class={`cf-input')
   for (const part of order) {
     const next = composer.indexOf(part, at + 1)
     assert.ok(next > at, `${part} in the field's row`)
     at = next
   }
+  // Do mode (2.7.1, the owner on 117): the send button's own state, like Note — no chip, the field keeps its width, «+»
+  // stays (its «Сделать» leaves Do as «Заметка» leaves a note); no clock (Later is in the plan card).
+  assert.doesNotMatch(composer, /cf-agent-mode-x|cf-mode cf-agent-mode/)
+  assert.doesNotMatch(composer, /<Icon\.Clock \/>/)
+  assert.match(composer, /class=\{`cf-send \$\{noteMode \? "note" : ""\} \$\{doMode \? "do" : ""\}`\}/)
+  assert.match(composer, /doMode \? <Icon\.Sparkle size=\{16\} \/>/)
   // The menu's four, on every layout (110).
   const plus = read("../src/content/quiet/Plus.tsx")
   const menuOrder = ['{t("selNote")}', '{t("shotSwitch")}', '{t("wholeChat")}', 'class="cf-plus-usage"']

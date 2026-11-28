@@ -42,7 +42,9 @@ export async function askSimilar(req: SimilarRequest, emit: (e: SimilarStreamEve
         ...(req.payload.chip !== undefined ? { chip: req.payload.chip } : {}),
         ...(req.payload.chips?.length ? { chips: req.payload.chips } : {}),
         ...(req.payload.words !== undefined ? { words: req.payload.words } : {}),
-        ...(req.job ? { job: req.job } : {})
+        ...(req.job ? { job: req.job } : {}),
+        // 2.8 (В7.4): Pro's taste of the full search (an older server ignores it: the light search).
+        ...(req.payload.taste ? { taste: true } : {})
       }),
       signal: timeout.signal
     })
@@ -53,8 +55,8 @@ export async function askSimilar(req: SimilarRequest, emit: (e: SimilarStreamEve
   }
   clearTimeout(timer)
   if (!res.ok || !res.body) {
-    const body = (await res.json().catch(() => ({}))) as { code?: string; plan?: Plan; usage?: Usage | null; answers?: number }
-    emit({ type: "error", code: body.code ?? (res.status >= 500 ? "UPSTREAM" : "BAD_REQUEST"), ...(body.plan ? { plan: body.plan } : {}), ...(body.usage ? { usage: body.usage } : {}), ...(typeof body.answers === "number" ? { answers: body.answers } : {}) })
+    const body = (await res.json().catch(() => ({}))) as { code?: string; plan?: Plan; usage?: Usage | null; answers?: number; taste?: boolean }
+    emit({ type: "error", code: body.code ?? (res.status >= 500 ? "UPSTREAM" : "BAD_REQUEST"), ...(body.plan ? { plan: body.plan } : {}), ...(body.usage ? { usage: body.usage } : {}), ...(typeof body.answers === "number" ? { answers: body.answers } : {}), ...(body.taste === true ? { taste: true } : {}) })
     return
   }
   let finished = false
@@ -75,7 +77,7 @@ export async function askSimilar(req: SimilarRequest, emit: (e: SimilarStreamEve
       } else if (e.type === "result") {
         const items = (Array.isArray(e.items) ? e.items : []).map(cleanItem).filter((i): i is NonNullable<typeof i> => i !== null)
         const s = (v: unknown, max: number) => (typeof v === "string" ? v.slice(0, max) : "")
-        emit({ type: "result", answer: { intro: s(e.intro, 300), items, note: s(e.note, 300), condition: s(e.condition, 20), ...(e.light === true ? { light: true } : {}) } })
+        emit({ type: "result", answer: { intro: s(e.intro, 300), items, note: s(e.note, 300), condition: s(e.condition, 20), ...(e.light === true ? { light: true } : {}), ...(e.taste === true ? { taste: true } : {}) } })
       } else if (e.type === "done") {
         finished = true
         emit({ type: "done" })
@@ -117,5 +119,5 @@ export async function keptSimilar(installId: string, job: string, waitSeconds: n
   const r = (body.result ?? {}) as Record<string, unknown>
   const s = (v: unknown, max: number) => (typeof v === "string" ? v.slice(0, max) : "")
   const items = (Array.isArray(r.items) ? r.items : []).map(cleanItem).filter((i): i is NonNullable<typeof i> => i !== null)
-  return { state: "done", result: { intro: s(r.intro, 300), items, note: s(r.note, 300), condition: s(r.condition, 20), ...(r.light === true ? { light: true } : {}) } }
+  return { state: "done", result: { intro: s(r.intro, 300), items, note: s(r.note, 300), condition: s(r.condition, 20), ...(r.light === true ? { light: true } : {}), ...(r.taste === true ? { taste: true } : {}) } }
 }

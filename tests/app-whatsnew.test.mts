@@ -25,7 +25,8 @@ test("the App Store's version, read at most every 12 hours, in the background to
 
 test("a newer version is told once, by a local notification, only when notifications are on (never asked for it)", () => {
   assert.match(whatsNew, /guard newer\(found\.version, than: installed\), defaults\.string\(forKey: notifiedKey\) != found\.version else \{ return \}/)
-  assert.match(whatsNew, /guard settings\.authorizationStatus == \.authorized \|\| settings\.authorizationStatus == \.provisional else \{ return \}/)
+  // 2.8: not with quiet (provisional) permission, which is the setup reminders' only.
+  assert.match(whatsNew, /guard NotifyStatus\.on\(settings\.authorizationStatus\) else \{ return \}/)
   assert.doesNotMatch(whatsNew, /requestAuthorization/)
   assert.match(whatsNew, /defaults\.set\(found\.version, forKey: notifiedKey\)/)
   // A tap opens the tab, on iPhone, iPad and Mac.
@@ -40,7 +41,7 @@ test("the tab is hidden until it opens; after an update it opens once by itself,
   // In Tips' place on iPhone and iPad (five tabs: a sixth would put Chats under More), hidden again once left.
   assert.equal((content.match(/if whatsNewShown \{ whatsNewTab \} else \{ tipsTab \}/g) ?? []).length, 2)
   // 2.6 (100): left after an update, a good moment for a rating (tests/review-ask.test.mts).
-  assert.match(content, /\.onChange\(of: tab\) \{ next in\s*if next != \.whatsNew \{\s*if whatsNewShown \{ ReviewAsk\.shared\.ask\(\.whatsNew\) \}\s*whatsNewShown = false\s*\}/)
+  assert.match(content, /\.onChange\(of: tab\) \{ next in\s*reportTab\(next\)\s*if next != \.whatsNew \{\s*if whatsNewShown \{ ReviewAsk\.shared\.ask\(\.whatsNew\) \}\s*whatsNewShown = false\s*\}/)
   assert.match(content, /if whatsNewShown \{ Label\("What's new", systemImage: "sparkles\.rectangle\.stack"\)\.tag\(AppTab\.whatsNew\) \}/)
   assert.match(whatsNew, /guard seen != now else \{ return false \}\s*defaults\.set\(now, forKey: seenKey\)\s*guard seen != nil \|\| existingUser else \{ return false \}/)
   // Before the 2.5 sheet, which then doesn't show.
@@ -52,7 +53,8 @@ test("its cards are Tips' (their words and clips, in every language); a version 
   // Build 98 (the owner: «Почему в What's new нет видео про Listen?»): a card plays its clip wherever there is one. 2.7's
   // five (tests/tips-27.test.mts) have none made yet: each plays one once its Tip names it, and the line under the heading
   // says "each shown in a short clip" only then.
-  assert.match(whatsNew, /static var items: \[Tip\] \{\s*\[TipGroup\.\w+Tip(, TipGroup\.\w+Tip){3,4}\]/)
+  // (2.8: two cards, the agent and cookie windows.)
+  assert.match(whatsNew, /static var items: \[Tip\] \{\s*\[TipGroup\.\w+Tip(, TipGroup\.\w+Tip){1,4}\]/)
   for (const name of [...whatsNew.matchAll(/TipGroup\.(\w+Tip)/g)].map((m) => m[1])) assert.match(content, new RegExp(`static var ${name}: Tip \\{`), name)
   assert.match(whatsNew, /TipCard\(tip: WhatsNew\.items\[i\]\)/)
   assert.match(whatsNew, /if let store, WhatsNew\.newer\(store\.version, than: WhatsNew\.installed\)/)

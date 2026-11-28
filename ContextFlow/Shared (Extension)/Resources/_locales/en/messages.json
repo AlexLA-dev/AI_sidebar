@@ -66,7 +66,7 @@
   "message": "Watch the price"
  },
  "plusButton": {
-  "message": "More: note, snapshot, whole chat"
+  "message": "More: note, do it, snapshot, whole chat"
  },
  "hintShow": {
   "message": "Show"
@@ -1004,9 +1004,6 @@
  "limitFreeBack_other": {
   "message": "{0} new free answers at {1}, in {2}."
  },
- "limitFreePro": {
-  "message": "Pro gives you up to {0} answers a week, videos and PDFs on the page, AI search and questions across all your chats."
- },
  "limitNotes": {
   "message": "Notes stay free and unlimited: write down what matters now, ask AI about it later."
  },
@@ -1022,11 +1019,8 @@
  "errKeyRate": {
   "message": "{0} is holding back requests from your key right now: your account's rate limit. Wait a minute and ask again. Your limits are at {1}."
  },
- "offerLimit": {
-  "message": "Or get Pro with {0}% off your first month: up to {1} answers a week, deeper and more detailed. Cancel any time."
- },
  "offerButton": {
-  "message": "Get Pro {0}% off"
+  "message": "Get the first month {0}% off"
  },
  "offerShort": {
   "message": "Pro −{0}%"
@@ -2306,9 +2300,6 @@
  "offerMemoryLong": {
   "message": "This chat has more than the {0} answers and notes a free answer remembers. With Pro the AI remembers all of it: every message, your notes and the pages you asked about."
  },
- "offerRetryAt": {
-  "message": "Answers are back at {0}."
- },
  "similarWhere": {
   "message": "Where to look"
  },
@@ -2738,6 +2729,72 @@
  "phSimilar": {
   "message": "Find it cheaper?"
  },
+ "fabFirstLabel": {
+  "message": "Ask about this page"
+ },
+ "rqProductWorth": {
+  "message": "Is it worth the money?"
+ },
+ "rqProductCons": {
+  "message": "What are the downsides?"
+ },
+ "rqProductCheck": {
+  "message": "What should I check before buying?"
+ },
+ "rqArticleMain": {
+  "message": "What's the main point?"
+ },
+ "rqArticleArgue": {
+  "message": "What could be argued with here?"
+ },
+ "rqArticleMe": {
+  "message": "What does this mean for me?"
+ },
+ "rqVideoAbout": {
+  "message": "What is this video about?"
+ },
+ "rqVideoKey": {
+  "message": "What are the key points?"
+ },
+ "rqFormNeed": {
+  "message": "What do I need to fill this in?"
+ },
+ "rqFormWatch": {
+  "message": "What should I watch out for here?"
+ },
+ "rqEventWhen": {
+  "message": "When and where is it, and how much?"
+ },
+ "rqEventWorth": {
+  "message": "Is it worth going?"
+ },
+ "rqStayKey": {
+  "message": "What are the key details?"
+ },
+ "rqStayWatch": {
+  "message": "What should I know before I go ahead?"
+ },
+ "rqAnyMain": {
+  "message": "What's the main point here?"
+ },
+ "rqAnyWorth": {
+  "message": "What's worth knowing here?"
+ },
+ "rqTitle": {
+  "message": "Ask about this page"
+ },
+ "rqAgree": {
+  "message": "Agree and ask"
+ },
+ "rqAgreeNote": {
+  "message": "Tapping a question gives this consent and asks it."
+ },
+ "rqContinue": {
+  "message": "Continue «{0}»"
+ },
+ "rqOwnWords": {
+  "message": "Or ask in your own words…"
+ },
  "phWatch": {
   "message": "Watch the price?"
  },
@@ -2758,6 +2815,24 @@
  },
  "phCalendar": {
   "message": "Add to Calendar?"
+ },
+ "phAgent": {
+  "message": "Fill it in for you?"
+ },
+ "googleOffer": {
+  "message": "Search Google for this"
+ },
+ "googleOfferFree": {
+  "message": "Doesn't use your free answers: one of {0} Google answers a day."
+ },
+ "googleOfferPro": {
+  "message": "One of your {0} Google answers this week."
+ },
+ "collectTip": {
+  "message": "Keep answers you copy in one place: add this one to a collection."
+ },
+ "collectTipAdd": {
+  "message": "Add to a collection"
  },
  "phClose": {
   "message": "Hide this tip"
@@ -2824,6 +2899,27 @@
  },
  "setPageHintsHint": {
   "message": "In your first days, they show what you can do on a page."
+ },
+ "setCookies": {
+  "message": "Close cookie windows"
+ },
+ "setCookiesHint": {
+  "message": "Picks “only necessary”."
+ },
+ "setCookiesAccept": {
+  "message": "If refusing isn't possible, accept"
+ },
+ "cookiesOffOnSite": {
+  "message": "Don't close on this site"
+ },
+ "cookiesOnOnSite": {
+  "message": "Close on this site"
+ },
+ "cookieClosedLine": {
+  "message": "Closed a cookie window: only necessary"
+ },
+ "cookieAcceptedLine": {
+  "message": "Accepted cookies: there was no other choice"
  },
  "phSimilarBodyUpBoth": {
   "message": "This is in Pro and Ultra: a quick search in Pro, the full one in Ultra. The same item for less, and similar ones from other shops. Tap the highlighted button."
@@ -3137,6 +3233,810 @@
  "writeInserted": {
   "message": "Inserted"
  },
+ "agentMode": {
+  "message": "Do"
+ },
+ "agentModeHint": {
+  "message": "Let ContextFlow do it on this page"
+ },
+ "placeholderAgent": {
+  "message": "What should I do on this page?"
+ },
+ "agentWorking": {
+  "message": "Working · step {0}"
+ },
+ "agentConfirmTitle": {
+  "message": "Do it?"
+ },
+ "agentYes": {
+  "message": "Yes"
+ },
+ "agentNo": {
+  "message": "No"
+ },
+ "agentNoUndo": {
+  "message": "This can't be undone."
+ },
+ "agentOffRequest": {
+  "message": "This doesn't look like what you asked: {0}"
+ },
+ "agentStepClick": {
+  "message": "Press “{0}”"
+ },
+ "agentRecapAgain": {
+  "message": "Asked again: the page refused the first try for “{0}”."
+ },
+ "agentRecapAgainTo": {
+  "message": "Asked again: the page refused the first try for “{0}”; it was changed to “{1}”."
+ },
+ "agentStepServiceOther": {
+  "message": "The page has no “{0}”. Choose “{1}” instead?"
+ },
+ "agentRecapService": {
+  "message": "Service: {0}"
+ },
+ "agentRecapServiceOther": {
+  "message": "Not “{0}”, the one asked for: you chose this one."
+ },
+ "agentStepPricedChoice": {
+  "message": "Choose “{0}” — a choice with its price, not a payment"
+ },
+ "agentStepType": {
+  "message": "Type “{0}” into “{1}”"
+ },
+ "agentStepSelect": {
+  "message": "Choose “{0}” in “{1}”"
+ },
+ "agentStepGo": {
+  "message": "Go to {0}"
+ },
+ "agentFillTitle": {
+  "message": "Fill in from My details?"
+ },
+ "agentFillButton": {
+  "message": "Fill in"
+ },
+ "agentFillSkip": {
+  "message": "Don't"
+ },
+ "agentSelfTitle": {
+  "message": "This step is yours"
+ },
+ "agentSelfPay": {
+  "message": "Pay or place the order yourself: press “{0}” when you've checked everything."
+ },
+ "agentSelfSend": {
+  "message": "Send it yourself: press “{0}” when you've read it."
+ },
+ "agentSelfAuth": {
+  "message": "Sign in yourself (Safari can fill in your password). I'll wait."
+ },
+ "agentSelfConsent": {
+  "message": "Tick “{0}” yourself if you agree."
+ },
+ "agentSelfRate": {
+  "message": "Reviews, ratings and votes are yours to give."
+ },
+ "agentSelfOther": {
+  "message": "Do this yourself: “{0}”."
+ },
+ "agentSelfNewTab": {
+  "message": "Tap “{0}” yourself: the page opens it in a new tab, and only your own tap can do that. I'll go on there."
+ },
+ "agentSelfFile": {
+  "message": "Choose the file yourself."
+ },
+ "agentSelfDone": {
+  "message": "Done"
+ },
+ "agentSelfNotNow": {
+  "message": "Not now"
+ },
+ "agentDoneTitle": {
+  "message": "Done"
+ },
+ "agentAskedTitle": {
+  "message": "I need you"
+ },
+ "agentStopped": {
+  "message": "Stopped."
+ },
+ "agentUndo": {
+  "message": "Undo"
+ },
+ "agentUndone": {
+  "message": "Put back what could be put back."
+ },
+ "agentLimit": {
+  "message": "Today's agent tasks are used up ({0} a day). More tomorrow."
+ },
+ "agentProOnly": {
+  "message": "The agent comes with Pro and Ultra."
+ },
+ "agentError": {
+  "message": "Something went wrong. Try again."
+ },
+ "agentErrorPage": {
+  "message": "The page isn't answering. Reload it and try again."
+ },
+ "agentSteps": {
+  "message": "That took too many steps, so I stopped here."
+ },
+ "agentBlockedSite": {
+  "message": "On banking, payment, government and similar sites, ContextFlow doesn't act for you. It can still answer questions about the page."
+ },
+ "amazonAgent": {
+  "message": "On Amazon, ContextFlow can only answer questions about the page: Amazon doesn't allow automated tools to act on its site for you."
+ },
+ "amazonSimilar": {
+  "message": "Not checked: Amazon doesn't let our server open its pages."
+ },
+ "agentStart": {
+  "message": "Start"
+ },
+ "agentDeferredTitle": {
+  "message": "Task for later"
+ },
+ "agentDontAskHere": {
+  "message": "Start right away on this site next time"
+ },
+ "agentLater": {
+  "message": "Later"
+ },
+ "agentLaterAt": {
+  "message": "At a time"
+ },
+ "agentLaterWatch": {
+  "message": "When the watch on this page fires"
+ },
+ "agentLaterSet": {
+  "message": "Set"
+ },
+ "agentLaterSaved": {
+  "message": "At {0} you'll get a notification. Tap it, and I'll do it on this page with you."
+ },
+ "agentLaterSavedWatch": {
+  "message": "When the watch fires, you'll get a notification. Tap it, and I'll do it with you."
+ },
+ "agentLaterNotifOff": {
+  "message": "Notifications are off for ContextFlow. Turn them on in Settings → Notifications → ContextFlow."
+ },
+ "agentLaterNotifyWhy": {
+  "message": "Turn on notifications so I can remind you of this task."
+ },
+ "agentLaterPast": {
+  "message": "That time has passed. Pick a later one."
+ },
+ "agentYouMark": {
+  "message": "You"
+ },
+ "agentHint": {
+  "message": "Do it on this page?"
+ },
+ "agentWaitingStep": {
+  "message": "Step {0} · waiting for you"
+ },
+ "agentStepReminderAdd": {
+  "message": "Add the reminder “{0}” to “{1}”"
+ },
+ "agentStepReminderAddDue": {
+  "message": "Add the reminder “{0}” to “{1}”, due {2}"
+ },
+ "agentStepReminderDone": {
+  "message": "Mark “{0}” done in Reminders"
+ },
+ "agentStepEventAdd": {
+  "message": "Add “{0}” to your calendar: {1}"
+ },
+ "agentSelfAccessReminders": {
+  "message": "Let ContextFlow use your Reminders: open the app, tap “Allow”, then come back here and tap “Done”."
+ },
+ "agentSelfAccessCalendar": {
+  "message": "Let ContextFlow use your Calendar: open the app, tap “Allow Full Access”, then come back here and tap “Done”."
+ },
+ "agentOpenApp": {
+  "message": "Open ContextFlow"
+ },
+ "agentStepReminderAddDefault": {
+  "message": "Add the reminder “{0}” to your default list"
+ },
+ "agentStepReminderAddDefaultDue": {
+  "message": "Add the reminder “{0}” to your default list, due {1}"
+ },
+ "agentLaterLimit": {
+  "message": "{0} tasks are already waiting, the most your plan keeps."
+ },
+ "agentNotifTitle": {
+  "message": "A task on {0}"
+ },
+ "agentNotifBody": {
+  "message": "Tap, and I'll do it with you: {0}"
+ },
+ "agentHelpLink": {
+  "message": "What the agent won't do"
+ },
+ "agentHelp": {
+  "message": "The agent does things on the open page: presses, types, chooses. Before sending a form it asks “Do it?”, and it leaves buying, paying, messages and signing in to you. It never sees or types passwords, cards or document numbers. A captcha, choosing a file and some unusual buttons are beyond it: then it asks you to do that step. A task for later comes as a notification: tap it, and the agent goes on with you."
+ },
+ "setAgentAuto": {
+  "message": "Tasks for later start right away on"
+ },
+ "setAgentAutoHint": {
+  "message": "There a task's notification starts it without “Start”. “Do it?” and your own steps still ask."
+ },
+ "fdTitle": {
+  "message": "My details"
+ },
+ "fdHint": {
+  "message": "For filling in forms on sites. Kept on your device; the agent fills them in only after you agree, and the AI never sees them."
+ },
+ "fdNameFull": {
+  "message": "Full name"
+ },
+ "fdNameGiven": {
+  "message": "First name"
+ },
+ "fdNameFamily": {
+  "message": "Last name"
+ },
+ "fdNameLatin": {
+  "message": "Name in Latin letters"
+ },
+ "fdNamePhonetic": {
+  "message": "Name reading (phonetic)"
+ },
+ "fdEmail": {
+  "message": "E-mail"
+ },
+ "fdPhone": {
+  "message": "Phone"
+ },
+ "fdAddressLine": {
+  "message": "Street and house"
+ },
+ "fdAddressApartment": {
+  "message": "Apartment, floor"
+ },
+ "fdAddressCity": {
+  "message": "City"
+ },
+ "fdAddressRegion": {
+  "message": "Region or state"
+ },
+ "fdAddressPostal": {
+  "message": "Postal code"
+ },
+ "fdAddressCountry": {
+  "message": "Country"
+ },
+ "fdCompany": {
+  "message": "Company"
+ },
+ "fdJobTitle": {
+  "message": "Job title"
+ },
+ "fdWebsite": {
+  "message": "Website"
+ },
+ "fdBirthDate": {
+  "message": "Date of birth"
+ },
+ "fdFact": {
+  "message": "Something else"
+ },
+ "fdFactLabel": {
+  "message": "What is it (e.g. shoe size)"
+ },
+ "fdAdd": {
+  "message": "Add"
+ },
+ "fdDelete": {
+  "message": "Delete"
+ },
+ "fdDeleteAll": {
+  "message": "Delete all"
+ },
+ "fdDeleteAllAsk": {
+  "message": "Delete all your details from this device (and from iCloud, if they sync)?"
+ },
+ "fdRefused": {
+  "message": "I don't keep passwords, cards, bank or document numbers, codes or health data."
+ },
+ "fdICloudAsk": {
+  "message": "Sync your details on your devices through iCloud?"
+ },
+ "fdICloudHint": {
+  "message": "Through your private iCloud, which we can't access. Without it, they stay on this device."
+ },
+ "fdICloud": {
+  "message": "Sync through iCloud"
+ },
+ "agentPlanTitle": {
+  "message": "Here's my plan"
+ },
+ "agentPlanReading": {
+  "message": "Reading the page…"
+ },
+ "agentPlanAllowed": {
+  "message": "I'll do without asking"
+ },
+ "agentPlanSelf": {
+  "message": "You'll do these"
+ },
+ "agentPlanOwn": {
+  "message": "Other…"
+ },
+ "agentPlanNow": {
+  "message": "Now"
+ },
+ "agentPermPersonal": {
+  "message": "Type in your details from the request: {0}"
+ },
+ "agentPermFill": {
+  "message": "Fill in from My details: {0}"
+ },
+ "agentLineFilled": {
+  "message": "Filled in: {0}"
+ },
+ "agentLinePressed": {
+  "message": "Pressed: {0}"
+ },
+ "agentPermConsent": {
+  "message": "Tick the box agreeing to {0}'s terms"
+ },
+ "agentPermReminder": {
+  "message": "Add to Reminders: “{0}”"
+ },
+ "agentPermReminderDone": {
+  "message": "Mark done in Reminders: “{0}”"
+ },
+ "agentPermEvent": {
+  "message": "Add to Calendar: “{0}”"
+ },
+ "agentPlanSelfPay": {
+  "message": "Pay or place the order: “{0}”"
+ },
+ "agentPlanSelfSend": {
+  "message": "Send: “{0}”"
+ },
+ "agentPlanSelfAuth": {
+  "message": "Sign in to the site"
+ },
+ "agentPriceChanged": {
+  "message": "The price here differs from the one shown earlier ({0}). Check it before going on."
+ },
+ "agentMarkPaused": {
+  "message": "Paused"
+ },
+ "agentMarkStopped": {
+  "message": "Stopped"
+ },
+ "agentMarkFailed": {
+  "message": "Didn't work"
+ },
+ "agentShowSteps": {
+  "message": "Steps and result"
+ },
+ "agentModeOff": {
+  "message": "Turn off Do"
+ },
+ "noteHintTouchDo": {
+  "message": "Swipe the button up for a note, down for Do"
+ },
+ "agentNoticeNeeds": {
+  "message": "Needs you"
+ },
+ "agentGoToTab": {
+  "message": "Go to the tab"
+ },
+ "agentNotifPaused": {
+  "message": "Task paused — open Safari to finish: {0}"
+ },
+ "agentNotifDone": {
+  "message": "Done: {0}"
+ },
+ "agentNotifNeeds": {
+  "message": "Needs you: {0}"
+ },
+ "agentNotifNotBooked": {
+  "message": "Not booked: {0}"
+ },
+ "agentPlanStepYours": {
+  "message": "“{0}” — you press it"
+ },
+ "agentPlanAnswerFirst": {
+  "message": "Answer this first: “{0}”"
+ },
+ "agentErrorNoReply": {
+  "message": "The extension didn't answer. Try again — if it repeats, reload the page."
+ },
+ "agentStartFailed": {
+  "message": "Couldn't start the task ({0}). Try again."
+ },
+ "agentPlanRemember": {
+  "message": "Remember in My details"
+ },
+ "agentPlanFromSaved": {
+  "message": "From My details — keep it updated"
+ },
+ "agentMarkUnfinished": {
+  "message": "Not finished"
+ },
+ "agentNothingBooked": {
+  "message": "Nothing was booked."
+ },
+ "agentLastDone": {
+  "message": "Last step done: {0}"
+ },
+ "agentStuck": {
+  "message": "The page stopped changing, so I stopped here. What I got to is above."
+ },
+ "agentNeedSignIn": {
+  "message": "signing in to the site"
+ },
+ "agentNeedPay": {
+  "message": "paying on the site"
+ },
+ "agentNeedAnswer": {
+  "message": "an answer"
+ },
+ "agentAutoLine": {
+  "message": "No questions — from My details and your rules: {0}"
+ },
+ "agentLineCalendar": {
+  "message": "Added to Calendar: {0}"
+ },
+ "agentRulesTitle": {
+  "message": "Booking rules"
+ },
+ "agentRulesHint": {
+  "message": "The agent books by these without asking. Paying, codes and signing in stay yours."
+ },
+ "agentRuleWindow": {
+  "message": "A time I name may move by, min"
+ },
+ "agentRuleDays": {
+  "message": "If that day is full, up to … days later"
+ },
+ "agentRuleParty": {
+  "message": "People when I don't say (guests, tickets, seats)"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "Any specialist (stylist, doctor, tutor, trainer, guide…)"
+ },
+ "agentRuleUsual": {
+  "message": "The service I chose there last time"
+ },
+ "agentRuleCalendar": {
+  "message": "Only times free in my Calendar"
+ },
+ "agentRuleAuto": {
+  "message": "Book without a plan when everything is known and nothing is paid"
+ },
+ "agentPlanHow": {
+  "message": "I'll pick the place: rated {0}+, matching, nearest"
+ },
+ "agentPlanHowCal": {
+  "message": "a time free in your Calendar, added there"
+ },
+ "agentRuleVenue": {
+  "message": "Choose the place myself when I don't name one"
+ },
+ "agentRuleRating": {
+  "message": "Place rating from"
+ },
+ "accessGroup": {
+  "message": "Calendar and Reminders"
+ },
+ "accessHint": {
+  "message": "The agent picks times that are free in your calendar and can add bookings to it. What's in your calendar never leaves the device."
+ },
+ "accessCalendar": {
+  "message": "Calendar"
+ },
+ "accessReminders": {
+  "message": "Reminders"
+ },
+ "accessYes": {
+  "message": "Allowed"
+ },
+ "accessNo": {
+  "message": "Not allowed"
+ },
+ "accessAllow": {
+  "message": "Allow"
+ },
+ "accessSettingsIos": {
+  "message": "Open iOS Settings"
+ },
+ "accessSettingsMac": {
+  "message": "Open System Settings"
+ },
+ "agentRuleCalNeeds": {
+  "message": "Needs Calendar access"
+ },
+ "agentPlanCalAsk": {
+  "message": "Check your calendar?"
+ },
+ "agentCalNotChecked": {
+  "message": "Didn't check your calendar: no access"
+ },
+ "agentPlanFromChat": {
+  "message": "From the chat: {0}"
+ },
+ "sendMenuNote": {
+  "message": "Note"
+ },
+ "noteHintPointerDo": {
+  "message": "Scroll on the button: up for a note, down for Do, or right-click it"
+ },
+ "setSecGeneral": {
+  "message": "General"
+ },
+ "setSecButton": {
+  "message": "Floating button and selection"
+ },
+ "setSecWriting": {
+  "message": "Quick insert and writing"
+ },
+ "setSecAgent": {
+  "message": "Do: tasks on pages"
+ },
+ "setSecCookies": {
+  "message": "Cookie windows"
+ },
+ "setSecChats": {
+  "message": "Chats and Spaces"
+ },
+ "setSecData": {
+  "message": "Privacy and data"
+ },
+ "setSecPlan": {
+  "message": "Plan and account"
+ },
+ "setSecAbout": {
+  "message": "About"
+ },
+ "fdICloudLocal": {
+  "message": "Only on this device for now"
+ },
+ "fdICloudSyncing": {
+  "message": "Syncing…"
+ },
+ "fdICloudSynced": {
+  "message": "Synced · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "just now"
+ },
+ "fdICloudNoAccount": {
+  "message": "Not synced: sign in to iCloud on this device"
+ },
+ "fdICloudFailed": {
+  "message": "Not synced: iCloud didn't answer. It tries again next time."
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "Whoever gives the service — a stylist, doctor, tutor, trainer, instructor or guide — whoever is free. Off: I ask whom you want."
+ },
+ "errLink": {
+  "message": "ContextFlow lost its link to this page (iOS may have put it away while another app was open). Retry, or reload the page if it happens again."
+ },
+ "reloadPage": {
+  "message": "Reload page"
+ },
+ "agentPlanVenueQ": {
+  "message": "Where to book (chosen by your rules)"
+ },
+ "agentPlanEmailQ": {
+  "message": "Your e-mail for the booking (the site will ask for it)"
+ },
+ "agentPlanPhoneQ": {
+  "message": "Your phone number for the booking (the site will ask for it)"
+ },
+ "agentLinePopup": {
+  "message": "Closed a window over the page: «{0}»"
+ },
+ "agentPlanSpecialistQ": {
+  "message": "Which specialist?"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "Any specialist"
+ },
+ "agentPlanServiceQ": {
+  "message": "Which service?"
+ },
+ "agentPlanSpecialistOnPage": {
+  "message": "I'll choose on the place's page"
+ },
+ "agentPlanVenueAuto": {
+  "message": "Pick for me: rated {0}+, nearest"
+ },
+ "agentPlanLastTime": {
+  "message": "last time"
+ },
+ "agentPlanPlaceQ": {
+  "message": "Where to book?"
+ },
+ "agentBubbleCheck": {
+  "message": "Check before I go on: {0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "Sign in on the site — I'll wait"
+ },
+ "agentBubblePlan": {
+  "message": "The plan is waiting for you"
+ },
+ "agentBubbleFill": {
+  "message": "Check what goes into the form"
+ },
+ "agentBubbleDone": {
+  "message": "Done: {0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "Not finished: {0}"
+ },
+ "agentBubbleOpen": {
+  "message": "Open"
+ },
+ "agentBubbleOther": {
+  "message": "Other…"
+ },
+ "agentBubbleShow": {
+  "message": "Show"
+ },
+ "agentRuleFreeCancel": {
+  "message": "Book only with free cancellation"
+ },
+ "agentRuleVenueHint": {
+  "message": "A place is a restaurant, salon, clinic, hotel or flat, rental desk, gym or branch. Where it matters who or where (a doctor, a hotel for a trip), I ask; otherwise I choose by these rules."
+ },
+ "agentPlanPlaceQAny": {
+  "message": "Where to book?"
+ },
+ "agentRecapTitle": {
+  "message": "Check before I book"
+ },
+ "agentRecapWhat": {
+  "message": "Booking: {0}"
+ },
+ "agentRecapAsked": {
+  "message": "You asked for: {0}"
+ },
+ "agentRecapOtherPlace": {
+  "message": "Another place: the first had no time that fits"
+ },
+ "agentRecapTerms": {
+  "message": "Cancelling, as the page says: {0}"
+ },
+ "tasteListenLeft": {
+  "message": "Listen in Pro: {0} of {1} min left this week"
+ },
+ "tasteSimilarLeft": {
+  "message": "Full search in Pro: {0} of {1} left this week"
+ },
+ "tasteUltraListen": {
+  "message": "In Ultra: {0} min a week"
+ },
+ "tasteUltraSimilar": {
+  "message": "In Ultra: {0} full searches a week"
+ },
+ "tasteListenUsed": {
+  "message": "This week's {0} minutes of listening in Pro are used up. They come back on {1}."
+ },
+ "tasteSimilarUsed": {
+  "message": "This week's full search in Pro is used. It comes back on {0}; the quick search still works."
+ },
+ "tasteSimilarDone": {
+  "message": "A full search, as in Ultra: Pro gets one a week."
+ },
+ "boughtPro": {
+  "message": "Pro is on: up to {0} answers a week. Ask away."
+ },
+ "boughtUltra": {
+  "message": "Ultra is on: Listen, the full Find similar and everything in Pro."
+ },
+ "boughtByok": {
+  "message": "Own key is on. Add your API key in Settings."
+ },
+ "answersBackAsk": {
+  "message": "Remind me when my {0} answers are back"
+ },
+ "answersBackSet": {
+  "message": "I'll remind you at {0}, when your answers are back."
+ },
+ "answersBackOff": {
+  "message": "Notifications are off for ContextFlow. Your answers are back at {0}."
+ },
+ "answersBackFailed": {
+  "message": "The reminder couldn't be set. Your answers are back at {0}."
+ },
+ "answersBackBody": {
+  "message": "Your {0} free answers are back. Ask about any page."
+ },
+ "answersBackInApp": {
+  "message": "Set it in the ContextFlow app"
+ },
+ "hoursMinutes": {
+  "message": "{0} h {1} min"
+ },
+ "offerByCode": {
+  "message": "Applied with a code in the App Store."
+ },
+ "limitBuyOffer": {
+  "message": "Get Pro — first month {0}% off"
+ },
+ "limitBuyPrice": {
+  "message": "Get Pro — {0} a month"
+ },
+ "answersBackAt": {
+  "message": "Remind me at {0}"
+ },
+ "limitMore": {
+  "message": "More"
+ },
+ "moreYearly": {
+  "message": "Yearly: {0} a year"
+ },
+ "moreYearlySave": {
+  "message": "Yearly: {0} a year, save {1}%"
+ },
+ "moreUltra": {
+  "message": "Ultra: {0} a month, everything in Pro plus Listen and Find similar"
+ },
+ "moreUltraNoPrice": {
+  "message": "Ultra: everything in Pro plus Listen and Find similar"
+ },
+ "moreChoose": {
+  "message": "Choose"
+ },
+ "moreNotes": {
+  "message": "Notes stay free and unlimited"
+ },
+ "moreOwnKey": {
+  "message": "Have an API key?"
+ },
+ "moreOwnKeyLink": {
+  "message": "Use my own"
+ },
+ "limitProLine": {
+  "message": "Up to {0} answers a week"
+ },
+ "limitCancel": {
+  "message": "Cancel anytime in the App Store."
+ },
+ "limitCardTitle": {
+  "message": "You've used today's free answers"
+ },
+ "limitCardBack": {
+  "message": "They're back at {0}, in {1}."
+ },
+ "answersBackOfferAsk": {
+  "message": "Also tell me about a Pro discount in this reminder"
+ },
+ "answersBackOfferBody": {
+  "message": "Your {0} free answers are back. And if you'd like more, your first month of Pro is {1}% off."
+ },
+ "setOfferNotify": {
+  "message": "Pro discounts in reminders"
+ },
+ "setOfferNotifyHint": {
+  "message": "Only in the one reminder you set when your free answers run out. Off unless you turn it on."
+ },
+ "limitCardBackNow": {
+  "message": "Your free answers are back."
+ },
+ "limitCardTitleBack": {
+  "message": "Your free answers are back"
+ },
+ "gAgentTitle": {
+  "message": "It books for you, right on the page"
+ },
+ "gAgentLine": {
+  "message": "ContextFlow picks the time, fills in your name and contacts from My details and books. Paying and signing in stay yours, and Stop is always there."
+ },
+ "gAgentRequest": {
+  "message": "a table for two tomorrow at 7 pm"
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },
@@ -3220,6 +4120,15 @@
  },
  "tip_da5f7b74b1": {
   "message": "Deeper work"
+ },
+ "tip_8f191972e8": {
+  "message": "It books for you, right on the page"
+ },
+ "tip_363625547a": {
+  "message": "Need a table or a stay booked, or a visit to a doctor or a stylist? On the booking site, open the panel, tap + by the field, choose Do and say what you need: “a table for two tomorrow at 7 pm”. ContextFlow picks the time, fills in your name and contacts from My details and books. You can close the panel: a question or the result shows up by ✦. Paying and signing in stay yours, and Stop is always there. With Pro or Ultra."
+ },
+ "tip_232e049197": {
+  "message": "Need a table or a stay booked, or a visit to a doctor or a stylist? On the booking site, open the panel, click + by the field, choose Do and say what you need: “a table for two tomorrow at 7 pm”. ContextFlow picks the time, fills in your name and contacts from My details and books. You can close the panel: a question or the result shows up by ✦. Paying and signing in stay yours, and Stop is always there. With Pro or Ultra."
  },
  "tip_6ba198cbff": {
   "message": "Notes of your own"
@@ -3463,6 +4372,15 @@
  },
  "tip_6cc366173d": {
   "message": "Don't need ✦ on a site? Hide it on that site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu."
+ },
+ "tip_92470c1789": {
+  "message": "Cookie windows close themselves"
+ },
+ "tip_8534da4bd8": {
+  "message": "Tired of tapping through cookie windows? ContextFlow answers them for you with “only necessary”, and the first few times a short line by ✦ says so. Want them back on a site? Turn it off for that site in the extension settings, under Cookie windows."
+ },
+ "tip_fc1a61bcfa": {
+  "message": "Tired of clicking through cookie windows? ContextFlow answers them for you with “only necessary”, and the first few times a short line by ✦ says so. Want them back on a site? Turn it off for that site in the extension settings, under Cookie windows."
  },
  "tip_cc54dd5946": {
   "message": "Tips by the ✦ button"

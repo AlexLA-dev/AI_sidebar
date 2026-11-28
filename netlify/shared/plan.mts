@@ -6,7 +6,7 @@ import { limitedBefore, logEvent, upsertEntitlement, type Counter } from "./db.m
 import { hasPro, isUltra, PLAN_RANK } from "../../src/shared/plan.ts"
 import { USE_KINDS, useSubject, type UseKind } from "../../src/shared/spent.ts"
 
-export { hasPro, isUltra } from "../../src/shared/plan.ts"
+export { agentDaily, agentDeferred, hasPro, isUltra } from "../../src/shared/plan.ts"
 
 export interface Access {
   plan: Plan
@@ -119,6 +119,17 @@ export function evalAccess(req: Request, installId: string, context?: { deploy?:
   return evalCheck(req, installId, context).access
 }
 
+// A measuring run's step cap (round 138: whether 30 steps is too few on marketplace pages): a request that evalAccess
+// lets through (signed with the measuring key, deploy previews only) may ask for more steps, up to this. Nothing else
+// reads it: it relaxes the step count only, never a guard. The shipped panel never sends it.
+export const MEASURED_STEPS_MAX = 60
+
+/** The step cap for one request: the configured cap; a measuring request may raise it (never lower it), up to 60. */
+export function stepCap(measuring: Access | null, asked: unknown, cap: number): number {
+  if (!measuring || typeof asked !== "number" || !Number.isInteger(asked)) return cap
+  return Math.max(cap, Math.min(MEASURED_STEPS_MAX, asked))
+}
+
 /** evalAccess and, when it says no to a request that tried, why ("context", "token"): never the token itself. */
 export function evalCheck(req: Request, installId: string, context?: { deploy?: { context?: string } }): { access: Access | null; refused?: "context" | "token" } {
   if (!req.headers.has("x-cf-eval")) return { access: null }
@@ -213,13 +224,38 @@ export function searchCountersFor(access: Access, installId: string): Counter[] 
   return [own, { subject: "global:search", period: "day", limit: config.searchGlobalDailyLimit }]
 }
 
-/** Read aloud (Ultra): `seconds` of audio, charged before speaking (estimated from the text, see speak.mts). */
+/**
+ * Read aloud's seconds a week on a plan: Ultra's allowance, Pro's taste (2.8, В7.4; a subscription only), none for the
+ * rest. The one place the routes ask whether someone may listen.
+ */
+export function speakAllowance(access: Access): number {
+  if (isUltra(access.plan)) return config.ultra.speakWeeklySeconds
+  return hasPro(access.plan) && access.entitlement ? config.taste.speakWeeklySeconds : 0
+}
+
+/** Find similar's full searches a week on a plan: Ultra's, Pro's taste (2.8, В7.4), none for the rest. */
+export function similarAllowance(access: Access): number {
+  if (isUltra(access.plan)) return config.ultra.similarWeekly
+  return hasPro(access.plan) && access.entitlement ? config.taste.similarWeekly : 0
+}
+
+/** Pro's tastes of Ultra as the status tells the clients (null: not Pro, or both off). */
+export function tastesFor(access: Access): { speakWeeklySeconds: number; similarWeekly: number } | null {
+  if (access.plan !== "pro" || !access.entitlement) return null
+  const { speakWeeklySeconds, similarWeekly } = config.taste
+  return speakWeeklySeconds > 0 || similarWeekly > 0 ? { speakWeeklySeconds, similarWeekly } : null
+}
+
+/** Read aloud (Ultra, Pro's taste): `seconds` of audio, charged before speaking (estimated from the text, see speak.mts). */
 export function speakCountersFor(access: Access, seconds: number, finishing = false): Counter[] {
   const amount = Math.max(1, Math.ceil(seconds))
   const otid = access.entitlement?.originalTransactionId ?? "none"
+  const allowance = speakAllowance(access)
   // A text already playing finishes in the same voice (build 90, the owner heard Apple's voice take over at the end):
-  // its later parts may run over the week's minutes by up to speakFinishSeconds; a new text can't.
-  const limit = config.ultra.speakWeeklySeconds + (finishing ? config.ultra.speakFinishSeconds : 0)
+  // its later parts may run over the week's minutes by up to speakFinishSeconds (and never more than the allowance
+  // itself: Pro's five minutes don't become ten); a new text can't.
+  const room = isUltra(access.plan) ? config.ultra.speakFinishSeconds : Math.min(config.ultra.speakFinishSeconds, allowance)
+  const limit = allowance + (finishing ? room : 0)
   return [
     { subject: `speak:tx:${otid}`, period: "week", limit, amount },
     { subject: "global:speak", period: "day", limit: config.ultra.speakGlobalDailySeconds, amount }
@@ -235,7 +271,7 @@ export function speakMadeCountersFor(access: Access, seconds: number): Counter[]
   const amount = Math.max(1, Math.ceil(seconds))
   const otid = access.entitlement?.originalTransactionId ?? "none"
   return [
-    { subject: `speakmade:tx:${otid}`, period: "week", limit: Math.round((config.ultra.speakWeeklySeconds * config.ultra.speakMadePercent) / 100), amount },
+    { subject: `speakmade:tx:${otid}`, period: "week", limit: Math.round((speakAllowance(access) * config.ultra.speakMadePercent) / 100), amount },
     { subject: "global:speak", period: "day", limit: config.ultra.speakGlobalDailySeconds, amount }
   ]
 }
@@ -247,7 +283,8 @@ export function speakMadeCountersFor(access: Access, seconds: number): Counter[]
  */
 export function similarCountersFor(access: Access): Counter[] {
   const otid = access.entitlement?.originalTransactionId ?? "none"
-  return [{ subject: `similar:tx:${otid}`, period: "week", limit: config.ultra.similarWeekly }]
+  // Pro's taste (2.8) is charged to the same counter: an upgrade that week keeps what was used.
+  return [{ subject: `similar:tx:${otid}`, period: "week", limit: similarAllowance(access) }]
 }
 
 /**
@@ -267,11 +304,11 @@ export function similarLightCounters(access: Access, installId: string, ip: stri
 }
 
 /** An Ultra allowance (or the light search's week) as the clients show it: used of limit, and when it starts again. */
-export function ultraUsage(counters: { subject: string; n: number; limit: number | null }[], prefix: "speak:" | "similar:" | "similarlight:"): Usage | null {
+export function ultraUsage(counters: { subject: string; n: number; limit: number | null }[], prefix: "speak:" | "similar:" | "similarlight:", speakSeconds: number = config.ultra.speakWeeklySeconds): Usage | null {
   const own = counters.find((c) => c.subject.startsWith(prefix) && !c.subject.startsWith("global:"))
   if (!own || own.limit === null) return null
-  // The allowance as sold (a text's finishing room isn't shown).
-  const limit = prefix === "speak:" ? Math.min(own.limit, config.ultra.speakWeeklySeconds) : own.limit
+  // The allowance as sold (a text's finishing room isn't shown): Ultra's, or Pro's taste (speakAllowance).
+  const limit = prefix === "speak:" ? Math.min(own.limit, speakSeconds) : own.limit
   return { used: own.n, limit, period: "week", resetsAt: nextReset("week") }
 }
 

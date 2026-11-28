@@ -648,7 +648,7 @@ test("admin usage report needs ADMIN_TOKEN", async () => {
   assert.equal(body.onboarding.people[0].answer, 540)
   assert.deepEqual([body.onboarding.people[0].limit, body.onboarding.people[0].paid], [900, 1200])
   assert.deepEqual(body.new_outcomes[0], { day: "2026-11-02", new: 12, limit_d0: 3, pro_bought: 2 })
-  assert.deepEqual([body.features.features[0].f, body.features.base.paywall, body.features.base.panel.on], ["ask", { since: "2.5", on: "app" }, "ext"])
+  assert.deepEqual([body.features.features[0].f, body.features.base.paywall, body.features.base.panel.on], ["ask", { since: "2.8", on: "app" }, "ext"])
   assert.equal(body.feature_funnels[0].funnel, "purchase")
   assert.deepEqual([body.after_limit.people[0].before, body.after_limit.paying], [5, []])
   assert.equal(body.after_limit.people[0].locale, "uk-UA")
@@ -742,9 +742,14 @@ test("an Apple Ads attribution token is resolved and only campaign ids are kept"
   const logged = events.find((e) => e.kind === "ads_attribution")
   assert.deepEqual(logged?.data, { app: APP, orgId: 1222900, campaignId: 2145005369, adGroupId: 11, keywordId: 22, adId: 33, countryOrRegion: "US", conversionType: "Download", claimType: "Click", clickDate: "2026-10-31T10:00Z" })
 
-  const organic = await send({ kind: "app_open", appId: APP, adToken: "tok-organic" })
+  const organic = await send({ kind: "app_open", appId: APP, client: { platform: "ios", version: "2.7.1" }, adToken: "tok-organic" })
   assert.deepEqual(await organic.json(), { ok: true, ads: "organic" })
   assert.equal(events.filter((e) => e.kind === "ads_attribution").length, 1)
+  // 2.7.1: Apple's "not an ad" is kept too (the app's id, platform, version), so organic is a source, not a gap.
+  await new Promise((r) => setTimeout(r, 0))
+  const organicRows = events.filter((e) => e.kind === "ads_organic")
+  assert.equal(organicRows.length, 1)
+  assert.deepEqual(organicRows[0]?.data, { app: APP, platform: "ios", version: "2.7.1", locale: "" })
 
   // Only "app opened" carries a token; the extension's event never triggers a lookup.
   const calls = adsCalls
