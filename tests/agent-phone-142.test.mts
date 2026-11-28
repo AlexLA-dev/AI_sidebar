@@ -266,7 +266,7 @@ test("15e2: up front, once — the step's context says the device sets the count
 })
 
 // Decision 15f: the choice from the control's whole list (the map keeps 30 options; real lists hold every country).
-import { carriesCode, chooseDial, codesOf, dialNames } from "../src/shared/agent/phone.ts"
+import { carriesCode, chooseDial, codesOf, dialNames, internationalDigits, optionCode } from "../src/shared/agent/phone.ts"
 import { countryList } from "./helpers/callingcodes.mts"
 
 test("15f: a real-size list (every country, sorted by name) — the UK beyond the map's first 30, never Guernsey or Jersey", () => {
@@ -277,7 +277,7 @@ test("15f: a real-size list (every country, sorted by name) — the UK beyond th
     // (By name in the language: past the map's first 30 in en, ru and ar; «イギリス» sorts early in Japanese.)
     if (lang !== "ja") assert.ok(uk >= 30, `${lang}: the UK at ${uk}, beyond the map's 30`)
     const opts = list.map((o) => ({ label: o.label, value: `+${o.code.replace(/ /g, "")}-${o.region}` }))
-    const pick = chooseDial(opts, opts[0].label, codesOf("+44 7700 900123"), dialNames(codesOf("+44 7700 900123"), "", lang), false)
+    const pick = chooseDial(opts, opts[0].label, internationalDigits("+44 7700 900123")!, dialNames(codesOf("+44 7700 900123"), "", lang), false)
     assert.equal(pick?.code, "44", lang)
     assert.equal(pick?.chosen, list[uk].label, `${lang}: ${pick?.chosen}`)
     assert.ok(pick?.others.length === 3, `${lang}: Guernsey, Isle of Man, Jersey left: ${pick?.others}`)
@@ -289,14 +289,20 @@ test("15f: the code as a whole code — «+1» isn't «+1 441» (Bermuda) when t
   assert.equal(carriesCode("Somewhere (+441)", "44"), false)
   assert.equal(carriesCode("+44-GB", "44"), true)
   const list = countryList("en").map((o) => ({ label: o.label }))
-  assert.equal(chooseDial(list, undefined, codesOf("+1 202 555 0123"), dialNames(codesOf("+1 202 555 0123"), "", "en"), false)?.chosen, "United States (+1)")
-  assert.equal(chooseDial(list, undefined, codesOf("+1 202 555 0123"), dialNames(codesOf("+1 202 555 0123"), "CA", "en"), false)?.chosen, "Canada (+1)", "a Canadian device")
-  assert.equal(chooseDial(list, undefined, codesOf("+971 4 123 4567"), dialNames(codesOf("+971 4 123 4567"), "", "en"), false)?.code, "971", "the longest code that some option carries")
-  assert.equal(chooseDial(list, undefined, codesOf("+7 495 123-45-67"), dialNames(codesOf("+7 495 123-45-67"), "KZ", "en"), false)?.chosen, "Kazakhstan (+7)")
-  assert.equal(chooseDial(list, undefined, codesOf("+7 495 123-45-67"), dialNames(codesOf("+7 495 123-45-67"), "", "en"), false)?.chosen, "Russia (+7)")
+  assert.equal(chooseDial(list, undefined, internationalDigits("+1 202 555 0123")!, dialNames(codesOf("+1 202 555 0123"), "", "en"), false)?.chosen, "United States (+1)")
+  assert.equal(chooseDial(list, undefined, internationalDigits("+1 202 555 0123")!, dialNames(codesOf("+1 202 555 0123"), "CA", "en"), false)?.chosen, "Canada (+1)", "a Canadian device")
+  assert.equal(chooseDial(list, undefined, internationalDigits("+971 4 123 4567")!, dialNames(codesOf("+971 4 123 4567"), "", "en"), false)?.code, "971", "the longest code that some option carries")
+  assert.equal(chooseDial(list, undefined, internationalDigits("+7 495 123-45-67")!, dialNames(codesOf("+7 495 123-45-67"), "KZ", "en"), false)?.chosen, "Kazakhstan (+7)")
+  assert.equal(chooseDial(list, undefined, internationalDigits("+7 495 123-45-67")!, dialNames(codesOf("+7 495 123-45-67"), "", "en"), false)?.chosen, "Russia (+7)")
   // The page's own selection stands when it has the code and the task hasn't touched the control (keep).
-  assert.equal(chooseDial(list, "Jersey (+44)", ["447", "44", "4"], [], true)?.chosen, "Jersey (+44)")
-  assert.equal(chooseDial(list, "Jersey (+44)", ["447", "44", "4"], dialNames(["447", "44", "4"], "", "en"), false)?.chosen, "United Kingdom (+44)")
+  assert.equal(chooseDial(list, "Jersey (+44)", "447700900123", [], true)?.chosen, "Jersey (+44)")
+  assert.equal(chooseDial(list, "Jersey (+44)", "447700900123", dialNames(["447", "44", "4"], "", "en"), false)?.chosen, "United Kingdom (+44)")
+  // A sub-code of +1 only for a number that starts with it: American Samoa never for 1 202…, Bermuda for 1 441….
+  assert.equal(optionCode("American Samoa (+1 684)"), "1684")
+  assert.equal(chooseDial(list, undefined, "12025550123", [], false)?.chosen, "Canada (+1)", "no names: the first of the plain +1, never American Samoa")
+  assert.equal(chooseDial(list, undefined, "14412345678", [], false)?.chosen, "Bermuda (+1 441)")
+  // The refused option is never chosen again; the order holds for the rest (the UK after Guernsey, not the Isle of Man).
+  assert.equal(chooseDial(list, "Guernsey (+44)", "447700900123", dialNames(["447", "44", "4"], "", "en"), false, "Guernsey (+44)")?.chosen, "United Kingdom (+44)")
 })
 
 test("15f: the hands read a select's whole list and a page list's every option — no 30 there (the map keeps its 30 for the model)", () => {

@@ -121,22 +121,32 @@ export interface DialChoice {
   others: string[]
 }
 
+/** An option's own calling code, as its digits: «United Kingdom (+44)» → "44", «American Samoa (+1 684)» → "1684",
+ *  «+44-GB» → "44"; "" when it names none. */
+export function optionCode(text: string): string {
+  const m = /\+\s?(\d[\d ]{0,6}\d|\d)(?![\d])/.exec(text)
+  return m ? m[1].replace(/ /g, "") : ""
+}
+
 /** Decision 15f: the option of a country or dial-code control to choose, from its full list (labels, with each one's
- *  value beside it when it differs): the longest of `codes` some option carries; among those options, the selected one
- *  when `keep` (the page's own selection, untouched by the task), else the first whose label names one of `names` in
- *  their order (the device region's country, then the code's main territory), else the first. Null when none carries
- *  any of the codes. */
-export function chooseDial(options: Array<{ label: string; value?: string }>, selected: string | undefined, codes: string[], names: string[], keep: boolean): DialChoice | null {
-  for (const code of codes) {
-    const withCode = options.filter((o) => carriesCode(o.label, code) || carriesCode(o.value ?? "", code))
-    if (!withCode.length) continue
-    const low = (s: string) => s.toLocaleLowerCase()
-    const kept = keep && selected ? withCode.find((o) => o.label === selected || o.value === selected) : undefined
-    const named = names.map((n) => withCode.find((o) => low(o.label).includes(low(n)) || (n.startsWith("-") && (o.value ?? "").endsWith(n)))).find(Boolean)
-    const pick = kept ?? named ?? withCode[0]
-    return { code, chosen: pick.label, others: withCode.filter((o) => o !== pick).map((o) => o.label) }
-  }
-  return null
+ *  value beside it when it differs), for a number given by its digits (with its calling code): the options whose own
+ *  whole code starts the number, the longest such code first («+1 684» only for a number that starts 1684, «+1» for the
+ *  rest of +1); among those, the selected one when `keep` (the page's own selection, untouched by the task), else the
+ *  first whose label names one of `names` in their order (the device region's country, then the code's main territory),
+ *  else the first; `exclude` (the option just refused) is never chosen. Null when no option's code starts the number. */
+export function chooseDial(options: Array<{ label: string; value?: string }>, selected: string | undefined, digits: string, names: string[], keep: boolean, exclude?: string): DialChoice | null {
+  const codeOf = (o: { label: string; value?: string }) => optionCode(o.label) || optionCode(o.value ?? "")
+  const fits = options.filter((o) => { const c = codeOf(o); return !!c && digits.startsWith(c) })
+  if (!fits.length) return null
+  const code = fits.map(codeOf).sort((a, b) => b.length - a.length)[0]
+  const withCode = fits.filter((o) => codeOf(o) === code)
+  const pool = withCode.filter((o) => o.label !== exclude)
+  if (!pool.length) return null
+  const low = (s: string) => s.toLocaleLowerCase()
+  const kept = keep && selected ? pool.find((o) => o.label === selected || o.value === selected) : undefined
+  const named = names.map((n) => pool.find((o) => low(o.label).includes(low(n)) || (n.startsWith("-") && (o.value ?? "").endsWith(n)))).find(Boolean)
+  const pick = kept ?? named ?? pool[0]
+  return { code, chosen: pick.label, others: withCode.filter((o) => o !== pick).map((o) => o.label) }
 }
 
 /** The names a choice prefers, in order: the device region's country, then each code's main territory — in the page's

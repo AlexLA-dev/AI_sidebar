@@ -198,7 +198,7 @@ export interface AgentState {
   // the phone the device last put in beside one (its control, its field, the other options of its code, the national
   // part), and whether the one extra option a task was used.
   dialTouched?: string[]
-  phoneDial?: { dialId: string; dialLabel: string; dialRole: MapItem["role"]; fieldId: string; others: string[]; national: string; code?: string }
+  phoneDial?: { dialId: string; dialLabel: string; dialRole: MapItem["role"]; fieldId: string; others: string[]; national: string; code?: string; digits?: string }
   phoneExtra?: boolean
   // The person's international phone, given in the request or saved (the device owns the dial-code control then: 15a2).
   phoneKnown?: string
@@ -427,12 +427,12 @@ async function phoneFirst(state: AgentState, io: RunnerIO, call: ToolCall, text:
     // amended: the page's own selection stands only while this task hasn't touched the control.)
     const touched = !!state.dialTouched?.includes(dial.id)
     const codes = codesOf(text)
-    const r = await io.act({ tool: "dial", id: dial.id, codes, names: dialNames(codes, deviceRegion(), map.lang), keep: !touched, why: "", expect: { label: dial.label, role: dial.role } }).catch(() => null)
+    const r = await io.act({ tool: "dial", id: dial.id, codes: [internationalDigits(text)!], names: dialNames(codes, deviceRegion(), map.lang), keep: !touched, why: "", expect: { label: dial.label, role: dial.role } }).catch(() => null)
     const pick = r?.ok && r.data ? (JSON.parse(r.data) as DialChoice) : null
     if (!pick) return null
     const national = nationalPart(text, pick.code)
     state.dialTouched = [...new Set([...(state.dialTouched ?? []), dial.id])]
-    state.phoneDial = { dialId: dial.id, dialLabel: dial.label, dialRole: dial.role, fieldId: field.id, others: pick.others, national, code: pick.code }
+    state.phoneDial = { dialId: dial.id, dialLabel: dial.label, dialRole: dial.role, fieldId: field.id, others: pick.others, national, code: pick.code, digits: internationalDigits(text)! }
     state.dialOwned = { dialId: dial.id, option: pick.chosen }
     return { text: national, dial, others: pick.others }
   }
@@ -469,15 +469,19 @@ async function phoneOtherOption(state: AgentState, io: RunnerIO, fieldId: string
   if (!d || state.phoneExtra || !d.others.length || d.fieldId !== fieldId) return null
   state.phoneExtra = true
   const option = d.others[0]
-  const r = await io.act({ tool: "dial", id: d.dialId, codes: d.code ? [d.code] : [], names: [option], keep: false, why: "", expect: { label: d.dialLabel, role: d.dialRole } }).catch(() => null)
+  // (The same order as the first choice — the device's region, then the code's main territory — never the refused one.)
+  const map0 = await io.map({}).catch(() => null)
+  const refusedNow = map0?.items.find((i) => i.id === d.dialId)?.value
+  const r = await io.act({ tool: "dial", id: d.dialId, codes: [d.digits ?? d.code ?? ""], names: dialNames(codesOf(`+${d.digits ?? d.code ?? ""}`), deviceRegion(), map0?.lang ?? ""), keep: false, option: refusedNow, why: "", expect: { label: d.dialLabel, role: d.dialRole } }).catch(() => null)
   if (!r?.ok) return null
-  state.dialOwned = { dialId: d.dialId, option }
+  const chosenOpt = r.data ? (JSON.parse(r.data) as DialChoice).chosen : option
+  state.dialOwned = { dialId: d.dialId, option: chosenOpt }
   const before = await io.map({}).catch(() => null)
   const field = before?.items.find((i) => i.id === fieldId)
   const t = await io.act({ tool: "type", id: fieldId, text: d.national, mode: "replace", why: "", leave: true }).catch(() => null)
   // (15d: the page's message was about the field before this change.)
-  if (before && field) state.staleFix = { fieldId, label: field.label, kind: contactField(field) ?? "field", msg: fieldMessages(before), to: option }
-  return t ? { ...t, note: `${t.note ?? "typed"} (the page marked the phone invalid: the device chose «${option.slice(0, 40)}», the other country of its code, and typed it again)` } : null
+  if (before && field) state.staleFix = { fieldId, label: field.label, kind: contactField(field) ?? "field", msg: fieldMessages(before), to: chosenOpt }
+  return t ? { ...t, note: `${t.note ?? "typed"} (the page marked the phone invalid: the device chose «${chosenOpt.slice(0, 40)}», the other country of its code, and typed it again)` } : null
 }
 
 /** A model's select on a dial-code control while the person's international number is known (15a2): the option the
@@ -489,7 +493,7 @@ async function dialOwn(state: AgentState, io: RunnerIO, call: ToolCall): Promise
   const codes = codesOf(state.phoneKnown!)
   state.dialTouched = [...new Set([...(state.dialTouched ?? []), item.id])]
   // (15f: the control's own full list, through the hands; the order of 15a2: the code, the device's region, its main territory.)
-  return { call: { tool: "dial", id: item.id, codes, names: dialNames(codes, deviceRegion(), map.lang), keep: false, why: call.why, expect: call.expect }, why: "the country is chosen by that code, then the device's region, then the code's main territory" }
+  return { call: { tool: "dial", id: item.id, codes: [internationalDigits(state.phoneKnown!)!], names: dialNames(codes, deviceRegion(), map.lang), keep: false, why: call.why, expect: call.expect }, why: "the country is chosen by that code, then the device's region, then the code's main territory" }
 }
 
 // A page's message about a field it refused, in the panel's 15 languages (its words, shown as they are).

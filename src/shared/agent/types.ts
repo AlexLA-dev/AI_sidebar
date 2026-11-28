@@ -140,8 +140,9 @@ export interface ToolCall {
   also?: Array<{ id: string; why?: string }>
   // Set by the device only: after typing, leave the field as a person would (blur), so the page checks it (decision 15b).
   leave?: boolean
-  // Set by the device only (dial, decision 15f): the calling codes to look for, longest first; the names to prefer, in
-  // order; whether the page's own selection stands when it has the code.
+  // Set by the device only (dial, decision 15f): the number's digits with its calling code (codes[0]); the names to
+  // prefer, in order; whether the page's own selection stands when it has the code. `option` then is one never to choose
+  // (the one the page just refused).
   codes?: string[]
   names?: string[]
   keep?: boolean

@@ -250,8 +250,8 @@ async function dial(el: Element, call: ToolCall): Promise<StepResult> {
     const select = el as HTMLSelectElement
     const opts = Array.from(select.options)
     const selected = select.selectedOptions[0] ? text(select.selectedOptions[0]) : undefined
-    const pick = chooseDial(opts.map((o) => ({ label: text(o), value: o.value })), selected, codes, names, call.keep === true)
-    if (!pick) return { ok: false, note: `no option carries the number's code (${codes.map((c) => `+${c}`).join(" or ")})` }
+    const pick = chooseDial(opts.map((o) => ({ label: text(o), value: o.value })), selected, codes[0] ?? "", names, call.keep === true, call.option)
+    if (!pick) return { ok: false, note: "no option carries the number's code" }
     const r = pick.chosen === selected ? { ok: true, note: `kept "${pick.chosen.slice(0, 60)}"` } as StepResult : await choose(el, pick.chosen)
     return { ...r, data: JSON.stringify(pick) }
   }
@@ -268,16 +268,17 @@ async function dial(el: Element, call: ToolCall): Promise<StepResult> {
   }
   const search = doc.querySelector("[role=listbox] input, [role=dialog] input[type=search], input[type=search][aria-controls], input[role=combobox][aria-expanded=true]") as HTMLInputElement | null
   if (search && codes[0]) {
-    setNative(search, `+${codes[codes.length - 1]}`)
+    // (The code's first digit filters the list wide enough for every country of the code, +1 684 among +1.)
+    setNative(search, `+${codes[0].slice(0, 1)}`)
     search.dispatchEvent(new view.InputEvent("input", { bubbles: true, composed: true, inputType: "insertText", data: search.value }))
     await stepSettle(300, 1500)
   }
   const opts = listOf()
-  const pick = chooseDial(opts.map((o) => ({ label: text(o), value: o.getAttribute("data-value") ?? o.getAttribute("value") ?? undefined })), undefined, codes, names, false)
+  const pick = chooseDial(opts.map((o) => ({ label: text(o), value: o.getAttribute("data-value") ?? o.getAttribute("value") ?? undefined })), undefined, codes[0] ?? "", names, false, call.option)
   const match = pick ? opts.find((o) => text(o) === pick.chosen) : undefined
   if (!pick || !match) {
     if (el.getAttribute("aria-expanded") === "true") press(el)
-    return { ok: false, note: `no option of the list carries the number's code (${codes.map((c) => `+${c}`).join(" or ")})` }
+    return { ok: false, note: "no option of the list carries the number's code" }
   }
   reveal(match)
   press(match)
