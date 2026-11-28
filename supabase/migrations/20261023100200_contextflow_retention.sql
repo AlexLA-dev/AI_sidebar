@@ -1,6 +1,5 @@
--- NOT APPLIED YET (needs owner confirmation: contains DELETE).
--- Run once in the Supabase SQL editor, then call `select public.cf_cleanup();`
--- occasionally (the backend also calls it opportunistically if it exists).
+-- Never applied: replaced by 20261104130000_contextflow_retention, which also cleans install_days, installs and
+-- entitlements.
 
 -- Retention: counters 60 days, events 180 days.
 create or replace function public.cf_cleanup()
