@@ -1,4 +1,4 @@
-// A subscription's first payment never moves, and MRR's movement by day (20261128120000_contextflow_mrr_moves.sql).
+// A subscription's first payment never moves; renewals and endings on /analytics (20261128120000_contextflow_mrr_moves.sql).
 // The SQL itself runs on PGlite outside the repo (ContextFlow-work/analytics/pg/test-mrr-moves.mjs); this pins the rule.
 import assert from "node:assert/strict"
 import { readFileSync } from "node:fs"
@@ -17,6 +17,13 @@ test("paid_from: created_at when logging began after it paid; else the first pay
   for (const product of ["pro.yearly", "ultra.monthly", "ultra.yearly", "byok.yearly"]) assert.match(terms, new RegExp(`com\\.contextflow\\.${product.replace(".", "\\.")}`))
 })
 
+test("cf_mrr_history's points say «renewed»: a paid renewal after the first payment, by the point's moment", () => {
+  const history = /create or replace function public\.cf_mrr_history[\s\S]*?\n\$\$;/.exec(migration)?.[0] ?? ""
+  assert.match(history, /n\.type = 'DID_RENEW' and n\.price > 0 and n\.at <= p\.at and n\.at > s\.paid_from\n\s+\) as renewed,/)
+  assert.match(history, /select day, plan, yearly, renewal_off, discounted, renewed, currency, renewal_currency,/)
+  assert.match(history, /group by 1, 2, 3, 4, 5, 6, 7, 8/)
+})
+
 test("cf_mrr_moves is read only, for the service role, and the admin report carries it", () => {
   assert.match(migration, /create or replace function public\.cf_mrr_moves\(p_days integer default 30\)\nreturns jsonb language sql stable security definer/)
   assert.match(migration, /grant execute on function public\.cf_mrr_moves\(integer\) to service_role;/)
@@ -24,7 +31,14 @@ test("cf_mrr_moves is read only, for the service role, and the admin report carr
   const admin = read("netlify/functions/v2-admin-usage.mts")
   assert.match(admin, /mrrMoves\(days\)\.catch\(\(\) => null\)/)
   assert.match(admin, /mrr_moves: moves/)
+})
+
+test("the page: renewed at the bottom, ended crossed out on top (hideable), «Продления» next to «Новые подписки»", () => {
   const page = read("site/analytics.html")
-  assert.match(page, /movesChart\(data\.mrr_moves, fx, data\.days, marks\)/)
-  assert.match(page, /renewalCards\(data\.mrr_moves, fx, data\.days\)/)
+  assert.match(page, /const MRR_LAYERS = \[\["renewed", "продлённые", "deep"\], \["month", "в первом периоде", undefined\]/)
+  assert.match(page, /p\.renewal_off \? "off" : p\.renewed \? "renewed" : p\.yearly \? "year" : "month"/)
+  assert.match(page, /title: "Закончились", color: "var\(--warn\)", style: "cross"/)
+  assert.match(page, /title: "Продления", color: "var\(--text\)", axis: "right", value: renewedOn/)
+  // No separate chart or panel.
+  assert.doesNotMatch(page, /Движение MRR по дням|function renewalCards/)
 })

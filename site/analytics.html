@@ -383,11 +383,16 @@ const swatch = (s) => s.style === "hatch"
     ? `background:color-mix(in srgb, ${s.color} 16%, transparent);box-shadow:inset 0 0 0 1.5px ${s.color}`
     : s.style === "light"
       ? `background:color-mix(in srgb, ${s.color} 42%, transparent)`
+      : s.style === "deep"
+        ? `background:color-mix(in srgb, ${s.color} 62%, var(--text))`
+      : s.style === "cross"
+        ? `background:repeating-linear-gradient(45deg, ${s.color} 0 1.5px, transparent 1.5px 4px),repeating-linear-gradient(-45deg, ${s.color} 0 1.5px, color-mix(in srgb, ${s.color} 22%, transparent) 1.5px 4px)`
       : s.style === "pale"
         ? `background:color-mix(in srgb, ${s.color} 12%, transparent);outline:1.5px dashed ${s.color};outline-offset:-1.5px`
         : `background:${s.color}`
 function markFill(s, id) {
-  if (s.style === "hatch") return { fill: `url(#${id})` }
+  if (s.style === "hatch" || s.style === "cross") return { fill: `url(#${id})` }
+  if (s.style === "deep") return { fill: `color-mix(in srgb, ${s.color} 62%, var(--text))` }
   if (s.style === "outline") return { fill: s.color, "fill-opacity": "0.16", stroke: s.color, "stroke-width": "1.5" }
   if (s.style === "light") return { fill: s.color, "fill-opacity": "0.42" }
   if (s.style === "pale") return { fill: s.color, "fill-opacity": "0.12", stroke: s.color, "stroke-width": "1.5", "stroke-dasharray": "3 2" }
@@ -395,6 +400,11 @@ function markFill(s, id) {
 }
 const hatch = (id, color) => svg("pattern", { id, patternUnits: "userSpaceOnUse", width: 5, height: 5, patternTransform: "rotate(45)" },
   svg("rect", { width: 5, height: 5, fill: color, "fill-opacity": "0.3" }), svg("rect", { width: 2.5, height: 5, fill: color }))
+// Crossed out: what's gone (red «Закончились»), a light fill under two crossing line sets.
+const crossHatch = (id, color) => svg("pattern", { id, patternUnits: "userSpaceOnUse", width: 6, height: 6 },
+  svg("rect", { width: 6, height: 6, fill: color, "fill-opacity": "0.22" }),
+  svg("path", { d: "M0,6 L6,0 M-1.5,1.5 L1.5,-1.5 M4.5,7.5 L7.5,4.5", stroke: color, "stroke-width": 1.3 }),
+  svg("path", { d: "M0,0 L6,6 M-1.5,4.5 L1.5,7.5 M4.5,-1.5 L7.5,1.5", stroke: color, "stroke-width": 1.3 }))
 // A round top for an axis, so its middle line is a whole number.
 const niceMax = (v) => v <= 2 ? 2 : v <= 10 ? Math.ceil(v / 2) * 2 : Math.ceil(v / 10) * 10
 
@@ -443,7 +453,7 @@ function placeMarks(marks, xOf, right) {
 // format / tick (the left axis' values in the tooltip and on the axis; numbers by default), summary(day) (rows
 // [label, value, detail] in the tooltip in place of "Всего" and the left-axis lines).
 // A series may have style (swatch above), line: true (a line on the left axis, with the bars), detail(day) (a few words
-// after its value in the tooltip).
+// after its value in the tooltip), tipless: true (no row of its own in the tooltip: opts.summary names it).
 function chart(title, series, totalDays, opts = {}) {
   const name = [title].flat()[0]
   const fmt = opts.format || ((v) => n.format(v))
@@ -532,7 +542,7 @@ function chart(title, series, totalDays, opts = {}) {
       highlight.setAttribute("visibility", "visible")
       tip.replaceChildren(...[
         el("b", {}, dayLabel(keys[i])),
-        ...bars.filter((s) => !opts.skipZero || s.value(keys[i])).map((s) => el("div", { class: "row" },
+        ...bars.filter((s) => !s.tipless && (!opts.skipZero || s.value(keys[i]))).map((s) => el("div", { class: "row" },
           el("span", {}, el("span", { class: "dot", style: swatch(s) }), s.title),
           el("span", {}, fmt(s.value(keys[i])), s.detail && s.detail(keys[i]) ? ` · ${s.detail(keys[i])}` : ""))),
         ...(opts.summary ? opts.summary(keys[i]) : []).map(([label, value, detail], k) => el("div", { class: `row${k === 0 ? " total" : ""}` },
@@ -561,7 +571,8 @@ function chart(title, series, totalDays, opts = {}) {
       hit.addEventListener("pointerdown", (e) => show(i, e))
       return hit
     }) : []
-    const patterns = series.filter((s) => s.style === "hatch").map((s) => hatch(patternId(s), s.color))
+    const patterns = series.filter((s) => s.style === "hatch" || s.style === "cross")
+      .map((s) => (s.style === "cross" ? crossHatch : hatch)(patternId(s), s.color))
     const chartSvg = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", style: "min-width:640px", role: "img", "aria-label": name },
       patterns.length ? svg("defs", {}, patterns) : null, highlight, nodes, hits)
     chartSvg.addEventListener("pointerleave", hide)
@@ -631,6 +642,7 @@ function toggle(options, current, pick) {
 }
 
 const LIMIT_D0 = "«Упёрлись в лимит в d0» — из новых этого дня, сколько в тот же день (d0, по UTC) получили отказ: бесплатные ответы на сегодня кончились (обычные или Google)."
+const RENEWED_HINT = "«Продления» — сколько подписок в этот день продлилось с оплатой (не первая оплата). Продление никогда не входит в «Новые подписки»."
 const PRO_BOUGHT = "«Новые подписки» — сколько подписок впервые оплачено в этот день. Продление — не новая подписка: продлённая подписка уже посчитана в день своей первой оплаты, и этот день потом не меняется. Считаются Pro, Ultra и «Свой ключ», на месяц или на год (по тарифу покупки; переход со «Своего ключа» на Pro — не новая подписка). Пробный период и бесплатный код — в день первой оплаты; наша подписка не считается. Это все покупки дня, а не только новых этого дня."
 const NO_INSIGHTS = "Нет данных: в базе ещё нет функции cf_owner_insights (миграция 20261102120000)."
 const nameOf = (names, code) => { try { return names.of(code) || code } catch { return code } }
@@ -1167,7 +1179,8 @@ function priceCell(r, fx) {
 // With the renewal fields (migration 20261111120000) also what renewals bring: renewal (every subscription with
 // auto-renew on at its renewal price, plus free trials with it on), per plan what discounted ones add once their
 // offer ends ("disc") and free trials ("trial"), and other changes at renewal (a plan change, Apple's new price).
-const MRR_LAYERS = [["month", "помесячно", undefined], ["year", "годовые, 1/12 в месяц", "hatch"], ["off", "выключили автопродление", "outline"]]
+const MRR_LAYERS = [["renewed", "продлённые", "deep"], ["month", "в первом периоде", undefined], ["year", "годовые, 1/12 в месяц", "hatch"],
+  ["off", "выключили автопродление", "outline"]]
 function mrrByDay(history, fx) {
   const days = new Map()
   const noRate = new Set()
@@ -1185,7 +1198,9 @@ function mrrByDay(history, fx) {
     if (usd == null) { noRate.add(p.currency); continue }
     const day = days.get(p.day) || blank()
     const subs = Number(p.subs)
-    add(day, `${p.plan}:${p.renewal_off ? "off" : p.yearly ? "year" : "month"}`, usd, subs)
+    // A subscription moves from its first period into «продлённые» on the day of its first renewal (cf_mrr_history's
+    // "renewed", migration 20261128120000; without it every point is in its first period).
+    add(day, `${p.plan}:${p.renewal_off ? "off" : p.renewed ? "renewed" : p.yearly ? "year" : "month"}`, usd, subs)
     day.total += usd
     day.subs += subs
     day.ending += toUsd(Number(p.ending_amount) / 1000, p.currency, fx) ?? 0
@@ -1232,18 +1247,26 @@ const plusText = (t) => [t.disc.subs && `${n.format(t.disc.subs)} со скид�
 // renewal fields, the dashed line is what stays in 30 days if none of the leaving ones come back.
 function mrrChart(history, fx, totalDays, marks, moves) {
   const { days, hasRenewal } = mrrByDay(history, fx)
-  const moved = moves ? movesByDay(moves, fx).days : null
+  const moved = movesByDay(moves, fx)
   const keys = lastDays(totalDays)
   const layer = (plan, key) => ({
     value: (d) => days.get(d)?.[`${plan}:${key}`]?.usd || 0,
     detail: (d) => days.get(d)?.[`${plan}:${key}`] ? subsText(days.get(d)[`${plan}:${key}`].subs) : ""
   })
   const LAYERS = hasRenewal
-    ? [MRR_LAYERS[0], MRR_LAYERS[1], ["disc", "+ после скидок", "light"], ["trial", "пробные с автопродлением", "pale"], MRR_LAYERS[2]]
+    ? [MRR_LAYERS[0], MRR_LAYERS[1], MRR_LAYERS[2], ["disc", "+ после скидок", "light"], ["trial", "пробные с автопродлением", "pale"], MRR_LAYERS[3]]
     : MRR_LAYERS
   const series = LAYERS.flatMap(([key, what, style]) => PLAN_ORDER.map(([plan, name, color]) => ({ title: `${name} · ${what}`, color, style, ...layer(plan, key) })))
     .filter((x) => keys.some((d) => x.value(d) > 0))
   const at = (d) => days.get(d)
+  // Above everything: what ended that day (red, crossed out). It isn't paid MRR: «Сейчас» and the dashed line leave it
+  // out; hide it in the legend to see the chart without it.
+  if (moved && keys.some((d) => moved.get(d)?.left)) {
+    series.push({ title: "Закончились", color: "var(--warn)", style: "cross", value: (d) => moved.get(d)?.leftUsd || 0,
+      // The tooltip names it once, below the totals («Закончились: N · −$»).
+      tipless: true,
+      hint: "Подписки, которые закончились в этот день: выключили автопродление и срок вышел, или деньги вернули. По последней цене в месяц. Это уже не MRR: в «Сейчас» и в пунктир не входит." })
+  }
   if (hasRenewal) {
     series.push({ title: "MRR при продлении", color: "var(--text)", line: true, dash: true, value: (d) => at(d)?.renewal || 0 })
   } else if (keys.some((d) => (at(d)?.ending || 0) > 0)) {
@@ -1258,218 +1281,31 @@ function mrrChart(history, fx, totalDays, marks, moves) {
       ["При продлении", USD(t.renewal), plus > 0 ? `+${USD(plus)}: ${plusText(t)}` : ""],
       Math.abs(t.other) >= 0.005 && ["Другой тариф или цена при продлении", `${t.other > 0 ? "+" : "−"}${USD(Math.abs(t.other))}`],
       ["Уходят", USD(t.off.usd), t.off.subs ? subsText(t.off.subs) : ""],
-      moved && moveLine(moved.get(d)) && ["За день", ...moveLine(moved.get(d))]
+      moved?.get(d)?.left > 0 && ["Закончились", `${n.format(moved.get(d).left)} · −${USD(moved.get(d).leftUsd)}`],
+      moved?.get(d)?.due > 0 && [`Срок подошёл у ${n.format(moved.get(d).due)}`, `продлили ${n.format(moved.get(d).renewed)}`]
     ].filter(Boolean)
   } : undefined
   return chart("MRR по дням", series, totalDays, {
     format: USD, tick: (v) => `$${n.format(Math.round(v))}`, leftLabel: "USD в месяц", marks, skipZero: true, summary,
     note: hasRenewal
-      ? "На конец дня (UTC), сегодня — на сейчас; в долларах по сегодняшнему курсу, до комиссии Apple. Сплошные столбики и контур — MRR сейчас: помесячные по цене транзакции, которая действует в этот день (со скидкой, пока она идёт), годовые — 1/12 цены каждый месяц оплаченного года, штриховкой (деньги получены сразу за год). Контур — выключили автопродление: оплачено, ещё в MRR, при продлении уйдут. Светлое — сколько добавят подписки со скидкой, когда продлятся по полной цене; бледное с пунктирным краем — пробные с включённым автопродлением, по цене первой оплаты. Пунктир — MRR при продлении: все, у кого автопродление включено, по полной цене продления (по цене, которую назвал Apple, иначе по полной цене этого тарифа в той же стране или валюте, иначе по цене в США). Песочница App Review и наши подписки не входят. Наведите на день, чтобы увидеть суммы и число подписок."
+      ? "На конец дня (UTC), сегодня — на сейчас; в долларах по сегодняшнему курсу, до комиссии Apple. Сплошные столбики и контур — MRR сейчас: внизу, другим оттенком того же цвета, — продлённые (уже продлились хотя бы раз), над ними — в первом периоде: помесячные по цене транзакции, которая действует в этот день (со скидкой, пока она идёт), годовые — 1/12 цены каждый месяц оплаченного года, штриховкой (деньги получены сразу за год). Красные перечёркнутые сверху — закончились в этот день (по последней цене): это уже не MRR, их можно скрыть в легенде. Контур — выключили автопродление: оплачено, ещё в MRR, при продлении уйдут. Светлое — сколько добавят подписки со скидкой, когда продлятся по полной цене; бледное с пунктирным краем — пробные с включённым автопродлением, по цене первой оплаты. Пунктир — MRR при продлении: все, у кого автопродление включено, по полной цене продления (по цене, которую назвал Apple, иначе по полной цене этого тарифа в той же стране или валюте, иначе по цене в США). Песочница App Review и наши подписки не входят. Наведите на день, чтобы увидеть суммы и число подписок."
       : "На конец дня (UTC), сегодня — на сейчас; в долларах по сегодняшнему курсу, до комиссии Apple. Помесячные — по цене транзакции, которая действует в этот день: скидка по коду, пока она идёт, потом полная цена. Годовые — 1/12 цены каждый месяц оплаченного года (так MRR считают для годовых), штриховкой: деньги получены сразу за год. Контур — выключили автопродление: срок оплачен, поэтому подписка ещё в MRR, пока не кончится. Пунктир — MRR через 30 дней, если уходящие не вернутся (без новых подписок). Пробные, подарочные и бесплатные по кодам — с первой оплаты; песочница App Review и наши подписки не входят. Наведите на день, чтобы увидеть суммы и число подписок."
   })
 }
 
-// MRR's movement by day (cf_mrr_moves, migration 20261128120000), in USD at today's rates: what came in (first
-// payments, returns after a lapse, upgrades) and what went out (leavings, downgrades), with the renewals that came due.
-// A renewal at the same price doesn't move MRR, so it's no bar: it's in the tooltip and in «Продления».
-const MOVES_UP = [["new", "Новые", "var(--c2)", "первая оплата"], ["returned", "Вернулись", "var(--c1)", "снова оформили после перерыва"],
-  ["upgraded", "Тариф дороже", "var(--c3)", "перешли на тариф дороже: разница в месяц"]]
-const MOVES_DOWN = [["left", "Ушли", "var(--warn)", "подписка закончилась или деньги вернули"],
-  ["downgraded", "Тариф дешевле", "var(--c4)", "продлились на тариф дешевле: разница в месяц"]]
-const NO_MOVES = "Появится после миграции 20261128120000 (функция cf_mrr_moves)."
+// Renewals and endings by day (cf_mrr_moves, migration 20261128120000): what left MRR (expired or refunded, at its last
+// price, in USD at today's rates) and how many came due and renewed. Without the migration: null, the chart is as before.
 function movesByDay(report, fx) {
+  if (!report) return null
   const days = new Map()
-  const noRate = new Set()
-  for (const m of report?.moves || []) {
-    const day = days.get(m.day) || { due: 0, renewed: 0 }
-    const subs = Number(m.subs)
-    if (m.kind === "due" || m.kind === "renewed") { day[m.kind] += subs; days.set(m.day, day); continue }
-    const usd = toUsd(Number(m.amount) / 1000, m.currency, fx)
-    if (usd == null) noRate.add(m.currency)
-    const x = day[m.kind] || { usd: 0, subs: 0 }
-    x.usd += usd ?? 0
-    x.subs += subs
-    day[m.kind] = x
+  for (const m of report.moves || []) {
+    if (!["left", "due", "renewed"].includes(m.kind)) continue
+    const day = days.get(m.day) || { left: 0, leftUsd: 0, due: 0, renewed: 0 }
+    day[m.kind] += Number(m.subs)
+    if (m.kind === "left") day.leftUsd += toUsd(Number(m.amount) / 1000, m.currency, fx) ?? 0
     days.set(m.day, day)
   }
-  return { days, noRate: [...noRate] }
-}
-const plusUsd = (v) => `${v < 0 ? "−" : "+"}${USD(Math.abs(v))}`
-// A day in MRR's tooltip: ["+0 $ новые, −7,41 $ ушли", "продлили 2 из 3"]; nothing on a day without movement.
-function moveLine(t) {
-  if (!t) return null
-  const usd = (k) => t[k]?.usd || 0
-  const parts = [`+${USD(usd("new"))} новые`, usd("returned") && `+${USD(usd("returned"))} вернулись`,
-    usd("upgraded") && `+${USD(usd("upgraded"))} тариф дороже`, `−${USD(usd("left"))} ушли`,
-    usd("downgraded") && `−${USD(usd("downgraded"))} тариф дешевле`].filter(Boolean)
-  return [parts.join(", "), t.due ? `продлили ${n.format(t.renewed)} из ${n.format(t.due)}` : ""]
-}
-// Russian plural: 1 новая, 2 новые, 5 новых.
-const plural = (k, one, few, many) => k % 10 === 1 && k % 100 !== 11 ? one : [2, 3, 4].includes(k % 10) && ![12, 13, 14].includes(k % 100) ? few : many
-// A day in counts: "0 новых · срок у 3 · продлили 2 · ушла 1".
-function countLine(t) {
-  const c = (k) => t?.[k]?.subs || 0
-  const left = c("left")
-  return [`${n.format(c("new"))} ${plural(c("new"), "новая", "новые", "новых")}`, `срок у ${n.format(t?.due || 0)}`,
-    `продлили ${n.format(t?.renewed || 0)}`, `${plural(left, "ушла", "ушли", "ушли")} ${n.format(left)}`].join(" · ")
-}
-
-function movesChart(report, fx, totalDays, marks) {
-  const title = "Движение MRR по дням"
-  if (!report) return el("div", { class: "panel" }, el("h3", {}, title), el("p", { class: "empty" }, NO_MOVES))
-  const { days, noRate } = movesByDay(report, fx)
-  const keys = lastDays(totalDays)
-  const hidden = hiddenSeries.get(title) || new Set()
-  hiddenSeries.set(title, hidden)
-  const kinds = [...MOVES_UP.map((k) => [...k, 1]), ...MOVES_DOWN.map((k) => [...k, -1])]
-  const NET = "За день"
-  const tip = el("div", { class: "tip" })
-  const panel = el("div", { class: "panel" })
-  const scroller = el("div", { class: "tbl" })
-  const legend = el("div", { class: "legend" })
-  const W = 900, L = 38, B = 22, T = 26, H = 228
-  const bw = (W - L) / keys.length
-  const placed = placeMarks((marks || []).filter((m) => keys.includes(m.day)), (m) => L + (keys.indexOf(m.day) + m.frac) * bw, W)
-  const val = (d, k) => days.get(d)?.[k]?.usd || 0
-  const draw = () => {
-    const shown = kinds.filter(([, name]) => !hidden.has(name))
-    const ups = keys.map((d) => shown.filter((k) => k[4] > 0).reduce((x, [k]) => x + val(d, k), 0))
-    const downs = keys.map((d) => shown.filter((k) => k[4] < 0).reduce((x, [k]) => x + val(d, k), 0))
-    const top = niceMax(Math.max(0, ...ups)), bottom = Math.max(...downs) > 0 ? niceMax(Math.max(...downs)) : 0
-    const zero = T + (H - T - B) * top / (top + bottom)
-    const yOf = (v) => zero - (H - T - B) * v / (top + bottom)
-    const nodes = []
-    // Grid lines at round values; a label only where it has room (a small bottom part keeps just its end).
-    const below = yOf(-bottom) - zero
-    for (const v of [top, top / 2, 0, ...(bottom ? [...(below >= 56 ? [-bottom / 2] : []), -bottom] : [])]) {
-      const y = yOf(v)
-      nodes.push(svg("line", { x1: L, x2: W, y1: y, y2: y, stroke: "currentColor", "stroke-opacity": v === 0 ? "0.35" : "0.12" }))
-      if (v >= 0 || y - zero >= 14) nodes.push(svg("text", { x: L - 6, y: y + 3, "text-anchor": "end" }, `${v < 0 ? "−" : ""}$${n.format(Math.round(Math.abs(v)))}`))
-    }
-    nodes.push(svg("text", { x: 2, y: 12, "text-anchor": "start", class: "axis" }, "USD в месяц"))
-    keys.forEach((d, i) => {
-      const x = L + i * bw + bw * 0.15
-      let up = zero, down = zero
-      for (const [k, , color, , sign] of shown) {
-        const v = val(d, k)
-        if (!v) continue
-        const h = (H - T - B) * v / (top + bottom)
-        if (sign > 0) { up -= h; nodes.push(svg("rect", { x, y: up, width: Math.max(1, bw * 0.7), height: h, rx: 2, fill: color })) }
-        else { nodes.push(svg("rect", { x, y: down, width: Math.max(1, bw * 0.7), height: h, rx: 2, fill: color })); down += h }
-      }
-      const every = Math.ceil(keys.length / 10)
-      if (i % every === 0 || i === keys.length - 1) nodes.push(svg("text", { x: L + i * bw + bw / 2, y: H - 6, "text-anchor": "middle" }, d.slice(5).replace("-", ".")))
-    })
-    // The day's net: a thin line over the bars, from the first day with any movement.
-    if (!hidden.has(NET)) {
-      const from = Math.max(0, keys.findIndex((d, i) => ups[i] || downs[i]))
-      const pts = keys.map((d, i) => [L + i * bw + bw / 2, yOf(ups[i] - downs[i])]).slice(from)
-      nodes.push(svg("path", { d: pts.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`).join(""),
-        fill: "none", stroke: "var(--text)", "stroke-width": 1.25, "stroke-linejoin": "round", "stroke-opacity": "0.8" }))
-    }
-    const shownMarks = hidden.has(MARKS) ? [] : placed
-    for (const m of shownMarks) nodes.push(svg("line", { x1: m.x, x2: m.x, y1: T, y2: H - B, stroke: "currentColor", "stroke-opacity": "0.6", "stroke-width": 1.25, "stroke-dasharray": "4 3" }))
-    const highlight = svg("rect", { x: 0, y: T, width: bw, height: H - T - B, rx: 3, fill: "currentColor", "fill-opacity": "0.07", visibility: "hidden" })
-    const show = (i, e) => {
-      const d = keys[i], t = days.get(d)
-      highlight.setAttribute("x", L + i * bw)
-      highlight.setAttribute("visibility", "visible")
-      tip.replaceChildren(...[
-        el("b", {}, dayLabel(d)),
-        el("div", { class: "row" }, el("span", {}, countLine(t))),
-        ...shown.filter(([k]) => t?.[k]?.subs).map(([k, name, color, , sign]) => el("div", { class: "row" },
-          el("span", {}, el("span", { class: "dot", style: `background:${color}` }), name),
-          el("span", {}, `${sign > 0 ? "+" : "−"}${USD(t[k].usd)} · ${subsText(t[k].subs)}`))),
-        el("div", { class: "row total" }, el("span", {}, NET), el("span", {}, plusUsd(ups[i] - downs[i]))),
-        el("div", { class: "row" }, el("span", {}, "Продлили"), el("span", {}, t?.due ? `${n.format(t.renewed)} из ${n.format(t.due)}` : "срок ни у кого не подошёл")),
-        ...shownMarks.filter((m) => m.day === d).flatMap((m) => m.tips).map(([what, time]) => el("div", { class: "row" }, el("span", {}, `Апрув ${what}`), el("span", {}, `${time} UTC`)))
-      ])
-      tip.style.display = "block"
-      const box = panel.getBoundingClientRect()
-      tip.style.left = `${Math.max(8, Math.min(e.clientX - box.left + 14, box.width - tip.offsetWidth - 8))}px`
-      tip.style.top = `${Math.max(8, e.clientY - box.top - tip.offsetHeight - 12)}px`
-    }
-    const hide = () => { tip.style.display = "none"; highlight.setAttribute("visibility", "hidden") }
-    const hits = keys.map((_, i) => {
-      const hit = svg("rect", { x: L + i * bw, y: T, width: bw, height: H - T - B, fill: "transparent" })
-      hit.addEventListener("pointermove", (e) => show(i, e))
-      hit.addEventListener("pointerdown", (e) => show(i, e))
-      return hit
-    })
-    const chartSvg = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", style: "min-width:640px", role: "img", "aria-label": title }, highlight, nodes, hits)
-    chartSvg.addEventListener("pointerleave", hide)
-    const at = scroller.scrollLeft
-    scroller.replaceChildren(chartSvg)
-    hide()
-    if (at) scroller.scrollLeft = at
-    const button = (name, mark, hint) => el("button", {
-      class: `lg${hidden.has(name) ? " off" : ""}`, type: "button", "aria-pressed": hidden.has(name) ? "false" : "true",
-      title: [hint, hidden.has(name) ? "Нажмите, чтобы показать" : "Нажмите, чтобы скрыть"].filter(Boolean).join("\n"),
-      onclick: () => { hidden.has(name) ? hidden.delete(name) : hidden.add(name); draw() }
-    }, mark, name)
-    legend.replaceChildren(
-      ...kinds.map(([, name, color, hint]) => button(name, el("i", { style: `background:${color}` }), hint)),
-      button(NET, el("i", { class: "ln", style: "border-color:var(--text)" }), "Сколько MRR прибавилось или убыло за день: столбики вверх минус столбики вниз"),
-      ...(placed.length ? [button(MARKS, el("i", { class: "ln dash", style: "border-color:var(--text-2)" }), "Пунктир — момент, когда App Review одобрил версию (UTC)")] : []))
-  }
-  draw()
-  requestAnimationFrame(() => { scroller.scrollLeft = scroller.scrollWidth })
-  panel.append(el("h3", {}, title), legend, scroller,
-    el("p", { class: "hint" }, "По дням (UTC), в долларах по сегодняшнему курсу, до комиссии Apple; сумма — сколько это в месяц (годовая — 1/12). Вверх — что прибавило MRR: новые подписки (первая оплата), вернувшиеся (снова оформили после перерыва), переход на тариф дороже. Вниз — что убавило: ушли (подписка закончилась или деньги вернули) и продление на тариф дешевле. Продление по той же цене MRR не меняет, поэтому столбика у него нет: сколько продлили — в подсказке дня и в «Продлениях». Линия — итог дня. Песочница App Review и наши подписки не входят." +
-      (noRate.length ? ` Не пересчитано, нет курса: ${noRate.join(", ")}.` : "")),
-    tip)
-  return panel
-}
-
-// Renewals (cf_mrr_moves): over the period, how many subscriptions came due and how many renewed, by plan; and the next
-// 7 days: how many come due, how many of them won't renew (auto-renew off) and the MRR that leaves with them.
-function renewalCards(report, fx, totalDays) {
-  if (!report) return null
-  const plans = new Map(PLAN_ORDER.map(([plan]) => [plan, { due: 0, renewed: 0, left: 0 }]))
-  for (const m of report.moves || []) {
-    if (!["due", "renewed", "left"].includes(m.kind)) continue
-    const p = plans.get(m.plan) || { due: 0, renewed: 0, left: 0 }
-    p[m.kind] += Number(m.subs)
-    plans.set(m.plan, p)
-  }
-  const all = [...plans.values()].reduce((x, p) => ({ due: x.due + p.due, renewed: x.renewed + p.renewed, left: x.left + p.left }), { due: 0, renewed: 0, left: 0 })
-  const up = report.upcoming || []
-  let leaving = 0
-  const noRate = new Set()
-  for (const u of up) {
-    const usd = toUsd(Number(u.leaving_amount) / 1000, u.currency, fx)
-    if (usd == null) noRate.add(u.currency)
-    else leaving += usd
-  }
-  const upPlan = ([plan, name]) => {
-    const rows = up.filter((u) => u.plan === plan)
-    const due = sum(rows, "due"), off = sum(rows, "renewal_off")
-    return due > 0 && [name, off ? `${n.format(due)} · без автопродления ${n.format(off)}` : n.format(due)]
-  }
-  const past = statCard({
-    title: "Продления", sub: `За ${totalDays} дн.: у кого подошёл срок оплаты`, color: "var(--c1)",
-    big: all.due ? pct(all.renewed, all.due) : "—", unit: "продлили",
-    rows: [
-      ["Срок подошёл", n.format(all.due)],
-      ["Продлили", n.format(all.renewed)],
-      ["Ушли", n.format(all.left), all.left ? "bad" : ""],
-      ...PLAN_ORDER.map(([plan, name]) => {
-        const p = plans.get(plan)
-        return p.due > 0 && [name, `продлили ${n.format(p.renewed)} из ${n.format(p.due)}`]
-      })
-    ]
-  })
-  const next = statCard({
-    title: "Ближайшие 7 дней", sub: "Подойдёт срок оплаты у платящих; без автопродления — уйдут, если не включат снова", color: "var(--c4)",
-    big: n.format(sum(up, "due")), unit: "подписок",
-    rows: [
-      ["Из них без автопродления", n.format(sum(up, "renewal_off")), sum(up, "renewal_off") ? "bad" : ""],
-      ["Уйдёт MRR в месяц", sum(up, "renewal_off") ? `−${USD(leaving)}` : "—"],
-      ...PLAN_ORDER.map(upPlan),
-      noRate.size > 0 && ["Не пересчитано, нет курса", [...noRate].join(", "), "bad"]
-    ]
-  })
-  return el("div", { class: "cards" }, past, next)
+  return days
 }
 
 // MRR now: what active paying subscribers pay a month, in USD. With cf_mrr_history the cards read today's point and
@@ -1533,7 +1369,7 @@ function mrrNowCards(insights, fx, history) {
   const thisWeek = weekOf(new Date().toISOString().slice(0, 10))
   const free = insights?.mrr ? sum(insights.mrr.filter((r) => r.week === thisWeek), "free") : null
   const planRow = ([plan, name]) => {
-    const all = ["month", "year", "off"].reduce((x, key) => ({ usd: x.usd + layer(plan, key).usd, subs: x.subs + layer(plan, key).subs }), { usd: 0, subs: 0 })
+    const all = ["renewed", "month", "year", "off"].reduce((x, key) => ({ usd: x.usd + layer(plan, key).usd, subs: x.subs + layer(plan, key).subs }), { usd: 0, subs: 0 })
     return all.subs > 0 && [name, `${USD(all.usd)} · ${n.format(all.subs)}`]
   }
   const now = statCard({
@@ -2056,6 +1892,9 @@ function render(data, fx) {
       el("small", {}, `${agoText(last, data.after_limit.today)} · дней с платными ответами: ${n.format(paidDays)}`))
   }
   const outcomeDay = (field) => (day) => Number((outcomes || []).find((r) => r.day === day)?.[field] || 0)
+  // Renewals with a payment by day (cf_mrr_moves), for the «Продления» curve; none before its migration.
+  const moved = movesByDay(data.mrr_moves, fx)
+  const renewedOn = moved && ((day) => moved.get(day)?.renewed || 0)
   const subs = data.subscriptions || {}
   const date = (v) => v ? new Date(v).toLocaleDateString("ru-RU") : "—"
   // Who subscribed: matched to the report's list by the moment the subscription was first recorded.
@@ -2112,8 +1951,6 @@ function render(data, fx) {
     ),
     mrrCards(insights, fx, data.mrr_history),
     data.mrr_history && mrrChart(data.mrr_history, fx, data.days, marks, data.mrr_moves),
-    data.mrr_history && movesChart(data.mrr_moves, fx, data.days, marks),
-    data.mrr_history && renewalCards(data.mrr_moves, fx, data.days),
     userCards(users, subs, data.days),
     chart("Активные пользователи по дням", [
       { title: "Новые", color: "var(--c2)", value: userDay("new"), hint: "Впервые открыли панель или спросили в этот день (UTC)" },
@@ -2125,14 +1962,15 @@ function render(data, fx) {
           ? { title: "Новые подписки", color: "var(--c3)", axis: "right", value: outcomeDay("bought"), hint: PRO_BOUGHT,
               detail: (d) => PLAN_ORDER.filter(([plan]) => outcomeDay(`bought_${plan}`)(d) > 0).map(([plan, name]) => `${name} ${outcomeDay(`bought_${plan}`)(d)}`).join(", ") }
           : { title: "Новые подписки Pro", color: "var(--c3)", axis: "right", value: outcomeDay("pro_bought"), hint: "«Новые подписки Pro» — Pro и Ultra по первой оплате; «Свой ключ» здесь появится после миграции 20261110120000." }
-      ] : [])
+      ] : []),
+      ...(renewedOn ? [{ title: "Продления", color: "var(--text)", axis: "right", value: renewedOn, hint: RENEWED_HINT }] : [])
     ], data.days, {
       leftLabel: "Люди: новые и вернувшиеся",
       rightLabel: outcomes ? "Люди: лимит в d0 · подписки" : undefined,
       marks,
       note: [
         outcomes
-          ? `Правая ось. ${LIMIT_D0} ${PRO_BOUGHT} Нажмите на название в легенде, чтобы скрыть линию или столбики.`
+          ? `Правая ось. ${LIMIT_D0} ${PRO_BOUGHT}${renewedOn ? ` ${RENEWED_HINT}` : ""} Нажмите на название в легенде, чтобы скрыть линию или столбики.`
           : "Лимит в d0 и подписки появятся после миграции 20261104150000 (функция cf_new_user_outcomes).",
         data.releases
           ? "Пунктир — апрув версии в App Review (по UTC); одна версия на iOS и macOS в один день подписана без платформы."
