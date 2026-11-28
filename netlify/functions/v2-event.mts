@@ -52,7 +52,7 @@ const NOTIFICATIONS = new Set(["granted", "denied", "not_asked"])
  * a step that isn't allowed is left out, the rest are kept.
  * Nothing else is accepted: no page content, no Apple ID, no device identifiers.
  * With adToken the answer carries ads: "attributed" | "organic" | "pending" (the app sends the
- * token again on a later launch while it's pending).
+ * token again on a later launch while it's pending). "attributed" is logged as ads_attribution, "organic" as ads_organic.
  */
 export default async (req: Request, context: Context): Promise<Response> => {
   if (req.method === "OPTIONS") return preflight()
@@ -114,6 +114,11 @@ export default async (req: Request, context: Context): Promise<Response> => {
   if (attribution === "pending" || attribution === null) return json({ ok: true, ads: attribution ?? "pending" })
   if (attribution.attribution) {
     context.waitUntil(logEvent("ads_attribution", installId, { ...(appId ? { app: appId } : {}), ...attributionFields(attribution) }))
+  } else {
+    // 2.7.1: Apple's answer that this download didn't come from Apple Ads, kept as such (the app's id, its platform and
+    // version), so cf_install_sources tells organic installs from ones Apple never answered for. Nothing from Apple's
+    // record is kept: it has no ids when it isn't an ad.
+    context.waitUntil(logEvent("ads_organic", installId, shared))
   }
   return json({ ok: true, ads: attribution.attribution ? "attributed" : "organic" })
 }

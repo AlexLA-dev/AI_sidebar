@@ -40,6 +40,7 @@ import { matchTopic, nameChatNow, organizeChat, organizeCounts, reportOrganize }
 import { organizeConfig } from "../shared/organize"
 import { collectAi } from "./collect"
 import { askSimilar, keptSimilar } from "./similar"
+import { linkApp } from "./link"
 import type { SimilarPayload, SimilarStreamEvent } from "../shared/similar"
 import { base64 as speechBase64, clearSpeech, serveSpeak, textPartKeys, textVoicedId } from "./speak"
 import { madeTexts, withMade, withVoiced, type MadeList, type MadeText } from "../shared/voiced"
@@ -51,12 +52,22 @@ import { captureTab, getShot, putShot, sweepShots } from "./shots"
 
 // ---------------------------------------------------------------- identity
 
-async function installId(): Promise<string> {
-  const stored = (await chrome.storage.local.get(STORAGE.installId))[STORAGE.installId] as string | undefined
-  if (stored) return stored
-  const id = crypto.randomUUID()
-  await chrome.storage.local.set({ [STORAGE.installId]: id })
-  return id
+// One read (and on a new install one write) for every caller: the first calls on install come at once (onInstalled,
+// "switched on", the native ping), and each used to make an id of its own, so the ping could carry one the events didn't.
+let installIdAsk: Promise<string> | null = null
+
+function installId(): Promise<string> {
+  installIdAsk ??= (async () => {
+    const stored = (await chrome.storage.local.get(STORAGE.installId))[STORAGE.installId] as string | undefined
+    if (stored) return stored
+    const id = crypto.randomUUID()
+    await chrome.storage.local.set({ [STORAGE.installId]: id })
+    return id
+  })().catch((err) => {
+    installIdAsk = null
+    throw err
+  })
+  return installIdAsk
 }
 
 let platformKept: Platform | null = null
@@ -79,15 +90,29 @@ async function ownKey(): Promise<string> {
 
 // The app's build number from the native side: the server answers with Claude only for builds
 // whose consent screen names Anthropic (67 and later). Asked once per worker; Chrome has none.
-let buildAsk: Promise<string> | null = null
+// 2.7.1: the same answer carries the app's random id (once the app has been opened), for linkApp below; the ping
+// carries this install's id, so the app has it from the extension's first message, not only once the panel opens.
+let nativeAsk: Promise<{ build: string; app: string | null }> | null = null
+let nativeAppAskedAt = 0
+
+function nativeInfo(): Promise<{ build: string; app: string | null }> {
+  if (TARGET !== "safari") return Promise.resolve({ build: "", app: null })
+  // No app id yet (the app not opened so far): asked again at most once a minute, never on every request.
+  if (nativeAsk && nativeAppAskedAt && Date.now() - nativeAppAskedAt > 60_000) nativeAsk = null
+  nativeAsk ??= installId()
+    .then((id) => callNative<{ build?: string; app?: string }>("ping", { installId: id }, 1500))
+    .then((data) => {
+      // No answer: asked again by the next caller.
+      if (!data?.build) nativeAsk = null
+      const app = typeof data?.app === "string" ? data.app : null
+      nativeAppAskedAt = data?.build && !app ? Date.now() : 0
+      return { build: data?.build ?? "", app }
+    })
+  return nativeAsk
+}
 
 function appBuild(): Promise<string> {
-  if (TARGET !== "safari") return Promise.resolve("")
-  buildAsk ??= callNative<{ build?: string }>("ping", {}, 1500).then((data) => {
-    if (!data?.build) buildAsk = null
-    return data?.build ?? ""
-  })
-  return buildAsk
+  return nativeInfo().then((info) => info.build)
 }
 
 async function clientInfo() {
@@ -128,6 +153,8 @@ function askEntitlement(): Promise<NativeEntitlement | null> {
     }
     if (value) {
       entitlementCache = { at: Date.now(), value }
+      // The app may have been opened since the background started (its id is new): link the two now.
+      void reportLinked().catch(() => undefined)
       void keepEntitlement(value)
       void keepPrices(value.prices)
       return value
@@ -355,6 +382,25 @@ async function reportSwitchedOn(): Promise<void> {
     body: JSON.stringify({ kind: "ext_on", installId: id, client })
   })
   if (res.ok || res.status === 400) await chrome.storage.local.remove(STORAGE.extOnPending)
+}
+
+/** The app's id and this install's, sent together until the server has them (src/background/link.ts). */
+let linking: Promise<boolean> | null = null
+
+function reportLinked(): Promise<boolean> {
+  if (TARGET !== "safari") return Promise.resolve(false)
+  linking ??= linkApp({
+    appId: () => nativeInfo().then((info) => info.app),
+    installId,
+    client: clientInfo,
+    linked: async () => ((await chrome.storage.local.get(STORAGE.appLinked))[STORAGE.appLinked] as string | undefined) ?? null,
+    markLinked: (app) => chrome.storage.local.set({ [STORAGE.appLinked]: app }),
+    post: (body) =>
+      fetch(`${API_BASE}/api/v2/event`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+  }).finally(() => {
+    linking = null
+  })
+  return linking
 }
 
 /** The skipped-video/PDF line: how often free answers meet one, and how often it leads to Pro. */
@@ -1183,6 +1229,9 @@ void syncSettings().catch(() => undefined)
 void jobsOnStart().catch(() => undefined)
 // Offline at install time: try again whenever the background starts.
 void reportSwitchedOn().catch(() => undefined)
+// 2.7.1: the app's id with this install's, whenever the background starts until the server has them (cheap once sent:
+// one native ping, already asked for the build).
+void reportLinked().catch(() => undefined)
 // Chats follow the user to their other Apple devices through iCloud, and to the ContextFlow app.
 if (TARGET === "safari") {
   watchThreads()

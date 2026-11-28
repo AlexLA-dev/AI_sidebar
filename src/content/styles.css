@@ -155,8 +155,8 @@
   border-radius: 24px;
   display: flex; align-items: center; justify-content: center;
   color: #fff !important;
-  /* 2.7: the space's colour when there are spaces (--space-2, --space; spaces.css), else the blue it always had. */
-  background: linear-gradient(135deg, var(--space-2, #38bdf8) 0%, var(--space, #2563eb) 100%) !important;
+  /* 2.7.1, the owner: always our blue, in every space (a space shows as the halo below). */
+  background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%) !important;
   box-shadow: 0 6px 20px rgba(37, 99, 235, 0.42), 0 1px 3px rgba(0, 0, 0, 0.2);
   z-index: 3;
   touch-action: none !important;
@@ -173,6 +173,20 @@
 .cf-fab.glide { transition: transform 0.15s ease, opacity 0.2s ease, top 0.22s ease; }
 .cf-fab:hover { opacity: 1; transform: scale(1.05); }
 .cf-fab:active { transform: scale(0.94); }
+/* 2.7.1, the owner: «свечение легкое, как ореол», not a border. A space other than the first shows as a soft glow of its
+   colours around the blue circle, fading out in three layers (its base colour close in, its light colour further out;
+   Spaces.tsx spaceVars, spaces.ts HALO_STRENGTH). Shadows only: the circle's size, its tap target and its drag stay as
+   they were. It glows up once as the space changes (App.tsx haloFlash), never on its own after that. */
+.cf-fab[data-halo] {
+  box-shadow: 0 0 6px 1px var(--halo-1), 0 0 16px 4px var(--halo-2), 0 0 34px 10px var(--halo-3), 0 3px 10px rgba(0, 0, 0, 0.14);
+}
+.cf-fab[data-halo].flash { animation: cf-fab-halo 1.1s ease-out 1; }
+@keyframes cf-fab-halo {
+  0% { box-shadow: 0 0 6px 1px var(--halo-1), 0 0 16px 4px var(--halo-2), 0 0 34px 10px var(--halo-3), 0 3px 10px rgba(0, 0, 0, 0.14); }
+  35% { box-shadow: 0 0 10px 3px var(--halo-1), 0 0 26px 9px var(--halo-2), 0 0 52px 18px var(--halo-3), 0 3px 10px rgba(0, 0, 0, 0.14); }
+  100% { box-shadow: 0 0 6px 1px var(--halo-1), 0 0 16px 4px var(--halo-2), 0 0 34px 10px var(--halo-3), 0 3px 10px rgba(0, 0, 0, 0.14); }
+}
+@media (prefers-reduced-motion: reduce) { .cf-fab[data-halo].flash { animation: none; } }
 
 /* ------------------------------------------------- selection bubble */
 .cf-bubble {
@@ -680,6 +694,14 @@
 .cf-note-hint::after { content: ""; position: absolute; inset-inline-end: 14px; top: 100%; border: 6px solid transparent; border-top-color: var(--snack-bg); }
 @keyframes cf-hint { from { transform: translateY(4px); opacity: 0; } to { transform: none; opacity: 1; } }
 .cf-send:disabled { background: var(--bg-3) !important; color: var(--text-3) !important; opacity: 1; }
+/* 2.7.1, the owner on #235: «кнопку отправки внутри можно также сделать со свечением, но более слабеньким». In a space
+   other than the first, the send button (still our blue) has a soft halo of the panel's space colours, like the ✦
+   circle's but quieter: it spreads about a third of the button past its edge and is fainter (Spaces.tsx spaceVars
+   --glow-*, spaces.ts SEND_GLOW_ALPHAS). Wide blurred shadows only, no thin edge hugging it; none while the field is
+   empty, so a button with nothing to send still reads as off, and none on Stop or a note. */
+.cf-send[data-halo]:not(:disabled):not(.note) {
+  box-shadow: 0 0 8px 2px var(--glow-1), 0 0 20px 6px var(--glow-2);
+}
 /* One look for every toast and bar (2.5): "… · Undo", "Moved to …", "Saved", "Reminder: …", quick insert's. In the
    panel it sits over the question field; over the page, 64 px above the bottom of what's visible. */
 .cf-snack { background: var(--snack-bg); color: var(--snack-text); border-radius: 14px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25); font-size: 14px; font-weight: 500; line-height: 1.35; }
