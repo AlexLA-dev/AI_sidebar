@@ -381,7 +381,8 @@ export const config = {
     // The task's plan before its first step (the plan card): one call.
     planModel: (env("AGENT_PLAN_MODEL") ?? "claude-haiku-5-5").trim(),
     strongSteps: int("AGENT_STRONG_STEPS", 8),
-    effort: (env("AGENT_EFFORT") ?? "low").trim() as "low" | "medium" | "high",
+    // (Round 145, the director: medium — M1 15/24 against L1 13/24; a slower effort only when two or more runs better.)
+    effort: (env("AGENT_EFFORT") ?? "medium").trim() as "low" | "medium" | "high",
     proDaily: int("AGENT_PRO_DAILY", AGENT_DEFAULTS.proDaily),
     ultraDaily: int("AGENT_ULTRA_DAILY", AGENT_DEFAULTS.ultraDaily),
     deferredPro: int("AGENT_DEFERRED_PRO", AGENT_DEFAULTS.deferredPro),
