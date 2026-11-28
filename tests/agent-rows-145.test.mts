@@ -136,3 +136,18 @@ test("19: a venue's page is told by its durations or prices; a list of places is
   await drive(st, t.x)
   assert.equal(t.acts.filter((a) => a.tool === "rows").length, 0)
 })
+
+test("19 (the stand's cause): the hands count a 200-row list's service rows — the map's text, the screen's paragraphs only, has none", () => {
+  const found = lib.rowsOn(dom(list("Service number 151", 150)), ["men's haircut"])
+  assert.ok(found.service >= 3, String(found.service))
+})
+
+test("19 (the stand's cause): the runner takes the hands' word for a service list when the map's text shows no duration or price", async () => {
+  const t = io([], [], ["Women", "Men"])
+  const x = t.x as unknown as { map: () => Promise<PageMap>; act: (c: ToolCall) => Promise<unknown> }
+  x.map = async () => ({ ...venue(), text: "# Salon Example\n# Group 1" }) as PageMap
+  const act = x.act
+  x.act = async (c: ToolCall) => (c.tool === "rows" ? { ok: true, note: "rows", data: JSON.stringify({ rows: [], groups: ["Women", "Men"], near: [], service: 200 }) } : act(c))
+  await drive(planned(), t.x)
+  assert.match(t.refusals[0], /no row names it/)
+})

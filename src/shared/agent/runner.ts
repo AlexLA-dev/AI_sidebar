@@ -216,7 +216,7 @@ export interface AgentState {
   dayNoted?: string[]
   // Decision 19: the page's rows naming the plan's service, found by the device across the whole page (their own
   // controls, merged into the page's map while it's the same page), and the line said about them.
-  serviceRows?: { page: string; items: MapItem[]; line: string }
+  serviceRows?: { page: string; items: MapItem[]; line: string; service?: boolean }
   // Decision 19g: no row named the plan's service — the nearest rows for the person's question, and whether it was
   // asked; another service's row offered on a card (and its answer); the service row pressed, as the page names it.
   serviceNone?: { near: string[]; asked?: boolean }
@@ -951,7 +951,7 @@ const SERVICE_LIKE = /\d\s?(?:min|мин|хв|分|분|dk|phút|دقيقة|h\s?\d
 async function serviceOther(state: AgentState, io: RunnerIO, map: PageMap, call: ToolCall, item: MapItem | undefined): Promise<boolean> {
   if ((call.tool !== "click" && call.tool !== "go") || !item || state.serviceOK) return false
   const terms = serviceTerms(state)
-  if (!terms.length || !servicePage(map)) return false
+  if (!terms.length || !(state.serviceRows?.page === pageKey(map.url) ? state.serviceRows.service : servicePage(map))) return false
   const label = item.label.trim()
   if (!label || isDateLabel(label) || looksLikeSlot(label) || /^\d{1,2}[:.]\d{2}/.test(label)) return false
   let row = SERVICE_LIKE.test(label) ? label : ""
@@ -996,9 +996,11 @@ async function serviceRowsOn(state: AgentState, io: RunnerIO, map: PageMap): Pro
   if (state.serviceRows && state.serviceRows.page !== page) state.serviceRows = undefined
   if (!state.serviceRows) {
     const terms = serviceTerms(state)
-    if (!terms.length || !servicePage(map)) return
+    // (A list of places isn't a venue's page; whether it's a service list the hands tell from the whole page's rows —
+    // the map's text holds the screen's paragraphs only, not a list's rows drawn far below.)
+    if (!terms.length || venuesOn(map).length >= 3) return
     const r = await io.act({ tool: "rows", words: terms, why: "" }).catch(() => null)
-    let found: { rows: Array<{ text: string; id: string; label: string }>; groups: string[]; near?: Array<{ text: string; id: string; label: string }> } | null = null
+    let found: { rows: Array<{ text: string; id: string; label: string }>; groups: string[]; near?: Array<{ text: string; id: string; label: string }>; service?: number } | null = null
     try {
       found = r?.ok && r.data ? JSON.parse(r.data) : null
     } catch {
@@ -1006,6 +1008,12 @@ async function serviceRowsOn(state: AgentState, io: RunnerIO, map: PageMap): Pro
     }
     if (!found) return
     const rows = found.rows.filter((x) => terms.some((t) => termFits(x.text, t))).slice(0, 5)
+    // (Not a service list — fewer than three rows with a duration or a price, by the hands or by the map's text — and no
+    // row naming the service: nothing to say; remembered for this page.)
+    if (!rows.length && (found.service ?? 0) < 3 && !servicePage(map)) {
+      state.serviceRows = { page, items: [], line: "", service: false }
+      return
+    }
     const near = rows.length ? [] : (found.near ?? []).slice(0, 5)
     const items: MapItem[] = [...rows, ...near].map((x) => ({ id: x.id, role: "button", label: x.label.slice(0, 60) }) as MapItem)
     // (19g: none names it — never a choice of the model's own: the person is asked, with the nearest rows.)
@@ -1013,7 +1021,7 @@ async function serviceRowsOn(state: AgentState, io: RunnerIO, map: PageMap): Pro
       ? `the device looked through the whole page for «${terms[0]}»: ${rows.map((x) => `«${x.text.slice(0, 90)}» — its button #${x.id}`).join("; ")}. Press the one that fits (its own button) to go on; no need to read the page again`
       : `the device looked through the whole page for «${terms.slice(0, 3).join("», «")}»: no row names it.${near.length ? ` Its nearest rows: ${near.map((x) => `«${x.text.slice(0, 80)}»`).join("; ")}.` : found.groups.length ? ` The page's groups: ${found.groups.slice(0, 10).map((g) => `«${g.slice(0, 40)}»`).join(", ")}.` : ""} Don't choose another service yourself: ask the person now (ask_user) whether one of ${near.length ? "those rows" : "the page's services"} will do — those as the choices, and «none of these» in their language`
     if (!rows.length) state.serviceNone = { near: near.map((x) => x.text.slice(0, 80)) }
-    state.serviceRows = { page, items, line }
+    state.serviceRows = { page, items, line, service: true }
     if (!state.refused) state.refused = line
     else state.noteNext = line
   }

@@ -534,7 +534,7 @@ function pressable(el: Element): boolean {
  * (its «Choose» / «Book» or the row itself when it's one link), up to five; and the page's headings, for the line when
  * none names it. The controls found get map numbers (promote) so the next map has them.
  */
-export function rowsOn(doc: Document, terms: string[]): { rows: Array<{ text: string; id: string; label: string }>; groups: string[]; near: Array<{ text: string; id: string; label: string }> } {
+export function rowsOn(doc: Document, terms: string[]): { rows: Array<{ text: string; id: string; label: string }>; groups: string[]; near: Array<{ text: string; id: string; label: string }>; service: number } {
   const words = terms.map((t) => t.trim()).filter(Boolean)
   const rows: Array<{ text: string; id: string; label: string }> = []
   const seenText = new Set<string>()
@@ -581,8 +581,8 @@ export function rowsOn(doc: Document, terms: string[]): { rows: Array<{ text: st
   const groups = [...new Set(Array.from(doc.querySelectorAll("h1, h2, h3, h4, [role=heading]")).map(textOf).filter((t) => t.length >= 2 && t.length <= 60))].slice(0, 14)
   // (Decision 19g: none names it — the rows nearest to it, by the words they share with the terms, for the person's
   // question; each with its own control.)
-  const near = rows.length ? [] : nearRows(doc, words)
-  return { rows, groups, near }
+  const scan = catalog(doc, words)
+  return { rows, groups, near: rows.length ? [] : scan.near, service: scan.service }
 }
 
 /** A control's row: up from it to the widest box that's still one row (its text short, a few controls in it). */
@@ -599,11 +599,15 @@ export function rowOfControl(control: Element): string {
   return row.slice(0, 160)
 }
 
-/** The page's rows sharing the most words with the terms (three letters or more, case and accents aside), up to five. */
-function nearRows(doc: Document, terms: string[]): Array<{ text: string; id: string; label: string }> {
+// (A row of a venue's service list: a duration or a price in it.)
+const SERVICE_ROW = /\d\s?(?:min|мин|хв|分|분|dk|phút|دقيقة|h\s?\d{1,2})|[€£$₽¥₩₺₴]|(?<![\p{L}])(?:EUR|RUB|USD|GBP|TRY|AED|JPY|KRW|UAH|руб)(?![\p{L}])/iu
+
+/** The page's control rows, once: how many read as a service list's (a duration or a price), and those sharing the most
+ *  words with the terms (three letters or more, case and accents aside), up to five. */
+function catalog(doc: Document, terms: string[]): { near: Array<{ text: string; id: string; label: string }>; service: number } {
   const fold = (s: string) => s.toLocaleLowerCase().normalize("NFKD").replace(/\p{M}/gu, "")
   const words = [...new Set(terms.flatMap((t) => fold(t).split(/[^\p{L}\p{N}]+/u)).filter((w) => w.length >= 3).map((w) => w.replace(/s$/u, "")))]
-  if (!words.length) return []
+  let service = 0
   const seen = new Set<string>()
   const scored: Array<{ text: string; el: Element; score: number }> = []
   for (const c of Array.from(doc.body?.querySelectorAll("*") ?? [])) {
@@ -612,10 +616,12 @@ function nearRows(doc: Document, terms: string[]): Array<{ text: string; id: str
     const text = rowOfControl(c)
     if (!text || seen.has(text)) continue
     seen.add(text)
+    if (SERVICE_ROW.test(text)) service++
     const t = fold(text)
     const score = words.filter((w) => t.includes(w)).length
     if (score > 0) scored.push({ text, el: c, score })
     if (seen.size > 400) break
   }
-  return scored.sort((a, b) => b.score - a.score).slice(0, 5).map((x) => { const role = roleOf(x.el); return { text: x.text, id: promote(x.el), label: role ? nameOf(x.el, role) : x.text.slice(0, 40) } })
+  const near = scored.sort((a, b) => b.score - a.score).slice(0, 5).map((x) => { const role = roleOf(x.el); return { text: x.text, id: promote(x.el), label: role ? nameOf(x.el, role) : x.text.slice(0, 40) } })
+  return { near, service }
 }
