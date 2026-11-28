@@ -117,7 +117,7 @@ export function checkCall(raw: unknown, map: PageMap, keys: string[] = []): Chec
       call.option = str(r.option, 200)
       if (!call.option) return { ok: false, error: "select needs an option" }
       // (The map gives a list's first 30 options only: a list of exactly 30 was cut, and its option may be beyond them —
-      // the hands find it in the page's whole list, or say there's none. Round 142's Tiqets country list, decision 15f.)
+      // the hands find it in the page's whole list, or say there's none. round 142: a ticket site's country list, decision 15f.)
       if (item!.options?.length && item!.options.length < MAP_OPTIONS && !item!.options.some((o) => sameOption(o, call.option!))) {
         return { ok: false, error: `list ${id} has no option "${call.option}"` }
       }
