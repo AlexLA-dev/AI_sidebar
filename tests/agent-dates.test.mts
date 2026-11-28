@@ -134,7 +134,7 @@ test("the page has shown the booking's day: a strip's day with its month, «26.1
   assert.equal(seesDate(page(["11:30 AM", "12:26"], "December"), "2026-12-26"), false, "a time isn't a day")
 })
 
-test("a question about the booking's day before the page showed it is sent back once to go there (124: «26 Dec closed, nearest Sat 5 Dec» unseen)", async () => {
+test("a question about the booking's day before the page showed it: since decision 21 a note, the question reaches the person (124: «26 Dec closed, nearest Sat 5 Dec» unseen)", async () => {
   const STRIP: PageMap = {
     url: "https://book.example/a/nova/booking", title: "Select date and time", lang: "en", more: 0, part: 1, parts: 1, text: "Select a date Pick a time", forms: [],
     items: [
@@ -149,9 +149,8 @@ test("a question about the booking's day before the page showed it is sent back 
   let io = mk([{ ok: true, plan: RAW, token: "t" }, ASK, ASK])
   let s = await drive(newState("d1", "Book me a haircut at Salon Nova in a month on Saturday", "en", STRIP.url), io)
   let after = await approvePlan(s, io, { answers: s.plan!.questions.map(() => ""), off: [] })
-  const sent = after.log.find((l) => l.call.tool === "ask_user" && /^refused/.test(l.result ?? ""))
-  assert.ok(sent && /hasn't shown Sat,? 26 Dec 2026/.test(sent.result!), "sent back with the day to go to")
-  assert.equal(after.status, "asked", "asked again: the question goes to the person (one nudge only)")
+  assert.ok(!after.log.some((l) => l.call.tool === "ask_user" && /^refused/.test(l.result ?? "")), "not sent back: decision 21's day notes")
+  assert.equal(after.status, "asked", "the question goes to the person")
   // Once the page shows the day, the question goes straight through.
   STRIP.items.push({ id: "6", role: "button", label: "Sat 26 Dec" })
   io = mk([{ ok: true, plan: RAW, token: "t" }, ASK])

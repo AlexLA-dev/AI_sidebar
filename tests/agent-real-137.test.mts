@@ -62,11 +62,11 @@ test("a day pressed that changed nothing doesn't count toward «two date steps w
   const x = io([cal], [press("1", "4"), press("2", "4"), press("3", "6"), press("4", "6")], [{ ok: true, note: "nothing changed on the page" }, { ok: true, note: "the page changed" }, { ok: true, note: "nothing changed on the page" }, { ok: true, note: "the page changed" }])
   const st = await drive(running(cal.url, stay), x)
   assert.ok(!st.log.some((e) => /refused: (two date steps went nowhere|«Fri 4 Dec» was pressed already)/.test(e.result)), st.log.map((e) => e.result).join(" / "))
-  // Three day presses that each changed the page: the third is refused, as before.
+  // Three day presses that each changed the page: the rule is said about the third, as a note since decision 21.
   const table = page("Book", "December 2026", [{ id: "1", role: "button", label: "Sat 5 Dec" }, { id: "2", role: "button", label: "Sun 6 Dec" }, { id: "3", role: "button", label: "Mon 7 Dec" }])
   const y = io([table], [press("1", "5"), press("2", "6"), press("3", "7")])
   const t = await drive(running(table.url, { kind: "table", date: "2026-12-05", from: "19:00", until: "19:00", minutes: 90 }), y)
-  assert.ok(t.log.some((e) => /refused: two date steps went nowhere/.test(e.result)))
+  assert.ok(t.log.some((e) => /device note: two date steps went nowhere/.test(e.result)), t.log.map((e) => e.result).join(" / "))
 })
 
 test("an empty map (between two pages after «back») is read again, never sent to the server", async () => {

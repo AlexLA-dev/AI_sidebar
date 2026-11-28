@@ -37,7 +37,7 @@ test("every code is counted somewhere in the runner, and the slot rules by their
   // Every refusal or hold the runner logs has its count beside it.
   const logged = src.split("\n").filter((l) => /state\.log\.push\(.*result: (box \? )?`(refused|held)/.test(l) || /result: access === "denied" \? `refused/.test(l)).length
   // (book_unseen isn't a refusal: a booking press the device didn't record, counted at the end; nor cookie_device, a
-  // cookie layer the device refused itself, decision 13a; nor round 145's dayNotes experiment, a day rule said as a note.)
+  // cookie layer the device refused itself, decision 13a; nor decision 21's day notes, a day rule said as a note.)
   assert.equal(src.split("\n").filter((l) => /^\s*rule\(state, /.test(l) && !/"book_unseen"|"cookie_device"|rule\(state, key\)/.test(l)).length, logged)
 })
 

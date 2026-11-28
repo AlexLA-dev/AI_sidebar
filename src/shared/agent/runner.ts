@@ -212,7 +212,7 @@ export interface AgentState {
   // The dial-code options the page refused in this task (the selected one when it marked the phone invalid): never again.
   dialRefused?: string[]
   dialNoted?: boolean
-  // (Round 145's dayNotes experiment: the day rules said once each as notes, and the note for the model's next read.)
+  // (The day rules said once each as notes, and the note for the model's next read: round 145, the director's decision 21.)
   dayNoted?: string[]
   // Decision 19: the page's rows naming the plan's service, found by the device across the whole page (their own
   // controls, merged into the page's map while it's the same page), and the line said about them.
@@ -327,11 +327,6 @@ export interface RunnerIO {
   maxSteps: number
   // The person pressed «Стоп» while a step was on its way (the background's stored state says so).
   isStopped?: () => Promise<boolean>
-  // Round 145's experiment (the director's B), never on in the extension: the device's day refusals — a question before
-  // the page showed the day, «two date steps», «pressed already», «isn't / before the asked day», a day press outside
-  // the rules, days unset on a press that isn't the booking's last — become one-time notes; the action goes on. A
-  // greyed or disabled day and the booking's last press without its days stay refusals.
-  dayNotes?: boolean
   // Calendar and Reminders on this device (2.7.1): whether they're there ("yes", "none": not allowed yet, "denied",
   // "unavailable"), and a call of one of their tools, done there (AgentApple.swift).
   device?: () => Promise<{ reminders: string; calendar: string }>
@@ -1046,10 +1041,12 @@ async function serviceRowsOn(state: AgentState, io: RunnerIO, map: PageMap): Pro
   for (const it of state.serviceRows.items) if (!map.items.some((i) => i.id === it.id)) map.items.push(it)
 }
 
-/** Round 145's dayNotes experiment: true when the day rule is to be a note (the action goes on); the note once per
- *  rule a task, appended to the step's line the model reads next. */
-function dayNote(state: AgentState, io: RunnerIO, key: AgentRule, why: string): boolean {
-  if (!io.dayNotes) return false
+/** Decision 21 (round 145, the director's, after M1 15/24 against M0 11/24): the device's day refusals — a question
+ *  before the page showed the day, «two date steps», «pressed already», «isn't / before the asked day», a day press
+ *  outside the rules, days unset on a press that isn't the booking's last — are one-time notes; the action goes on. A
+ *  greyed or disabled day and the booking's last press without its days stay refusals. The note is said once per rule a
+ *  task, appended to the step's line the model reads next. Always true. */
+function dayNote(state: AgentState, _io: RunnerIO, key: AgentRule, why: string): boolean {
   if (!(state.dayNoted ?? []).includes(key)) {
     state.dayNoted = [...(state.dayNoted ?? []), key]
     state.noteNext = why
@@ -1059,7 +1056,7 @@ function dayNote(state: AgentState, io: RunnerIO, key: AgentRule, why: string): 
 }
 
 /** The booking's last press: a page with the person's details typed in, or one that takes payment. */
-/** A date refusal for a greyed or disabled day: a refusal with or without the dayNotes experiment. */
+/** A date refusal for a greyed or disabled day: a refusal still, under decision 21's day notes. */
 function greyRefusal(why: string): boolean {
   return /is shown as not available on the page \(greyed or disabled\)|shows greyed and isn't chosen/.test(why)
 }
