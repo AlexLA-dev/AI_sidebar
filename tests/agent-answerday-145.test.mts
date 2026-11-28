@@ -25,7 +25,7 @@ const asked = (booking: Record<string, unknown>): AgentState => {
   const st = newState("ad", "Book it.", "en", "https://salon.example/book")
   st.plan = { steps: [], questions: [], perms: [], self: [], prices: [], approved: true, booking: { kind: "appointment", personal: false, from: "09:00", until: "21:00", minutes: 45, ...booking } } as never
   st.status = "asked"
-  st.question = "Nothing is free this week. The next free day is Friday 11 December — book that?"
+  ;(st as unknown as { question: string }).question = "Nothing is free this week. The next free day is Friday 11 December — book that?"
   return st
 }
 

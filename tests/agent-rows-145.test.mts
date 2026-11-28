@@ -14,7 +14,7 @@ import { DEFAULT_RULES } from "../src/shared/agent/rules.ts"
 import { drive, newState, servicePage, type AgentState, type RunnerIO } from "../src/shared/agent/runner.ts"
 import type { MapItem, PageMap, ToolCall } from "../src/shared/agent/types.ts"
 
-let lib: { buildMap: (d: Document, o?: object) => PageMap; rowsOn: (d: Document, t: string[]) => { rows: Array<{ text: string; id: string; label: string }>; groups: string[] } }
+let lib: { buildMap: (d: Document, o?: object) => PageMap; rowsOn: (d: Document, t: string[]) => { rows: Array<{ text: string; id: string; label: string }>; groups: string[]; service: number } }
 
 function dom(html: string): Document {
   const { document, window } = parseHTML(`<!doctype html><html><head></head><body>${html}</body></html>`)
