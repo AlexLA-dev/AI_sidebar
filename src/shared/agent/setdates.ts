@@ -32,6 +32,10 @@ export interface DatesIO {
   map(): Promise<PageMap | null>
   // A press or typing as the device does it: classed first; «not free» means it wasn't done.
   press(item: MapItem): Promise<"done" | "not free" | "failed">
+  // Decision 17: the same press, with the address the page tried to open in a new tab from it, if any.
+  pressOpening?(item: MapItem): Promise<{ r: "done" | "not free" | "failed"; opened?: string }>
+  // Decision 17: a same-site address opened in this tab (false when it isn't the same site or can't be opened).
+  openHere?(url: string): Promise<boolean>
   type(item: MapItem, text: string): Promise<"done" | "not free" | "failed">
   stopped(): Promise<boolean>
 }
@@ -80,6 +84,27 @@ function monthShown(map: PageMap): number {
 }
 
 const LIST_ROLES = new Set(["select", "listbox", "combobox"])
+
+// Decision 17: the date form's own search or apply, in the panel's languages (a press the classifier calls free; never a
+// submit or a booking — those aren't free, so they're never pressed here).
+const APPLY_SEARCH = /^\s*(search|search again|update|update search|see availability|check availability|show availability|show prices|show results|find|apply|найти|искать|поиск|обновить|показать|проверить наличие|показать цены|знайти|шукати|пошук|оновити|показати|suchen|aktualisieren|verfügbarkeit prüfen|verfügbarkeit anzeigen|preise anzeigen|rechercher|mettre à jour|voir les disponibilités|vérifier les disponibilités|buscar|actualizar|ver disponibilidad|comprobar disponibilidad|cerca|aggiorna|verifica disponibilità|vedi disponibilità|pesquisar|atualizar|ver disponibilidade|verificar disponibilidade|ara|güncelle|müsaitliği kontrol et|fiyatları göster|検索|検索する|空室検索|空室状況を確認|更新|검색|검색하기|업데이트|객실 확인|요금 보기|搜索|查询|更新|查看空房|搜尋|查詢|查看空房|tìm|tìm kiếm|cập nhật|kiểm tra phòng trống|بحث|ابحث|تحديث|عرض التوافر|تحقق من التوافر)\s*$/iu
+
+/** Decision 17: after the days were pressed and the page doesn't show them, the one free search or apply of the date
+ *  control's form (its group when it has none) is pressed by the device, once; a same-site address that press tries to
+ *  open in a new tab is opened here. Two or more candidates, or none: nothing pressed, and the line names them. */
+async function applyDates(io: DatesIO, map: PageMap, near: MapItem | null): Promise<string> {
+  const form = near?.form
+  const group = (i: MapItem) => (form !== undefined ? i.form === form : near ? i.where === near.where : true)
+  const cands = map.items.filter((i) => (i.role === "button" || i.role === "link" || i.role === "other") && !greyed(i) && APPLY_SEARCH.test(i.label) && group(i))
+  if (cands.length > 1) return ` (more than one control could apply them: ${cands.slice(0, 4).map((c) => `«${c.label.slice(0, 30)}»`).join(", ")} — press the one of the date form)`
+  if (!cands.length) return ""
+  const it = cands[0]
+  const res = io.pressOpening ? await io.pressOpening(it) : { r: await io.press(it) }
+  if (res.r === "not free") return ` (its «${it.label.slice(0, 30)}» isn't a free step: press it yourself)`
+  if (res.r !== "done") return ` (its «${it.label.slice(0, 30)}» didn't take)`
+  if (res.opened) return (await io.openHere?.(res.opened)) ? `; the device pressed «${it.label.slice(0, 30)}», and opened here the page it opened in a new tab` : `; the device pressed «${it.label.slice(0, 30)}», which tried to open another site in a new tab (not followed)`
+  return `; the device pressed the date form's «${it.label.slice(0, 30)}»`
+}
 
 /** The times the page offers now: its time controls, and a time list's options (a form's «Time» select). */
 function timesShown(map: PageMap): string[] {
@@ -166,7 +191,7 @@ async function setOne(io: DatesIO, day: string, end: string | undefined, budget:
 
 /** The tool: sets the request's day (or goes through its window) and says what the page shows. */
 export async function setDates(ask: DatesAsk, io: DatesIO): Promise<DatesResult> {
-  const budget: { presses: number; endSet?: boolean } = { presses: 0 }
+  const budget: { presses: number; endSet?: boolean; applied?: boolean } = { presses: 0 }
   const full: string[] = []
   const last = ask.last && ask.last > ask.date ? ask.last : ask.date
   const nights = ask.end ? Math.max(1, Math.round((Date.parse(ask.end) - Date.parse(ask.date)) / 86_400_000)) : 0
@@ -180,10 +205,21 @@ export async function setDates(ask: DatesAsk, io: DatesIO): Promise<DatesResult>
       break
     }
     if (r === "not free") return { line: `stopped before a press that isn't a free step (the dates aren't set for ${short(day)}): go on by hand`, full, presses: budget.presses }
-    const map = await io.map()
+    let map = await io.map()
+    let dayItem = map ? dayControl(map, day) : null
+    let shows = map ? (dayItem && chosen(dayItem)) || map.items.some((i) => (i.value ?? "").includes(day)) : false
+    // (Decision 17: set, but the page's own date field or summary doesn't show it: its own search or apply, once.)
+    let applied = ""
+    if (map && r === "set" && !shows && !budget.applied) {
+      budget.applied = true
+      applied = await applyDates(io, map, dayItem ?? map.items.find((i) => i.type === "date") ?? null)
+      if (/the device pressed/.test(applied)) {
+        map = await io.map()
+        dayItem = map ? dayControl(map, day) : null
+        shows = map ? (dayItem && chosen(dayItem)) || map.items.some((i) => (i.value ?? "").includes(day)) : false
+      }
+    }
     const text = map ? `${map.text}\n${map.items.map((i) => i.label).join("\n")}` : ""
-    const dayItem = map ? dayControl(map, day) : null
-    const shows = map ? (dayItem && chosen(dayItem)) || map.items.some((i) => (i.value ?? "").includes(day)) : false
     // A stay: the days are what's set; whether rooms are free is the page's next answer (its own Search or the list).
     if (ask.byDays) {
       if (r === "greyed") {
@@ -197,10 +233,10 @@ export async function setDates(ask: DatesAsk, io: DatesIO): Promise<DatesResult>
         : !budget.endSet
           ? `only the first day, ${short(day)}, is set: the last day, ${short(end)}, couldn't be pressed here — press ${short(end)} on the page yourself (it's allowed), then its «Apply» or Search`
           : ""
-      return { line: `${half || `${short(day)} – ${short(end!)} set`}${shows || half ? "" : " (the page doesn't show them chosen yet: read it, or press its Search)"}${full.length ? `; ${full.map(short).join(", ")} couldn't be chosen` : ""}`, landed: day, full, presses: budget.presses }
+      return { line: `${half || `${short(day)} – ${short(end!)} set`}${applied}${shows || half ? "" : applied ? "" : " (the page doesn't show them chosen yet: read it, or press its Search)"}${full.length ? `; ${full.map(short).join(", ")} couldn't be chosen` : ""}`, landed: day, full, presses: budget.presses }
     }
     const times = map ? freeTimes(map, ask) : []
-    if (r !== "greyed" && times.length) return { line: `${short(day)} shows ${times.slice(0, 6).join(", ")}${full.length ? ` (${full.map(short).join(", ")} full)` : ""}`, landed: day, full, presses: budget.presses }
+    if (r !== "greyed" && times.length) return { line: `${short(day)} shows ${times.slice(0, 6).join(", ")}${applied}${full.length ? ` (${full.map(short).join(", ")} full)` : ""}`, landed: day, full, presses: budget.presses }
     // No times on the page at all, and nothing saying the day is full: the day is set, and its times are the page's next
     // step (a form whose times come later, or a list it hasn't drawn yet). Never read as full (the stand's form with a
     // «Time» list read as three full days, round 141).

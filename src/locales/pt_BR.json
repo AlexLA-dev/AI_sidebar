@@ -1092,6 +1092,7 @@
   "agentNoUndo": "Isso não pode ser desfeito.",
   "agentOffRequest": "Parece que não foi isso que você pediu: {0}",
   "agentStepClick": "Apertar “{0}”",
+  "agentStepPricedChoice": "Escolher “{0}” — uma opção com preço, não um pagamento",
   "agentStepType": "Digitar “{0}” em “{1}”",
   "agentStepSelect": "Escolher “{0}” em “{1}”",
   "agentStepGo": "Ir para {0}",

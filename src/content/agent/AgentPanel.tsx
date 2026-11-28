@@ -119,7 +119,8 @@ export function stepText(state: Pick<PanelAgent, "pending">): string {
     case "type": return t("agentStepType", (p.call.text ?? "").slice(0, 80), name)
     case "select": return t("agentStepSelect", p.call.option ?? "", name)
     case "go": return p.verdict.reason === "other_site" ? t("agentStepGo", name) : t("agentStepClick", name)
-    default: return t("agentStepClick", name)
+    // (Decision 16: a priced choice is a choice with its price, not a payment — the card says so.)
+    default: return p.verdict.reason === "priced_choice" ? t("agentStepPricedChoice", name) : t("agentStepClick", name)
   }
 }
 

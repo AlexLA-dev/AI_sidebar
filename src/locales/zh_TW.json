@@ -1092,6 +1092,7 @@
   "agentNoUndo": "此動作無法復原。",
   "agentOffRequest": "這似乎不是你要求的：{0}",
   "agentStepClick": "點一下「{0}」",
+  "agentStepPricedChoice": "選擇「{0}」——這是附價格的選項，不是付款",
   "agentStepType": "在「{1}」中輸入「{0}」",
   "agentStepSelect": "在「{1}」中選擇「{0}」",
   "agentStepGo": "前往 {0}",

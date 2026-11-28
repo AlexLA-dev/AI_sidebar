@@ -1092,6 +1092,7 @@
   "agentNoUndo": "Esto no se podrá deshacer.",
   "agentOffRequest": "Esto no parece lo que pediste: {0}",
   "agentStepClick": "Pulsar «{0}»",
+  "agentStepPricedChoice": "Elegir «{0}»: una opción con su precio, no un pago",
   "agentStepType": "Escribir «{0}» en «{1}»",
   "agentStepSelect": "Elegir «{0}» en «{1}»",
   "agentStepGo": "Ir a {0}",

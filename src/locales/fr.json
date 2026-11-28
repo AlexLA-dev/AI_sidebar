@@ -1092,6 +1092,7 @@
   "agentNoUndo": "Cette action est irréversible.",
   "agentOffRequest": "Ça ne ressemble pas à ce que vous avez demandé : {0}",
   "agentStepClick": "Appuyer sur « {0} »",
+  "agentStepPricedChoice": "Choisir « {0} » — un choix avec son prix, pas un paiement",
   "agentStepType": "Saisir « {0} » dans « {1} »",
   "agentStepSelect": "Choisir « {0} » dans « {1} »",
   "agentStepGo": "Aller sur {0}",

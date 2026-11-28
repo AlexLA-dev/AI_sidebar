@@ -1092,6 +1092,7 @@
   "agentNoUndo": "لا يمكن التراجع عن هذا.",
   "agentOffRequest": "يبدو أن هذا ليس ما طلبته: {0}",
   "agentStepClick": "الضغط على «{0}»",
+  "agentStepPricedChoice": "اختيار «{0}» — اختيار بسعره، وليس دفعًا",
   "agentStepType": "كتابة «{0}» في «{1}»",
   "agentStepSelect": "اختيار «{0}» في «{1}»",
   "agentStepGo": "الانتقال إلى {0}",

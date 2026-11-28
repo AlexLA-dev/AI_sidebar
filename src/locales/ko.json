@@ -1092,6 +1092,7 @@
   "agentNoUndo": "이 작업은 되돌릴 수 없어요.",
   "agentOffRequest": "요청하신 내용과 다른 것 같아요: {0}",
   "agentStepClick": "‘{0}’ 누르기",
+  "agentStepPricedChoice": "‘{0}’ 선택 — 가격이 표시된 선택이며 결제가 아닙니다",
   "agentStepType": "‘{1}’에 ‘{0}’ 입력",
   "agentStepSelect": "‘{1}’에서 ‘{0}’ 선택",
   "agentStepGo": "{0} 열기",

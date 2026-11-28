@@ -1092,6 +1092,7 @@
   "agentNoUndo": "此操作无法撤销。",
   "agentOffRequest": "这似乎不是你要求的：{0}",
   "agentStepClick": "点按“{0}”",
+  "agentStepPricedChoice": "选择“{0}”——这是带价格的选项，不是付款",
   "agentStepType": "在“{1}”中输入“{0}”",
   "agentStepSelect": "在“{1}”中选择“{0}”",
   "agentStepGo": "前往 {0}",

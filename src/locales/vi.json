@@ -1092,6 +1092,7 @@
   "agentNoUndo": "Việc này không thể hoàn tác.",
   "agentOffRequest": "Có vẻ bạn không yêu cầu việc này: {0}",
   "agentStepClick": "Nhấn “{0}”",
+  "agentStepPricedChoice": "Chọn “{0}” — một lựa chọn có giá, không phải thanh toán",
   "agentStepType": "Nhập “{0}” vào “{1}”",
   "agentStepSelect": "Chọn “{0}” trong “{1}”",
   "agentStepGo": "Đi tới {0}",

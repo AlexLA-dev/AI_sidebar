@@ -20,6 +20,7 @@ import { pageSubject, subjectLine, titleName } from "./subject.ts"
 import { cardsOf, onVenue, rankVenues, venueNote, venueOf, venuesOn, type Venue } from "./venues.ts"
 import { addDays, freeLineIn, honestChoices, looksLikeSlot, nearerTimes, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
 import { setDates, type DatesIO, type DatesResult } from "./setdates.ts"
+import { codesIn, deviceRegion, dialControl, fixedPrefix, internationalDigits, nationalPart, pickDialOption } from "./phone.ts"
 import { pageKind } from "./events.ts"
 import { addContactFill, NAME_SAID, bareLabel, buildPlan, contactField, contactKind, requestGives, pathOf, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, contactInWords, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type PlanQuestion, type TaskPlan, DAY_KINDS, sameTaskPage, windowOf } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
@@ -385,6 +386,70 @@ export function fillLines(call: ToolCall, item: MapItem | null, entries: FormEnt
   return [first, ...more]
 }
 
+// Decision 15: what the device did before a phone's fill or typing, and what to try after it.
+interface PhoneFirst {
+  text: string
+  dial?: MapItem
+  others?: string[]
+}
+
+/** Before a phone goes in: its field's country or dial-code control set to the number's calling code (the national part
+ *  then typed), or a fixed code the field shows as its prefix (the national part when it's the number's). Null when the
+ *  field isn't a phone's, the number has no code, or no control or prefix is there: as before. */
+async function phoneFirst(io: RunnerIO, call: ToolCall, text: string): Promise<PhoneFirst | null> {
+  if (!internationalDigits(text)) return null
+  const map = await io.map({}).catch(() => null)
+  const field = map?.items.find((i) => i.id === call.id)
+  if (!map || !field || !(field.type === "tel" || contactField(field) === "phone" || (call.tool === "fill" && keyKind(call.key ?? "") === "phone"))) return null
+  const dial = dialControl(map, field)
+  if (dial && (dial.role === "select" || dial.role === "combobox") && dial.options?.length) {
+    const pick = pickDialOption(dial.options, text, { selected: dial.value, region: deviceRegion(), lang: map.lang })
+    if (!pick) return null
+    if (pick.option !== dial.value) {
+      const r = await io.act({ tool: "select", id: dial.id, option: pick.option, why: "", expect: { label: dial.label, role: dial.role } }).catch(() => null)
+      if (!r?.ok) return null
+    }
+    return { text: pick.national, dial, others: pick.others }
+  }
+  if (dial && (dial.role === "button" || dial.role === "listbox")) {
+    // A list behind a button (a flag): opened, its option with the code pressed.
+    if (dial.role === "button") await io.act({ tool: "click", id: dial.id, why: "", expect: { label: dial.label, role: dial.role } }).catch(() => null)
+    const open = await io.map({}).catch(() => null)
+    const opts = open?.items.filter((i) => (i.role === "option" || i.role === "button" || i.role === "link") && i.id !== dial.id && codesIn(i.label).length) ?? []
+    const pick = pickDialOption(opts.map((o) => o.label), text, { region: deviceRegion(), lang: map.lang })
+    const item = pick && opts.find((o) => o.label === pick.option)
+    if (!pick || !item) return null
+    const r = await io.act({ tool: "click", id: item.id, why: "", expect: { label: item.label, role: item.role } }).catch(() => null)
+    return r?.ok ? { text: pick.national } : null
+  }
+  const fixed = fixedPrefix(field)
+  if (fixed && internationalDigits(text)!.startsWith(fixed)) return { text: nationalPart(text, fixed) }
+  // (No control and no prefix: the number as it is, but the after-check still tries the other forms if the field
+  // doesn't take it — 15d.)
+  return { text }
+}
+
+/** After a phone went in: still marked invalid with another option of the same code left — that one, once; a field that
+ *  didn't take the text — the number whole, its digits with «+», its national digits, each only while the field stays
+ *  empty (decision 15a, 15d). */
+async function phoneAfter(io: RunnerIO, call: ToolCall, text: string, phone: PhoneFirst, result: StepResult): Promise<StepResult> {
+  if (/didn't take the text/.test(result.note ?? "")) {
+    const tries = [text, `+${text.replace(/\D/g, "")}`, ...(phone.text !== text ? [phone.text.replace(/\D/g, "")] : [])].filter((t, i, a) => t && a.indexOf(t) === i)
+    for (const t of tries) {
+      const r = await io.act({ ...call, tool: "type", text: t, mode: "replace" }).catch(() => null)
+      if (r && !/didn't take the text/.test(r.note ?? "")) return r
+    }
+    return result
+  }
+  if (!phone.dial || !phone.others?.length) return result
+  const after = await io.map({}).catch(() => null)
+  const field = after?.items.find((i) => i.id === call.id)
+  if (!field?.state?.includes("invalid")) return result
+  const r = await io.act({ tool: "select", id: phone.dial.id, option: phone.others[0], why: "", expect: { label: phone.dial.label, role: phone.dial.role } }).catch(() => null)
+  if (!r?.ok) return result
+  return (await io.act({ ...call, tool: "type", text: phone.text, mode: "replace" }).catch(() => null)) ?? result
+}
+
 /** Does a step on the page and writes it down. A fill types its value in; the log keeps only the key. */
 async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict: StepVerdict, target: string | null, value?: string, byPlan?: boolean, booking?: boolean): Promise<StepResult | null> {
   const doing: ToolCall = call.tool === "fill" ? { ...call, text: value ?? "" } : call
@@ -404,7 +469,11 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
   await (io.mark ?? io.save)(state)
   // The address a tap's page tried to open in a new tab, gone to here (its «go» passed the checks like any other).
   const opening = (call.tool === "go" || call.tool === "click") && call.id === NEW_TAB_ID && state.openedLink && io.open ? state.openedLink : null
-  let result = opening ? await io.open!(opening.url).then(() => ({ ok: true, navigated: true, note: "the page went on" }) as StepResult, () => ({ ok: false, note: "it couldn't be opened" }) as StepResult) : await io.act(doing)
+  // A phone beside a country or dial-code control, or behind a fixed code (decision 15): the control set to the number's
+  // calling code first, and the national part typed.
+  const phone = !opening && (call.tool === "fill" || call.tool === "type") && call.id ? await phoneFirst(io, call, doing.text ?? "") : null
+  let result = opening ? await io.open!(opening.url).then(() => ({ ok: true, navigated: true, note: "the page went on" }) as StepResult, () => ({ ok: false, note: "it couldn't be opened" }) as StepResult) : await io.act(phone ? { ...doing, text: phone.text } : doing)
+  if (phone && result) result = await phoneAfter(io, call, doing.text ?? "", phone, result)
   if (opening) state.openedLink = undefined
   state.inflight = undefined
   if (!result || result.navigated) {
@@ -868,9 +937,20 @@ export function emptyGivenField(map: PageMap, given: Set<string>, done: string[]
   return null
 }
 
+/** Whether the last fill or typing of a contact kind came back with the page's error or didn't take (decision 15e). */
+function lastContactRefused(state: AgentState, kind: string): boolean {
+  const last = [...state.log].reverse().find((l) => (l.call.tool === "fill" || l.call.tool === "type") && (keyKind(l.call.key ?? "") === kind || contactKind(contactAsked(/"(.*)"$/.exec(l.target ?? "")?.[1] ?? "") ?? "") === kind))
+  return !!last && /didn't take|the page says|invalid|not valid/i.test(last.result ?? "")
+}
+
 /** The fields this task typed or filled (a page that keeps a field's old «empty» after typing isn't sent back for it). */
 function typedIds(state: AgentState): string[] {
   return state.log.filter((l) => (l.call.tool === "type" || l.call.tool === "fill") && l.call.id && !/^(refused|held)/.test(l.result ?? "")).map((l) => l.call.id!)
+}
+
+/** An approved plan with a booking (decision 16: a priced choice in it is a choice, not a payment). */
+function bookingPlan(state: AgentState): boolean {
+  return !!(state.plan?.approved && state.plan.booking)
 }
 
 /** The task's request as the server and the checks hear it: the person's words with the plan's answers. */
@@ -1561,7 +1641,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // layer's own control the classifier calls cookies_reject — never an accept, which stays the person's — once per
     // page address and three a task; when that changes nothing the banner is the model's, as before.
     if ((!io.planning || state.plan?.approved) && (state.cookieDevice ?? 0) < 3 && !(state.cookiePages ?? []).includes(map.url)) {
-      const ctx = { map, startHost: state.startHost, request: words(state), confirmedHere: confirmedOn(state, hostOf(map.url)), policy: io.policy }
+      const ctx = { map, startHost: state.startHost, request: words(state), confirmedHere: confirmedOn(state, hostOf(map.url)), policy: io.policy, booking: bookingPlan(state) }
       const reject = map.items.find((i) => {
         if (i.where !== "dialog" || (i.role !== "button" && i.role !== "link")) return false
         const v = classify({ tool: "click", id: i.id, why: "" }, ctx)
@@ -1844,7 +1924,10 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       // is it?» while the request gives it): one e-mail or phone asked for by contactAsked's own words, and the person's
       // words carry one of that kind by pattern. Never for a name; one allowance with the quoted kind.
       const askedKind = quoted.length ? null : contactKind(contactAsked(call.question ?? "") ?? "")
-      const inWords = askedKind === "email" || askedKind === "phone" ? contactsQuoted(words(state)).find((c) => c.kind === askedKind) : undefined
+      // (15e: not when the page refused that kind's value — its field marked invalid, or the last fill or typing of that
+      // kind came back with the page's error: then the question is about a refused value, and it's the person's.)
+      const refusedKind = askedKind && (map.items.some((i) => i.state?.includes("invalid") && contactField(i) === askedKind) || lastContactRefused(state, askedKind))
+      const inWords = !refusedKind && (askedKind === "email" || askedKind === "phone") ? contactsQuoted(words(state)).find((c) => c.kind === askedKind) : undefined
       if (hit || inWords) {
         state.givenAsk = true
         const why = hit
@@ -1998,7 +2081,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       continue
     }
     if (seenItem) call.expect = { label: seenItem.label, role: seenItem.role, ...(seenItem.lock ? { lock: seenItem.lock } : {}) }
-    const device = classify(call, { map, startHost: state.startHost, request: words(state), confirmedHere: confirmedOn(state, hostOf(map.url)), policy: io.policy })
+    const device = classify(call, { map, startHost: state.startHost, request: words(state), confirmedHere: confirmedOn(state, hostOf(map.url)), policy: io.policy, booking: bookingPlan(state) })
     let verdict = stricter(reply.verdict, device)
     if (state.readDevice && call.tool === "type" && verdict.cls === "free" && !saidInWords(words(state), call.text ?? "")) verdict = { cls: "confirm", reason: "device_data" }
     // A contact field takes only what the person said, answered or saved — never a value made up or derived (127: «Alex»
@@ -2255,7 +2338,7 @@ async function pressAlso(state: AgentState, io: RunnerIO, also: NonNullable<Tool
     const item = map?.items.find((i) => i.id === a.id)
     if (!map || !item) return
     const call: ToolCall = { tool: "click", id: a.id, why: a.why ?? "", expect: { label: item.label, role: item.role, ...(item.lock ? { lock: item.lock } : {}) } }
-    const v = classify(call, { map, startHost: state.startHost, request: words(state), confirmedHere: confirmedOn(state, hostOf(map.url)), policy: io.policy })
+    const v = classify(call, { map, startHost: state.startHost, request: words(state), confirmedHere: confirmedOn(state, hostOf(map.url)), policy: io.policy, booking: bookingPlan(state) })
     if (v.cls !== "free" || looksLikeSlot(item.label)) return
     // A menu the press before opened isn't pressed again in the batch (it would close: 126 stand, a colour list opened
     // and shut by the same batch, four steps in a row).
@@ -2361,7 +2444,7 @@ async function datesStep(state: AgentState, io: RunnerIO, map: PageMap, call: To
   // A stay's nights: from the plan's check-out, else the request's own «2 nights» (a window's plan has no check-out).
   const nights = b.dateEnd ? Math.max(1, Math.round((Date.parse(b.dateEnd) - Date.parse(b.date)) / 86_400_000)) : DAY_KINDS.has(b.kind) ? nightsIn(state.request) : 0
   let current = map
-  const ctx = (m: PageMap) => ({ map: m, startHost: state.startHost, request: state.request, confirmedHere: confirmedOn(state, hostOf(m.url)), policy: io.policy })
+  const ctx = (m: PageMap) => ({ map: m, startHost: state.startHost, request: state.request, confirmedHere: confirmedOn(state, hostOf(m.url)), policy: io.policy, booking: bookingPlan(state) })
   const dio: DatesIO = {
     map: async () => {
       const m = await io.map({}).catch(() => null)
@@ -2373,6 +2456,18 @@ async function datesStep(state: AgentState, io: RunnerIO, map: PageMap, call: To
       if (classify(c, ctx(current)).cls !== "free") return "not free"
       const r = await io.act(c).catch(() => null)
       return r?.ok ? "done" : "failed"
+    },
+    // (Decision 17: the date form's own search or apply, and the same-site page it opens in a new tab, opened here.)
+    pressOpening: async (item) => {
+      const c: ToolCall = { tool: "click", id: item.id, why: "", expect: { label: item.label, role: item.role } }
+      if (classify(c, ctx(current)).cls !== "free") return { r: "not free" }
+      const r = await io.act(c).catch(() => null)
+      if (r?.navigated) await io.waitPage().catch(() => {})
+      return { r: r?.ok ? "done" : "failed", ...(r?.opened ? { opened: r.opened } : {}) }
+    },
+    openHere: async (url) => {
+      if (!io.open || !sameSite(hostOf(url), hostOf(current.url))) return false
+      return io.open(url).then(() => io.waitPage().then(() => true, () => true), () => false)
     },
     type: async (item, text) => {
       const c: ToolCall = { tool: "type", id: item.id, text, mode: "replace", why: "", expect: { label: item.label, role: item.role } }

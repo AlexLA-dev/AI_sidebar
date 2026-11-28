@@ -1092,6 +1092,7 @@
   "agentNoUndo": "Bu işlem geri alınamaz.",
   "agentOffRequest": "Bu, istediğiniz şeye benzemiyor: {0}",
   "agentStepClick": "“{0}” düğmesine bas",
+  "agentStepPricedChoice": "“{0}” seç — fiyatı olan bir seçim, ödeme değil",
   "agentStepType": "“{1}” alanına “{0}” yaz",
   "agentStepSelect": "“{1}” alanında “{0}” seç",
   "agentStepGo": "{0} adresine git",

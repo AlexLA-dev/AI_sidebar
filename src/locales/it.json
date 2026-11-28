@@ -1092,6 +1092,7 @@
   "agentNoUndo": "Non si potrà annullare.",
   "agentOffRequest": "Non sembra quello che hai chiesto: {0}",
   "agentStepClick": "Premere «{0}»",
+  "agentStepPricedChoice": "Scegliere «{0}»: una scelta con il suo prezzo, non un pagamento",
   "agentStepType": "Scrivere «{0}» in «{1}»",
   "agentStepSelect": "Scegliere «{0}» in «{1}»",
   "agentStepGo": "Andare su {0}",

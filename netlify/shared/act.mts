@@ -395,7 +395,10 @@ export async function nextStep(input: StepInput, opts: StepOptions): Promise<Ste
     const call = checked.call
     const verdict = classify(call, {
       map: input.map, startHost: opts.startHost, request: input.request, confirmedHere: opts.confirmedHere,
-      policy: { amazon: config.agent.blockAmazon, block: config.agent.blockHosts, allow: config.agent.allowHosts }
+      policy: { amazon: config.agent.blockAmazon, block: config.agent.blockHosts, allow: config.agent.allowHosts },
+      // (Decision 16: the approved plan books something — its line says so. The device classes with its own state too,
+      // and the stricter of the two goes.)
+      booking: /(^|\n)booking: (table|appointment|stay|rental|slot|ticket)\b/.test(input.plan ?? "")
     })
     const item = itemById(input.map, call.id)
     const target = item ? `${item.role} "${item.label.slice(0, 80)}"` : null
