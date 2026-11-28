@@ -123,7 +123,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
         }),
         touchInstall(installId, platform, version, locale, 0).catch(() => undefined)
       ]))
-      return json({ ok: true, plan: p.plan, token, left, stepsLeft: Math.max(0, maxSteps - stepsUsed), ...(measuring ? { model: named ?? a.planModel, cost: Math.round(spent * 1e6) / 1e6, output: p.usage.reduce((n, u) => n + u.output, 0), thinking: p.usage.reduce((n, u) => n + (u.thinking ?? 0), 0), retried: !!p.retried } : {}) })
+      return json({ ok: true, plan: p.plan, token, left, stepsLeft: Math.max(0, maxSteps - stepsUsed), ...(measuring ? { model: named ?? a.planModel, effort: effort ?? a.effort, cost: Math.round(spent * 1e6) / 1e6, output: p.usage.reduce((n, u) => n + u.output, 0), thinking: p.usage.reduce((n, u) => n + (u.thinking ?? 0), 0), retried: !!p.retried } : {}) })
     }
     out = await nextStep(input, { model, startHost, confirmedHere: task.confirmedHere === true, signal: req.signal, fallback: a.strongModel, effort })
   } catch (err) {
@@ -163,7 +163,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
     strong,
     stepsLeft: Math.max(0, maxSteps - stepsUsed),
     // Measuring only: what the step cost and which model drove it.
-    ...(measuring ? { model, cost: Math.round(spent * 1e6) / 1e6, tokens } : {})
+    // (Round 145, the director: the effort the step ran at — the request's measuring override, else the deploy's own.)
+    ...(measuring ? { model, effort: effort ?? a.effort, cost: Math.round(spent * 1e6) / 1e6, tokens } : {})
   })
 }
 
