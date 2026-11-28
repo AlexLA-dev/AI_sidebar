@@ -12,7 +12,7 @@ import { dayItems, dayOf, dayWords, daysInText, isDateLabel, showsDay, weekdayOn
 import { wordTest } from "./match.ts"
 import { BOOKING_WORDS, CANCEL_TERMS_WORDS, NEXT_FREE_WORDS } from "./words.ts"
 export { dayItems, isDateLabel }
-import { classify } from "./classify.ts"
+import { classify, entryPress } from "./classify.ts"
 import { countRefusal } from "./counts.ts"
 import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, withNameParts, type FormEntry } from "./formdata.ts"
 import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
@@ -208,6 +208,11 @@ export interface AgentState {
   // The dial-code options the page refused in this task (the selected one when it marked the phone invalid): never again.
   dialRefused?: string[]
   dialNoted?: boolean
+  // (Round 145's dayNotes experiment: the day rules said once each as notes, and the note for the model's next read.)
+  dayNoted?: string[]
+  // Decision 18: the day the person's last answer gave, for the device to set on the page before the model's next step.
+  answeredDay?: string
+  noteNext?: string
   // Decision 15d (general): a field changed after the page marked it invalid, with the page's message as it was then;
   // whether the device line about it was said; what it was changed to (a country, when the device chose one).
   staleFix?: { fieldId: string; label: string; kind: string; msg: string; to?: string; said?: boolean }
@@ -305,6 +310,11 @@ export interface RunnerIO {
   maxSteps: number
   // The person pressed «Стоп» while a step was on its way (the background's stored state says so).
   isStopped?: () => Promise<boolean>
+  // Round 145's experiment (the director's B), never on in the extension: the device's day refusals — a question before
+  // the page showed the day, «two date steps», «pressed already», «isn't / before the asked day», a day press outside
+  // the rules, days unset on a press that isn't the booking's last — become one-time notes; the action goes on. A
+  // greyed or disabled day and the booking's last press without its days stay refusals.
+  dayNotes?: boolean
   // Calendar and Reminders on this device (2.7.1): whether they're there ("yes", "none": not allowed yet, "denied",
   // "unavailable"), and a call of one of their tools, done there (AgentApple.swift).
   device?: () => Promise<{ reminders: string; calendar: string }>
@@ -919,6 +929,41 @@ export function checkDayLine(state: AgentState, map: PageMap): void {
  * booked with no dates, its steps and summary naming them). A stay's or a rental's two days are on the page it's booked
  * on; one day counts once the page showed it, or it was pressed.
  */
+/** Round 145's dayNotes experiment: true when the day rule is to be a note (the action goes on); the note once per
+ *  rule a task, appended to the step's line the model reads next. */
+function dayNote(state: AgentState, io: RunnerIO, key: AgentRule, why: string): boolean {
+  if (!io.dayNotes) return false
+  if (!(state.dayNoted ?? []).includes(key)) {
+    state.dayNoted = [...(state.dayNoted ?? []), key]
+    state.noteNext = why
+    rule(state, key)
+  }
+  return true
+}
+
+/** The booking's last press: a page with the person's details typed in, or one that takes payment. */
+/** A date refusal for a greyed or disabled day: a refusal with or without the dayNotes experiment. */
+function greyRefusal(why: string): boolean {
+  return /is shown as not available on the page \(greyed or disabled\)|shows greyed and isn't chosen/.test(why)
+}
+
+function noted(state: AgentState): AgentState["log"] {
+  if (state.noteNext && state.log.length) {
+    state.log[state.log.length - 1].result += `; device note: ${state.noteNext}`
+    state.noteNext = undefined
+  }
+  return state.log
+}
+
+function lastPressPage(map: PageMap): boolean {
+  return !!map.pay || map.items.some((i) => i.lock === "personal" && !!i.value)
+}
+
+/** A date control on the page: a date field, a day's cell or button, a date picker's own field. */
+export function dateControlShown(map: PageMap): boolean {
+  return map.items.some((i) => i.type === "date" || (i.label.length <= 60 && isDateLabel(i.label))) || !!(map.items.some((i) => (i.role === "textbox" || i.role === "combobox") && /\b(date|dates|check-?in|check-?out)\b/i.test(i.label)))
+}
+
 export function unsetDays(state: AgentState, map: PageMap): string | null {
   return bookingDays(state, map) ? null : daysRefusal(state)
 }
@@ -1851,7 +1896,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     const plan = planLine(state.plan)
     const reply = await io.ask({
       task: { id: state.id, request: requestWithAnswers(state.request, state.plan), lang: state.lang, startHost: state.startHost, step: state.step, confirmedHere: confirmedOn(state, hostOf(map.url)), token: state.token, strongUsed: state.strongUsed, now: nowLine(), ...(here ? { device: here } : {}), ...(plan ? { plan } : {}), ...(state.rules ? { rules: state.rules } : {}), ...(state.calendar ? { calendar: state.calendar } : {}), ...(state.playbook ? { playbook: state.playbook } : {}), ...(state.venues ? { venues: venuesLine(state.venues) } : {}), ...(state.subject ? { subject: state.subject } : {}), ...(state.datesNone?.includes(pageKey(map.url)) ? { noDates: true } : {}) },
-      map: sent(map), log: state.log, ...(state.refused ? { refused: state.refused } : {}), ...(state.data ? { data: state.data } : {}), keys
+      map: sent(map), log: noted(state), ...(state.refused ? { refused: state.refused } : {}), ...(state.data ? { data: state.data } : {}), keys
     })
     state.refused = undefined
     state.data = undefined
@@ -2012,7 +2057,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       continue
     }
     // A question about the booking's day before the page ever showed that day: sent back once, to go to it first.
-    if (call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking?.date && !state.sawDate && !state.dateNudged) {
+    if (call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking?.date && !state.sawDate && !state.dateNudged && !dayNote(state, io, "day_unseen", `the page hadn't shown ${dayWords(state.plan.booking.date)} when this was asked: if the answer leaves the day open, the page's own days are what to go by`)) {
       state.dateNudged = true
       // (Round 141, design-141: the device goes to the day itself — and, with a window, on to the next days — instead of
       // sending the model there; the model's question is answered by what the page shows then.)
@@ -2182,7 +2227,8 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       state.refused = why
       continue
     }
-    const dateRefusal = seenItem && (call.tool === "click" || call.tool === "select") && state.plan?.booking ? dateStep(state, map, seenItem, call) : null
+    const dateRefusal0 = seenItem && (call.tool === "click" || call.tool === "select") && state.plan?.booking ? dateStep(state, map, seenItem, call) : null
+    const dateRefusal = dateRefusal0 && !greyRefusal(dateRefusal0) && dayNote(state, io, "date_step", dateRefusal0) ? null : dateRefusal0
     if (dateRefusal) {
       rule(state, "date_step")
       state.log.push({ call, target: target ?? undefined, result: `refused: ${dateRefusal}` })
@@ -2332,7 +2378,11 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // The booking's last press goes only with its days set on the page (128); three refusals in a row end the task, not
     // finished, never a loop.
     if (verdict.cls === "confirm" && verdict.reason === "submit" && state.plan?.booking) {
-      const unset = unsetDays(state, map)
+      // (Round 144, the director: a press that enters the booking flow — a specialist's or a service's link, an entry
+      // word — on a page with no date control isn't the booking's last press: the day is chosen further on.)
+      const entering = !!seenItem && entryPress(seenItem) && !dateControlShown(map)
+      const unset0 = entering ? null : unsetDays(state, map)
+      const unset = unset0 && !lastPressPage(map) && dayNote(state, io, "days_unset", unset0) ? null : unset0
       if (unset) {
         rule(state, "days_unset")
         state.log.push({ call, target: target ?? undefined, result: `refused: ${unset}` })
@@ -2498,7 +2548,8 @@ async function pressAlso(state: AgentState, io: RunnerIO, also: NonNullable<Tool
     if (item.state?.includes("expanded") && last?.tool === "click" && last.id === a.id) return
     // A day in a batch goes through the same date checks as one pressed alone.
     if (state.plan?.booking && isDateLabel(item.label)) {
-      const why = dateStep(state, map, item, call)
+      const why0 = dateStep(state, map, item, call)
+      const why = why0 && !greyRefusal(why0) && dayNote(state, io, "date_step", why0) ? null : why0
       if (why) {
         rule(state, "date_step")
         state.log.push({ call, target: `${item.role} "${item.label}"`, result: `refused: ${why}` })
@@ -2860,6 +2911,13 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
       state.picked = undefined
       state.sawDate = false
       state.pressedTarget = false
+      // (Decision 18: the person's answered day is the booking's day — no window around it any more, so it's never
+      // refused as outside one — and the device sets it on the page at once, before the model's next step.)
+      b.dayLast = undefined
+      b.window = undefined
+      b.windowDays = undefined
+      b.windowEnd = undefined
+      state.answeredDay = b.date
     }
     // A time the person agreed to in their answer («Am 2026-12-01 um 10:30 buchen», report-137: the window rule then
     // refused 10:30 four times): the booking's time from now on, as for days. (Dates are taken out first: «2026.12.01»
@@ -2879,6 +2937,14 @@ export async function answer(state: AgentState, io: RunnerIO, a: Answer, chosen?
       const map = await io.map().catch(() => null)
       const chosen = map ? placeInReply(text, state, map) : ""
       if (chosen) choosePlace(state, chosen)
+      // (Decision 18: the answered day set by the device, as for the plan's own day; the log line says what the page
+      // shows then, for the model's next step.)
+      if (state.answeredDay && map && dateControlShown(map)) {
+        const day = state.answeredDay
+        state.answeredDay = undefined
+        await datesStep(state, io, map, { tool: "set_dates", why: "", date: day }, true)
+      }
+      state.answeredDay = undefined
     }
     await io.save(state)
     return drive(state, io)

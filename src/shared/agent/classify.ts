@@ -37,6 +37,14 @@ const BOOK_ENTRY = /^(book|book now|book appointment|make an appointment|reserve
 // A page where a booking or an order is being committed: fields of the person's, payment, or a review / confirm address.
 const COMMIT_PATH = /(^|[/._-])(review|confirm|confirmation|checkout|summary|payment|pay|complete|finish)([/._?-]|$)/i
 
+/** A press that enters a booking flow: a link (a specialist's, a service's, a place's), or a button whose word is a
+ *  booking-entry word («Book», «Записаться», «予約»), not a cart. */
+export function entryPress(item: MapItem): boolean {
+  if (item.role === "link") return true
+  const hit = wordKind(item.label)
+  return hit?.kind === "submit" && BOOK_ENTRY.test(hit.word) && !CART.test(hit.word)
+}
+
 function commitStage(map: PageMap): boolean {
   let path = ""
   try {
