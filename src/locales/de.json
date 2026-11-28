@@ -1092,6 +1092,8 @@
   "agentNoUndo": "Das kann nicht widerrufen werden.",
   "agentOffRequest": "Das passt wohl nicht zu deiner Bitte: {0}",
   "agentStepClick": "„{0}“ drücken",
+  "agentRecapAgain": "Erneut gefragt: Die Seite hat den ersten Versuch wegen „{0}“ abgelehnt.",
+  "agentRecapAgainTo": "Erneut gefragt: Die Seite hat den ersten Versuch wegen „{0}“ abgelehnt; gewählt ist jetzt „{1}“.",
   "agentStepPricedChoice": "„{0}“ wählen – eine Auswahl mit Preis, keine Zahlung",
   "agentStepType": "„{0}“ in „{1}“ eingeben",
   "agentStepSelect": "„{0}“ in „{1}“ auswählen",

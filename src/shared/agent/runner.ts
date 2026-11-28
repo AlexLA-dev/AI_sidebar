@@ -68,6 +68,9 @@ export interface Recap {
   terms?: string
   // Said under a «Do it?» for the press (the plan didn't allow it), not instead of it.
   press?: boolean
+  // The page refused the first try of this press for a field (marked invalid), and the field was changed since: asked
+  // again, and why (the director's addition to decision 15d).
+  again?: { field: string; to?: string }
 }
 
 export interface AgentState {
@@ -199,6 +202,11 @@ export interface AgentState {
   phoneExtra?: boolean
   // The person's international phone, given in the request or saved (the device owns the dial-code control then: 15a2).
   phoneKnown?: string
+  // Decision 15d (general): a field changed after the page marked it invalid, with the page's message as it was then;
+  // whether the device line about it was said; what it was changed to (a country, when the device chose one).
+  staleFix?: { fieldId: string; label: string; kind: string; msg: string; to?: string; said?: boolean }
+  // A booking press the page bounced (a field marked invalid after it): it booked nothing (it isn't bookPress).
+  bounced?: { target: string; field: string }
   // A window's days pressed in this task, in order (decision 14a), whether a later one was sent back for an earlier
   // offered one, and whether the question for a window with no offered day passed (14c).
   windowPressed?: string[]
@@ -469,7 +477,11 @@ async function phoneOtherOption(state: AgentState, io: RunnerIO, fieldId: string
   const option = d.others[0]
   const r = await io.act({ tool: "select", id: d.dialId, option, why: "", expect: { label: d.dialLabel, role: d.dialRole } }).catch(() => null)
   if (!r?.ok) return null
+  const before = await io.map({}).catch(() => null)
+  const field = before?.items.find((i) => i.id === fieldId)
   const t = await io.act({ tool: "type", id: fieldId, text: d.national, mode: "replace", why: "", leave: true }).catch(() => null)
+  // (15d: the page's message was about the field before this change.)
+  if (before && field) state.staleFix = { fieldId, label: field.label, kind: contactField(field) ?? "field", msg: fieldMessages(before), to: option }
   return t ? { ...t, note: `${t.note ?? "typed"} (the page marked the phone invalid: the device chose «${option.slice(0, 40)}», the other country of its code, and typed it again)` } : null
 }
 
@@ -486,6 +498,13 @@ async function dialOwn(state: AgentState, io: RunnerIO, call: ToolCall): Promise
   const byRegion = region && pick.others.length && pick.option !== (call.option ?? "")
   const why = pick.others.length ? `the person's number has the code +${pick.code}, shared by several countries; chosen by ${byRegion ? "the device's region, else the code's main territory" : "the code"}` : `the person's number has the code +${pick.code}`
   return { option: pick.option, why }
+}
+
+// A page's message about a field it refused, in the panel's 15 languages (its words, shown as they are).
+const FIELD_ERR = /valid|invalid|incorrect|required|error|ошиб|корректн|правильн|недейств|неверн|обязат|коректн|правильн|помилк|некорект|недійсн|обов|正しい|無効|必須|エラー|올바른|유효|필수|오류|无效|無效|错误|錯誤|必填|صالح|غير صحيح|مطلوب|خطأ|invalide|incorrect|obligatoire|erreur|ungültig|erforderlich|fehler|inválid|incorrect|obligatori|non valid|obbligatori|errore|inválido|obrigatóri|erro|geçersiz|hatalı|zorunlu|không hợp lệ|bắt buộc|lỗi/i
+/** The page's messages about a refused field now (short lines of its text with an error word), joined; "" when none. */
+export function fieldMessages(map: PageMap): string {
+  return map.text.split("\n").map((l) => l.trim()).filter((l) => l && l.length <= 160 && FIELD_ERR.test(l)).slice(0, 4).join(" · ")
 }
 
 /** The person's international phone (given in the request, else saved), for the dial-code control (15a2). */
@@ -516,6 +535,9 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
   const opening = (call.tool === "go" || call.tool === "click") && call.id === NEW_TAB_ID && state.openedLink && io.open ? state.openedLink : null
   // A phone beside a country or dial-code control, or behind a fixed code (decision 15): the control set to the number's
   // calling code first, and the national part typed.
+  // (15d, general: a change into a field the page marks invalid — the page's message then is kept, to say it's old.)
+  const changing = !opening && (call.tool === "fill" || call.tool === "type" || call.tool === "select") && call.id ? await io.map({}).catch(() => null) : null
+  const invalidField = changing ? changing.items.find((i) => i.id === call.id && i.state?.includes("invalid")) ?? (call.tool === "select" && state.phoneDial?.dialId === call.id ? changing.items.find((i) => i.id === state.phoneDial!.fieldId && i.state?.includes("invalid")) : undefined) : undefined
   const phone = !opening && (call.tool === "fill" || call.tool === "type") && call.id ? await phoneFirst(state, io, call, doing.text ?? "") : null
   // (15a2: a select on a dial-code control while the person's international number is known is the device's: the option
   // its own rules give — the number's code, the device's region, the code's main territory — whatever the model named.)
@@ -523,7 +545,13 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
   const acting: ToolCall = phone ? { ...doing, text: phone.text, leave: true } : dialPick ? { ...doing, option: dialPick.option } : doing
   let result = opening ? await io.open!(opening.url).then(() => ({ ok: true, navigated: true, note: "the page went on" }) as StepResult, () => ({ ok: false, note: "it couldn't be opened" }) as StepResult) : await io.act(acting)
   if (phone && result) result = await phoneAfter(state, io, call, doing.text ?? "", phone, result)
+  // (A booking press the page bounced — a field marked invalid right after it — read before any retry changes it.)
+  const bounceMap = booking && result?.ok && call.tool !== "fill" && state.plan?.booking ? await io.map({}).catch(() => null) : null
+  const bounce = bounceMap?.items.find((i) => i.state?.includes("invalid") && i.lock !== "secret" && (i.role === "textbox" || i.role === "combobox" || i.role === "select"))
   if (dialPick && result) result = { ...result, note: `${result.note ?? "chosen"} (the device chose «${dialPick.option.slice(0, 40)}»: ${dialPick.why})` }
+  if (invalidField && changing && result?.ok) state.staleFix = { fieldId: invalidField.id, label: invalidField.label, kind: contactField(invalidField) ?? "field", msg: fieldMessages(changing), ...(call.tool === "select" ? { to: dialPick?.option ?? call.option } : {}) }
+  // (A press clears it: the page has checked again.)
+  if ((call.tool === "click" || call.tool === "go") && !opening) state.staleFix = state.staleFix && booking ? state.staleFix : undefined
   // (15b, once more: the booking's press came back with the page marking the phone invalid — the other option of its code.)
   if (result && call.tool === "click" && verdict.reason === "submit" && state.phoneDial && !state.phoneExtra) {
     const after = await io.map({}).catch(() => null)
@@ -581,7 +609,19 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
   }
   // The booking's last press went: what it booked is the days the page showed then (the «done» may leave them out).
   if (verdict.cls === "confirm" && verdict.reason === "submit" && result.ok && state.daysAtPress) state.bookedDays = state.daysAtPress
-  if (booking && result.ok && call.tool !== "fill" && state.plan?.booking) state.bookPress = { target: target ?? call.id ?? "", at: state.log.length, yes: !byPlan }
+  if (booking && result.ok && call.tool !== "fill" && state.plan?.booking) {
+    // (A press the page bounced — a field marked invalid after it — booked nothing: not the booking's press; the next
+    // press is asked again with why. The director's addition to 15d.)
+    const refused = bounce
+    if (refused) {
+      state.bounced = { target: target ?? call.id ?? "", field: refused.label }
+      state.log[state.log.length - 1].result += `; the page refused it: «${refused.label.slice(0, 40)}» is marked invalid — nothing was booked`
+    } else {
+      state.bookPress = { target: target ?? call.id ?? "", at: state.log.length, yes: !byPlan }
+      state.bounced = undefined
+      state.staleFix = undefined
+    }
+  }
   return result
 }
 
@@ -1417,7 +1457,8 @@ export function recapOf(state: AgentState, map: PageMap, always = false): Recap 
     ...(otherDay ? { askedDate: b.date } : {}),
     ...(otherTime ? { askedTime: b.at } : {}),
     ...(otherPlace ? { otherPlace: true } : {}),
-    ...(terms ? { terms: terms.slice(0, 220) } : {})
+    ...(terms ? { terms: terms.slice(0, 220) } : {}),
+    ...(state.bounced ? { again: { field: state.bounced.field.slice(0, 60), ...(state.staleFix?.to ? { to: state.staleFix.to.slice(0, 60) } : {}) } } : {})
   }
 }
 
@@ -1717,6 +1758,11 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
         continue
       }
     }
+    // (15d, general: the page's message about a field is from before the field was changed — said once, in one line.)
+    if (state.staleFix && !state.staleFix.said && state.staleFix.msg && fieldMessages(map) === state.staleFix.msg && !state.refused) {
+      state.staleFix.said = true
+      state.refused = `«${state.staleFix.msg.slice(0, 120)}» was shown before «${state.staleFix.label.slice(0, 40)}» was changed${state.staleFix.to ? ` (to «${state.staleFix.to.slice(0, 40)}»)` : ""}: the page checks it again only on its next press — press it again rather than reading that message as the answer`
+    }
     if (state.plan?.approved && state.plan.booking?.date && !state.sawDate) {
       const days = dayItems(map, state.plan.booking.date)
       // (Or set in the page's own date field: a stay list with «Check-in 2026-12-04», 129.)
@@ -1990,6 +2036,18 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       // kind came back with the page's error: then the question is about a refused value, and it's the person's.)
       const refusedKind = askedKind && (map.items.some((i) => i.state?.includes("invalid") && contactField(i) === askedKind) || lastContactRefused(state, askedKind))
       const inWords = !refusedKind && (askedKind === "email" || askedKind === "phone") ? contactsQuoted(words(state)).find((c) => c.kind === askedKind) : undefined
+      // (15d: a contact question about the field changed after the page refused it, while its old message stands — sent
+      // back once with that fact, sharing the allowance; the next one reaches the person.)
+      const sf = state.staleFix
+      const aboutStale = !!sf && !hit && !inWords && (askedKind === sf.kind || quoted.some((c) => c.kind === sf.kind) || (call.question ?? "").includes(sf.label)) && (!sf.msg || fieldMessages(map) === sf.msg)
+      if (aboutStale) {
+        state.givenAsk = true
+        const why = `the page's message about «${sf!.label.slice(0, 40)}» is from before it was changed${sf!.to ? ` to «${sf!.to.slice(0, 40)}»` : ""}: the page checks it again only on its next press — press it again; ask only if it refuses again`
+        rule(state, "given_ask")
+        state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: `refused: ${why}` })
+        state.refused = why
+        continue
+      }
       if (hit || inWords) {
         state.givenAsk = true
         const why = hit

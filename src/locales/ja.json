@@ -1092,6 +1092,8 @@
   "agentNoUndo": "この操作は取り消せません。",
   "agentOffRequest": "ご依頼の内容とは違うようです：{0}",
   "agentStepClick": "「{0}」を押す",
+  "agentRecapAgain": "もう一度確認します：「{0}」のため、ページが最初の送信を受け付けませんでした。",
+  "agentRecapAgainTo": "もう一度確認します：「{0}」のため、ページが最初の送信を受け付けませんでした。「{1}」に変更しました。",
   "agentStepPricedChoice": "「{0}」を選ぶ（価格付きの選択で、支払いではありません）",
   "agentStepType": "「{1}」に「{0}」と入力",
   "agentStepSelect": "「{1}」で「{0}」を選ぶ",

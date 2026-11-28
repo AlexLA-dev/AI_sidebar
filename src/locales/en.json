@@ -1092,6 +1092,8 @@
   "agentNoUndo": "This can't be undone.",
   "agentOffRequest": "This doesn't look like what you asked: {0}",
   "agentStepClick": "Press “{0}”",
+  "agentRecapAgain": "Asked again: the page refused the first try for “{0}”.",
+  "agentRecapAgainTo": "Asked again: the page refused the first try for “{0}”; it was changed to “{1}”.",
   "agentStepPricedChoice": "Choose “{0}” — a choice with its price, not a payment",
   "agentStepType": "Type “{0}” into “{1}”",
   "agentStepSelect": "Choose “{0}” in “{1}”",

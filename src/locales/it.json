@@ -1092,6 +1092,8 @@
   "agentNoUndo": "Non si potrà annullare.",
   "agentOffRequest": "Non sembra quello che hai chiesto: {0}",
   "agentStepClick": "Premere «{0}»",
+  "agentRecapAgain": "Chiedo di nuovo: la pagina ha rifiutato il primo tentativo per «{0}».",
+  "agentRecapAgainTo": "Chiedo di nuovo: la pagina ha rifiutato il primo tentativo per «{0}»; ora è scelto «{1}».",
   "agentStepPricedChoice": "Scegliere «{0}»: una scelta con il suo prezzo, non un pagamento",
   "agentStepType": "Scrivere «{0}» in «{1}»",
   "agentStepSelect": "Scegliere «{0}» in «{1}»",

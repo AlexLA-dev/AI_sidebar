@@ -98,6 +98,7 @@ export function recapNotes(r: Recap): string[] {
   return [
     r.askedDate || r.askedTime ? t("agentRecapAsked", r.askedDate ? when(r.askedDate, r.askedTime) : clock(r.askedTime ?? "")) : "",
     r.otherPlace ? t("agentRecapOtherPlace") : "",
+    r.again ? (r.again.to ? t("agentRecapAgainTo", r.again.field, r.again.to) : t("agentRecapAgain", r.again.field)) : "",
     r.terms ? t("agentRecapTerms", r.terms) : ""
   ].filter(Boolean)
 }
