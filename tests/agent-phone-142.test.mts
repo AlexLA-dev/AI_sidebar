@@ -2,7 +2,10 @@
 // part, with the control set to the number's calling code; a fixed code shown as the field's prefix likewise; a field that
 // doesn't take the text gets the other forms; the no-value 13b question passes when the page refused that kind.
 import assert from "node:assert/strict"
+import { readFileSync } from "node:fs"
 import { test } from "node:test"
+
+import { withDial } from "./helpers/dialfake.mts"
 
 import { codesIn, dialControl, fixedPrefix, nationalPart, pickDialOption } from "../src/shared/agent/phone.ts"
 import { DEFAULT_RULES } from "../src/shared/agent/rules.ts"
@@ -64,7 +67,7 @@ const run = async (map: PageMap, call: Record<string, unknown>, opts: { note?: (
     device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} }
   } as unknown as RunnerIO
   const st = newState("ph", opts.request ?? "Book it. Phone +44 7700 900123.", "en", map.url)
-  await drive(st, io)
+  await drive(st, withDial(io))
   return acts
 }
 
@@ -107,7 +110,7 @@ test("a flag button that opens a list: the option with the code pressed, the nat
     save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 3, planning: false,
     device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} }
   } as unknown as RunnerIO
-  await drive(newState("flag", "Book. Phone +44 7700 900123.", "en", closed.url), io)
+  await drive(newState("flag", "Book. Phone +44 7700 900123.", "en", closed.url), withDial(io))
   assert.ok(acts.some((a) => a.tool === "click" && a.id === "4"), JSON.stringify(acts.map((a) => `${a.tool}#${a.id}`)))
   assert.equal(acts.find((a) => a.tool === "type")?.text, "7700 900123")
 })
@@ -136,7 +139,7 @@ test("15e: the no-value question about a phone passes when the page marks the ph
     save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 3, planning: false,
     device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} }
   } as unknown as RunnerIO
-  const st = await drive(newState("e15", "Book. Phone +44 7700 900123.", "en", invalid.url), io)
+  const st = await drive(newState("e15", "Book. Phone +44 7700 900123.", "en", invalid.url), withDial(io))
   assert.equal(st.status, "asked")
   assert.equal(st.ruleCounts?.given_ask, undefined)
 })
@@ -160,7 +163,7 @@ const drive15 = async (maps: { before: PageMap; afterType?: PageMap; afterPress?
     save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 8, planning: false,
     device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} }
   } as unknown as RunnerIO
-  const st = await drive(newState("p15", request, "en", maps.before.url), io)
+  const st = await drive(newState("p15", request, "en", maps.before.url), withDial(io))
   return { acts, st }
 }
 const form = (value: string, invalid = false) => page([{ role: "select", label: "Country code", options: US_CA, value }, { label: "Telephone number", type: "tel", ...(invalid ? { state: ["invalid"] } : {}) }, { role: "button", label: "Book" }])
@@ -191,7 +194,7 @@ test("15a: a selection this task made doesn't count as the page's — the device
   } as unknown as RunnerIO
   const st = newState("p15a", "Book. Phone +1 202 555 0123.", "en", current.url)
   st.dialTouched = ["1"]
-  await drive(st, io)
+  await drive(st, withDial(io))
   assert.deepEqual(acts.filter((a) => a.tool === "select").map((a) => a.option), ["United States (+1)"], "the task's own Canada doesn't hold")
   // And the page's own Canada, untouched, does (then 15b's check decides).
   const untouched = await drive15({ before: form("Canada (+1)") }, [{ tool: "type", id: "2", text: "+1 202 555 0123" }], "Book. Phone +1 202 555 0123.")
@@ -219,8 +222,8 @@ test("15b: a page that checks only on the booking press — the other option onc
     save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 8, planning: false,
     device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} }
   } as unknown as RunnerIO
-  let st = await drive(newState("p15b", "Book. Phone +1 202 555 0123.", "en", current.url), io)
-  for (let k = 0; k < 2 && st.status === "confirm"; k++) st = await answer(st, io, "yes")
+  let st = await drive(newState("p15b", "Book. Phone +1 202 555 0123.", "en", current.url), withDial(io))
+  for (let k = 0; k < 2 && st.status === "confirm"; k++) st = await answer(st, withDial(io), "yes")
   assert.deepEqual(acts.filter((a) => a.tool === "select").map((a) => a.option), ["United States (+1)"], "once a task")
   assert.equal(st.phoneExtra, true)
 })
@@ -239,7 +242,8 @@ test("15e: the device's choice line says to leave it; a second select on that co
   assert.equal(refused.length, 1, "once")
   assert.equal(st.ruleCounts?.dial_set, 1)
   // The third select is as before: carried out (still the device's option, as 15a2 gives while the number is known).
-  assert.deepEqual(acts.filter((a) => a.tool === "select").map((a) => a.option), ["United States (+1)", "United States (+1)"])
+  assert.deepEqual(st.log.filter((l) => l.call.tool === "select").map((l) => /^refused/.test(l.result ?? "") ? "refused" : /chose "United States \(\+1\)"/.test(l.result ?? "") ? "US" : l.result), ["US", "refused", "US"])
+  assert.deepEqual(acts.filter((a) => a.tool === "select").map((a) => a.option), ["United States (+1)"], "the page changed once: the other two choices found it set")
 })
 
 test("15e2: up front, once — the step's context says the device sets the country list for the person's number", async () => {
@@ -252,11 +256,63 @@ test("15e2: up front, once — the step's context says the device sets the count
     save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 3, planning: false,
     device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} }
   } as unknown as RunnerIO
-  const st = await drive(newState("e2", "Book. Phone +1 202 555 0123.", "en", before.url), io)
+  const st = await drive(newState("e2", "Book. Phone +1 202 555 0123.", "en", before.url), withDial(io))
   assert.match(sent[0]?.refused ?? "", /the country list beside «Telephone number» is set by the device itself for the person's number/)
   assert.equal(st.dialNoted, true)
   // No number known: no line.
   const sent2: any[] = []
   await drive(newState("e2b", "Book a table for 2.", "en", before.url), { ...io, ask: async (b: unknown) => { sent2.push(JSON.parse(JSON.stringify(b))); return { ok: true, call: { tool: "done", summary: "x", why: "" }, verdict: { cls: "free", reason: "read" } } } } as unknown as RunnerIO)
   assert.doesNotMatch(sent2[0]?.refused ?? "", /country list/)
+})
+
+// Decision 15f: the choice from the control's whole list (the map keeps 30 options; real lists hold every country).
+import { carriesCode, chooseDial, codesOf, dialNames } from "../src/shared/agent/phone.ts"
+import { countryList } from "./helpers/callingcodes.mts"
+
+test("15f: a real-size list (every country, sorted by name) — the UK beyond the map's first 30, never Guernsey or Jersey", () => {
+  for (const lang of ["en", "ru", "ja", "ar"]) {
+    const list = countryList(lang)
+    assert.ok(list.length > 200, `${lang}: ${list.length}`)
+    const uk = list.findIndex((o) => o.region === "GB")
+    // (By name in the language: past the map's first 30 in en, ru and ar; «イギリス» sorts early in Japanese.)
+    if (lang !== "ja") assert.ok(uk >= 30, `${lang}: the UK at ${uk}, beyond the map's 30`)
+    const opts = list.map((o) => ({ label: o.label, value: `+${o.code.replace(/ /g, "")}-${o.region}` }))
+    const pick = chooseDial(opts, opts[0].label, codesOf("+44 7700 900123"), dialNames(codesOf("+44 7700 900123"), "", lang), false)
+    assert.equal(pick?.code, "44", lang)
+    assert.equal(pick?.chosen, list[uk].label, `${lang}: ${pick?.chosen}`)
+    assert.ok(pick?.others.length === 3, `${lang}: Guernsey, Isle of Man, Jersey left: ${pick?.others}`)
+  }
+})
+
+test("15f: the code as a whole code — «+1» isn't «+1 441» (Bermuda) when the US is named; «+44» never «+441…»; the longest code first", () => {
+  assert.equal(carriesCode("United Kingdom (+44)", "44"), true)
+  assert.equal(carriesCode("Somewhere (+441)", "44"), false)
+  assert.equal(carriesCode("+44-GB", "44"), true)
+  const list = countryList("en").map((o) => ({ label: o.label }))
+  assert.equal(chooseDial(list, undefined, codesOf("+1 202 555 0123"), dialNames(codesOf("+1 202 555 0123"), "", "en"), false)?.chosen, "United States (+1)")
+  assert.equal(chooseDial(list, undefined, codesOf("+1 202 555 0123"), dialNames(codesOf("+1 202 555 0123"), "CA", "en"), false)?.chosen, "Canada (+1)", "a Canadian device")
+  assert.equal(chooseDial(list, undefined, codesOf("+971 4 123 4567"), dialNames(codesOf("+971 4 123 4567"), "", "en"), false)?.code, "971", "the longest code that some option carries")
+  assert.equal(chooseDial(list, undefined, codesOf("+7 495 123-45-67"), dialNames(codesOf("+7 495 123-45-67"), "KZ", "en"), false)?.chosen, "Kazakhstan (+7)")
+  assert.equal(chooseDial(list, undefined, codesOf("+7 495 123-45-67"), dialNames(codesOf("+7 495 123-45-67"), "", "en"), false)?.chosen, "Russia (+7)")
+  // The page's own selection stands when it has the code and the task hasn't touched the control (keep).
+  assert.equal(chooseDial(list, "Jersey (+44)", ["447", "44", "4"], [], true)?.chosen, "Jersey (+44)")
+  assert.equal(chooseDial(list, "Jersey (+44)", ["447", "44", "4"], dialNames(["447", "44", "4"], "", "en"), false)?.chosen, "United Kingdom (+44)")
+})
+
+test("15f: the hands read a select's whole list and a page list's every option — no 30 there (the map keeps its 30 for the model)", () => {
+  const hands = readFileSync(new URL("../src/content/agent/hands.ts", import.meta.url), "utf8")
+  const dial = hands.slice(hands.indexOf("async function dial("), hands.indexOf("function scrollPage("))
+  assert.match(dial, /Array\.from\(select\.options\)/)
+  assert.doesNotMatch(dial, /slice\(0, 30\)/)
+  const map = readFileSync(new URL("../src/content/agent/map.ts", import.meta.url), "utf8")
+  assert.match(map, /\.slice\(0, 30\)/, "the map's cap for the model is unchanged")
+})
+
+test("15f: the server's check lets a select through when the map's list was cut (30 options); a short list still refuses a missing option", async () => {
+  const { checkCall } = await import("../src/shared/agent/call.ts")
+  const cut = { url: "https://t.example/checkout", title: "", lang: "en", forms: [], more: 0, part: 1, parts: 1, text: "",
+    items: [{ id: "51", role: "select", label: "Phone country code", options: Array.from({ length: 30 }, (_, i) => `Country ${i} (+${100 + i})`) }] } as never
+  assert.equal(checkCall({ tool: "select", id: "51", option: "Cyprus (+357)", why: "" }, cut).ok, true)
+  const short = { ...(cut as any), items: [{ id: "51", role: "select", label: "Size", options: ["S", "M", "L"] }] }
+  assert.equal(checkCall({ tool: "select", id: "51", option: "XL", why: "" }, short).ok, false)
 })

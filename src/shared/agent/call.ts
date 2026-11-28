@@ -4,6 +4,9 @@
 
 import type { MapItem, PageMap, Role, ToolCall, ToolName } from "./types.ts"
 
+/** How many of a list's options the map gives (content/agent/map.ts optionsOf): a list of this many was cut. */
+export const MAP_OPTIONS = 30
+
 export const TOOLS: ToolName[] = ["read_page", "click", "type", "fill", "select", "scroll", "go", "back", "extract", "ask_user", "done", "set_dates", "reminders", "reminder_add", "reminder_done", "calendar", "event_add"]
 
 /** The tools that work on the person's Calendar and Reminders, not on the page. */
@@ -113,7 +116,9 @@ export function checkCall(raw: unknown, map: PageMap, keys: string[] = []): Chec
       if (!SELECT_ROLES.has(item!.role)) return { ok: false, error: `element ${id} (${item!.role}) isn't a list` }
       call.option = str(r.option, 200)
       if (!call.option) return { ok: false, error: "select needs an option" }
-      if (item!.options?.length && !item!.options.some((o) => sameOption(o, call.option!))) {
+      // (The map gives a list's first 30 options only: a list of exactly 30 was cut, and its option may be beyond them —
+      // the hands find it in the page's whole list, or say there's none. Round 142's Tiqets country list, decision 15f.)
+      if (item!.options?.length && item!.options.length < MAP_OPTIONS && !item!.options.some((o) => sameOption(o, call.option!))) {
         return { ok: false, error: `list ${id} has no option "${call.option}"` }
       }
       slotOf(call, r)

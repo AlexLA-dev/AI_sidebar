@@ -15,6 +15,7 @@ import { elementOf, markFilled, nameOf, roleOf } from "./map"
 import { catchNewTab } from "./newtab"
 import { hostOf, sameSite } from "../../shared/agent/sites"
 import { fieldLock } from "../../shared/agent/fields"
+import { chooseDial } from "../../shared/agent/phone"
 
 const SETTLE_QUIET_MS = 350
 const SETTLE_MAX_MS = 4000
@@ -236,6 +237,55 @@ async function choose(el: Element, asked: string): Promise<StepResult> {
   return { ok: true, note: "chose it", changed: settled.changed, navigated: settled.navigated }
 }
 
+/** Decision 15f (the device only): a country or dial-code control set from its whole option list on the page — a native
+ *  select read entire; a list of the page's own opened, its search field given the code when it has one, the option
+ *  pressed, the list left closed. The choice itself is phone.ts chooseDial; the result's data says what was chosen. */
+async function dial(el: Element, call: ToolCall): Promise<StepResult> {
+  const view = el.ownerDocument.defaultView ?? window
+  const doc = el.ownerDocument
+  const codes = call.codes ?? []
+  const names = call.names ?? []
+  const text = (o: Element) => ((o as HTMLElement).innerText ?? o.textContent ?? "").replace(/\s+/g, " ").trim()
+  if (tag(el) === "select") {
+    const select = el as HTMLSelectElement
+    const opts = Array.from(select.options)
+    const selected = select.selectedOptions[0] ? text(select.selectedOptions[0]) : undefined
+    const pick = chooseDial(opts.map((o) => ({ label: text(o), value: o.value })), selected, codes, names, call.keep === true)
+    if (!pick) return { ok: false, note: `no option carries the number's code (${codes.map((c) => `+${c}`).join(" or ")})` }
+    const r = pick.chosen === selected ? { ok: true, note: `kept "${pick.chosen.slice(0, 60)}"` } as StepResult : await choose(el, pick.chosen)
+    return { ...r, data: JSON.stringify(pick) }
+  }
+  // A list of the page's own: opened when it isn't, its search field (if any) given the code, its options read entire.
+  const listOf = (): Element[] => {
+    const owned = el.getAttribute("aria-controls") || el.getAttribute("aria-owns")
+    const box = (owned && doc.getElementById(owned)) || (el.matches("[role=listbox]") ? el : null)
+    const scope: ParentNode = box ?? doc
+    return Array.from(scope.querySelectorAll("[role=option], [role=menuitem], [role=menuitemradio]")).filter((o) => (o as HTMLElement).offsetParent !== null || !!box)
+  }
+  if (el.getAttribute("aria-expanded") !== "true" && !el.matches("[role=listbox]")) {
+    press(el)
+    await stepSettle(250, 1500)
+  }
+  const search = doc.querySelector("[role=listbox] input, [role=dialog] input[type=search], input[type=search][aria-controls], input[role=combobox][aria-expanded=true]") as HTMLInputElement | null
+  if (search && codes[0]) {
+    setNative(search, `+${codes[codes.length - 1]}`)
+    search.dispatchEvent(new view.InputEvent("input", { bubbles: true, composed: true, inputType: "insertText", data: search.value }))
+    await stepSettle(300, 1500)
+  }
+  const opts = listOf()
+  const pick = chooseDial(opts.map((o) => ({ label: text(o), value: o.getAttribute("data-value") ?? o.getAttribute("value") ?? undefined })), undefined, codes, names, false)
+  const match = pick ? opts.find((o) => text(o) === pick.chosen) : undefined
+  if (!pick || !match) {
+    if (el.getAttribute("aria-expanded") === "true") press(el)
+    return { ok: false, note: `no option of the list carries the number's code (${codes.map((c) => `+${c}`).join(" or ")})` }
+  }
+  reveal(match)
+  press(match)
+  const settled = await stepSettle()
+  if (el.getAttribute("aria-expanded") === "true") el.dispatchEvent(new view.KeyboardEvent("keydown", { bubbles: true, key: "Escape" }))
+  return { ok: true, note: `chose "${pick.chosen.slice(0, 60)}"`, changed: settled.changed, navigated: settled.navigated, data: JSON.stringify(pick) }
+}
+
 function scrollPage(doc: Document, to: "up" | "down"): void {
   const view = doc.defaultView ?? window
   const by = Math.round(view.innerHeight * 0.8) * (to === "up" ? -1 : 1)
@@ -313,10 +363,10 @@ export function changedSince(el: Element, call: ToolCall): string | null {
 
 async function actOnly(call: ToolCall, doc: Document): Promise<StepResult> {
   const view = doc.defaultView ?? window
-  const needs = call.tool === "click" || call.tool === "type" || call.tool === "fill" || call.tool === "select" || call.tool === "go"
+  const needs = call.tool === "click" || call.tool === "type" || call.tool === "fill" || call.tool === "select" || call.tool === "go" || call.tool === "dial"
   const el = call.id ? elementOf(call.id) : null
   if (needs && !el) return { ok: false, note: `element ${call.id} is gone from the page (read it again)` }
-  if (el && (call.tool === "type" || call.tool === "fill" || call.tool === "click" || call.tool === "select") && lockOf(el) === "secret") {
+  if (el && (call.tool === "type" || call.tool === "fill" || call.tool === "click" || call.tool === "select" || call.tool === "dial") && lockOf(el) === "secret") {
     return { ok: false, note: "a secret field: the agent never touches it" }
   }
   const changed = el ? changedSince(el, call) : null
@@ -384,6 +434,12 @@ async function actOnly(call: ToolCall, doc: Document): Promise<StepResult> {
     case "select": {
       reveal(el!)
       const r = await choose(el!, call.option ?? "")
+      if (r.undo) r.undo.id = call.id!
+      return r
+    }
+    case "dial": {
+      reveal(el!)
+      const r = await dial(el!, call)
       if (r.undo) r.undo.id = call.id!
       return r
     }

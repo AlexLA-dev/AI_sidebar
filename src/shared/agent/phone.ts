@@ -108,3 +108,59 @@ export function deviceRegion(): string {
     return ""
   }
 }
+
+/** Whether an option's label or value carries this calling code as a whole code («+44», «(+44)», «+44-GB»; never
+ *  «+441…»). */
+export function carriesCode(text: string, code: string): boolean {
+  return new RegExp(`\\+\\s?${code}(?!\\d)`).test(text)
+}
+
+export interface DialChoice {
+  code: string
+  chosen: string
+  others: string[]
+}
+
+/** Decision 15f: the option of a country or dial-code control to choose, from its full list (labels, with each one's
+ *  value beside it when it differs): the longest of `codes` some option carries; among those options, the selected one
+ *  when `keep` (the page's own selection, untouched by the task), else the first whose label names one of `names` in
+ *  their order (the device region's country, then the code's main territory), else the first. Null when none carries
+ *  any of the codes. */
+export function chooseDial(options: Array<{ label: string; value?: string }>, selected: string | undefined, codes: string[], names: string[], keep: boolean): DialChoice | null {
+  for (const code of codes) {
+    const withCode = options.filter((o) => carriesCode(o.label, code) || carriesCode(o.value ?? "", code))
+    if (!withCode.length) continue
+    const low = (s: string) => s.toLocaleLowerCase()
+    const kept = keep && selected ? withCode.find((o) => o.label === selected || o.value === selected) : undefined
+    const named = names.map((n) => withCode.find((o) => low(o.label).includes(low(n)) || (n.startsWith("-") && (o.value ?? "").endsWith(n)))).find(Boolean)
+    const pick = kept ?? named ?? withCode[0]
+    return { code, chosen: pick.label, others: withCode.filter((o) => o !== pick).map((o) => o.label) }
+  }
+  return null
+}
+
+/** The names a choice prefers, in order: the device region's country, then each code's main territory — in the page's
+ *  language and in English (and the ISO region, as some lists write it: «+44-GB»). */
+export function dialNames(codes: string[], region: string, lang: string): string[] {
+  const out: string[] = []
+  const add = (r: string) => {
+    for (const l of [lang, "en"]) {
+      try {
+        const n = new Intl.DisplayNames([l || "en"], { type: "region" }).of(r)
+        if (n && n !== r && !out.includes(n)) out.push(n)
+      } catch {
+        // an unknown language or region
+      }
+    }
+    if (!out.includes(`-${r}`)) out.push(`-${r}`)
+  }
+  if (region) add(region)
+  for (const c of codes) if (MAIN_REGION[c]) add(MAIN_REGION[c])
+  return out
+}
+
+/** The calling codes a number may start with, longest first (1 to 3 digits). */
+export function codesOf(value: string): string[] {
+  const d = internationalDigits(value)
+  return d ? [d.slice(0, 3), d.slice(0, 2), d.slice(0, 1)] : []
+}
