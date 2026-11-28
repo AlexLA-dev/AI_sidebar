@@ -3269,6 +3269,15 @@
  "agentRecapAgainTo": {
   "message": "سؤال مجدد: رفضت الصفحة المحاولة الأولى بسبب «{0}»؛ تم التغيير إلى «{1}»."
  },
+ "agentStepServiceOther": {
+  "message": "لا تحتوي الصفحة على «{0}». هل تختار «{1}» بدلًا منها؟"
+ },
+ "agentRecapService": {
+  "message": "الخدمة: {0}"
+ },
+ "agentRecapServiceOther": {
+  "message": "ليست «{0}» المطلوبة: لقد اخترت هذه."
+ },
  "agentStepPricedChoice": {
   "message": "اختيار «{0}» — اختيار بسعره، وليس دفعًا"
  },

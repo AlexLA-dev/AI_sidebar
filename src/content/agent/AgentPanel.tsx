@@ -98,6 +98,9 @@ export function recapNotes(r: Recap): string[] {
   return [
     r.askedDate || r.askedTime ? t("agentRecapAsked", r.askedDate ? when(r.askedDate, r.askedTime) : clock(r.askedTime ?? "")) : "",
     r.otherPlace ? t("agentRecapOtherPlace") : "",
+    // (Decision 19g: the service chosen, and that it isn't the one asked when the person chose another.)
+    r.service ? t("agentRecapService", r.service) : "",
+    r.serviceOther ? t("agentRecapServiceOther", r.serviceOther) : "",
     r.again ? (r.again.to ? t("agentRecapAgainTo", r.again.field, r.again.to) : t("agentRecapAgain", r.again.field)) : "",
     r.terms ? t("agentRecapTerms", r.terms) : ""
   ].filter(Boolean)
@@ -121,7 +124,8 @@ export function stepText(state: Pick<PanelAgent, "pending">): string {
     case "select": return t("agentStepSelect", p.call.option ?? "", name)
     case "go": return p.verdict.reason === "other_site" ? t("agentStepGo", name) : t("agentStepClick", name)
     // (Decision 16: a priced choice is a choice with its price, not a payment — the card says so.)
-    default: return p.verdict.reason === "priced_choice" ? t("agentStepPricedChoice", name) : t("agentStepClick", name)
+    // (Decision 19g: another service than the asked one — the person chooses it or not.)
+    default: return p.verdict.reason === "service_other" && p.serviceOther ? t("agentStepServiceOther", p.serviceOther.asked, p.serviceOther.row) : p.verdict.reason === "priced_choice" ? t("agentStepPricedChoice", name) : t("agentStepClick", name)
   }
 }
 

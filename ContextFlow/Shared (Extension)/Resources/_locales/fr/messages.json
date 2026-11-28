@@ -3269,6 +3269,15 @@
  "agentRecapAgainTo": {
   "message": "Nouvelle demande : la page a refusé le premier essai à cause de « {0} » ; « {1} » est maintenant choisi."
  },
+ "agentStepServiceOther": {
+  "message": "La page n’a pas « {0} ». Choisir « {1} » à la place ?"
+ },
+ "agentRecapService": {
+  "message": "Prestation : {0}"
+ },
+ "agentRecapServiceOther": {
+  "message": "Pas « {0} » comme demandé : vous avez choisi celle-ci."
+ },
  "agentStepPricedChoice": {
   "message": "Choisir « {0} » — un choix avec son prix, pas un paiement"
  },

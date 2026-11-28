@@ -11,10 +11,12 @@ import { sameOption } from "../../shared/agent/call"
 import { controlChanged } from "../../shared/agent/expect"
 import type { StepResult, ToolCall } from "../../shared/agent/types"
 import { readText, replaceText } from "../insert/fieldtext"
-import { elementOf, markFilled, nameOf, roleOf } from "./map"
+import { elementOf, markFilled, nameOf, promote, roleOf } from "./map"
 import { catchNewTab } from "./newtab"
 import { hostOf, sameSite } from "../../shared/agent/sites"
 import { fieldLock } from "../../shared/agent/fields"
+import { chooseDial } from "../../shared/agent/phone"
+import { termFits } from "../../shared/agent/venues"
 
 const SETTLE_QUIET_MS = 350
 const SETTLE_MAX_MS = 4000
@@ -236,6 +238,56 @@ async function choose(el: Element, asked: string): Promise<StepResult> {
   return { ok: true, note: "chose it", changed: settled.changed, navigated: settled.navigated }
 }
 
+/** Decision 15f (the device only): a country or dial-code control set from its whole option list on the page — a native
+ *  select read entire; a list of the page's own opened, its search field given the code when it has one, the option
+ *  pressed, the list left closed. The choice itself is phone.ts chooseDial; the result's data says what was chosen. */
+async function dial(el: Element, call: ToolCall): Promise<StepResult> {
+  const view = el.ownerDocument.defaultView ?? window
+  const doc = el.ownerDocument
+  const codes = call.codes ?? []
+  const names = call.names ?? []
+  const text = (o: Element) => ((o as HTMLElement).innerText ?? o.textContent ?? "").replace(/\s+/g, " ").trim()
+  if (tag(el) === "select") {
+    const select = el as HTMLSelectElement
+    const opts = Array.from(select.options)
+    const selected = select.selectedOptions[0] ? text(select.selectedOptions[0]) : undefined
+    const pick = chooseDial(opts.map((o) => ({ label: text(o), value: o.value })), selected, codes[0] ?? "", names, call.keep === true, [...(call.avoid ?? []), ...(call.option ? [call.option] : [])])
+    if (!pick) return { ok: false, note: "no option carries the number's code" }
+    const r = pick.chosen === selected ? { ok: true, note: `kept "${pick.chosen.slice(0, 60)}"` } as StepResult : await choose(el, pick.chosen)
+    return { ...r, data: JSON.stringify(pick) }
+  }
+  // A list of the page's own: opened when it isn't, its search field (if any) given the code, its options read entire.
+  const listOf = (): Element[] => {
+    const owned = el.getAttribute("aria-controls") || el.getAttribute("aria-owns")
+    const box = (owned && doc.getElementById(owned)) || (el.matches("[role=listbox]") ? el : null)
+    const scope: ParentNode = box ?? doc
+    return Array.from(scope.querySelectorAll("[role=option], [role=menuitem], [role=menuitemradio]")).filter((o) => (o as HTMLElement).offsetParent !== null || !!box)
+  }
+  if (el.getAttribute("aria-expanded") !== "true" && !el.matches("[role=listbox]")) {
+    press(el)
+    await stepSettle(250, 1500)
+  }
+  const search = doc.querySelector("[role=listbox] input, [role=dialog] input[type=search], input[type=search][aria-controls], input[role=combobox][aria-expanded=true]") as HTMLInputElement | null
+  if (search && codes[0]) {
+    // (The code's first digit filters the list wide enough for every country of the code, +1 684 among +1.)
+    setNative(search, `+${codes[0].slice(0, 1)}`)
+    search.dispatchEvent(new view.InputEvent("input", { bubbles: true, composed: true, inputType: "insertText", data: search.value }))
+    await stepSettle(300, 1500)
+  }
+  const opts = listOf()
+  const pick = chooseDial(opts.map((o) => ({ label: text(o), value: o.getAttribute("data-value") ?? o.getAttribute("value") ?? undefined })), undefined, codes[0] ?? "", names, false, [...(call.avoid ?? []), ...(call.option ? [call.option] : [])])
+  const match = pick ? opts.find((o) => text(o) === pick.chosen) : undefined
+  if (!pick || !match) {
+    if (el.getAttribute("aria-expanded") === "true") press(el)
+    return { ok: false, note: "no option of the list carries the number's code" }
+  }
+  reveal(match)
+  press(match)
+  const settled = await stepSettle()
+  if (el.getAttribute("aria-expanded") === "true") el.dispatchEvent(new view.KeyboardEvent("keydown", { bubbles: true, key: "Escape" }))
+  return { ok: true, note: `chose "${pick.chosen.slice(0, 60)}"`, changed: settled.changed, navigated: settled.navigated, data: JSON.stringify(pick) }
+}
+
 function scrollPage(doc: Document, to: "up" | "down"): void {
   const view = doc.defaultView ?? window
   const by = Math.round(view.innerHeight * 0.8) * (to === "up" ? -1 : 1)
@@ -313,10 +365,10 @@ export function changedSince(el: Element, call: ToolCall): string | null {
 
 async function actOnly(call: ToolCall, doc: Document): Promise<StepResult> {
   const view = doc.defaultView ?? window
-  const needs = call.tool === "click" || call.tool === "type" || call.tool === "fill" || call.tool === "select" || call.tool === "go"
+  const needs = call.tool === "click" || call.tool === "type" || call.tool === "fill" || call.tool === "select" || call.tool === "go" || call.tool === "dial"
   const el = call.id ? elementOf(call.id) : null
   if (needs && !el) return { ok: false, note: `element ${call.id} is gone from the page (read it again)` }
-  if (el && (call.tool === "type" || call.tool === "fill" || call.tool === "click" || call.tool === "select") && lockOf(el) === "secret") {
+  if (el && (call.tool === "type" || call.tool === "fill" || call.tool === "click" || call.tool === "select" || call.tool === "dial") && lockOf(el) === "secret") {
     return { ok: false, note: "a secret field: the agent never touches it" }
   }
   const changed = el ? changedSince(el, call) : null
@@ -387,6 +439,19 @@ async function actOnly(call: ToolCall, doc: Document): Promise<StepResult> {
       if (r.undo) r.undo.id = call.id!
       return r
     }
+    case "rowtext": {
+      return { ok: !!el, note: el ? "row" : "gone", data: el ? rowOfControl(el) : "" }
+    }
+    case "rows": {
+      const found = rowsOn(doc, call.words ?? [])
+      return { ok: true, note: found.rows.length ? `${found.rows.length} rows` : "no row", data: JSON.stringify(found) }
+    }
+        case "dial": {
+      reveal(el!)
+      const r = await dial(el!, call)
+      if (r.undo) r.undo.id = call.id!
+      return r
+    }
     case "scroll": {
       if (el) (el as HTMLElement).scrollIntoView?.({ block: "center" })
       else scrollPage(doc, call.to ?? "down")
@@ -447,4 +512,116 @@ async function slideTo(el: HTMLElement, text: string): Promise<StepResult> {
   const after = now()
   const settled = await stepSettle(300, 2000)
   return after === before ? { ok: false, note: "the slider didn't move with its keys: press the steps beside it, or ask the person" } : { ok: true, note: `the slider is at ${after}`, changed: settled.changed }
+}
+
+// ------------------------------------------------------------ decision 19: the named service's rows
+
+const ROW_CONTROL = "button, a[href], [role=button], [role=link], input[type=button], input[type=submit], [onclick], [tabindex]"
+
+/** Whether an element is drawn and pressable: a control by its tag or role, or a short piece showing a pointer. */
+function pressable(el: Element): boolean {
+  const r = el.getBoundingClientRect()
+  if (r.width < 4 || r.height < 4) return false
+  if (el.matches("button, a[href], [role=button], [role=link], input[type=button], input[type=submit]")) return true
+  const text = ((el as HTMLElement).innerText ?? "").replace(/\s+/g, " ").trim()
+  if (!text || text.length > 40) return false
+  const view = el.ownerDocument.defaultView
+  return view?.getComputedStyle(el).cursor === "pointer" || el.hasAttribute("onclick")
+}
+
+/**
+ * The page's rows that name one of the terms (the plan's service), anywhere on the page, each with its own control
+ * (its «Choose» / «Book» or the row itself when it's one link), up to five; and the page's headings, for the line when
+ * none names it. The controls found get map numbers (promote) so the next map has them.
+ */
+export function rowsOn(doc: Document, terms: string[]): { rows: Array<{ text: string; id: string; label: string }>; groups: string[]; near: Array<{ text: string; id: string; label: string }>; service: number } {
+  const words = terms.map((t) => t.trim()).filter(Boolean)
+  const rows: Array<{ text: string; id: string; label: string }> = []
+  const seenText = new Set<string>()
+  const textOf = (el: Element) => ((el as HTMLElement).innerText ?? el.textContent ?? "").replace(/\s+/g, " ").trim()
+  if (words.length) {
+    // The smallest elements whose text names a term (no child that names it too).
+    const all = Array.from(doc.body?.querySelectorAll("*") ?? [])
+    const hits: Element[] = []
+    // (The scan reads textContent, which needs no layout; innerText only for the rows found.)
+    const raw = (el: Element) => (el.textContent ?? "").replace(/\s+/g, " ").trim()
+    for (const el of all) {
+      if (/^(SCRIPT|STYLE|NOSCRIPT|TEMPLATE|SVG|HEAD)$/i.test(el.tagName)) continue
+      const t = raw(el)
+      if (!t || t.length > 300 || !words.some((w) => termFits(t, w))) continue
+      if (Array.from(el.children).some((c) => { const ct = raw(c); return ct.length > 0 && words.some((w) => termFits(ct, w)) })) continue
+      hits.push(el)
+      if (hits.length > 60) break
+    }
+    for (const hit of hits) {
+      // The row: up from the words to the first box that holds a control, while it stays one row's worth of text.
+      let control: Element | null = hit.closest("a[href], button, [role=button], [role=link]")
+      let box: Element | null = control ?? hit
+      for (let up: Element | null = hit, n = 0; !control && up && n < 6; up = up.parentElement, n++) {
+        const text = textOf(up)
+        if (text.length > 400) break
+        // (Its controls: tagged ones, and short pieces drawn with a pointer; a piece inside another counts once, the outer.)
+        const found = Array.from(up.querySelectorAll("*")).filter((c) => c.matches(ROW_CONTROL) || pressable(c)).filter(pressable)
+        const inside = found.filter((c) => !found.some((o) => o !== c && o.contains(c)))
+        if (inside.length > 4) break
+        if (inside.length) {
+          control = inside.find((c) => /(choisir|choose|select|book|réserver|wählen|buchen|scegli|prenota|elegir|reservar|escolher|seç|выбрать|записаться|обрати|選択|選ぶ|予約|선택|예약|选择|预约|選擇|預約|chọn|đặt|اختر|احجز)/iu.test(textOf(c))) ?? inside[inside.length - 1]
+          box = up
+        }
+      }
+      if (!control) continue
+      const text = textOf(box ?? hit).slice(0, 160)
+      if (seenText.has(text)) continue
+      seenText.add(text)
+      const role = roleOf(control)
+      rows.push({ text, id: promote(control), label: role ? nameOf(control, role) : textOf(control).slice(0, 40) })
+      if (rows.length >= 5) break
+    }
+  }
+  const groups = [...new Set(Array.from(doc.querySelectorAll("h1, h2, h3, h4, [role=heading]")).map(textOf).filter((t) => t.length >= 2 && t.length <= 60))].slice(0, 14)
+  // (Decision 19g: none names it — the rows nearest to it, by the words they share with the terms, for the person's
+  // question; each with its own control.)
+  const scan = catalog(doc, words)
+  return { rows, groups, near: rows.length ? [] : scan.near, service: scan.service }
+}
+
+/** A control's row: up from it to the widest box that's still one row (its text short, a few controls in it). */
+export function rowOfControl(control: Element): string {
+  const textOf = (el: Element) => ((el as HTMLElement).innerText ?? el.textContent ?? "").replace(/\s+/g, " ").trim()
+  let row = textOf(control)
+  for (let up = control.parentElement, n = 0; up && n < 6; up = up.parentElement, n++) {
+    const text = textOf(up)
+    if (text.length > 400) break
+    const inside = Array.from(up.querySelectorAll(ROW_CONTROL)).filter(pressable)
+    if (inside.length > 4) break
+    row = text
+  }
+  return row.slice(0, 160)
+}
+
+// (A row of a venue's service list: a duration or a price in it.)
+const SERVICE_ROW = /\d\s?(?:min|мин|хв|分|분|dk|phút|دقيقة|h\s?\d{1,2})|[€£$₽¥₩₺₴]|(?<![\p{L}])(?:EUR|RUB|USD|GBP|TRY|AED|JPY|KRW|UAH|руб)(?![\p{L}])/iu
+
+/** The page's control rows, once: how many read as a service list's (a duration or a price), and those sharing the most
+ *  words with the terms (three letters or more, case and accents aside), up to five. */
+function catalog(doc: Document, terms: string[]): { near: Array<{ text: string; id: string; label: string }>; service: number } {
+  const fold = (s: string) => s.toLocaleLowerCase().normalize("NFKD").replace(/\p{M}/gu, "")
+  const words = [...new Set(terms.flatMap((t) => fold(t).split(/[^\p{L}\p{N}]+/u)).filter((w) => w.length >= 3).map((w) => w.replace(/s$/u, "")))]
+  let service = 0
+  const seen = new Set<string>()
+  const scored: Array<{ text: string; el: Element; score: number }> = []
+  for (const c of Array.from(doc.body?.querySelectorAll("*") ?? [])) {
+    if (!(c.matches(ROW_CONTROL) || pressable(c)) || !pressable(c)) continue
+    if (Array.from(c.querySelectorAll("*")).some((x) => x.matches(ROW_CONTROL))) continue
+    const text = rowOfControl(c)
+    if (!text || seen.has(text)) continue
+    seen.add(text)
+    if (SERVICE_ROW.test(text)) service++
+    const t = fold(text)
+    const score = words.filter((w) => t.includes(w)).length
+    if (score > 0) scored.push({ text, el: c, score })
+    if (seen.size > 400) break
+  }
+  const near = scored.sort((a, b) => b.score - a.score).slice(0, 5).map((x) => { const role = roleOf(x.el); return { text: x.text, id: promote(x.el), label: role ? nameOf(x.el, role) : x.text.slice(0, 40) } })
+  return { near, service }
 }

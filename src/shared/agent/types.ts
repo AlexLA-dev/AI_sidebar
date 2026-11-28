@@ -100,6 +100,10 @@ export type ToolName =
   | "set_dates"
   // The person's Calendar and Reminders on the device (2.7.1, AgentApple.swift): no page in it.
   | "reminders" | "reminder_add" | "reminder_done" | "calendar" | "event_add"
+  // The device only (decision 15f): a country or dial-code control set from its full option list on the page.
+  | "dial"
+  | "rows"
+  | "rowtext"
 
 /** One call of the model: one tool and its arguments (the ones the tool doesn't use are left out). */
 export interface ToolCall {
@@ -138,6 +142,16 @@ export interface ToolCall {
   also?: Array<{ id: string; why?: string }>
   // Set by the device only: after typing, leave the field as a person would (blur), so the page checks it (decision 15b).
   leave?: boolean
+  // Set by the device only (dial, decision 15f): the number's digits with its calling code (codes[0]); the names to
+  // prefer, in order; whether the page's own selection stands when it has the code. `option` then is one never to choose
+  // (the one the page just refused).
+  codes?: string[]
+  names?: string[]
+  keep?: boolean
+  // (dial) the options the page refused in this task: never chosen again.
+  avoid?: string[]
+  // (rows, decision 19) the plan's service in the request's words: the page's rows that name it.
+  words?: string[]
 }
 
 /**

@@ -3269,6 +3269,15 @@
  "agentRecapAgainTo": {
   "message": "다시 묻습니다: ‘{0}’ 때문에 페이지가 첫 시도를 받지 않았습니다. ‘{1}’(으)로 바꿨습니다."
  },
+ "agentStepServiceOther": {
+  "message": "이 페이지에는 “{0}”이(가) 없습니다. 대신 “{1}”을(를) 선택할까요?"
+ },
+ "agentRecapService": {
+  "message": "서비스: {0}"
+ },
+ "agentRecapServiceOther": {
+  "message": "요청하신 “{0}”이(가) 아닙니다: 이것을 직접 선택하셨습니다."
+ },
  "agentStepPricedChoice": {
   "message": "‘{0}’ 선택 — 가격이 표시된 선택이며 결제가 아닙니다"
  },

@@ -3269,6 +3269,15 @@
  "agentRecapAgainTo": {
   "message": "Se pregunta de nuevo: la página rechazó el primer intento por «{0}»; ahora está elegido «{1}»."
  },
+ "agentStepServiceOther": {
+  "message": "La página no tiene «{0}». ¿Elegir «{1}» en su lugar?"
+ },
+ "agentRecapService": {
+  "message": "Servicio: {0}"
+ },
+ "agentRecapServiceOther": {
+  "message": "No es «{0}», lo que pediste: elegiste este."
+ },
  "agentStepPricedChoice": {
   "message": "Elegir «{0}»: una opción con su precio, no un pago"
  },

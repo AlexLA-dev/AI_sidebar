@@ -5,6 +5,8 @@ import assert from "node:assert/strict"
 import { readFileSync } from "node:fs"
 import { test } from "node:test"
 
+import { withDial } from "./helpers/dialfake.mts"
+
 import { DEFAULT_RULES } from "../src/shared/agent/rules.ts"
 import { answer, drive, fieldMessages, newState, recapOf, type AgentState, type RunnerIO } from "../src/shared/agent/runner.ts"
 import type { MapItem, PageMap, ToolCall } from "../src/shared/agent/types.ts"
@@ -55,16 +57,16 @@ const withBooking = (st: AgentState) => {
 test("a bounced booking press books nothing; the next press goes to the person's card, its recap says why it's asked again", async () => {
   const p = late()
   const x = io(p, [{ tool: "type", id: "2", text: "+44 7700 900123" }, { tool: "click", id: "3" }, { tool: "click", id: "3" }])
-  let st = await drive(withBooking(newState("b1", "Book. Phone +44 7700 900123.", "en", p.map().url)), x)
+  let st = await drive(withBooking(newState("b1", "Book. Phone +44 7700 900123.", "en", p.map().url)), withDial(x))
   assert.equal(st.status, "confirm", "the first press: its card")
-  st = await answer(st, x, "yes")
+  st = await answer(st, withDial(x), "yes")
   assert.equal(st.bookPress, undefined, "the bounced press isn't the booking")
   assert.match(st.log.find((l) => /the page refused it/.test(l.result ?? ""))?.result ?? "", /«Telephone number» is marked invalid — nothing was booked/)
   assert.equal(p.s.country, "United Kingdom (+44)", "15b: the other option, once")
   assert.equal(st.status, "confirm", "the second press: a card again, not «booking press again»")
   assert.ok(!st.log.some((l) => /the booking's press already went/.test(l.result ?? "")))
   assert.deepEqual(st.pending?.recap?.again, { field: "Telephone number", to: "United Kingdom (+44)" })
-  st = await answer(st, x, "yes")
+  st = await answer(st, withDial(x), "yes")
   assert.equal(p.s.booked, true)
   assert.ok(st.bookPress, "the press after the fix is the booking")
 })
@@ -73,8 +75,8 @@ test("a press after a real «booked» page is still refused", async () => {
   const p = late()
   p.s.country = "United Kingdom (+44)"
   const x = io(p, [{ tool: "type", id: "2", text: "+44 7700 900123" }, { tool: "click", id: "3" }, { tool: "click", id: "3" }])
-  let st = await drive(withBooking(newState("b2", "Book. Phone +44 7700 900123.", "en", p.map().url)), x)
-  st = await answer(st, x, "yes")
+  let st = await drive(withBooking(newState("b2", "Book. Phone +44 7700 900123.", "en", p.map().url)), withDial(x))
+  st = await answer(st, withDial(x), "yes")
   assert.ok(st.bookPress)
   assert.ok(st.log.some((l) => /^refused: the booking's press already went/.test(l.result ?? "")), JSON.stringify(st.log.map((l) => l.result)))
 })
@@ -83,11 +85,25 @@ test("15d: the old message is said once; a question about the field right then i
   const p = late()
   const q = { tool: "ask_user", question: "The page says the phone number isn't valid. Which number should I use?" }
   const x = io(p, [{ tool: "type", id: "2", text: "+44 7700 900123" }, { tool: "click", id: "3" }, q, q])
-  let st = await drive(withBooking(newState("b3", "Book. Phone +44 7700 900123.", "en", p.map().url)), x)
-  st = await answer(st, x, "yes")
+  let st = await drive(withBooking(newState("b3", "Book. Phone +44 7700 900123.", "en", p.map().url)), withDial(x))
+  st = await answer(st, withDial(x), "yes")
   const sent = st.log.filter((l) => /^refused: the page's message about «Telephone number» is from before it was changed to «United Kingdom \(\+44\)»/.test(l.result ?? ""))
   assert.equal(sent.length, 1)
   assert.equal(st.status, "asked", "the second question reaches the person")
+})
+
+test("15f: a country the page refused is never chosen again in the task; an invalid mark from before the typing isn't a new verdict", async () => {
+  const p = late()
+  const x = io(p, [{ tool: "type", id: "2", text: "+44 7700 900123" }, { tool: "click", id: "3" }, { tool: "select", id: "1", option: "United Kingdom (+44)" }, { tool: "type", id: "2", text: "+44 7700 900123" }, { tool: "click", id: "3" }, { tool: "click", id: "3" }])
+  const seen: string[] = []
+  const act0 = p.act
+  p.act = async (c: ToolCall) => { const r = await act0(c); seen.push(p.s.country); return r }
+  let st = await drive(withBooking(newState("b5", "Book. Phone +44 7700 900123.", "en", p.map().url)), withDial(x))
+  for (let i = 0; i < 4 && st.status === "confirm"; i++) st = await answer(st, withDial(x), "yes")
+  assert.ok(st.dialRefused?.includes("Guernsey (+44)"), JSON.stringify(st.dialRefused))
+  const after = seen.slice(seen.indexOf("United Kingdom (+44)"))
+  assert.ok(!after.includes("Guernsey (+44)"), `never back to the refused country: ${seen.join(" → ")}`)
+  assert.equal(p.s.booked, true, st.log.map((l) => `${l.call?.tool} ${l.result}`).join("\n"))
 })
 
 test("fieldMessages reads the page's refusal in its words, in four scripts", () => {

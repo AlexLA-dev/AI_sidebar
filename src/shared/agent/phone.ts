@@ -108,3 +108,70 @@ export function deviceRegion(): string {
     return ""
   }
 }
+
+/** Whether an option's label or value carries this calling code as a whole code («+44», «(+44)», «+44-GB»; never
+ *  «+441…»). */
+export function carriesCode(text: string, code: string): boolean {
+  return new RegExp(`\\+\\s?${code}(?!\\d)`).test(text)
+}
+
+export interface DialChoice {
+  code: string
+  chosen: string
+  others: string[]
+}
+
+/** An option's own calling code, as its digits: «United Kingdom (+44)» → "44", «American Samoa (+1 684)» → "1684",
+ *  «+44-GB» → "44"; "" when it names none. */
+export function optionCode(text: string): string {
+  const m = /\+\s?(\d[\d ]{0,6}\d|\d)(?![\d])/.exec(text)
+  return m ? m[1].replace(/ /g, "") : ""
+}
+
+/** Decision 15f: the option of a country or dial-code control to choose, from its full list (labels, with each one's
+ *  value beside it when it differs), for a number given by its digits (with its calling code): the options whose own
+ *  whole code starts the number, the longest such code first («+1 684» only for a number that starts 1684, «+1» for the
+ *  rest of +1); among those, the selected one when `keep` (the page's own selection, untouched by the task), else the
+ *  first whose label names one of `names` in their order (the device region's country, then the code's main territory),
+ *  else the first; `exclude` (the option just refused) is never chosen. Null when no option's code starts the number. */
+export function chooseDial(options: Array<{ label: string; value?: string }>, selected: string | undefined, digits: string, names: string[], keep: boolean, exclude?: string | string[]): DialChoice | null {
+  const avoid = new Set(Array.isArray(exclude) ? exclude : exclude ? [exclude] : [])
+  const codeOf = (o: { label: string; value?: string }) => optionCode(o.label) || optionCode(o.value ?? "")
+  const fits = options.filter((o) => { const c = codeOf(o); return !!c && digits.startsWith(c) })
+  if (!fits.length) return null
+  const code = fits.map(codeOf).sort((a, b) => b.length - a.length)[0]
+  const withCode = fits.filter((o) => codeOf(o) === code)
+  const pool = withCode.filter((o) => !avoid.has(o.label))
+  if (!pool.length) return null
+  const low = (s: string) => s.toLocaleLowerCase()
+  const kept = keep && selected && !avoid.has(selected) ? pool.find((o) => o.label === selected || o.value === selected) : undefined
+  const named = names.map((n) => pool.find((o) => low(o.label).includes(low(n)) || (n.startsWith("-") && (o.value ?? "").endsWith(n)))).find(Boolean)
+  const pick = kept ?? named ?? pool[0]
+  return { code, chosen: pick.label, others: withCode.filter((o) => o !== pick).map((o) => o.label) }
+}
+
+/** The names a choice prefers, in order: the device region's country, then each code's main territory — in the page's
+ *  language and in English (and the ISO region, as some lists write it: «+44-GB»). */
+export function dialNames(codes: string[], region: string, lang: string): string[] {
+  const out: string[] = []
+  const add = (r: string) => {
+    for (const l of [lang, "en"]) {
+      try {
+        const n = new Intl.DisplayNames([l || "en"], { type: "region" }).of(r)
+        if (n && n !== r && !out.includes(n)) out.push(n)
+      } catch {
+        // an unknown language or region
+      }
+    }
+    if (!out.includes(`-${r}`)) out.push(`-${r}`)
+  }
+  if (region) add(region)
+  for (const c of codes) if (MAIN_REGION[c]) add(MAIN_REGION[c])
+  return out
+}
+
+/** The calling codes a number may start with, longest first (1 to 3 digits). */
+export function codesOf(value: string): string[] {
+  const d = internationalDigits(value)
+  return d ? [d.slice(0, 3), d.slice(0, 2), d.slice(0, 1)] : []
+}
