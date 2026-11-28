@@ -148,6 +148,8 @@ export const WORDS: Record<WordKind, string[]> = {
   // Signing in and up: passwords and codes are the person's (Safari AutoFill and Passwords).
   auth: [
     "log in", "login", "sign in", "sign up", "register", "create account", "create an account", "continue with google",
+    "regístrate", "registrate", "iscriviti", "registrierung", "konto anlegen", "kaydol", "đăng kí",
+    "inscrever-se", "registre-se", "зарегистрируйтесь", "зареєструйтеся", "登錄", "註冊會員", "注册会员",
     "continue with apple", "sign in with google", "sign in with apple",
     "войти", "вход", "зарегистрироваться", "регистрация", "создать аккаунт", "создать учетную запись",
     "увійти", "вхід", "зареєструватися", "реєстрація", "створити акаунт",
@@ -521,4 +523,27 @@ export const PROMOTED_WORDS = [
   "广告", "推广", "赞助",
   "廣告", "推廣", "贊助",
   "quảng cáo", "tài trợ", "nổi bật"
+]
+
+
+// Round 142, the director's decision 10: the nav words that lead away from a purchase or only show more (back, continue
+// shopping, more, search, view the cart). On a page that takes payment these stay quiet; every other nav word moves the
+// purchase forward («Continue», «Next», «Checkout») and is the person's own there. An entry that couldn't be placed went
+// forward, the stricter side.
+export const NAV_AWAY = [
+  "view cart", "go to cart", "view basket", "show more", "load more", "see more", "search", "back", "continue shopping",
+  "перейти в корзину", "в корзину перейти", "показать еще", "показать больше", "загрузить еще", "найти", "поиск", "назад", "продолжить покупки",
+  "перейти до кошика", "перейти в кошик", "показати ще", "показати більше", "знайти", "пошук",
+  "warenkorb anzeigen", "zum warenkorb", "mehr anzeigen", "mehr laden", "suchen", "zurück", "weiter einkaufen",
+  "voir le panier", "afficher plus", "voir plus", "rechercher", "retour", "continuer mes achats",
+  "seguir comprando", "ver carrito", "ir al carrito", "ver más", "mostrar más", "buscar", "volver",
+  "vai al carrello", "mostra altro", "carica altro", "cerca", "indietro", "continua lo shopping",
+  "ir para o carrinho", "ver carrinho", "ver mais", "carregar mais", "pesquisar", "voltar", "continuar comprando",
+  "sepete git", "sepeti görüntüle", "daha fazla göster", "daha fazla", "ara", "geri", "alışverişe devam et",
+  "الذهاب إلى السلة", "عرض السلة", "عرض المزيد", "بحث", "رجوع",
+  "カートを見る", "もっと見る", "検索", "戻る", "買い物を続ける",
+  "장바구니 보기", "장바구니로 이동", "더 보기", "더보기", "검색", "뒤로", "쇼핑 계속하기",
+  "查看购物车", "加载更多", "查看更多", "搜索", "返回", "继续购物",
+  "查看購物車", "載入更多", "搜尋", "繼續購物",
+  "đến giỏ hàng", "xem giỏ hàng", "xem thêm", "tải thêm", "tìm kiếm", "quay lại", "tiếp tục mua sắm"
 ]

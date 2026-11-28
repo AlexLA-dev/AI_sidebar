@@ -98,6 +98,7 @@ export function recapNotes(r: Recap): string[] {
   return [
     r.askedDate || r.askedTime ? t("agentRecapAsked", r.askedDate ? when(r.askedDate, r.askedTime) : clock(r.askedTime ?? "")) : "",
     r.otherPlace ? t("agentRecapOtherPlace") : "",
+    r.again ? (r.again.to ? t("agentRecapAgainTo", r.again.field, r.again.to) : t("agentRecapAgain", r.again.field)) : "",
     r.terms ? t("agentRecapTerms", r.terms) : ""
   ].filter(Boolean)
 }
@@ -119,7 +120,8 @@ export function stepText(state: Pick<PanelAgent, "pending">): string {
     case "type": return t("agentStepType", (p.call.text ?? "").slice(0, 80), name)
     case "select": return t("agentStepSelect", p.call.option ?? "", name)
     case "go": return p.verdict.reason === "other_site" ? t("agentStepGo", name) : t("agentStepClick", name)
-    default: return t("agentStepClick", name)
+    // (Decision 16: a priced choice is a choice with its price, not a payment — the card says so.)
+    default: return p.verdict.reason === "priced_choice" ? t("agentStepPricedChoice", name) : t("agentStepClick", name)
   }
 }
 

@@ -82,6 +82,9 @@ export interface PageMap {
   // The page takes payment: card fields, a payment provider's frame (Stripe, Adyen, Braintree, PayPal, Apple Pay…) or
   // a checkout / payment address. Every press that sends something here is the person's own.
   pay?: boolean
+  // A checkout funnel's address («/checkout/», «/kasse/») with no payment sign on the page (round 142, the director's
+  // decision 9): the ordinary rules class each control, and a forward press is carded.
+  funnel?: boolean
   // The page mentions a deposit, a prepayment or a no-show fee (read with the page's amounts): its committing press pays.
   deposit?: boolean
   // Another site's frames big enough to be a form (a restaurant's booking widget from a provider): the map can't read
@@ -93,6 +96,8 @@ export interface PageMap {
 
 export type ToolName =
   | "read_page" | "click" | "type" | "fill" | "select" | "scroll" | "go" | "back" | "extract" | "ask_user" | "done"
+  // The device sets the booking's dates on the page itself (round 141, setdates.ts).
+  | "set_dates"
   // The person's Calendar and Reminders on the device (2.7.1, AgentApple.swift): no page in it.
   | "reminders" | "reminder_add" | "reminder_done" | "calendar" | "event_add"
 
@@ -131,6 +136,8 @@ export interface ToolCall {
   link?: string
   // More presses on the same page after this one (each checked and classed on the device first).
   also?: Array<{ id: string; why?: string }>
+  // Set by the device only: after typing, leave the field as a person would (blur), so the page checks it (decision 15b).
+  leave?: boolean
 }
 
 /**

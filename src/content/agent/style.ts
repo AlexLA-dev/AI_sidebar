@@ -27,3 +27,13 @@ export function styleOf(el: Element): CSSStyleDeclaration | null {
   cache?.set(el, s)
   return s
 }
+
+/** Whether the browser itself says the element doesn't show (round 141, the director's item 6): display none, hidden or
+ *  skipped content, visibility hidden, opacity 0 on it or an ancestor — one native call, no style object. null where the
+ *  browser hasn't the call (Safari before 17.4): the caller then reads styles, cached per build. A checkbox or a radio
+ *  a site draws over with its label is often opacity 0: those are asked without the opacity check. */
+export function hiddenNatively(el: Element, opacity = true): boolean | null {
+  const check = (el as Element & { checkVisibility?: (o?: Record<string, boolean>) => boolean }).checkVisibility
+  if (typeof check !== "function") return null
+  return !check.call(el, { checkOpacity: opacity, opacityProperty: opacity, checkVisibilityCSS: true, visibilityProperty: true, contentVisibilityAuto: true })
+}

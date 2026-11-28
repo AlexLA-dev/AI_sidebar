@@ -3263,6 +3263,15 @@
  "agentStepClick": {
   "message": "الضغط على «{0}»"
  },
+ "agentRecapAgain": {
+  "message": "سؤال مجدد: رفضت الصفحة المحاولة الأولى بسبب «{0}»."
+ },
+ "agentRecapAgainTo": {
+  "message": "سؤال مجدد: رفضت الصفحة المحاولة الأولى بسبب «{0}»؛ تم التغيير إلى «{1}»."
+ },
+ "agentStepPricedChoice": {
+  "message": "اختيار «{0}» — اختيار بسعره، وليس دفعًا"
+ },
  "agentStepType": {
   "message": "كتابة «{0}» في «{1}»"
  },

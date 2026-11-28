@@ -102,16 +102,18 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const strongUsed = Math.max(0, Number(task.strongUsed) || 0)
   const strong = needsStrong(log) && strongUsed < a.strongSteps
   // Measuring on a deploy preview (signed requests only): the driver may be named, to compare the models.
+  const effort = measuring && (body.effort === "low" || body.effort === "medium" || body.effort === "high") ? (body.effort as "low" | "medium" | "high") : undefined
   const named = measuring && typeof body.model === "string" && (body.model === a.model || body.model === a.strongModel) ? body.model : null
   const model = named ?? (strong ? a.strongModel : a.model)
   const started = Date.now()
   const lang = requestLanguage(request, clip(task.lang, 12) || "en")
   const planning = task.phase === "plan" && step === 0
-  const input = { request, lang, map, log, refused: clip(body.refused, 300) || undefined, data: clip(body.data, MAX_DATA_CHARS) || undefined, keys: savedKeys(body.keys), now: clip(task.now, 60) || undefined, device: deviceLine(task.device), plan: clip(task.plan, 2000) || undefined, rules: clip(task.rules, 600) || undefined, calendar: calendarLine(task.calendar), playbook: clip(task.playbook, 900) || undefined, venues: clip(task.venues, 1200) || undefined, subject: clip(task.subject, 200) || undefined, ...(task.phase === "plan" && step === 0 ? { chat: clip(task.chat, 2400) || undefined } : {}) }
+  const input = { request, lang, map, log, refused: clip(body.refused, 300) || undefined, data: clip(body.data, MAX_DATA_CHARS) || undefined, keys: savedKeys(body.keys), now: clip(task.now, 60) || undefined, device: deviceLine(task.device), plan: clip(task.plan, 2000) || undefined, rules: clip(task.rules, 600) || undefined, calendar: calendarLine(task.calendar), playbook: clip(task.playbook, 900) || undefined, venues: clip(task.venues, 1200) || undefined, subject: clip(task.subject, 200) || undefined, ...(task.noDates === true ? { noDates: true } : {}), ...(task.phase === "plan" && step === 0 ? { chat: clip(task.chat, 2400) || undefined } : {}) }
   let out
   try {
     if (planning) {
-      const p = await planTask(input, { model: named ?? a.planModel, signal: req.signal })
+      // (Measuring only: the plan's own reasoning off, to compare it on the same pages — round 141.)
+      const p = await planTask(input, { model: named ?? a.planModel, signal: req.signal, thinkingOff: !!measuring && body.planThinking === "off", effort })
       const spent = p.usage.reduce((n, u: Usage) => n + cost(u), 0)
       context.waitUntil(Promise.all([
         logEvent("agent_step", installId, {
@@ -121,9 +123,9 @@ export default async (req: Request, context: Context): Promise<Response> => {
         }),
         touchInstall(installId, platform, version, locale, 0).catch(() => undefined)
       ]))
-      return json({ ok: true, plan: p.plan, token, left, stepsLeft: Math.max(0, maxSteps - stepsUsed), ...(measuring ? { model: named ?? a.planModel, cost: Math.round(spent * 1e6) / 1e6 } : {}) })
+      return json({ ok: true, plan: p.plan, token, left, stepsLeft: Math.max(0, maxSteps - stepsUsed), ...(measuring ? { model: named ?? a.planModel, cost: Math.round(spent * 1e6) / 1e6, output: p.usage.reduce((n, u) => n + u.output, 0), thinking: p.usage.reduce((n, u) => n + (u.thinking ?? 0), 0), retried: !!p.retried } : {}) })
     }
-    out = await nextStep(input, { model, startHost, confirmedHere: task.confirmedHere === true, signal: req.signal, fallback: a.strongModel })
+    out = await nextStep(input, { model, startHost, confirmedHere: task.confirmedHere === true, signal: req.signal, fallback: a.strongModel, effort })
   } catch (err) {
     const reason = err instanceof ActError ? err.reason : "error"
     console.error("[cf] act failed:", err instanceof Error ? err.message : err)
@@ -134,7 +136,10 @@ export default async (req: Request, context: Context): Promise<Response> => {
       taskBack.length ? refund(taskBack).catch(() => undefined) : Promise.resolve(),
       logEvent("upstream_error", installId, { message: err instanceof Error ? err.message.slice(0, 300) : "unknown", reason, mode: "agent", provider: "anthropic", platform, version })
     ]))
-    return json({ code: reason === "rate_limit" ? "BUSY" : "UPSTREAM" }, reason === "rate_limit" ? 503 : 502)
+    // (A measuring request on a deploy preview also gets the reason and, for a cut answer, what came before the cut —
+    // round 141: the plan call cut on Korean and Japanese pages. Never in production: `measuring` is false there.)
+    const cut = measuring && err instanceof ActError && err.reason === "cut" ? { reason, partial: (err.partial ?? "").slice(0, 12_000), output: err.output, blocks: err.blocks } : measuring ? { reason } : {}
+    return json({ code: reason === "rate_limit" ? "BUSY" : "UPSTREAM", ...cut }, reason === "rate_limit" ? 503 : 502)
   }
 
   const spent = out.usage.reduce((n, u: Usage) => n + cost(u), 0)

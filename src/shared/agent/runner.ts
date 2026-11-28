@@ -18,9 +18,11 @@ import { keyOfAutocomplete, liveEntries, modelKey, shapeValue, withNameParts, ty
 import { hostOf, sameSite, siteOfHost, type SitePolicy } from "./sites.ts"
 import { pageSubject, subjectLine, titleName } from "./subject.ts"
 import { cardsOf, onVenue, rankVenues, venueNote, venueOf, venuesOn, type Venue } from "./venues.ts"
-import { freeLineIn, honestChoices, looksLikeSlot, nearerTimes, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
+import { addDays, freeLineIn, honestChoices, looksLikeSlot, nearerTimes, pageChoices, readRules, rulesLine, shiftZone, timesIn } from "./rules.ts"
+import { setDates, type DatesIO, type DatesResult } from "./setdates.ts"
+import { codesIn, deviceRegion, dialControl, fixedPrefix, internationalDigits, nationalPart, pickDialOption } from "./phone.ts"
 import { pageKind } from "./events.ts"
-import { addContactFill, NAME_SAID, bareLabel, buildPlan, contactField, contactKind, requestGives, pathOf, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, contactInWords, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type PlanQuestion, type TaskPlan, DAY_KINDS, sameTaskPage } from "./taskplan.ts"
+import { addContactFill, NAME_SAID, bareLabel, buildPlan, contactField, contactKind, requestGives, pathOf, checkPlan, contactAsked, covered, fieldKind, keyKind, factKey, factLabel, missingPress, personWords, requestWithAnswers, planLine, planNeedsPerson, contactInWords, priceChanged, saidInWords, savedAnswers, type Perm, type PlanBooking, type PlanQuestion, type TaskPlan, DAY_KINDS, sameTaskPage, windowOf } from "./taskplan.ts"
 import type { LogEntry, MapItem, PageMap, StepClass, StepResult, StepVerdict, ToolCall } from "./types.ts"
 import type { AgentRule } from "../usage.ts"
 
@@ -66,6 +68,9 @@ export interface Recap {
   terms?: string
   // Said under a «Do it?» for the press (the plan didn't allow it), not instead of it.
   press?: boolean
+  // The page refused the first try of this press for a field (marked invalid), and the field was changed since: asked
+  // again, and why (the director's addition to decision 15d).
+  again?: { field: string; to?: string }
 }
 
 export interface AgentState {
@@ -152,6 +157,17 @@ export interface AgentState {
   disabledWaits?: number
   // The map's part the model asked for (read_page), read at the next step only.
   readPart?: number
+  // The pages this task has been on, in order (origin and path): «back» goes only to the one before, never past the
+  // task's first page (round 141: a second «back» left the site for a blank page).
+  trail?: string[]
+  // A «done» sent back once on a page that asks for the person's details (details_next).
+  detailsNudged?: boolean
+  // Pages (origin and path) where set_dates found no date control: it isn't run there again (round 141's real sites: up
+  // to nine calls in a run, each «no date control recognised»).
+  datesNone?: string[]
+  // A stay's or a rental's days as set_dates set them (its first day, and its last when known): pressing either by hand
+  // afterwards is never refused (round 141: a stays site's last day refused as «before the asked day» and «pressed already»).
+  stay?: { in: string; out?: string }
   // The outline's parts the model opened on this page (read_page with an outline): they stay open (round 139).
   openParts?: { page: string; parts: number[] }
   slotRefusals?: number
@@ -178,6 +194,35 @@ export interface AgentState {
   // Layers over the page the device closed itself (at most three a task), and the presses they came after.
   popups?: number
   closedAfter?: string[]
+  // Decision 15 (amended): the dial-code controls this task selected (the page's own selection counts only before that),
+  // the phone the device last put in beside one (its control, its field, the other options of its code, the national
+  // part), and whether the one extra option a task was used.
+  dialTouched?: string[]
+  phoneDial?: { dialId: string; dialLabel: string; dialRole: MapItem["role"]; fieldId: string; others: string[]; national: string }
+  phoneExtra?: boolean
+  // The person's international phone, given in the request or saved (the device owns the dial-code control then: 15a2).
+  phoneKnown?: string
+  // 15e: the option the device set on a dial-code control for the person's number, whether a second select on it was
+  // refused; 15e2: whether the up-front line about the country list was said.
+  dialOwned?: { dialId: string; option: string; refused?: boolean }
+  dialNoted?: boolean
+  // Decision 15d (general): a field changed after the page marked it invalid, with the page's message as it was then;
+  // whether the device line about it was said; what it was changed to (a country, when the device chose one).
+  staleFix?: { fieldId: string; label: string; kind: string; msg: string; to?: string; said?: boolean }
+  // A booking press the page bounced (a field marked invalid after it): it booked nothing (it isn't bookPress).
+  bounced?: { target: string; field: string }
+  // A window's days pressed in this task, in order (decision 14a), whether a later one was sent back for an earlier
+  // offered one, and whether the question for a window with no offered day passed (14c).
+  windowPressed?: string[]
+  windowEarlier?: boolean
+  windowAsked?: boolean
+  // Cookie layers the device refused itself (decision 13a: at most three a task, once per page address).
+  cookieDevice?: number
+  cookiePages?: string[]
+  // A question asking leave to use a contact the person gave was sent back (decision 13b: once a task).
+  givenAsk?: boolean
+  // Contact fields a booking's sending press was sent back for while empty (decision 13c: once per field).
+  contactEmpty?: string[]
   // The booking's day as the page shows it greyed (a strip greys days it hasn't loaded: a booking site's «Sat 26 Dec» answered
   // «full», with its next free day once pressed), and whether it was pressed once to hear the page.
   greyTarget?: string
@@ -282,6 +327,19 @@ export function appleKind(tool: ToolCall["tool"]): "reminders" | "calendar" {
 }
 
 /** The device's date, weekday, time and zone, for the model's «tomorrow» and «after 18:00». */
+/** The person's today, YYYY-MM-DD, and zone. */
+function localDay(d = new Date()): string {
+  const p = (n: number) => String(n).padStart(2, "0")
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
+}
+function localZone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone ?? ""
+  } catch {
+    return ""
+  }
+}
+
 export function nowLine(d = new Date()): string {
   const p = (n: number) => String(n).padStart(2, "0")
   const day = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()]
@@ -348,6 +406,120 @@ export function fillLines(call: ToolCall, item: MapItem | null, entries: FormEnt
   return [first, ...more]
 }
 
+// Decision 15: what the device did before a phone's fill or typing, and what to try after it.
+interface PhoneFirst {
+  text: string
+  dial?: MapItem
+  others?: string[]
+}
+
+/** Before a phone goes in: its field's country or dial-code control set to the number's calling code (the national part
+ *  then typed), or a fixed code the field shows as its prefix (the national part when it's the number's). Null when the
+ *  field isn't a phone's, the number has no code, or no control or prefix is there: as before. */
+async function phoneFirst(state: AgentState, io: RunnerIO, call: ToolCall, text: string): Promise<PhoneFirst | null> {
+  if (!internationalDigits(text)) return null
+  const map = await io.map({}).catch(() => null)
+  const field = map?.items.find((i) => i.id === call.id)
+  if (!map || !field || !(field.type === "tel" || contactField(field) === "phone" || (call.tool === "fill" && keyKind(call.key ?? "") === "phone"))) return null
+  const dial = dialControl(map, field)
+  if (dial && (dial.role === "select" || dial.role === "combobox") && dial.options?.length) {
+    // (15a amended: the selected option counts only when the page selected it, before this task touched the control.)
+    const touched = state.dialTouched?.includes(dial.id)
+    const pick = pickDialOption(dial.options, text, { ...(touched ? {} : { selected: dial.value }), region: deviceRegion(), lang: map.lang })
+    if (!pick) return null
+    if (pick.option !== dial.value) {
+      const r = await io.act({ tool: "select", id: dial.id, option: pick.option, why: "", expect: { label: dial.label, role: dial.role } }).catch(() => null)
+      if (!r?.ok) return null
+    }
+    state.dialTouched = [...new Set([...(state.dialTouched ?? []), dial.id])]
+    state.phoneDial = { dialId: dial.id, dialLabel: dial.label, dialRole: dial.role, fieldId: field.id, others: pick.others, national: pick.national }
+    state.dialOwned = { dialId: dial.id, option: pick.option }
+    return { text: pick.national, dial, others: pick.others }
+  }
+  if (dial && (dial.role === "button" || dial.role === "listbox")) {
+    // A list behind a button (a flag): opened, its option with the code pressed.
+    if (dial.role === "button") await io.act({ tool: "click", id: dial.id, why: "", expect: { label: dial.label, role: dial.role } }).catch(() => null)
+    const open = await io.map({}).catch(() => null)
+    const opts = open?.items.filter((i) => (i.role === "option" || i.role === "button" || i.role === "link") && i.id !== dial.id && codesIn(i.label).length) ?? []
+    const pick = pickDialOption(opts.map((o) => o.label), text, { region: deviceRegion(), lang: map.lang })
+    const item = pick && opts.find((o) => o.label === pick.option)
+    if (!pick || !item) return null
+    const r = await io.act({ tool: "click", id: item.id, why: "", expect: { label: item.label, role: item.role } }).catch(() => null)
+    return r?.ok ? { text: pick.national } : null
+  }
+  const fixed = fixedPrefix(field)
+  if (fixed && internationalDigits(text)!.startsWith(fixed)) return { text: nationalPart(text, fixed) }
+  // (No control and no prefix: the number as it is, but the after-check still tries the other forms if the field
+  // doesn't take it — 15d.)
+  return { text }
+}
+
+/** After a phone went in (typed with the field left, as a person would): still marked invalid with another option of the
+ *  same code left — that one, once a task; a field that didn't take the text — the number whole, its digits with «+»,
+ *  its national digits, each only while the field stays empty (decision 15a, 15b, 15d). */
+async function phoneAfter(state: AgentState, io: RunnerIO, call: ToolCall, text: string, phone: PhoneFirst, result: StepResult): Promise<StepResult> {
+  if (/didn't take the text/.test(result.note ?? "")) {
+    const tries = [text, `+${text.replace(/\D/g, "")}`, ...(phone.text !== text ? [phone.text.replace(/\D/g, "")] : [])].filter((t, i, a) => t && a.indexOf(t) === i)
+    for (const t of tries) {
+      const r = await io.act({ ...call, tool: "type", text: t, mode: "replace", leave: true }).catch(() => null)
+      if (r && !/didn't take the text/.test(r.note ?? "")) return r
+    }
+    return result
+  }
+  if (!phone.dial || !phone.others?.length || state.phoneExtra) return result
+  const after = await io.map({}).catch(() => null)
+  const field = after?.items.find((i) => i.id === call.id)
+  if (!field?.state?.includes("invalid")) return result
+  return (await phoneOtherOption(state, io, call.id!)) ?? result
+}
+
+/** The one extra option a task (decision 15b): the other option of the number's code chosen, the national part typed
+ *  again with the field left; the result says which. Null when there's none left or it's been used. */
+async function phoneOtherOption(state: AgentState, io: RunnerIO, fieldId: string): Promise<StepResult | null> {
+  const d = state.phoneDial
+  if (!d || state.phoneExtra || !d.others.length || d.fieldId !== fieldId) return null
+  state.phoneExtra = true
+  const option = d.others[0]
+  const r = await io.act({ tool: "select", id: d.dialId, option, why: "", expect: { label: d.dialLabel, role: d.dialRole } }).catch(() => null)
+  if (!r?.ok) return null
+  state.dialOwned = { dialId: d.dialId, option }
+  const before = await io.map({}).catch(() => null)
+  const field = before?.items.find((i) => i.id === fieldId)
+  const t = await io.act({ tool: "type", id: fieldId, text: d.national, mode: "replace", why: "", leave: true }).catch(() => null)
+  // (15d: the page's message was about the field before this change.)
+  if (before && field) state.staleFix = { fieldId, label: field.label, kind: contactField(field) ?? "field", msg: fieldMessages(before), to: option }
+  return t ? { ...t, note: `${t.note ?? "typed"} (the page marked the phone invalid: the device chose «${option.slice(0, 40)}», the other country of its code, and typed it again)` } : null
+}
+
+/** A model's select on a dial-code control while the person's international number is known (15a2): the option the
+ *  device's own rules give, and why; null when the control isn't a dial-code one or no option carries the code. */
+async function dialOwn(state: AgentState, io: RunnerIO, call: ToolCall): Promise<{ option: string; why: string } | null> {
+  const map = await io.map({}).catch(() => null)
+  const item = map?.items.find((i) => i.id === call.id)
+  if (!map || !item || !(item.options ?? []).some((o) => codesIn(o).length)) return null
+  const region = deviceRegion()
+  const pick = pickDialOption(item.options!, state.phoneKnown!, { region, lang: map.lang })
+  if (!pick) return null
+  state.dialTouched = [...new Set([...(state.dialTouched ?? []), item.id])]
+  const byRegion = region && pick.others.length && pick.option !== (call.option ?? "")
+  const why = pick.others.length ? `the person's number has the code +${pick.code}, shared by several countries; chosen by ${byRegion ? "the device's region, else the code's main territory" : "the code"}` : `the person's number has the code +${pick.code}`
+  return { option: pick.option, why }
+}
+
+// A page's message about a field it refused, in the panel's 15 languages (its words, shown as they are).
+const FIELD_ERR = /valid|invalid|incorrect|required|error|ошиб|корректн|правильн|недейств|неверн|обязат|коректн|правильн|помилк|некорект|недійсн|обов|正しい|無効|必須|エラー|올바른|유효|필수|오류|无效|無效|错误|錯誤|必填|صالح|غير صحيح|مطلوب|خطأ|invalide|incorrect|obligatoire|erreur|ungültig|erforderlich|fehler|inválid|incorrect|obligatori|non valid|obbligatori|errore|inválido|obrigatóri|erro|geçersiz|hatalı|zorunlu|không hợp lệ|bắt buộc|lỗi/i
+/** The page's messages about a refused field now (short lines of its text with an error word), joined; "" when none. */
+export function fieldMessages(map: PageMap): string {
+  return map.text.split("\n").map((l) => l.trim()).filter((l) => l && l.length <= 160 && FIELD_ERR.test(l)).slice(0, 4).join(" · ")
+}
+
+/** The person's international phone (given in the request, else saved), for the dial-code control (15a2). */
+function knownPhone(state: AgentState, entries: FormEntry[]): string | undefined {
+  const said = contactsQuoted(words(state)).find((c) => c.kind === "phone" && internationalDigits(c.value))
+  if (said) return said.value
+  return liveEntries(entries).find((e) => contactKind(modelKey(e)) === "phone" && internationalDigits(e.value))?.value
+}
+
 /** Does a step on the page and writes it down. A fill types its value in; the log keeps only the key. */
 async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict: StepVerdict, target: string | null, value?: string, byPlan?: boolean, booking?: boolean): Promise<StepResult | null> {
   const doing: ToolCall = call.tool === "fill" ? { ...call, text: value ?? "" } : call
@@ -367,7 +539,36 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
   await (io.mark ?? io.save)(state)
   // The address a tap's page tried to open in a new tab, gone to here (its «go» passed the checks like any other).
   const opening = (call.tool === "go" || call.tool === "click") && call.id === NEW_TAB_ID && state.openedLink && io.open ? state.openedLink : null
-  let result = opening ? await io.open!(opening.url).then(() => ({ ok: true, navigated: true, note: "the page went on" }) as StepResult, () => ({ ok: false, note: "it couldn't be opened" }) as StepResult) : await io.act(doing)
+  // A phone beside a country or dial-code control, or behind a fixed code (decision 15): the control set to the number's
+  // calling code first, and the national part typed.
+  // (15d, general: a change into a field the page marks invalid — the page's message then is kept, to say it's old.)
+  const changing = !opening && (call.tool === "fill" || call.tool === "type" || call.tool === "select") && call.id ? await io.map({}).catch(() => null) : null
+  const invalidField = changing ? changing.items.find((i) => i.id === call.id && i.state?.includes("invalid")) ?? (call.tool === "select" && state.phoneDial?.dialId === call.id ? changing.items.find((i) => i.id === state.phoneDial!.fieldId && i.state?.includes("invalid")) : undefined) : undefined
+  const phone = !opening && (call.tool === "fill" || call.tool === "type") && call.id ? await phoneFirst(state, io, call, doing.text ?? "") : null
+  // (15a2: a select on a dial-code control while the person's international number is known is the device's: the option
+  // its own rules give — the number's code, the device's region, the code's main territory — whatever the model named.)
+  const dialPick = !opening && call.tool === "select" && call.id && state.phoneKnown ? await dialOwn(state, io, call) : null
+  const acting: ToolCall = phone ? { ...doing, text: phone.text, leave: true } : dialPick ? { ...doing, option: dialPick.option } : doing
+  let result = opening ? await io.open!(opening.url).then(() => ({ ok: true, navigated: true, note: "the page went on" }) as StepResult, () => ({ ok: false, note: "it couldn't be opened" }) as StepResult) : await io.act(acting)
+  if (phone && result) result = await phoneAfter(state, io, call, doing.text ?? "", phone, result)
+  // (A booking press the page bounced — a field marked invalid right after it — read before any retry changes it.)
+  const bounceMap = booking && result?.ok && call.tool !== "fill" && state.plan?.booking ? await io.map({}).catch(() => null) : null
+  const bounce = bounceMap?.items.find((i) => i.state?.includes("invalid") && i.lock !== "secret" && (i.role === "textbox" || i.role === "combobox" || i.role === "select"))
+  if (dialPick && result) {
+    result = { ...result, note: `${result.note ?? "chosen"} (the device chose «${dialPick.option.slice(0, 40)}»: ${dialPick.why}. This is the country for the person's number: leave it and go on — the number, then the booking's press)` }
+    if (result.ok && call.id) state.dialOwned = { dialId: call.id, option: dialPick.option }
+  }
+  if (invalidField && changing && result?.ok) state.staleFix = { fieldId: invalidField.id, label: invalidField.label, kind: contactField(invalidField) ?? "field", msg: fieldMessages(changing), ...(call.tool === "select" ? { to: dialPick?.option ?? call.option } : {}) }
+  // (A press clears it: the page has checked again.)
+  if ((call.tool === "click" || call.tool === "go") && !opening) state.staleFix = state.staleFix && booking ? state.staleFix : undefined
+  // (15b, once more: the booking's press came back with the page marking the phone invalid — the other option of its code.)
+  if (result && call.tool === "click" && verdict.reason === "submit" && state.phoneDial && !state.phoneExtra) {
+    const after = await io.map({}).catch(() => null)
+    if (after?.items.find((i) => i.id === state.phoneDial!.fieldId)?.state?.includes("invalid")) {
+      const again = await phoneOtherOption(state, io, state.phoneDial.fieldId)
+      if (again) result = { ...result, note: `${result.note ?? ""}; ${again.note}` }
+    }
+  }
   if (opening) state.openedLink = undefined
   state.inflight = undefined
   if (!result || result.navigated) {
@@ -417,7 +618,19 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
   }
   // The booking's last press went: what it booked is the days the page showed then (the «done» may leave them out).
   if (verdict.cls === "confirm" && verdict.reason === "submit" && result.ok && state.daysAtPress) state.bookedDays = state.daysAtPress
-  if (booking && result.ok && call.tool !== "fill" && state.plan?.booking) state.bookPress = { target: target ?? call.id ?? "", at: state.log.length, yes: !byPlan }
+  if (booking && result.ok && call.tool !== "fill" && state.plan?.booking) {
+    // (A press the page bounced — a field marked invalid after it — booked nothing: not the booking's press; the next
+    // press is asked again with why. The director's addition to 15d.)
+    const refused = bounce
+    if (refused) {
+      state.bounced = { target: target ?? call.id ?? "", field: refused.label }
+      state.log[state.log.length - 1].result += `; the page refused it: «${refused.label.slice(0, 40)}» is marked invalid — nothing was booked`
+    } else {
+      state.bookPress = { target: target ?? call.id ?? "", at: state.log.length, yes: !byPlan }
+      state.bounced = undefined
+      state.staleFix = undefined
+    }
+  }
   return result
 }
 
@@ -783,6 +996,70 @@ export function confirmedOn(state: AgentState, host: string): boolean {
   return !!host && !!state.confirmedSites?.includes(siteOfHost(host))
 }
 
+// Decision 13 (round 142): contacts quoted in a text, by pattern only — an e-mail address, or a run of 7+ digits of any
+// script with «+», spaces, dashes, brackets or dots and no words; dates written with digits aren't phones.
+const DIGIT_ZEROS = [0x30, 0x660, 0x6f0, 0x966, 0x9e6, 0xe50, 0xff10]
+export function asciiDigits(s: string): string {
+  return s.replace(/\p{Nd}/gu, (d) => {
+    const c = d.codePointAt(0) ?? 0
+    const z = DIGIT_ZEROS.find((z) => c >= z && c <= z + 9)
+    return z === undefined ? d : String(c - z)
+  })
+}
+const EMAIL_RUN = /[^\s@<>()«»"“”'、，。：:;,]+@[^\s@<>()«»"“”'、，。：:;,]+\.\p{L}{2,}/gu
+const PHONE_RUN = /\+?\p{Nd}[\p{Nd}\s().\-]{5,}\p{Nd}/gu
+// (A run that is itself a date — «2026-12-05», «05.12.2026» — isn't a phone; a phone's own «123-45-67» is.)
+const DATE_RUN = /^(?:\p{Nd}{4}[-./]\p{Nd}{1,2}[-./]\p{Nd}{1,2}|\p{Nd}{1,2}[-./]\p{Nd}{1,2}[-./]\p{Nd}{2,4})$/u
+export function contactsQuoted(text: string): Array<{ kind: "email" | "phone"; value: string }> {
+  const emails = [...text.matchAll(EMAIL_RUN)].map((m) => m[0].replace(/[.。]+$/u, ""))
+  const rest = text.replace(EMAIL_RUN, " ")
+  const phones = [...rest.matchAll(PHONE_RUN)].map((m) => m[0].trim()).filter((v) => !DATE_RUN.test(v) && asciiDigits(v).replace(/\D/g, "").length >= 7)
+  return [...emails.map((value) => ({ kind: "email" as const, value })), ...phones.map((value) => ({ kind: "phone" as const, value }))]
+}
+/** Whether the person gave this contact: in their words (as saidInWords reads them, or the same digits in any script),
+ *  or it is a live saved entry's value. */
+export function contactGiven(c: { kind: "email" | "phone"; value: string }, said: string, saved: FormEntry[]): boolean {
+  if (c.kind === "email") {
+    const v = c.value.toLocaleLowerCase()
+    return saidInWords(said, c.value) || said.toLocaleLowerCase().includes(v) || saved.some((e) => e.value.trim().toLocaleLowerCase() === v)
+  }
+  const digits = (x: string) => asciiDigits(x).replace(/\D/g, "")
+  const d = digits(c.value)
+  if (saidInWords(said, c.value)) return true
+  if (contactsQuoted(said).some((q) => q.kind === "phone" && digits(q.value) === d)) return true
+  return d.length >= 7 && saved.some((e) => digits(e.value) === d)
+}
+/** The first contact field of a kind the person gave that is still empty on this page (decision 13c), or null. Only the
+ *  pressed control's own form counts: a field in another form (a sign-up or newsletter beside the booking) is skipped;
+ *  a field in no form, or a press in no form, counts as before (the director's follow-up 1). */
+export function emptyGivenField(map: PageMap, given: Set<string>, done: string[], pressForm?: number): { item: MapItem; kind: string } | null {
+  for (const item of map.items) {
+    if (item.role !== "textbox" || done.includes(item.id) || item.state?.some((x) => x === "disabled" || x === "readonly")) continue
+    if (pressForm !== undefined && item.form !== undefined && item.form !== pressForm) continue
+    const kind = contactField(item)
+    if (!kind || !given.has(kind)) continue
+    const empty = item.lock ? !!item.state?.includes("empty") : !(item.value ?? "").trim()
+    if (empty) return { item, kind }
+  }
+  return null
+}
+
+/** Whether the last fill or typing of a contact kind came back with the page's error or didn't take (decision 15e). */
+function lastContactRefused(state: AgentState, kind: string): boolean {
+  const last = [...state.log].reverse().find((l) => (l.call.tool === "fill" || l.call.tool === "type") && (keyKind(l.call.key ?? "") === kind || contactKind(contactAsked(/"(.*)"$/.exec(l.target ?? "")?.[1] ?? "") ?? "") === kind))
+  return !!last && /didn't take|the page says|invalid|not valid/i.test(last.result ?? "")
+}
+
+/** The fields this task typed or filled (a page that keeps a field's old «empty» after typing isn't sent back for it). */
+function typedIds(state: AgentState): string[] {
+  return state.log.filter((l) => (l.call.tool === "type" || l.call.tool === "fill") && l.call.id && !/^(refused|held)/.test(l.result ?? "")).map((l) => l.call.id!)
+}
+
+/** An approved plan with a booking (decision 16: a priced choice in it is a choice, not a payment). */
+function bookingPlan(state: AgentState): boolean {
+  return !!(state.plan?.approved && state.plan.booking)
+}
+
 /** The task's request as the server and the checks hear it: the person's words with the plan's answers. */
 function words(state: AgentState): string {
   const said = personWords(state.request, state.plan)
@@ -857,6 +1134,12 @@ async function planStep(state: AgentState, io: RunnerIO, map: PageMap, keys: str
   }
   if (chatPick && plan.fromChat) plan.fromChat = plan.fromChat.replace(new RegExp(`\\s*[,;·—–-]?\\s*${chatPick.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "iu"), "").replace(/^[\s,;·—–-]+|[\s,;·—–-]+$/gu, "")
   if (plan.booking?.venue && !(subject?.kind === "place" && subject.name === plan.booking.venue) && !namedIn(plan.booking.venue, `${state.request} ${plan.fromChat ?? ""}`)) delete plan.booking.venue
+  // The window's days, worked out here from its kind (round 142, the director's item 4); a request for «the first free
+  // time» that names no window takes the standing rule's «up to N days later».
+  if (plan.booking) Object.assign(plan.booking, windowOf(plan.booking, localDay(), rules.days ?? 0, nightsIn(state.request), plan.booking.tz || localZone()))
+  // A request that gives a window of days (round 141, the director's 8c): the day is the window's, never a question —
+  // set_dates goes through it (a plan asked «which check-in day?» on «any two nights this month»).
+  if (plan.booking?.dayLast || (plan.booking?.window && plan.booking.window !== "none")) plan.questions = plan.questions.filter((q) => !dayQuestion(q))
   // On one place's page, a booking that names no other is there: no choosing, no «I'll pick the place».
   if (subject?.kind === "place" && plan.booking && !plan.booking.venue) plan.booking.venue = subject.name
   if (subject && plan.booking?.venue) state.chooseVenue = false
@@ -1025,6 +1308,27 @@ export function bookingFrame(f: { src: string; host: string; title?: string }): 
 const SEARCH_BOX = /search|find|treatment|salon|cuisine|restaurant|location|where|what are you looking|поиск|найти|искать|suche|recherch|buscar|cerca|pesquis|検索|검색|搜索|搜尋|بحث|tìm/i
 
 /** A date press as the page and the task stand: why it isn't done, or null to go on. */
+// Decision 14: a window's days (date to dayLast) are all asked days for a booking that isn't by days (a stay's or a
+// rental's own two days keep their rules).
+function windowOfPlan(state: AgentState): { first: string; last: string } | null {
+  const b = state.plan?.booking
+  return b && b.dayLast && b.dayLast > b.date && !DAY_KINDS.has(b.kind) ? { first: b.date, last: b.dayLast } : null
+}
+/** The days the page's day controls offer (not greyed), with their dates, earliest first. */
+export function offeredDays(map: PageMap, near: string): Array<{ date: string; item: MapItem }> {
+  const out: Array<{ date: string; item: MapItem }> = []
+  for (const i of map.items) {
+    if (!isDateLabel(i.label) || greyedItem(i) || opensPicker(map, i)) continue
+    const d = dayOf(i.label, near)
+    if (d && !out.some((o) => o.date === d)) out.push({ date: d, item: i })
+  }
+  return out.sort((a, b) => a.date.localeCompare(b.date))
+}
+/** Every day the page's day controls show (greyed or not), earliest first. */
+function shownDays(map: PageMap, near: string): string[] {
+  return [...new Set(map.items.filter((i) => isDateLabel(i.label) && !opensPicker(map, i)).map((i) => dayOf(i.label, near)).filter((d): d is string => !!d))].sort()
+}
+
 export function dateStep(state: AgentState, map: PageMap, item: MapItem, call?: ToolCall): string | null {
   if (looksLikeSlot(item.label)) {
     // A time is for the day the page has chosen (a salon booking site, 124: «Sat 26 Dec» greyed and pressed wasn't chosen; 11:30 was
@@ -1069,6 +1373,13 @@ export function dateStep(state: AgentState, map: PageMap, item: MapItem, call?: 
   // an earlier one; a later one only once the page has shown the asked day (full, or not there).
   const asked = state.plan?.booking?.date
   const pressed = asked ? dayOf(item.label, asked) : null
+  // The stay set_dates set (a window's stay, its first day landed): its own two days are always the person's request.
+  if (state.stay && pressed && (pressed === state.stay.in || pressed === state.stay.out || (!state.stay.out && pressed > state.stay.in && pressed <= addDays(state.stay.in, 30)))) {
+    if (!state.stay.out && pressed > state.stay.in) state.stay.out = pressed
+    state.lastDate = item.label
+    state.lastDateId = item.id
+    return null
+  }
   // A stay's or a rental's last day (check-out, return), once the first was pressed: the range's second press.
   const end = state.plan?.booking?.dateEnd
   if (end && pressed === end && state.lastDate && state.lastDate !== item.label) {
@@ -1079,6 +1390,32 @@ export function dateStep(state: AgentState, map: PageMap, item: MapItem, call?: 
   // the rules' (125, the iPad: 27 pressed as check-in for «26 to 28»).
   if (asked && pressed && end && pressed !== asked && pressed !== end && state.plan?.booking && DAY_KINDS.has(state.plan.booking.kind))
     return `«${item.label}» isn't a day of this ${state.plan.booking.kind} (${dayWords(asked)} to ${dayWords(end)}): press only those two. A picker may show the chosen days only in its own grid (selected, in range) until its own «Done»/«Apply»: read that, then press it; if those days really can't be chosen, ask_user with what the page shows`
+  // A day inside the request's window (decision 14a: «this week», a strip offering only 29 and 30 Nov for a window from
+  // the 27th): an asked day, never «isn't the asked day». Earliest first: a later one while the page offers an earlier
+  // window day this task hasn't pressed is sent back once. Distinct days pressed in ascending order walk the window and
+  // don't count toward «two date steps went nowhere».
+  const win = windowOfPlan(state)
+  if (win && pressed && pressed >= win.first && pressed <= win.last) {
+    const tried = state.windowPressed ?? []
+    const earlier = offeredDays(map, win.first).find((o) => o.date >= win.first && o.date < pressed && !tried.includes(o.date))
+    if (earlier && !state.windowEarlier) {
+      state.windowEarlier = true
+      return `«${item.label}» is inside the request's window, but the page offers an earlier day in it, «${earlier.item.label}» (${dayWords(earlier.date)}): press that one first — the earliest free day comes first`
+    }
+    state.sawDate = true
+    state.picked = { date: pressed }
+    if (state.lastDate === item.label) return `«${item.label}» was pressed already: the page answered it. Choose another available day the rules allow, or ask_user once with the page's real nearest options`
+    const ascending = !tried.includes(pressed) && tried.every((d) => d < pressed)
+    state.windowPressed = [...tried, pressed]
+    if (!ascending) {
+      const steps = (state.dateSteps ?? 0) + 1
+      if (steps > 2) return "two date steps went nowhere: don't press more dates. ask_user once now, with the page's real nearest options: the next free day the page names, another specialist on the asked day, another place"
+      state.dateSteps = steps
+    }
+    state.lastDate = item.label
+    state.lastDateId = item.id
+    return null
+  }
   if (asked && pressed && pressed !== asked) {
     if (pressed < asked) return `«${item.label}» is before the asked day (${dayWords(asked)}): go to the asked day instead (the calendar's next-month arrow, or the date strip scrolled)`
     if (!state.sawDate && !dayItems(map, asked).length) return `«${item.label}» isn't the asked day (${dayWords(asked)}), and the page hasn't shown that day yet: go to it first`
@@ -1129,7 +1466,8 @@ export function recapOf(state: AgentState, map: PageMap, always = false): Recap 
     ...(otherDay ? { askedDate: b.date } : {}),
     ...(otherTime ? { askedTime: b.at } : {}),
     ...(otherPlace ? { otherPlace: true } : {}),
-    ...(terms ? { terms: terms.slice(0, 220) } : {})
+    ...(terms ? { terms: terms.slice(0, 220) } : {}),
+    ...(state.bounced ? { again: { field: state.bounced.field.slice(0, 60), ...(state.staleFix?.to ? { to: state.staleFix.to.slice(0, 60) } : {}) } } : {})
   }
 }
 
@@ -1379,6 +1717,8 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       break
     }
     state.host = hostOf(map.url)
+    const pageNow = pageLink(map.url)
+    if (pageNow && state.trail?.[state.trail.length - 1] !== pageNow) state.trail = [...(state.trail ?? []), pageNow].slice(-30)
     // (The address the last tap's page tried to open in a new tab: a link on this map, only while it's the same page.)
     if (state.openedLink && state.openedLink.page && state.openedLink.page !== map.url) state.openedLink = undefined
     if (state.openedLink && !state.openedLink.page) state.openedLink.page = map.url
@@ -1405,11 +1745,52 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       if (logged) logged.result = `${logged.result} (the device closed a layer over the page that wasn't the task)`
       continue
     }
+    // A cookie layer the product's closer left (decision 13a): the device refuses optional cookies itself by the
+    // layer's own control the classifier calls cookies_reject — never an accept, which stays the person's — once per
+    // page address and three a task; when that changes nothing the banner is the model's, as before.
+    if ((!io.planning || state.plan?.approved) && (state.cookieDevice ?? 0) < 3 && !(state.cookiePages ?? []).includes(map.url)) {
+      const ctx = { map, startHost: state.startHost, request: words(state), confirmedHere: confirmedOn(state, hostOf(map.url)), policy: io.policy, booking: bookingPlan(state) }
+      const reject = map.items.find((i) => {
+        if (i.where !== "dialog" || (i.role !== "button" && i.role !== "link")) return false
+        const v = classify({ tool: "click", id: i.id, why: "" }, ctx)
+        return v.cls === "free" && v.reason === "cookies_reject"
+      })
+      if (reject) {
+        state.cookieDevice = (state.cookieDevice ?? 0) + 1
+        state.cookiePages = [...(state.cookiePages ?? []), map.url]
+        rule(state, "cookie_device")
+        await perform(state, io, { tool: "click", id: reject.id, why: "" }, { cls: "free", reason: "cookies_reject" }, `button "${reject.label.slice(0, 60)}"`)
+        const shown = state.lines[state.lines.length - 1]
+        if (shown) shown.popup = true
+        const logged = state.log[state.log.length - 1]
+        if (logged) logged.result = `${logged.result} (the device refused optional cookies itself: «${reject.label.slice(0, 60)}»)`
+        continue
+      }
+    }
+    // (15d, general: the page's message about a field is from before the field was changed — said once, in one line.)
+    if (state.staleFix && !state.staleFix.said && state.staleFix.msg && fieldMessages(map) === state.staleFix.msg && !state.refused) {
+      state.staleFix.said = true
+      state.refused = `«${state.staleFix.msg.slice(0, 120)}» was shown before «${state.staleFix.label.slice(0, 40)}» was changed${state.staleFix.to ? ` (to «${state.staleFix.to.slice(0, 40)}»)` : ""}: the page checks it again only on its next press — press it again rather than reading that message as the answer`
+    }
     if (state.plan?.approved && state.plan.booking?.date && !state.sawDate) {
       const days = dayItems(map, state.plan.booking.date)
       // (Or set in the page's own date field: a stay list with «Check-in 2026-12-04», 129.)
       if (days.some((i) => !greyedItem(i)) || showsDay(map, state.plan.booking.date)) state.sawDate = true
       else if (days.length) state.greyTarget = days[0].label
+      // A window whose first day the page's day control doesn't offer (decision 14b: a strip listing only bookable days,
+      // 29 and 30 Nov for a window from the 27th): that is the page's answer for it, when the earliest day it shows is
+      // later than the first and no later than a week after the window's end; a control parked far away isn't.
+      const win = windowOfPlan(state)
+      const shown = win && !days.length ? shownDays(map, win.first) : []
+      if (win && shown.length && shown[0] > win.first && shown[0] <= addDays(win.last, 7)) {
+        state.sawDate = true
+        const inWin = offeredDays(map, win.first).filter((o) => o.date >= win.first && o.date <= win.last)
+        const nearest = offeredDays(map, win.first).find((o) => o.date > win.last)
+        const line = inWin.length
+          ? `the page's day control doesn't offer ${dayWords(win.first)}; the days it offers in the request's window: ${inWin.map((o) => `«${o.item.label}»`).join(", ")} — the earliest first`
+          : `the page's day control doesn't offer ${dayWords(win.first)}, and none in the request's window${nearest ? `; the page's nearest day is «${nearest.item.label}» (${dayWords(nearest.date)})` : ""}`
+        if (!state.refused) state.refused = line
+      }
     }
     // A booking whose form is a booking provider's frame on this page (a restaurant's provider widget, 121 sweep: «I've tried "Book a
     // table" five times»): the device opens that form on its own page, once; the provider counts as this task's site.
@@ -1440,6 +1821,17 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // The card's contact answers not kept in «Мои данные» count for this task (filled by key, like saved ones).
     const extra = (state.oneTime ?? []).filter((o) => !liveEntries(stored).some((e) => e.key === o.key))
     const entries = extra.length ? [...stored, ...extra.map((o) => ({ id: `once-${o.key}`, key: o.key, label: "", value: o.value, updatedAt: 0 }) as FormEntry)] : stored
+    // (15a2: the person's international phone, known for this step.)
+    state.phoneKnown = knownPhone(state, entries)
+    // (15e2: up front, once a task — a phone field with a country list on the page while the person's international
+    // number is known: the device sets that list itself when the number goes in, so the model doesn't.)
+    if (state.phoneKnown && !state.dialNoted && !state.refused) {
+      const tel = map.items.find((i) => i.role === "textbox" && (i.type === "tel" || contactField(i) === "phone") && !!dialControl(map, i))
+      if (tel) {
+        state.dialNoted = true
+        state.refused = `the country list beside «${tel.label.slice(0, 40)}» is set by the device itself for the person's number when the number goes in: don't select it — type the number, then go on`
+      }
+    }
     const keys = [...new Set(liveEntries(entries).map(modelKey))]
     const here = (await io.device?.().catch(() => null)) ?? null
     if (state.step === 0 && io.planning && !state.plan) {
@@ -1454,7 +1846,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     const plan = planLine(state.plan)
     const reply = await io.ask({
-      task: { id: state.id, request: requestWithAnswers(state.request, state.plan), lang: state.lang, startHost: state.startHost, step: state.step, confirmedHere: confirmedOn(state, hostOf(map.url)), token: state.token, strongUsed: state.strongUsed, now: nowLine(), ...(here ? { device: here } : {}), ...(plan ? { plan } : {}), ...(state.rules ? { rules: state.rules } : {}), ...(state.calendar ? { calendar: state.calendar } : {}), ...(state.playbook ? { playbook: state.playbook } : {}), ...(state.venues ? { venues: venuesLine(state.venues) } : {}), ...(state.subject ? { subject: state.subject } : {}) },
+      task: { id: state.id, request: requestWithAnswers(state.request, state.plan), lang: state.lang, startHost: state.startHost, step: state.step, confirmedHere: confirmedOn(state, hostOf(map.url)), token: state.token, strongUsed: state.strongUsed, now: nowLine(), ...(here ? { device: here } : {}), ...(plan ? { plan } : {}), ...(state.rules ? { rules: state.rules } : {}), ...(state.calendar ? { calendar: state.calendar } : {}), ...(state.playbook ? { playbook: state.playbook } : {}), ...(state.venues ? { venues: venuesLine(state.venues) } : {}), ...(state.subject ? { subject: state.subject } : {}), ...(state.datesNone?.includes(pageKey(map.url)) ? { noDates: true } : {}) },
       map: sent(map), log: state.log, ...(state.refused ? { refused: state.refused } : {}), ...(state.data ? { data: state.data } : {}), keys
     })
     state.refused = undefined
@@ -1477,6 +1869,25 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     if (reply.strong) state.strongUsed++
     const call = reply.call
     const target = reply.target ?? null
+    // set_dates: the device sets the booking's dates itself (setdates.ts); the plan's days only.
+    if (call.tool === "set_dates") {
+      await datesStep(state, io, map, call)
+      await io.save(state)
+      continue
+    }
+    // «back» only to a page this task was on before, on the task's site: the task's first page is the floor.
+    if (call.tool === "back") {
+      const trail = state.trail ?? []
+      const before = trail.length >= 2 ? trail[trail.length - 2] : ""
+      if (!before || siteOfHost(hostOf(before)) !== siteOfHost(state.startHost)) {
+        rule(state, "back_floor")
+        state.log.push({ call, result: `refused: «back» here would leave the pages of this task (this is the first page it opened, or the one before it is another site's): use this page's own links or search instead` })
+        state.refused = "«back» would leave this task's pages: use the page's own links or search"
+        await io.save(state)
+        continue
+      }
+      state.trail = trail.slice(0, -1)
+    }
     if (call.tool === "done") {
       // A press the plan lists as the agent's own hasn't happened: one more step for it, or «done» again with the
       // reason in the summary (the stand: a cart «done» before its «Add to cart»).
@@ -1487,6 +1898,15 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
         state.doneNudged = true
         rule(state, "done_press")
         state.log.push({ call: { tool: "done" }, result: `refused: the plan's press "${missing.label}" hasn't happened yet — do it now, or call done again and say in the summary why it is left` })
+        await io.save(state)
+        continue
+      }
+      // A page that asks for the person's details is the booking's next step, not its end (the director, round 141: at
+      // an empty «Enter your details» the agent ended and said the booking might have gone through): sent back once.
+      if (state.plan?.booking && !state.detailsNudged && !confirmedOnPage(map) && map.items.some((i) => i.lock === "personal" && (i.state ?? []).includes("empty") && i.where !== "above" && i.where !== "below")) {
+        state.detailsNudged = true
+        rule(state, "details_next")
+        state.log.push({ call: { tool: "done" }, result: `refused: this page asks for the person's details — the booking's next step, not its end: fill them from <saved> (ask once for one that's missing), then press the booking's own button; never tell the person a booking may have gone through when the page shows no confirmation` })
         await io.save(state)
         continue
       }
@@ -1543,7 +1963,15 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // The asked day shown greyed and never pressed (a strip that greys days it hasn't loaded): the device presses it once
     // itself and the page's answer goes to the model, instead of a question about a day nobody looked at (a salon booking site, 124:
     // sent back once, the model asked again; pressed, «full», with its next free day).
-    const greyDay = call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking?.date && !state.sawDate && !state.pressedTarget
+    // A window with no offered day in it on the page (decision 14c): the question that offers the page's nearest day
+    // beyond the window is a true question — it passes at once, once (the day of the person's answer is then the asked
+    // day, as before).
+    const winNow = call.tool === "ask_user" && !details && state.plan?.approved && !state.windowAsked ? windowOfPlan(state) : null
+    const offeredNow = winNow ? offeredDays(map, winNow.first) : []
+    const askDays = winNow ? daysInText(`${call.question ?? ""} ${(call.choices ?? []).join(" ")}`, winNow.first) : []
+    const windowTrue = !!winNow && state.sawDate === true && !offeredNow.some((o) => o.date >= winNow.first && o.date <= winNow.last) && offeredNow.some((o) => o.date > winNow.last && askDays.includes(o.date))
+    if (windowTrue) state.windowAsked = true
+    const greyDay = !windowTrue && call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking?.date && !state.sawDate && !state.pressedTarget
       ? dayItems(map, state.plan.booking.date).find(greyedItem)
       : undefined
     if (greyDay) {
@@ -1557,7 +1985,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // The page names its own next free day (in its words, or a button to it) and the model asks
     // instead (124, a salon strip: «27 and 28 have no times, open only until 9 Dec» while the page said its next free
     // day was the 28th): sent back once with the page's own words, so the rules decide or the question offers that day.
-    if (call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking && !state.nextNudged) {
+    if (!windowTrue && call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking && !state.nextNudged) {
       const said = nextFreeSaid(map)
       if (said) {
         state.nextNudged = true
@@ -1570,7 +1998,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     }
     // A booking widget whose own date field shows another day than the asked one (B3: «your time isn't available» read
     // as no slot): sent back once to set the field first.
-    const field = call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking?.date && !state.widgetNudged ? widgetDay(map, state.plan.booking.date, state.plan.booking.dateEnd) : null
+    const field = !windowTrue && call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking?.date && !state.widgetNudged ? widgetDay(map, state.plan.booking.date, state.plan.booking.dateEnd) : null
     if (field) {
       state.widgetNudged = true
       const why = `the page's own date field «${field.label.slice(0, 40)}» shows ${field.value}, not ${dayWords(state.plan!.booking!.date)}: set it to the asked day first (and the party, then the time), read the page's slots for that day, then go on; ask only with what it shows then`
@@ -1582,6 +2010,16 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // A question about the booking's day before the page ever showed that day: sent back once, to go to it first.
     if (call.tool === "ask_user" && !details && state.plan?.approved && state.plan.booking?.date && !state.sawDate && !state.dateNudged) {
       state.dateNudged = true
+      // (Round 141, design-141: the device goes to the day itself — and, with a window, on to the next days — instead of
+      // sending the model there; the model's question is answered by what the page shows then.)
+      if (!state.greyTarget) {
+        const went = await datesStep(state, io, map, { tool: "set_dates", why: "", date: state.plan.booking.date }, true)
+        if (went && !went.fallback) {
+          state.refused = `your question came before the page had shown the day; the device went to it itself: ${went.line}. Go on from what the page shows now; ask only with what it showed`
+          await io.save(state)
+          continue
+        }
+      }
       const day = dayWords(state.plan.booking.date)
       const why = state.greyTarget
         ? `«${state.greyTarget}» shows greyed, which can mean the page hasn't loaded that day yet: press it once and read what the page says (its free times, or that it's full and its next free day), then go on; ask only with days and times the page showed as free`
@@ -1601,6 +2039,44 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       state.refused = placeAgain
       continue
     }
+    // A question asking leave to use a contact the person gave (decision 13b: «please confirm +44 20 7946 0000 so I can
+    // type it»): sent back once a task; a second such question goes to the person.
+    if (call.tool === "ask_user" && !state.givenAsk) {
+      const quoted = contactsQuoted(`${call.question ?? ""}\n${(call.choices ?? []).join("\n")}`)
+      // (15e amended, «c»: a question quoting a value of a kind the page refused isn't sent back either.)
+      const refused = (kind: string) => map.items.some((i) => i.state?.includes("invalid") && contactField(i) === kind) || lastContactRefused(state, kind)
+      const hit = quoted.find((c) => contactGiven(c, words(state), liveEntries(entries)) && !refused(c.kind))
+      // The same question with no value quoted (the director's follow-up 2: «Salon Mira needs your phone number… What
+      // is it?» while the request gives it): one e-mail or phone asked for by contactAsked's own words, and the person's
+      // words carry one of that kind by pattern. Never for a name; one allowance with the quoted kind.
+      const askedKind = quoted.length ? null : contactKind(contactAsked(call.question ?? "") ?? "")
+      // (15e: not when the page refused that kind's value — its field marked invalid, or the last fill or typing of that
+      // kind came back with the page's error: then the question is about a refused value, and it's the person's.)
+      const refusedKind = askedKind && (map.items.some((i) => i.state?.includes("invalid") && contactField(i) === askedKind) || lastContactRefused(state, askedKind))
+      const inWords = !refusedKind && (askedKind === "email" || askedKind === "phone") ? contactsQuoted(words(state)).find((c) => c.kind === askedKind) : undefined
+      // (15d: a contact question about the field changed after the page refused it, while its old message stands — sent
+      // back once with that fact, sharing the allowance; the next one reaches the person.)
+      const sf = state.staleFix
+      const aboutStale = !!sf && !hit && !inWords && (askedKind === sf.kind || quoted.some((c) => c.kind === sf.kind) || (call.question ?? "").includes(sf.label)) && (!sf.msg || fieldMessages(map) === sf.msg)
+      if (aboutStale) {
+        state.givenAsk = true
+        const why = `the page's message about «${sf!.label.slice(0, 40)}» is from before it was changed${sf!.to ? ` to «${sf!.to.slice(0, 40)}»` : ""}: the page checks it again only on its next press — press it again; ask only if it refuses again`
+        rule(state, "given_ask")
+        state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: `refused: ${why}` })
+        state.refused = why
+        continue
+      }
+      if (hit || inWords) {
+        state.givenAsk = true
+        const why = hit
+          ? `the person gave «${hit.value}» themselves: type it as written (or fill the saved one); ask only for a detail they didn't give`
+          : `the person's request gives their ${inWords!.kind}: «${inWords!.value}»: type it as written; ask only for a detail they didn't give`
+        rule(state, "given_ask")
+        state.log.push({ call: { tool: "ask_user", question: call.question ?? "" }, result: `refused: ${why}` })
+        state.refused = why
+        continue
+      }
+    }
     if (call.tool === "ask_user") {
       // The person answers (a button or their own words) and the task goes on (TestFlight 118: «На завтра мест нет…
       // Записать на 24-е? [Да] [Другой день] [Отмена]»).
@@ -1616,6 +2092,16 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // The device's own check, on its own map: never milder than the server's.
     // The control as classed now goes with the step: the hands check it's still that one before they act.
     const seenItem = call.id ? map.items.find((i) => i.id === call.id) : undefined
+    // (15e: a second select on the dial-code control while the device's own choice for the person's number stands isn't
+    // carried out — refused once with the same fact; after that, as before.)
+    if (call.tool === "select" && state.dialOwned && state.dialOwned.dialId === call.id && !state.dialOwned.refused && seenItem?.value === state.dialOwned.option) {
+      state.dialOwned.refused = true
+      const why = `«${state.dialOwned.option.slice(0, 40)}» is the country for the person's number, set by the device: it stays — type the number, then go on with the booking's press`
+      rule(state, "dial_set")
+      state.log.push({ call, target: `select "${seenItem.label.slice(0, 60)}"`, result: `refused: ${why}` })
+      state.refused = why
+      continue
+    }
     // A saved detail into a field that asks for another kind (a restaurant site: the full name into «email»): refused, and the
     // model hears which detail the field wants and whether «Мои данные» has it (else: ask the person once).
     const wants = call.tool === "fill" && call.key && seenItem ? fieldKind(seenItem, keyOfAutocomplete(seenItem.auto)?.key ?? null) : null
@@ -1743,7 +2229,7 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       continue
     }
     if (seenItem) call.expect = { label: seenItem.label, role: seenItem.role, ...(seenItem.lock ? { lock: seenItem.lock } : {}) }
-    const device = classify(call, { map, startHost: state.startHost, request: words(state), confirmedHere: confirmedOn(state, hostOf(map.url)), policy: io.policy })
+    const device = classify(call, { map, startHost: state.startHost, request: words(state), confirmedHere: confirmedOn(state, hostOf(map.url)), policy: io.policy, booking: bookingPlan(state) })
     let verdict = stricter(reply.verdict, device)
     if (state.readDevice && call.tool === "type" && verdict.cls === "free" && !saidInWords(words(state), call.text ?? "")) verdict = { cls: "confirm", reason: "device_data" }
     // A contact field takes only what the person said, answered or saved — never a value made up or derived (127: «Alex»
@@ -1780,6 +2266,18 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
       rule(state, "count_other")
       state.log.push({ call, target: target ?? undefined, result: `refused: ${countWhy}` })
       state.refused = countWhy
+      continue
+    }
+    // The press that sends a booking while a contact the person gave is still empty on the page (decision 13c, ru book:
+    // name and phone typed, the e-mail the request gave never, «Забронировать» pressed): sent back once per field; the
+    // second press goes through. Saved details alone don't trigger it.
+    const emptyGiven = verdict.cls !== "blocked" && verdict.reason === "submit" && call.tool === "click" ? emptyGivenField(map, new Set([...requestGives(state.plan, words(state)), ...contactsQuoted(words(state)).map((c) => c.kind)]), [...(state.contactEmpty ?? []), ...typedIds(state)], seenItem?.form) : null
+    if (emptyGiven) {
+      state.contactEmpty = [...(state.contactEmpty ?? []), emptyGiven.item.id]
+      const why = `«${emptyGiven.item.label.slice(0, 60)}» is still empty and the person gave their ${emptyGiven.kind}: type it first, then press; if this field is for something else, press again`
+      rule(state, "contact_empty")
+      state.log.push({ call, target: target ?? undefined, result: `refused: ${why}` })
+      state.refused = why
       continue
     }
     // A time slot that clashes with the person's Calendar is never pressed (checked on the device).
@@ -1988,7 +2486,7 @@ async function pressAlso(state: AgentState, io: RunnerIO, also: NonNullable<Tool
     const item = map?.items.find((i) => i.id === a.id)
     if (!map || !item) return
     const call: ToolCall = { tool: "click", id: a.id, why: a.why ?? "", expect: { label: item.label, role: item.role, ...(item.lock ? { lock: item.lock } : {}) } }
-    const v = classify(call, { map, startHost: state.startHost, request: words(state), confirmedHere: confirmedOn(state, hostOf(map.url)), policy: io.policy })
+    const v = classify(call, { map, startHost: state.startHost, request: words(state), confirmedHere: confirmedOn(state, hostOf(map.url)), policy: io.policy, booking: bookingPlan(state) })
     if (v.cls !== "free" || looksLikeSlot(item.label)) return
     // A menu the press before opened isn't pressed again in the batch (it would close: 126 stand, a colour list opened
     // and shut by the same batch, four steps in a row).
@@ -2071,9 +2569,135 @@ function pageLink(url: string): string {
   }
 }
 
+/** set_dates: the plan's day (the model's own only inside the window), set by the device; one step, the person's Stop heard
+ *  between presses, each press classed here and done only when free. */
+async function datesStep(state: AgentState, io: RunnerIO, map: PageMap, call: ToolCall, auto = false): Promise<DatesResult | null> {
+  const b = state.plan?.booking
+  if (!b) {
+    state.log.push({ call, result: "set_dates is for a booking's days: there's no booking in this task" })
+    return null
+  }
+  const page = pageKey(map.url)
+  if (state.datesNone?.includes(page)) {
+    const why = "set_dates found no date control on this page before: set the day with the page's own controls (its date button or field, its calendar and «next month» arrow, a date strip), or open the place's own booking page first"
+    if (!auto) {
+      rule(state, "dates_none")
+      state.log.push({ call, result: `refused: ${why}` })
+    }
+    return { line: why, full: [], presses: 0, fallback: true }
+  }
+  const last = b.dayLast && b.dayLast > b.date ? b.dayLast : b.date
+  // (Only the request and the person's answers set the days: a day the model names counts only inside the window.)
+  const from = call.date && call.date >= b.date && call.date <= last ? call.date : b.date
+  // A stay's nights: from the plan's check-out, else the request's own «2 nights» (a window's plan has no check-out).
+  const nights = b.dateEnd ? Math.max(1, Math.round((Date.parse(b.dateEnd) - Date.parse(b.date)) / 86_400_000)) : DAY_KINDS.has(b.kind) ? nightsIn(state.request) : 0
+  let current = map
+  const ctx = (m: PageMap) => ({ map: m, startHost: state.startHost, request: state.request, confirmedHere: confirmedOn(state, hostOf(m.url)), policy: io.policy, booking: bookingPlan(state) })
+  const dio: DatesIO = {
+    map: async () => {
+      const m = await io.map({}).catch(() => null)
+      if (m) current = m
+      return m
+    },
+    press: async (item) => {
+      const c: ToolCall = { tool: "click", id: item.id, why: "", expect: { label: item.label, role: item.role } }
+      if (classify(c, ctx(current)).cls !== "free") return "not free"
+      const r = await io.act(c).catch(() => null)
+      return r?.ok ? "done" : "failed"
+    },
+    // (Decision 17: the date form's own search or apply, and the same-site page it opens in a new tab, opened here.)
+    pressOpening: async (item) => {
+      const c: ToolCall = { tool: "click", id: item.id, why: "", expect: { label: item.label, role: item.role } }
+      if (classify(c, ctx(current)).cls !== "free") return { r: "not free" }
+      const r = await io.act(c).catch(() => null)
+      if (r?.navigated) await io.waitPage().catch(() => {})
+      return { r: r?.ok ? "done" : "failed", ...(r?.opened ? { opened: r.opened } : {}) }
+    },
+    openHere: async (url) => {
+      if (!io.open || !sameSite(hostOf(url), hostOf(current.url))) return false
+      return io.open(url).then(() => io.waitPage().then(() => true, () => true), () => false)
+    },
+    type: async (item, text) => {
+      const c: ToolCall = { tool: "type", id: item.id, text, mode: "replace", why: "", expect: { label: item.label, role: item.role } }
+      if (classify(c, ctx(current)).cls !== "free") return "not free"
+      const r = await io.act(c).catch(() => null)
+      return r?.ok ? "done" : "failed"
+    },
+    stopped: async () => !!(await io.isStopped?.().catch(() => false))
+  }
+  const r = await setDates({ date: from, end: nights ? addDays(from, nights) : undefined, last, from: b.from, until: b.until, byDays: DAY_KINDS.has(b.kind) }, dio)
+  if (r.fallback) state.datesNone = [...(state.datesNone ?? []), page].slice(-12)
+  if (r.landed) {
+    state.sawDate = true
+    state.picked = { date: r.landed }
+    if (DAY_KINDS.has(b.kind)) state.stay = { in: r.landed, ...(nights ? { out: addDays(r.landed, nights) } : {}) }
+  }
+  // The person sees the day it landed on, in their words, when it moved off the request's first day.
+  const moved = r.landed && r.landed !== b.date ? `${dayWords(r.landed)}: ${dayWords(b.date)}${r.full.length > 1 ? ` – ${dayWords(r.full[r.full.length - 1])}` : ""} ${r.full.length > 1 ? "were" : "was"} full` : ""
+  state.log.push({ call: { ...call, date: from }, result: `${auto ? "the device went to the day itself: " : ""}${r.line}` })
+  state.lines.push(line({ ...call, date: r.landed ?? from }, { cls: "free", reason: "dates" }, null, !r.fallback && !r.stopped, moved || undefined))
+  if (r.stopped) state.status = "stopped"
+  return r
+}
+
+/** The page as set_dates remembers it: origin and path. */
+function pageKey(url: string): string {
+  try {
+    const u = new URL(url)
+    return `${u.origin}${u.pathname}`
+  } catch {
+    return url
+  }
+}
+
+/** A stay's nights as the request says them, in the panel's 15 languages: a number in digits (Arabic-Indic too), in
+ *  words up to seven, or in CJK numerals, before the language's word for nights («2 nights», «zwei Nächte», «две ночи»,
+ *  «2박», «二泊», «两晚», «ليلتين», «hai đêm»); 0 when it says none. */
+export function nightsIn(request: string): number {
+  const t = request.normalize("NFKC").toLocaleLowerCase().replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x660)).replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x6f0))
+  if (/ليلتين|ليلتان/u.test(t)) return 2
+  if (/ليلة واحدة|ليلة$|^ليلة/u.test(t) && !/\d/.test(t)) return 1
+  const m = NIGHTS.exec(t)
+  if (!m) return 0
+  const raw = m[1]
+  const n = /^\d+$/.test(raw) ? Number(raw) : NUMBER_WORDS[raw] ?? 0
+  return n >= 1 && n <= 30 ? n : 0
+}
+
+// Number words up to seven in the 15 languages, and CJK numerals (两/兩 is «two» in Chinese).
+const NUMBER_WORDS: Record<string, number> = Object.fromEntries(
+  [
+    ["one a an", 1], ["two", 2], ["three", 3], ["four", 4], ["five", 5], ["six", 6], ["seven", 7],
+    ["одну одна одни", 1], ["две два двое", 2], ["три трое", 3], ["четыре", 4], ["пять", 5], ["шесть", 6], ["семь", 7],
+    ["одну одна", 1], ["дві два двоє", 2], ["три", 3], ["чотири", 4], ["п'ять п’ять", 5], ["шість", 6], ["сім", 7],
+    ["eine ein einer", 1], ["zwei", 2], ["drei", 3], ["vier", 4], ["fünf", 5], ["sechs", 6], ["sieben", 7],
+    ["une un", 1], ["deux", 2], ["trois", 3], ["quatre", 4], ["cinq", 5], ["six", 6], ["sept", 7],
+    ["una uno", 1], ["dos", 2], ["tres", 3], ["cuatro", 4], ["cinco", 5], ["seis", 6], ["siete", 7],
+    ["una", 1], ["due", 2], ["tre", 3], ["quattro", 4], ["cinque", 5], ["sei", 6], ["sette", 7],
+    ["uma um", 1], ["duas dois", 2], ["três", 3], ["quatro", 4], ["cinco", 5], ["seis", 6], ["sete", 7],
+    ["bir", 1], ["iki", 2], ["üç", 3], ["dört", 4], ["beş", 5], ["altı", 6], ["yedi", 7],
+    ["một", 1], ["hai", 2], ["ba", 3], ["bốn", 4], ["năm", 5], ["sáu", 6], ["bảy", 7],
+    ["一", 1], ["二 两 兩 两个 兩個", 2], ["三", 3], ["四", 4], ["五", 5], ["六", 6], ["七", 7],
+    ["한", 1], ["두", 2], ["세", 3], ["네", 4],
+    ["ثلاث ثلاثة", 3], ["أربع أربعة", 4], ["خمس خمسة", 5], ["ست ستة", 6], ["سبع سبعة", 7]
+  ].flatMap(([w, n]) => String(w).split(" ").map((x) => [x, n as number]))
+)
+const NUMBER = `\\d{1,2}|${Object.keys(NUMBER_WORDS).sort((a, b) => b.length - a.length).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")}`
+// The word for nights after the number (Latin and Cyrillic words end at a non-letter; CJK and Korean attach).
+const NIGHT_WORDS = "nights?|noches?|nuits?|nächte|nächten|nacht|notti|notte|noites?|ноч(?:и|ей|ь|ей)|суток|сутки|ніч|ночі|ночей|діб|доби|gece|đêm|ليال[ٍي]?|ليلة"
+const NIGHTS = new RegExp(`(?<![\\p{Script=Latin}\\p{Script=Cyrillic}\\p{Script=Arabic}\\d])(${NUMBER})\\s*(?:-\\s*)?(?:(?:${NIGHT_WORDS})(?!\\p{L})|(?:个|個)?(?:晚上?|夜|泊)|박)`, "iu")
+
 /** The request's own words for the map (a site menu's link with one of them stays in the outline): letters only, 4 or more. */
 export function requestWords(request: string): string[] {
   return [...new Set((request.match(/[\p{L}]{4,}/gu) ?? []).map((w) => w.toLocaleLowerCase()))].slice(0, 16)
+}
+
+// A question about the booking's day: its choices are days, or it asks the date or the check-in, in the panel's languages.
+const DAY_ASK = /(?<!\p{L})(date|day|check-?in|arrival|fecha|día|llegada|date d|jour|arrivée|datum|tag|anreise|data|giorno|arrivo|dia|chegada|дат|день|заезд|tarih|gün|giriş|日付|日にち|チェックイン|날짜|체크인|日期|哪天|入住|التاريخ|اليوم|الوصول|ngày|nhận phòng)/iu
+function dayQuestion(q: { q: string; options: string[]; fact?: string }): boolean {
+  if (q.fact && /^(venue|pref:)/.test(q.fact)) return false
+  const opts = q.options.filter(Boolean)
+  return (opts.length > 0 && opts.every((o) => isDateLabel(o) || /^\d{4}-\d{2}-\d{2}/.test(o))) || DAY_ASK.test(q.q)
 }
 
 /** The page as far as progress goes: its address, its controls and their states, how much text (not where it's scrolled). */
@@ -2131,8 +2755,10 @@ function placeFromAnswers(state: AgentState, plan: TaskPlan, answers: string[]):
     state.chooseVenue = false
   }
   // A place the person named on the card: theirs, asked once (the director on d05b60bb, run 4: «Which stay should I
-  // book…» again after the card, other options and prices).
-  if (plan.booking && place && !place.startsWith("@")) state.cardPlace = place
+  // book…» again after the card, other options and prices). The rules' own pick shown on the card and left as it was
+  // isn't the person's choice (round 141, the director's 8b: a table site — the picked place couldn't be opened and the next one
+  // was refused as «the person already chose»): it locks nothing, and the next fitting place may be tried.
+  if (plan.booking && place && !place.startsWith("@") && place !== plan.questions[where]?.pick) state.cardPlace = place
 }
 
 export async function approvePlan(state: AgentState, io: RunnerIO, a: PlanApproval): Promise<AgentState> {

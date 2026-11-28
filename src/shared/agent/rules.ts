@@ -71,7 +71,7 @@ export const PAD_MIN = 30
 export const PAD_PLACE_MIN = 60
 
 /** A time slot's words on a page ("17:45", "5:45 PM", "17.45", "14h30"). */
-export const SLOT_TIME = /(^|[^\d])([01]?\d|2[0-3])\s*[:.h]\s*([0-5]\d)(?!\d)|(^|[^\d])(1[0-2]|0?[1-9])\s*(am|pm|a\.m\.|p\.m\.)/i
+export const SLOT_TIME = /(^|[^\d])([01]?\d|2[0-3])\s*[:.h]\s*([0-5]\d)(?!\d)|(^|[^\d])(1[0-2]|0?[1-9])\s*(am|pm|a\.m\.|p\.m\.)|(^|[^\d])([01]?\d|2[0-3])\s*(時|时|시)(?!間|间|간)|(^|[^\d])([01]?\d|2[0-3])\s*(点|點)\s*[0-5]?\d\s*分|(^|[^\d])([01]?\d|2[0-3])\s*uhr\b|(^|[^\d])([01]?\d|2[0-3])\s*giờ\s*[0-5]\d/i
 
 /** Whether a control's words look like a time to book (a slot), not a date or a button. */
 export function looksLikeSlot(label: string): boolean {
@@ -150,19 +150,31 @@ export function freeLineIn(line: string, tz?: string): string {
 
 // ------------------------------------------------------------ the page's own slots
 
-/** Every time a text names, as HH:MM (24 h): «17:45», «5:45 PM», «17.45», «14h30». */
+/** Every time a text names, as HH:MM (24 h): «17:45», «5:45 PM», «17.45», «14h30», and the panel's other languages'
+ *  ways: a pm or am word before or after it («오후 7:30», «午後7:30», «下午7:30», «7:30 م»), «19時30分», «19点30分»,
+ *  «19시 30분», «19 Uhr», «19 giờ 30». Hours words («2時間», «2시간») aren't times. */
 export function timesIn(text: string): string[] {
-  const out: string[] = []
-  const re = /(?<![\d:])([01]?\d|2[0-3])\s*[:.h]\s*([0-5]\d)(?!\d)(\s*(am|pm|a\.m\.|p\.m\.))?|(?<![\d:])(1[0-2]|0?[1-9])\s*(am|pm|a\.m\.|p\.m\.)/gi
-  for (const m of text.matchAll(re)) {
-    let h = Number(m[1] ?? m[5])
-    const min = m[2] ? Number(m[2]) : 0
-    const ap = (m[4] ?? m[6] ?? "").toLowerCase()
-    if (ap.startsWith("p") && h < 12) h += 12
-    if (ap.startsWith("a") && h === 12) h = 0
-    out.push(`${pad2(h)}:${pad2(min)}`)
+  const t = text.normalize("NFKC")
+  const found: { at: number; h: number; m: number; ap: string }[] = []
+  const add = (at: number, h: number, m: number, ap: string) => {
+    if (!found.some((f) => Math.abs(f.at - at) < 2)) found.push({ at, h, m, ap })
   }
-  return out
+  const PRE = "(오후|오전|午後|午前|下午|上午|晚上|早上|中午|傍晚|凌晨|夜)?\\s*"
+  const POST = "(\\s*(am|pm|a\\.m\\.|p\\.m\\.|مساءً|مساء|صباحًا|صباحا|صباح|م|ص)(?!\\p{L}))?"
+  for (const x of t.matchAll(new RegExp(`${PRE}(?<![\\d:])([01]?\\d|2[0-3])\\s*[:.h]\\s*([0-5]\\d)(?!\\d)${POST}`, "giu"))) add(x.index! + (x[1]?.length ?? 0), Number(x[2]), Number(x[3]), (x[5] ?? x[1] ?? "").toLowerCase())
+  for (const x of t.matchAll(/(?<![\d:])(1[0-2]|0?[1-9])\s*(am|pm|a\.m\.|p\.m\.)/gi)) add(x.index!, Number(x[1]), 0, x[2].toLowerCase())
+  for (const x of t.matchAll(new RegExp(`${PRE}(?<![\\d:])([01]?\\d|2[0-3])\\s*(?:時|时|시)(?!間|间|간)(?:\\s*([0-5]?\\d)\\s*(?:分|분))?`, "gu"))) add(x.index! + (x[1]?.length ?? 0), Number(x[2]), Number(x[3] ?? 0), x[1] ?? "")
+  for (const x of t.matchAll(new RegExp(`${PRE}(?<![\\d:])([01]?\\d|2[0-3])\\s*(?:点|點)\\s*([0-5]?\\d)\\s*分`, "gu"))) add(x.index! + (x[1]?.length ?? 0), Number(x[2]), Number(x[3]), x[1] ?? "")
+  for (const x of t.matchAll(/(?<![\d:])([01]?\d|2[0-3])\s*uhr(?:\s*([0-5]\d))?\b/gi)) add(x.index!, Number(x[1]), Number(x[2] ?? 0), "")
+  for (const x of t.matchAll(/(?<![\d:])([01]?\d|2[0-3])\s*giờ\s*([0-5]\d)/giu)) add(x.index!, Number(x[1]), Number(x[2]), "")
+  return found.sort((a, b) => a.at - b.at).map(({ h, m, ap }) => {
+    const pm = /^(p|오후|午後|下午|晚上|傍晚|夜|مساء|مساءً|م$)/.test(ap) || ap === "م"
+    const am = /^(a|오전|午前|上午|早上|凌晨|صباح|صباحا|صباحًا)/.test(ap) || ap === "ص"
+    let hh = h
+    if (pm && hh < 12) hh += 12
+    if (am && hh === 12) hh = 0
+    return `${pad2(hh)}:${pad2(m)}`
+  })
 }
 
 /**

@@ -53,7 +53,9 @@ test("2. paying: an amount on the button, upgrades and trials, any press on a pa
   assert.equal(classify({ tool: "click", id: "1" }, ctx(secret)).cls, "self")
   const map = read("src/content/agent/map.ts")
   assert.match(map, /stripe\\\\\.com|stripe\\\.com/)
-  assert.match(map, /checkout\|payment\|payments\|pay\|billing/)
+  // (Decision 9, round 142: the funnel's own words make a checkout funnel, carded; the words that name payment a payment page.)
+  assert.match(map, /\(payment\|payments\|pay\|billing\|/)
+  assert.match(map, /FUNNEL_PATH = .*\(checkout\|kasse\)/)
   // A plan can't grant it: paying is never a permission.
   const plan = buildPlan(checkPlan({ steps: [], questions: [], risky: [{ tool: "click", id: "1", text: "", key: "" }], prices: [] }), ctx({ ...free, pay: true }))
   assert.equal(plan.perms.length, 0)

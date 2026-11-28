@@ -19,7 +19,7 @@ import { hostOf, sameSite } from "../../shared/agent/sites"
 import type { Lock, MapItem, PageForm, PageMap, Role } from "../../shared/agent/types"
 import { isOwnHost } from "../insert/field"
 import { buildOutline } from "./outline"
-import { beginStyles, styleOf } from "./style"
+import { beginStyles, hiddenNatively, styleOf } from "./style"
 import { OVERLAY } from "../translate/pageControls"
 
 const CONTROL = [
@@ -734,11 +734,14 @@ function buildMapNow(doc: Document, opts: MapOptions): PageMap {
       if (outerRole && LEAF_ROLES.has(outerRole) && outerRole !== "editor" && role !== "textbox" && role !== "checkbox" && role !== "radio" && !inLink) return
     }
     if ((el as HTMLElement).isContentEditable && el.parentElement && (el.parentElement as HTMLElement).isContentEditable) return
-    // (Far from the screen — beyond it and one screen around it — a control is checked by its attributes only: it is
-    // laid out where it is, so it isn't display:none, and a fixed layer is never there. Round 140, the map's cost.)
+    // Hidden or not: the browser's own answer where it has one (round 141: visibility hidden, opacity 0 or skipped content
+    // anywhere above it — a folded menu's links, planted text — near the screen or far from it); where it hasn't, the
+    // styles, read once per build. Its attributes (aria-hidden, inert, hidden) always.
     const at = el.getBoundingClientRect()
     const far = at.width > 0 && at.height > 0 && (at.top + f.dy > height * 2 || at.bottom + f.dy < -height)
-    if (hiddenByStyle(el, far)) return
+    const native = hiddenNatively(el, !(role === "checkbox" || role === "radio" || role === "switch"))
+    if (native === true) return
+    if (hiddenByStyle(el, native === false)) return
     const box = boxOf(f, role)
     if (!box) return
     seen.add(el)
@@ -893,7 +896,7 @@ function buildMapNow(doc: Document, opts: MapOptions): PageMap {
       return promo ? { promo } : {}
     })()),
     ...(opts.money ? { money: pageMoney(doc) } : {}),
-    ...(takesPayment(doc) ? { pay: true } : {}),
+    ...(takesPayment(doc) ? { pay: true } : funnelPath(doc) ? { funnel: true } : {}),
     ...(opts.money && asksDeposit(doc) ? { deposit: true } : {}),
     ...(otherFrames(doc).length ? { frames: otherFrames(doc) } : {})
   }
@@ -962,7 +965,19 @@ const SEARCH_WORDS = /search|find|cuisine|restaurant name|location|where|what ar
 // Payment providers' frames and buttons, and addresses of checkout and payment pages (2.7.1, the security review: card
 // fields in another site's frame never made a form secret).
 const PAY_FRAME = /(^|\.)(stripe\.com|stripe\.network|adyen\.com|adyenpayments\.com|braintreegateway\.com|braintree-api\.com|paypal\.com|paypalobjects\.com|checkout\.com|squareup\.com|squarecdn\.com|klarna\.com|klarnacdn\.net|mollie\.com|worldpay\.com|authorize\.net|cybersource\.com|razorpay\.com|payu\.[a-z.]+|yookassa\.ru|cloudpayments\.ru|iyzipay\.com|apple\.com|pay\.google\.com|recurly\.com|chargebee\.com|paddle\.com|2checkout\.com|bluesnap\.com|globalpay[a-z]*\.com)$/
-const PAY_PATH = /(^|[/._-])(checkout|payment|payments|pay|billing|kasse|zahlung|bezahlen|paiement|pago|pagamento|pagamenti|oplata|odeme|subscribe|donate|order-confirm)([/._?-]|$)|оплат|결제|支付|決済|お支払い/i
+// (Round 142, the director's decision 9: the funnel's words, «checkout» and «kasse», no longer make a payment page on
+// their own — FUNNEL_PATH; the words that name payment itself still do.)
+const PAY_PATH = /(^|[/._-])(payment|payments|pay|billing|zahlung|bezahlen|paiement|pago|pagamento|pagamenti|oplata|odeme|subscribe|donate|order-confirm)([/._?-]|$)|оплат|결제|支付|決済|お支払い/i
+const FUNNEL_PATH = /(^|[/._-])(checkout|kasse)([/._?-]|$)/i
+
+/** A checkout funnel's address (decision 9): carded forward presses unless the page shows a payment sign. */
+export function funnelPath(doc: Document): boolean {
+  try {
+    return FUNNEL_PATH.test(`${doc.location?.pathname ?? ""}`)
+  } catch {
+    return false
+  }
+}
 
 export function takesPayment(doc: Document): boolean {
   try {

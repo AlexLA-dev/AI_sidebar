@@ -3263,6 +3263,15 @@
  "agentStepClick": {
   "message": "Nhấn “{0}”"
  },
+ "agentRecapAgain": {
+  "message": "Hỏi lại: trang đã từ chối lần thử đầu vì “{0}”."
+ },
+ "agentRecapAgainTo": {
+  "message": "Hỏi lại: trang đã từ chối lần thử đầu vì “{0}”; đã đổi sang “{1}”."
+ },
+ "agentStepPricedChoice": {
+  "message": "Chọn “{0}” — một lựa chọn có giá, không phải thanh toán"
+ },
  "agentStepType": {
   "message": "Nhập “{0}” vào “{1}”"
  },

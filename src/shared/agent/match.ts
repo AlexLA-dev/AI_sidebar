@@ -32,10 +32,14 @@ function entry(kind: WordKind, raw: string): Entry {
   const exact = raw.startsWith("=")
   const stem = raw.endsWith("*")
   const text = normalize(raw.replace(/^=/, "").replace(/\*$/, ""))
-  const escaped = text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/ /g, "[\\s-]+")
+  // Signing in or up and the account's own steps are matched spaced or not (round 142, the director's item 5: a stays site's
+  // «회원 가입» missed «회원가입»; «signup», «sign-in», «log in» likewise).
+  const loose = kind === "auth" || kind === "account"
+  const escaped = text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/ /g, loose ? "[\\s-]*" : "[\\s-]+")
+  const bare = text.replace(/[\s-]+/g, "")
   let test: (label: string) => boolean
   if (exact) test = (label) => label === text
-  else if (CJK.test(text)) test = (label) => label.includes(text)
+  else if (CJK.test(text)) test = loose ? (label) => label.replace(/[\s-]+/g, "").includes(bare) : (label) => label.includes(text)
   else {
     const re = new RegExp(`(?<![\\p{L}\\p{N}\\p{M}])${escaped}${stem ? "[\\p{L}\\p{M}]*" : ""}(?![\\p{L}\\p{N}\\p{M}])`, "u")
     test = (label) => re.test(label)

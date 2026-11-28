@@ -147,6 +147,10 @@ test("one card, then alone: allowed steps go without a question; paying still st
 test("unticked in the plan: that step asks; a plan that needs nothing starts at once", async () => {
   const x = io([
     { ok: true, plan: RAW, token: "t" },
+    // (The page's Name and Phone, which the request gives, are still empty: decision 13c sends the press back once per
+    // field, so the third press is the one that asks.)
+    step({ tool: "click", id: "5" }, "confirm", "submit"),
+    step({ tool: "click", id: "5" }, "confirm", "submit"),
     step({ tool: "click", id: "5" }, "confirm", "submit")
   ])
   let s = await drive(newState("t2", ctx.request, "en", BOOK.url), x)
@@ -162,7 +166,7 @@ test("unticked in the plan: that step asks; a plan that needs nothing starts at 
 })
 
 test("an old server (no plan in its answer): every «Сделать?» asks, as before", async () => {
-  const x = io([{ ok: true, token: "t", call: { tool: "read_page" }, verdict: { cls: "free", reason: "read" } }, step({ tool: "click", id: "5" }, "confirm", "submit")])
+  const x = io([{ ok: true, token: "t", call: { tool: "read_page" }, verdict: { cls: "free", reason: "read" } }, step({ tool: "click", id: "5" }, "confirm", "submit"), step({ tool: "click", id: "5" }, "confirm", "submit")])
   const s = await drive(newState("t4", ctx.request, "en", BOOK.url), x)
   assert.equal(s.status, "confirm")
   assert.equal(s.plan, undefined)

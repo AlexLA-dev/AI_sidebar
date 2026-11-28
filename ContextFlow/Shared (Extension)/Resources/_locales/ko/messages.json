@@ -3263,6 +3263,15 @@
  "agentStepClick": {
   "message": "‘{0}’ 누르기"
  },
+ "agentRecapAgain": {
+  "message": "다시 묻습니다: ‘{0}’ 때문에 페이지가 첫 시도를 받지 않았습니다."
+ },
+ "agentRecapAgainTo": {
+  "message": "다시 묻습니다: ‘{0}’ 때문에 페이지가 첫 시도를 받지 않았습니다. ‘{1}’(으)로 바꿨습니다."
+ },
+ "agentStepPricedChoice": {
+  "message": "‘{0}’ 선택 — 가격이 표시된 선택이며 결제가 아닙니다"
+ },
  "agentStepType": {
   "message": "‘{1}’에 ‘{0}’ 입력"
  },

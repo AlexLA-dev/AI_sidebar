@@ -22,6 +22,18 @@ const CHILDREN_AFTER = /(?<![\d.,:])(\d{1,2})\s*(?:child\S*|kids?|infants?|enfan
 // A press that adds one to a counter («+», «Increase», «Add adult»).
 const PLUS = /^\s*(\+|＋|increase|add|plus|more|увеличить|добавить|больше|збільшити|додати|erhöhen|hinzufügen|mehr|augmenter|ajouter|aumentar|añadir|agregar|aumenta|aggiungi|adicionar|artır|ekle|زيادة|إضافة|増やす|追加|증가|추가|增加|添加|tăng|thêm)(?!\p{L})/iu
 
+// A press that takes one off a counter («−», «Decrease», «Remove ticket»).
+const MINUS = /^\s*(-|−|–|－|decrease|remove|minus|less|fewer|уменьшить|убрать|меньше|зменшити|прибрати|verringern|entfernen|weniger|diminuer|retirer|moins|disminuir|quitar|menos|diminuisci|rimuovi|meno|diminuir|remover|azalt|çıkar|إنقاص|إزالة|減らす|감소|빼기|减少|減少|移除|giảm|bớt)(?!\p{L})/iu
+
+/** A counter's plus or minus the count rule recognises: the press's words add or take one, and what it counts is named by
+ *  its own label or by the number field beside it (round 142, decision 9: such a press stays free inside a checkout). */
+export function counterPress(item: MapItem, map: PageMap): CountKind | null {
+  if (!PLUS.test(item.label) && !MINUS.test(item.label)) return null
+  const at = map.items.indexOf(item)
+  const near = map.items.slice(Math.max(0, at - 3), at + 4).find((i) => i !== item && (i.type === "number" || i.role === "slider" || i.role === "textbox" || i.role === "select" || i.role === "combobox") && firstNumber(i.value ?? "") !== null)
+  return countKind({ label: `${item.label} ${near?.label ?? ""}`, role: item.role }) ?? (near ? countKind(near) : null)
+}
+
 // A number of people said in words, or a people word with no digit read beside it («لأربعة أشخاص», «for four», «四名»,
 // «на четверых»): the count is the person's but not one read here, so neither a refusal nor the standing rule applies.
 const PEOPLE_MENTION = new RegExp(`${PEOPLE.source}|[一二三四五六七八九十两兩]\\s*(?:名|人|位|枚)|\\p{L}\\s*명|(?:дво|тро|четвер|пятер|шестер|семер|восьмер)(?:их|ых|ом)|вдво|втро|вчетвер|(?<!\\p{L})(?:for|für|pour|para|per|на|для)\\s+(?:two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|zwei|drei|vier|fünf|sechs|sieben|acht|deux|trois|quatre|cinq|sept|huit|dos|tres|cuatro|cinco|seis|siete|ocho|due|tre|quattro|cinque|sei|sette|otto|duas|três)(?!\\p{L})`, "giu")

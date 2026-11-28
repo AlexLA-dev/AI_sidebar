@@ -3263,6 +3263,15 @@
  "agentStepClick": {
   "message": "Apertar “{0}”"
  },
+ "agentRecapAgain": {
+  "message": "Pergunto de novo: a página recusou a primeira tentativa por causa de “{0}”."
+ },
+ "agentRecapAgainTo": {
+  "message": "Pergunto de novo: a página recusou a primeira tentativa por causa de “{0}”; agora está escolhido “{1}”."
+ },
+ "agentStepPricedChoice": {
+  "message": "Escolher “{0}” — uma opção com preço, não um pagamento"
+ },
  "agentStepType": {
   "message": "Digitar “{0}” em “{1}”"
  },

@@ -3263,6 +3263,15 @@
  "agentStepClick": {
   "message": "Press “{0}”"
  },
+ "agentRecapAgain": {
+  "message": "Asked again: the page refused the first try for “{0}”."
+ },
+ "agentRecapAgainTo": {
+  "message": "Asked again: the page refused the first try for “{0}”; it was changed to “{1}”."
+ },
+ "agentStepPricedChoice": {
+  "message": "Choose “{0}” — a choice with its price, not a payment"
+ },
  "agentStepType": {
   "message": "Type “{0}” into “{1}”"
  },

@@ -2,11 +2,14 @@
 // model's own words about a step never change it. The server checks with this before it answers, and the extension
 // checks again before it acts (the extension is the one that presses).
 
-import { anyWord, wordKind, wordTest } from "./match.ts"
-import { amounts } from "./money.ts"
+import { anyWord, normalize, wordKind, wordTest } from "./match.ts"
+import { isDateLabel } from "./dates.ts"
+import { amounts, withoutAmounts } from "./money.ts"
+import { looksLikeSlot, SLOT_TIME } from "./rules.ts"
+import { counterPress } from "./counts.ts"
 import { blockedSite, hostOf, sameSite, type SitePolicy } from "./sites.ts"
 import type { MapItem, PageMap, StepVerdict, ToolCall } from "./types.ts"
-import { CHOSEN_COUNT_WORDS, CONSENT_DIALOG, TERMS_BOX } from "./words.ts"
+import { CHOSEN_COUNT_WORDS, CONSENT_DIALOG, NAV_AWAY, TERMS_BOX } from "./words.ts"
 
 export interface StepContext {
   map: PageMap
@@ -17,6 +20,8 @@ export interface StepContext {
   // A «Да» was given on this site during the task already (the first step on a site the task came to asks).
   confirmedHere: boolean
   policy: SitePolicy
+  // The task has an approved plan with a booking (decision 16: a priced choice there is a choice, not a payment).
+  booking?: boolean
 }
 
 // Mail, chat and social sites: «Send» there is a message in the person's name.
@@ -42,7 +47,8 @@ function commitStage(map: PageMap): boolean {
   return !!map.pay || COMMIT_PATH.test(path) || map.items.some((i) => i.lock === "personal")
 }
 
-const READ_ONLY = new Set(["read_page", "scroll", "extract", "ask_user", "done", "back", "reminders", "calendar"])
+// (set_dates: the device classes each of its presses itself and goes only through free ones.)
+const READ_ONLY = new Set(["read_page", "scroll", "extract", "ask_user", "done", "back", "reminders", "calendar", "set_dates"])
 // The person's Calendar and Reminders changed: always «Сделать?» first, wherever the page is.
 const APPLE_WRITES = new Set(["reminder_add", "reminder_done", "event_add"])
 const SELF_KINDS = new Set(["pay", "post", "rate", "account", "auth", "consent"])
@@ -168,6 +174,21 @@ function listingCard(item: MapItem): boolean {
   return item.role === "link" && (item.label.length > 40 || PRICE_FROM.test(item.label))
 }
 
+// Decision 11 (round 142, the director's; a narrowing): in scripts written without spaces a card says as much in fewer
+// characters — Han, Hiragana, Katakana and Hangul count two in a card's length; and the «from» written joined to its
+// price («€35から», «3,500円〜», «35,000원부터», «¥300起») is a «from». Only in the amount rule, only on a page that doesn't
+// take payment, links only.
+const WIDE = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u
+const JOINED_FROM = /(?:[€$£¥₩]\s?\d[\d.,]*|\d[\d.,]*\s?(?:円|원|元|€|₩|¥|\$))(?:から|〜|～|부터|起)/u
+function cardLength(label: string): number {
+  let n = 0
+  for (const ch of label) n += WIDE.test(ch) ? 2 : 1
+  return n
+}
+function listingCardWide(item: MapItem): boolean {
+  return item.role === "link" && (cardLength(item.label) > 40 || PRICE_FROM.test(item.label) || JOINED_FROM.test(item.label))
+}
+
 // The word right after a count in a label («1 item», «2 услуги», «3 Artikel», «2点»): what's counted.
 const chosenCountWord = wordTest(CHOSEN_COUNT_WORDS)
 function countsChosen(label: string): boolean {
@@ -183,8 +204,8 @@ function cartSummary(item: MapItem, kind: string | undefined): boolean {
 
 /** The class of a click on `item` (a button, a link, a checkbox…) by its words and where it is. A press that commits
  *  (a booking, a form sent) on a page that holds money (a deposit, a no-show fee) pays: the person's. */
-function clickClass(map: PageMap, item: MapItem, host: string): StepVerdict {
-  const v = pressClass(map, item, host)
+function clickClass(map: PageMap, item: MapItem, host: string, booking = false): StepVerdict {
+  const v = pressClass(map, item, host, booking)
   // Only the press that commits, on the page where it commits (personal fields, a review / confirm page): a fee named
   // in a home page's text or a cookie banner's «Accept» isn't paying.
   if (map.deposit && v.cls === "confirm" && v.reason === "submit" && commitStage(map) && !isConsentDialog(map, item)) return verdict("self", "pay")
@@ -205,7 +226,36 @@ function signsIn(map: PageMap, item: MapItem): boolean {
   return hit?.kind !== "submit" || ACCOUNT_MADE.test(map.text)
 }
 
-function pressClass(map: PageMap, item: MapItem, host: string): StepVerdict {
+// A priced choice in a picker is a choice, not a payment (round 141, the director's decision): a control whose words are
+// only a day and/or a time with its price («SAT 28 €10», «10:40 € 25»), no word of the pay, book or order lists, among
+// at least three like ones, on a page that doesn't take payment, is classed as the same control without the price.
+// «Pay €35 now», «Book 10:40 €25», a lone priced button and any priced press on a page that takes payment keep theirs.
+const dayOrTime = (label: string) => {
+  // A day: the label without its price, either reading of a space («1 200 ₽», «28/11 150.000 đ»).
+  if ([withoutAmounts(label), withoutAmounts(label, true)].some((bare) => !!bare && isDateLabel(bare))) return true
+  // A time: the time taken out first (its minutes aren't a price: «10:40 € 25»), then nothing but the price is left.
+  if (label.length > 40 || !SLOT_TIME.test(label)) return false
+  const rest = label.replace(new RegExp(SLOT_TIME.source, "gi"), " ")
+  return [withoutAmounts(rest), withoutAmounts(rest, true)].some((t) => !/[\p{L}\p{N}]/u.test(t))
+}
+function pricedChoice(map: PageMap, item: MapItem, hit: ReturnType<typeof wordKind>): boolean {
+  if (map.pay || hit || !PICKER_ROLES.has(item.role) || !dayOrTime(item.label)) return false
+  const like = map.items.filter((i) => i.id !== item.id && i.role === item.role && priced(i.label) && dayOrTime(i.label))
+  return like.length >= 3
+}
+const PICKER_ROLES = new Set(["button", "option", "radio", "link", "other", "tab"])
+// (A price beside a time: the time taken out first, so «12:00 € 30» isn't read as «00 €».)
+const priced = (label: string) => amounts(label).length > 0 || amounts(label.replace(new RegExp(SLOT_TIME.source, "gi"), " ")).length > 0
+
+// Decision 16 (round 142, the director's; a money guard narrowed, with these limits): a control the amount rule alone calls
+// pay is one of a set when at least one other control of its role in its group (its form, or the same place on the page
+// when it has none) carries an amount and no pay word — priced rows of services, rooms, days, tickets.
+function pricedSet(map: PageMap, item: MapItem): boolean {
+  const group = (i: MapItem) => (item.form !== undefined ? i.form === item.form : i.form === undefined && i.where === item.where)
+  return map.items.some((i) => i.id !== item.id && i.role === item.role && group(i) && priced(i.label) && wordKind(i.label)?.kind !== "pay")
+}
+
+function pressClass(map: PageMap, item: MapItem, host: string, booking = false): StepVerdict {
   // A listing's card (a long link to a place, with its address) carries the place's promo and ratings text («6% discount:
   // bring 1 friend, pay less», «614 reviews»): those words don't make opening the place a payment, a review or a post
   // (the director's real-site set, round 138: a salon card stopped as «pay»). A short link, a button, or a card on a page
@@ -225,8 +275,21 @@ function pressClass(map: PageMap, item: MapItem, host: string): StepVerdict {
   // isn't a link elsewhere on the page, a tab, an option or a refusal is the person's own.
   // (A listing's card is a link with its price on it — «Salon … Men's haircut from £35», a salon marketplace: that's going to
   // the salon, not paying. A button with an amount, or a short link that names one, still pays.)
-  if (amounts(item.label).length && !listingCard(item) && !cartSummary(item, hit?.kind)) return verdict("self", "pay")
-  const quiet = item.role === "tab" || item.role === "option" || item.role === "summary" || item.role === "menuitem" || hit?.kind === "nav" || hit?.kind === "reject"
+  if (amounts(item.label).length && !(map.pay ? listingCard(item) : listingCardWide(item)) && !cartSummary(item, hit?.kind) && !pricedChoice(map, item, hit)) {
+    // Decision 16, only in an approved booking plan and off a page that takes payment (card fields, a payment frame or
+    // a provider button make it one), never with a pay word: (b) a button whose word is a booking word with its amount
+    // («Reserve 1 room for € 265») is the booking's own press — «Do it?» with the recap; (a) a control with no word but
+    // its price, one of a set of priced ones («… от 1500 RUB … Выбрать», a row's «€ 25»), is a priced choice — a card.
+    // A lone priced control, any pay word, a cart word, a payment page or no booking plan: the person's, as before.
+    if (booking && !map.pay && hit?.kind !== "pay") {
+      if (item.role === "button" && hit?.kind === "submit" && BOOK_ENTRY.test(hit.word) && !CART.test(hit.word)) return verdict("confirm", "submit")
+      if ((!hit || hit.kind === "nav" || hit.kind === "weak") && pricedSet(map, item)) return verdict("confirm", "priced_choice")
+    }
+    return verdict("self", "pay")
+  }
+  // (Decision 10: on a page that takes payment only a nav word that leads away or shows more stays quiet; «Continue»,
+  // «Next», «Checkout» move the purchase forward and are the person's own there.)
+  const quiet = item.role === "tab" || item.role === "option" || item.role === "summary" || item.role === "menuitem" || (hit?.kind === "nav" && (!map.pay || NAV_AWAY_SET.has(hit.word))) || hit?.kind === "reject"
   if (map.pay && !quiet && !(item.role === "link" && !form)) return verdict("self", "pay")
   if (form?.secret && (hit?.kind === "submit" || hit?.kind === "weak" || hit?.kind === "send")) return verdict("self", "auth")
   // «Continue with Google / Apple»: a sign-in with another account, the person's.
@@ -260,6 +323,14 @@ function pressClass(map: PageMap, item: MapItem, host: string): StepVerdict {
 }
 
 /** The class of `call` on the page in `ctx`. The model's call is assumed checked (call.ts) against the map. */
+const NAV_AWAY_SET = new Set(NAV_AWAY.map(normalize))
+
+const FUNNEL_FIELDS = new Set(["textbox", "textarea", "editor", "combobox", "select", "listbox", "slider", "option", "tab"])
+/** What stays free inside a checkout funnel: a field, a choice in a picker, a counter's plus or minus. */
+function funnelFree(map: PageMap, item: MapItem): boolean {
+  return FUNNEL_FIELDS.has(item.role) || isDateLabel(item.label) || looksLikeSlot(item.label) || !!counterPress(item, map)
+}
+
 export function classify(call: ToolCall, ctx: StepContext): StepVerdict {
   const host = hostOf(ctx.map.url)
   if (READ_ONLY.has(call.tool)) return verdict("free", "read")
@@ -288,8 +359,11 @@ export function classify(call: ToolCall, ctx: StepContext): StepVerdict {
     // click and go: a link elsewhere first, then the words.
     const to = item.role === "link" || call.tool === "go" ? linkHost(item, host) : host
     if (!sameSite(to, host)) return verdict("confirm", "other_site")
-    v = clickClass(ctx.map, item, host)
+    v = clickClass(ctx.map, item, host, ctx.booking === true)
   }
+  // Inside a checkout funnel with no payment sign (decision 9): a forward press the ordinary rules call free is carded;
+  // a field, a choice in a picker (a day, a time, an option, a tab) or a counter's plus or minus goes without one.
+  if (ctx.map.funnel && !ctx.map.pay && v.cls === "free" && (call.tool === "click" || call.tool === "go") && !funnelFree(ctx.map, item)) v = verdict("confirm", "checkout_step")
   // The first thing done on a site the task came to (not the one it began on) asks first.
   if (v.cls === "free" && !ctx.confirmedHere && ctx.startHost && !sameSite(host, ctx.startHost) && call.tool !== "scroll") {
     return verdict("confirm", "first_here")
