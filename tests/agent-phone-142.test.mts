@@ -230,3 +230,33 @@ test("15c: a question quoting the phone while the page marks the phone field inv
   assert.equal(st.status, "asked")
   assert.equal(st.ruleCounts?.given_ask, undefined)
 })
+
+// 15e and 15e2 (the director's answer on the US case).
+test("15e: the device's choice line says to leave it; a second select on that control is refused once, then as before", async () => {
+  const { acts, st } = await drive15({ before: form("Canada (+1)") }, [{ tool: "select", id: "1", option: "Canada (+1)" }, { tool: "select", id: "1", option: "Canada (+1)" }, { tool: "select", id: "1", option: "Canada (+1)" }], "Book. Phone +1 202 555 0123.")
+  assert.match(st.log[0]?.result ?? "", /This is the country for the person's number: leave it and go on/)
+  const refused = st.log.filter((l) => /^refused: «United States \(\+1\)» is the country for the person's number, set by the device/.test(l.result ?? ""))
+  assert.equal(refused.length, 1, "once")
+  assert.equal(st.ruleCounts?.dial_set, 1)
+  // The third select is as before: carried out (still the device's option, as 15a2 gives while the number is known).
+  assert.deepEqual(acts.filter((a) => a.tool === "select").map((a) => a.option), ["United States (+1)", "United States (+1)"])
+})
+
+test("15e2: up front, once — the step's context says the device sets the country list for the person's number", async () => {
+  const sent: any[] = []
+  const before = form("Cyprus (+357)")
+  before.items[0].options = ["Cyprus (+357)", ...US_CA]
+  const io = {
+    map: async () => before, act: async () => ({ ok: true, note: "typed" }), waitPage: async () => {},
+    ask: async (b: unknown) => { sent.push(JSON.parse(JSON.stringify(b))); return { ok: true, call: { tool: "done", summary: "x", why: "" }, verdict: { cls: "free", reason: "read" } } },
+    save: async () => {}, entries: async () => [], policy: { amazon: true }, maxSteps: 3, planning: false,
+    device: async () => ({ reminders: "yes", calendar: "none" }), rules: async () => DEFAULT_RULES, playbook: { get: async () => null, put: async () => {} }
+  } as unknown as RunnerIO
+  const st = await drive(newState("e2", "Book. Phone +1 202 555 0123.", "en", before.url), io)
+  assert.match(sent[0]?.refused ?? "", /the country list beside «Telephone number» is set by the device itself for the person's number/)
+  assert.equal(st.dialNoted, true)
+  // No number known: no line.
+  const sent2: any[] = []
+  await drive(newState("e2b", "Book a table for 2.", "en", before.url), { ...io, ask: async (b: unknown) => { sent2.push(JSON.parse(JSON.stringify(b))); return { ok: true, call: { tool: "done", summary: "x", why: "" }, verdict: { cls: "free", reason: "read" } } } } as unknown as RunnerIO)
+  assert.doesNotMatch(sent2[0]?.refused ?? "", /country list/)
+})

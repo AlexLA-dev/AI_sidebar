@@ -202,6 +202,10 @@ export interface AgentState {
   phoneExtra?: boolean
   // The person's international phone, given in the request or saved (the device owns the dial-code control then: 15a2).
   phoneKnown?: string
+  // 15e: the option the device set on a dial-code control for the person's number, whether a second select on it was
+  // refused; 15e2: whether the up-front line about the country list was said.
+  dialOwned?: { dialId: string; option: string; refused?: boolean }
+  dialNoted?: boolean
   // Decision 15d (general): a field changed after the page marked it invalid, with the page's message as it was then;
   // whether the device line about it was said; what it was changed to (a country, when the device chose one).
   staleFix?: { fieldId: string; label: string; kind: string; msg: string; to?: string; said?: boolean }
@@ -429,6 +433,7 @@ async function phoneFirst(state: AgentState, io: RunnerIO, call: ToolCall, text:
     }
     state.dialTouched = [...new Set([...(state.dialTouched ?? []), dial.id])]
     state.phoneDial = { dialId: dial.id, dialLabel: dial.label, dialRole: dial.role, fieldId: field.id, others: pick.others, national: pick.national }
+    state.dialOwned = { dialId: dial.id, option: pick.option }
     return { text: pick.national, dial, others: pick.others }
   }
   if (dial && (dial.role === "button" || dial.role === "listbox")) {
@@ -477,6 +482,7 @@ async function phoneOtherOption(state: AgentState, io: RunnerIO, fieldId: string
   const option = d.others[0]
   const r = await io.act({ tool: "select", id: d.dialId, option, why: "", expect: { label: d.dialLabel, role: d.dialRole } }).catch(() => null)
   if (!r?.ok) return null
+  state.dialOwned = { dialId: d.dialId, option }
   const before = await io.map({}).catch(() => null)
   const field = before?.items.find((i) => i.id === fieldId)
   const t = await io.act({ tool: "type", id: fieldId, text: d.national, mode: "replace", why: "", leave: true }).catch(() => null)
@@ -548,7 +554,10 @@ async function perform(state: AgentState, io: RunnerIO, call: ToolCall, verdict:
   // (A booking press the page bounced — a field marked invalid right after it — read before any retry changes it.)
   const bounceMap = booking && result?.ok && call.tool !== "fill" && state.plan?.booking ? await io.map({}).catch(() => null) : null
   const bounce = bounceMap?.items.find((i) => i.state?.includes("invalid") && i.lock !== "secret" && (i.role === "textbox" || i.role === "combobox" || i.role === "select"))
-  if (dialPick && result) result = { ...result, note: `${result.note ?? "chosen"} (the device chose «${dialPick.option.slice(0, 40)}»: ${dialPick.why})` }
+  if (dialPick && result) {
+    result = { ...result, note: `${result.note ?? "chosen"} (the device chose «${dialPick.option.slice(0, 40)}»: ${dialPick.why}. This is the country for the person's number: leave it and go on — the number, then the booking's press)` }
+    if (result.ok && call.id) state.dialOwned = { dialId: call.id, option: dialPick.option }
+  }
   if (invalidField && changing && result?.ok) state.staleFix = { fieldId: invalidField.id, label: invalidField.label, kind: contactField(invalidField) ?? "field", msg: fieldMessages(changing), ...(call.tool === "select" ? { to: dialPick?.option ?? call.option } : {}) }
   // (A press clears it: the page has checked again.)
   if ((call.tool === "click" || call.tool === "go") && !opening) state.staleFix = state.staleFix && booking ? state.staleFix : undefined
@@ -1814,6 +1823,15 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     const entries = extra.length ? [...stored, ...extra.map((o) => ({ id: `once-${o.key}`, key: o.key, label: "", value: o.value, updatedAt: 0 }) as FormEntry)] : stored
     // (15a2: the person's international phone, known for this step.)
     state.phoneKnown = knownPhone(state, entries)
+    // (15e2: up front, once a task — a phone field with a country list on the page while the person's international
+    // number is known: the device sets that list itself when the number goes in, so the model doesn't.)
+    if (state.phoneKnown && !state.dialNoted && !state.refused) {
+      const tel = map.items.find((i) => i.role === "textbox" && (i.type === "tel" || contactField(i) === "phone") && !!dialControl(map, i))
+      if (tel) {
+        state.dialNoted = true
+        state.refused = `the country list beside «${tel.label.slice(0, 40)}» is set by the device itself for the person's number when the number goes in: don't select it — type the number, then go on`
+      }
+    }
     const keys = [...new Set(liveEntries(entries).map(modelKey))]
     const here = (await io.device?.().catch(() => null)) ?? null
     if (state.step === 0 && io.planning && !state.plan) {
@@ -2074,6 +2092,16 @@ export async function drive(state: AgentState, io: RunnerIO): Promise<AgentState
     // The device's own check, on its own map: never milder than the server's.
     // The control as classed now goes with the step: the hands check it's still that one before they act.
     const seenItem = call.id ? map.items.find((i) => i.id === call.id) : undefined
+    // (15e: a second select on the dial-code control while the device's own choice for the person's number stands isn't
+    // carried out — refused once with the same fact; after that, as before.)
+    if (call.tool === "select" && state.dialOwned && state.dialOwned.dialId === call.id && !state.dialOwned.refused && seenItem?.value === state.dialOwned.option) {
+      state.dialOwned.refused = true
+      const why = `«${state.dialOwned.option.slice(0, 40)}» is the country for the person's number, set by the device: it stays — type the number, then go on with the booking's press`
+      rule(state, "dial_set")
+      state.log.push({ call, target: `select "${seenItem.label.slice(0, 60)}"`, result: `refused: ${why}` })
+      state.refused = why
+      continue
+    }
     // A saved detail into a field that asks for another kind (a restaurant site: the full name into «email»): refused, and the
     // model hears which detail the field wants and whether «Мои данные» has it (else: ask the person once).
     const wants = call.tool === "fill" && call.key && seenItem ? fieldKind(seenItem, keyOfAutocomplete(seenItem.auto)?.key ?? null) : null
