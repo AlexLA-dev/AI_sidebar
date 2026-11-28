@@ -2,7 +2,7 @@ import type { Config } from "@netlify/functions"
 import { createHash, timingSafeEqual } from "node:crypto"
 
 import { config as settings } from "../shared/config.mts"
-import { afterLimit, featureFunnels, features, limitsReport, newUserOutcomes, onboarding, mrrHistory, organizeReport, ownerInsights, rateReport, releases, retention, setupFunnel, ultraReport, usageReport } from "../shared/db.mts"
+import { afterLimit, featureFunnels, features, limitsReport, newUserOutcomes, onboarding, mrrHistory, mrrMoves, organizeReport, ownerInsights, rateReport, releases, retention, setupFunnel, ultraReport, usageReport } from "../shared/db.mts"
 import { featureBase } from "../../src/shared/usage.ts"
 
 /**
@@ -35,7 +35,7 @@ export default async (req: Request): Promise<Response> => {
       console.error(`[cf] ${what} failed:`, err instanceof Error ? err.message : err)
       return null
     }
-    const [report, funnel, insights, limits, steps, outcomes, used, funnels, after, shipped, organize, ultra, mrr, kept, rate] = await Promise.all([
+    const [report, funnel, insights, limits, steps, outcomes, used, funnels, after, shipped, organize, ultra, mrr, kept, rate, moves] = await Promise.all([
       usageReport(days),
       // Older databases have no funnel or insights yet; the rest of the report still works.
       setupFunnel(days).catch(() => []),
@@ -56,7 +56,9 @@ export default async (req: Request): Promise<Response> => {
       // Cohorts need a longer window than a week: at least 90 days.
       retention(Math.max(days, 90)).catch(() => null),
       // Before its migration (20261111160000) there's none: the page says so in the block.
-      rateReport(days).catch(() => null)
+      rateReport(days).catch(() => null),
+      // Before its migration (20261128120000) there's none: the page says so under the MRR chart.
+      mrrMoves(days).catch(() => null)
     ])
     return new Response(JSON.stringify({
       ...report, setup_funnel: funnel, insights, limits_report: limits, onboarding: steps, new_outcomes: outcomes,
@@ -66,7 +68,7 @@ export default async (req: Request): Promise<Response> => {
         ...ultra,
         allowance: { speak_minutes: settings.ultra.speakWeeklySeconds / 60, similar_searches: settings.ultra.similarWeekly }
       },
-      mrr_history: mrr, retention: kept, rate_report: rate
+      mrr_history: mrr, mrr_moves: moves, retention: kept, rate_report: rate
     }), { headers: noStore })
   } catch (err) {
     console.error("[cf] usage report failed:", err instanceof Error ? err.message : err)

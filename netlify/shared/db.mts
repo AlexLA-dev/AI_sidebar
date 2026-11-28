@@ -94,6 +94,9 @@ export const organizeReport = (days: number) => rpc<Record<string, unknown>>("cf
 export const ultraReport = (days: number) => rpc<Record<string, unknown>>("cf_ultra_report", { p_days: days })
 /** MRR at the end of each day by plan, monthly or yearly, renewal on or off, and currency (cf_mrr_history). */
 export const mrrHistory = (days: number) => rpc<Record<string, unknown>>("cf_mrr_history", { p_days: days })
+/** MRR's movement by day — new, returned, upgraded, downgraded, left, due, renewed — and the next 7 days' renewals
+ *  (cf_mrr_moves, migration 20261128120000). */
+export const mrrMoves = (days: number) => rpc<Record<string, unknown>>("cf_mrr_moves", { p_days: days })
 /** Users by first week and subscribers by first payment month, still there later; first renewals (cf_retention). */
 export const retention = (days: number) => rpc<Record<string, unknown>>("cf_retention", { p_days: days })
 /** New people's way to the first answer, one row each, by the day they first showed up (cf_onboarding). */
