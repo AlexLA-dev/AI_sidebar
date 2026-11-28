@@ -66,7 +66,7 @@
   "message": "关注价格"
  },
  "plusButton": {
-  "message": "更多：笔记、快照、整个对话"
+  "message": "更多：笔记、执行、快照、整个对话"
  },
  "hintShow": {
   "message": "查看"
@@ -2825,6 +2825,27 @@
  "setPageHintsHint": {
   "message": "刚开始的几天，提示你在页面上能做什么。"
  },
+ "setCookies": {
+  "message": "关闭 Cookie 窗口"
+ },
+ "setCookiesHint": {
+  "message": "选择“仅必要”。"
+ },
+ "setCookiesAccept": {
+  "message": "无法拒绝时接受"
+ },
+ "cookiesOffOnSite": {
+  "message": "在此网站上不关闭"
+ },
+ "cookiesOnOnSite": {
+  "message": "在此网站上关闭"
+ },
+ "cookieClosedLine": {
+  "message": "已关闭 Cookie 窗口：仅必要"
+ },
+ "cookieAcceptedLine": {
+  "message": "已接受 Cookie：没有其他选择"
+ },
  "phSimilarBodyUpBoth": {
   "message": "这是 Pro 和 Ultra 的功能：Pro 是快速搜索，Ultra 是完整搜索。同款更便宜的，以及其他商店的相似商品。点高亮的按钮。"
  },
@@ -3137,6 +3158,681 @@
  "writeInserted": {
   "message": "已插入"
  },
+ "agentMode": {
+  "message": "执行"
+ },
+ "agentModeHint": {
+  "message": "让 ContextFlow 在这个页面上帮你做"
+ },
+ "placeholderAgent": {
+  "message": "要在这个页面上做什么？"
+ },
+ "agentWorking": {
+  "message": "正在操作 · 第 {0} 步"
+ },
+ "agentConfirmTitle": {
+  "message": "要执行吗？"
+ },
+ "agentYes": {
+  "message": "是"
+ },
+ "agentNo": {
+  "message": "否"
+ },
+ "agentNoUndo": {
+  "message": "此操作无法撤销。"
+ },
+ "agentOffRequest": {
+  "message": "这似乎不是你要求的：{0}"
+ },
+ "agentStepClick": {
+  "message": "点按“{0}”"
+ },
+ "agentRecapAgain": {
+  "message": "再次确认：页面因“{0}”未接受第一次提交。"
+ },
+ "agentRecapAgainTo": {
+  "message": "再次确认：页面因“{0}”未接受第一次提交；已改为“{1}”。"
+ },
+ "agentStepServiceOther": {
+  "message": "页面上没有“{0}”。改选“{1}”吗？"
+ },
+ "agentRecapService": {
+  "message": "服务：{0}"
+ },
+ "agentRecapServiceOther": {
+  "message": "不是您要的“{0}”：这是您选的。"
+ },
+ "agentStepPricedChoice": {
+  "message": "选择“{0}”——这是带价格的选项，不是付款"
+ },
+ "agentStepType": {
+  "message": "在“{1}”中输入“{0}”"
+ },
+ "agentStepSelect": {
+  "message": "在“{1}”中选择“{0}”"
+ },
+ "agentStepGo": {
+  "message": "前往 {0}"
+ },
+ "agentFillTitle": {
+  "message": "用“我的信息”填写吗？"
+ },
+ "agentFillButton": {
+  "message": "填写"
+ },
+ "agentFillSkip": {
+  "message": "不用了"
+ },
+ "agentSelfTitle": {
+  "message": "这一步由你来做"
+ },
+ "agentSelfPay": {
+  "message": "请自己付款或下单：全部检查好后，点按“{0}”。"
+ },
+ "agentSelfSend": {
+  "message": "请自己发送：读完后，点按“{0}”。"
+ },
+ "agentSelfAuth": {
+  "message": "请自己登录（Safari 可以帮你填写密码）。我等你。"
+ },
+ "agentSelfConsent": {
+  "message": "如果同意，请自己勾选“{0}”。"
+ },
+ "agentSelfRate": {
+  "message": "评价、评分和投票，要由你自己来。"
+ },
+ "agentSelfOther": {
+  "message": "这一步请你自己来：“{0}”。"
+ },
+ "agentSelfNewTab": {
+  "message": "请你自己点一下“{0}”：这个页面会在新标签页中打开，只有你亲手点才行。接着我会在那里继续。"
+ },
+ "agentSelfFile": {
+  "message": "请自己选择文件。"
+ },
+ "agentSelfDone": {
+  "message": "完成"
+ },
+ "agentSelfNotNow": {
+  "message": "暂不"
+ },
+ "agentDoneTitle": {
+  "message": "已完成"
+ },
+ "agentAskedTitle": {
+  "message": "需要你回答"
+ },
+ "agentStopped": {
+  "message": "已停止。"
+ },
+ "agentUndo": {
+  "message": "撤销"
+ },
+ "agentUndone": {
+  "message": "能恢复的都已恢复。"
+ },
+ "agentLimit": {
+  "message": "今天的智能体任务已用完（每天 {0} 个），明天会恢复。"
+ },
+ "agentProOnly": {
+  "message": "智能体包含在 Pro 和 Ultra 中。"
+ },
+ "agentError": {
+  "message": "出了点问题，请重试。"
+ },
+ "agentErrorPage": {
+  "message": "页面没有响应。请重新载入后重试。"
+ },
+ "agentSteps": {
+  "message": "步骤太多了，我先停在这里。"
+ },
+ "agentBlockedSite": {
+  "message": "在银行、支付、政务等网站上，ContextFlow 不会替你操作，但仍可以回答关于页面的问题。"
+ },
+ "amazonAgent": {
+  "message": "在 Amazon 上，ContextFlow 只能回答关于页面的问题：Amazon 不允许自动化工具在它的网站上替你操作。"
+ },
+ "amazonSimilar": {
+  "message": "未核实：Amazon 不允许我们的服务器打开它的页面。"
+ },
+ "agentStart": {
+  "message": "开始"
+ },
+ "agentDeferredTitle": {
+  "message": "稍后执行的任务"
+ },
+ "agentDontAskHere": {
+  "message": "下次在这个网站上直接开始"
+ },
+ "agentLater": {
+  "message": "稍后"
+ },
+ "agentLaterAt": {
+  "message": "指定时间"
+ },
+ "agentLaterWatch": {
+  "message": "关注的这个页面有变化时"
+ },
+ "agentLaterSet": {
+  "message": "确定"
+ },
+ "agentLaterSaved": {
+  "message": "到 {0}，你会收到通知。点按通知，我就和你一起在这个页面上完成。"
+ },
+ "agentLaterSavedWatch": {
+  "message": "关注的页面有变化时，你会收到通知。点按通知，我就和你一起完成。"
+ },
+ "agentLaterNotifOff": {
+  "message": "ContextFlow 的通知已关闭。请在这里打开：设置 → 通知 → ContextFlow。"
+ },
+ "agentLaterNotifyWhy": {
+  "message": "请打开通知，这样我才能提醒你这件事。"
+ },
+ "agentLaterPast": {
+  "message": "这个时间已经过了，请选一个更晚的时间。"
+ },
+ "agentYouMark": {
+  "message": "你"
+ },
+ "agentHint": {
+  "message": "在此页面上执行？"
+ },
+ "agentWaitingStep": {
+  "message": "第 {0} 步 · 等你操作"
+ },
+ "agentStepReminderAdd": {
+  "message": "将提醒事项“{0}”添加到“{1}”"
+ },
+ "agentStepReminderAddDue": {
+  "message": "将提醒事项“{0}”添加到“{1}”，截止 {2}"
+ },
+ "agentStepReminderDone": {
+  "message": "在提醒事项中将“{0}”标为已完成"
+ },
+ "agentStepEventAdd": {
+  "message": "将“{0}”添加到你的日历：{1}"
+ },
+ "agentSelfAccessReminders": {
+  "message": "允许 ContextFlow 使用你的提醒事项：打开 App，轻点“允许”，然后回到这里轻点“完成”。"
+ },
+ "agentSelfAccessCalendar": {
+  "message": "允许 ContextFlow 使用你的日历：打开 App，轻点“允许完全访问”，然后回到这里轻点“完成”。"
+ },
+ "agentOpenApp": {
+  "message": "打开 ContextFlow"
+ },
+ "agentStepReminderAddDefault": {
+  "message": "将提醒事项“{0}”添加到默认列表"
+ },
+ "agentStepReminderAddDefaultDue": {
+  "message": "将提醒事项“{0}”添加到默认列表，截止 {1}"
+ },
+ "agentLaterLimit": {
+  "message": "已有 {0} 个任务在等待，这是你的套餐上限。"
+ },
+ "agentNotifTitle": {
+  "message": "{0} 上的任务"
+ },
+ "agentNotifBody": {
+  "message": "点按后，我和你一起完成：{0}"
+ },
+ "agentHelpLink": {
+  "message": "智能体不会做的事"
+ },
+ "agentHelp": {
+  "message": "智能体在打开的页面上操作：点按、输入、选择。提交表单前，它会问“要执行吗？”；购买、付款、发消息和登录都留给你自己。它从不查看、也不输入密码、银行卡号和证件号码。验证码、选择文件和一些特殊按钮它处理不了，这时会请你自己完成这一步。稍后执行的任务会以通知的形式送达：点按通知，智能体就会和你一起继续。"
+ },
+ "setAgentAuto": {
+  "message": "在这些网站上，稍后执行的任务直接开始"
+ },
+ "setAgentAutoHint": {
+  "message": "在这些网站上，点按任务通知后会直接开始，无需点“开始”。“要执行吗？”和需要你自己完成的步骤仍会询问你。"
+ },
+ "fdTitle": {
+  "message": "我的信息"
+ },
+ "fdHint": {
+  "message": "用于在网站上填写表单。保存在你的设备上；只有你同意后智能体才会填写，AI 模型看不到这些信息。"
+ },
+ "fdNameFull": {
+  "message": "姓名"
+ },
+ "fdNameGiven": {
+  "message": "名"
+ },
+ "fdNameFamily": {
+  "message": "姓"
+ },
+ "fdNameLatin": {
+  "message": "姓名拼音"
+ },
+ "fdNamePhonetic": {
+  "message": "姓名读音"
+ },
+ "fdEmail": {
+  "message": "电子邮件"
+ },
+ "fdPhone": {
+  "message": "电话"
+ },
+ "fdAddressLine": {
+  "message": "街道和门牌号"
+ },
+ "fdAddressApartment": {
+  "message": "单元、楼层、房间号"
+ },
+ "fdAddressCity": {
+  "message": "城市"
+ },
+ "fdAddressRegion": {
+  "message": "省/州"
+ },
+ "fdAddressPostal": {
+  "message": "邮政编码"
+ },
+ "fdAddressCountry": {
+  "message": "国家/地区"
+ },
+ "fdCompany": {
+  "message": "公司"
+ },
+ "fdJobTitle": {
+  "message": "职位"
+ },
+ "fdWebsite": {
+  "message": "网站"
+ },
+ "fdBirthDate": {
+  "message": "出生日期"
+ },
+ "fdFact": {
+  "message": "其他"
+ },
+ "fdFactLabel": {
+  "message": "名称（例如鞋码）"
+ },
+ "fdAdd": {
+  "message": "添加"
+ },
+ "fdDelete": {
+  "message": "删除"
+ },
+ "fdDeleteAll": {
+  "message": "全部删除"
+ },
+ "fdDeleteAllAsk": {
+  "message": "要从这台设备上删除你的所有信息吗？（如果已通过 iCloud 同步，也会从 iCloud 中删除。）"
+ },
+ "fdRefused": {
+  "message": "我不保存密码、银行卡、银行账户或证件号码、验证码，也不保存健康数据。"
+ },
+ "fdICloudAsk": {
+  "message": "要通过 iCloud 在你的各台设备间同步这些信息吗？"
+ },
+ "fdICloudHint": {
+  "message": "通过你的私人 iCloud 同步，我们无法访问。不同步的话，信息只保存在这台设备上。"
+ },
+ "fdICloud": {
+  "message": "通过 iCloud 同步"
+ },
+ "agentPlanTitle": {
+  "message": "我会这样做"
+ },
+ "agentPlanReading": {
+  "message": "正在读取页面…"
+ },
+ "agentPlanAllowed": {
+  "message": "无需再问即会执行"
+ },
+ "agentPlanSelf": {
+  "message": "这些由你来做"
+ },
+ "agentPlanOwn": {
+  "message": "其他…"
+ },
+ "agentPlanNow": {
+  "message": "现在"
+ },
+ "agentPermPersonal": {
+  "message": "填入你在请求里给出的信息：{0}"
+ },
+ "agentPermFill": {
+  "message": "用“我的信息”填写：{0}"
+ },
+ "agentLineFilled": {
+  "message": "已填写：{0}"
+ },
+ "agentLinePressed": {
+  "message": "已点按：{0}"
+ },
+ "agentPermConsent": {
+  "message": "勾选同意 {0} 的条款"
+ },
+ "agentPermReminder": {
+  "message": "添加到提醒事项：“{0}”"
+ },
+ "agentPermReminderDone": {
+  "message": "在提醒事项中标为完成：“{0}”"
+ },
+ "agentPermEvent": {
+  "message": "添加到日历：“{0}”"
+ },
+ "agentPlanSelfPay": {
+  "message": "付款或下单：“{0}”"
+ },
+ "agentPlanSelfSend": {
+  "message": "发送：“{0}”"
+ },
+ "agentPlanSelfAuth": {
+  "message": "登录网站"
+ },
+ "agentPriceChanged": {
+  "message": "这里的价格和之前显示的（{0}）不一样。继续前请先核对。"
+ },
+ "agentMarkPaused": {
+  "message": "已暂停"
+ },
+ "agentMarkStopped": {
+  "message": "已停止"
+ },
+ "agentMarkFailed": {
+  "message": "没成功"
+ },
+ "agentShowSteps": {
+  "message": "步骤和结果"
+ },
+ "agentModeOff": {
+  "message": "关闭“执行”"
+ },
+ "noteHintTouchDo": {
+  "message": "向上轻扫按钮写笔记，向下轻扫“执行”"
+ },
+ "agentNoticeNeeds": {
+  "message": "需要你"
+ },
+ "agentGoToTab": {
+  "message": "前往该标签页"
+ },
+ "agentNotifPaused": {
+  "message": "任务已暂停——打开 Safari 来完成：{0}"
+ },
+ "agentNotifDone": {
+  "message": "完成：{0}"
+ },
+ "agentNotifNeeds": {
+  "message": "需要你：{0}"
+ },
+ "agentNotifNotBooked": {
+  "message": "未预订：{0}"
+ },
+ "agentPlanStepYours": {
+  "message": "“{0}”——由你来点按"
+ },
+ "agentPlanAnswerFirst": {
+  "message": "请先回答：“{0}”"
+ },
+ "agentErrorNoReply": {
+  "message": "扩展没有响应。请再试一次；如果仍然这样，请重新加载页面。"
+ },
+ "agentStartFailed": {
+  "message": "无法开始任务（{0}）。请再试一次。"
+ },
+ "agentPlanRemember": {
+  "message": "记在“我的信息”中"
+ },
+ "agentPlanFromSaved": {
+  "message": "来自“我的信息”——更改后更新"
+ },
+ "agentMarkUnfinished": {
+  "message": "未完成"
+ },
+ "agentNothingBooked": {
+  "message": "没有预订任何内容。"
+ },
+ "agentLastDone": {
+  "message": "最后完成的步骤：{0}"
+ },
+ "agentStuck": {
+  "message": "页面不再变化，我在这里停下了。完成的部分在上面。"
+ },
+ "agentNeedSignIn": {
+  "message": "登录网站"
+ },
+ "agentNeedPay": {
+  "message": "在网站上付款"
+ },
+ "agentNeedAnswer": {
+  "message": "你的回答"
+ },
+ "agentAutoLine": {
+  "message": "无需提问 — 来自“我的资料”和你的规则：{0}"
+ },
+ "agentLineCalendar": {
+  "message": "已添加到日历：{0}"
+ },
+ "agentRulesTitle": {
+  "message": "预订规则"
+ },
+ "agentRulesHint": {
+  "message": "代理会按这些规则直接预订，不再询问。付款、验证码和登录始终由你来做。"
+ },
+ "agentRuleWindow": {
+  "message": "说定的时间可前后调整（分钟）"
+ },
+ "agentRuleDays": {
+  "message": "那天约满时：最多推迟几天"
+ },
+ "agentRuleParty": {
+  "message": "没说时的人数（客人、票、座位）"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "任意专业人员（发型师、医生、老师、教练、导游…）"
+ },
+ "agentRuleUsual": {
+  "message": "上次在该网站选的服务"
+ },
+ "agentRuleCalendar": {
+  "message": "只选日历中空闲的时间"
+ },
+ "agentRuleAuto": {
+  "message": "信息齐全且无需付款时，不显示计划直接预订"
+ },
+ "agentPlanHow": {
+  "message": "地点由我来选：评分 {0} 以上、符合要求、最近"
+ },
+ "agentPlanHowCal": {
+  "message": "选日历中空闲的时间，并加入日历"
+ },
+ "agentRuleVenue": {
+  "message": "我没指定地点时，自行选择"
+ },
+ "agentRuleRating": {
+  "message": "地点评分不低于"
+ },
+ "accessGroup": {
+  "message": "日历和提醒事项"
+ },
+ "accessHint": {
+  "message": "代理会选择日历中空闲的时间，并可添加预订。日历内容绝不会离开设备。"
+ },
+ "accessCalendar": {
+  "message": "日历"
+ },
+ "accessReminders": {
+  "message": "提醒事项"
+ },
+ "accessYes": {
+  "message": "已允许"
+ },
+ "accessNo": {
+  "message": "无访问权限"
+ },
+ "accessAllow": {
+  "message": "允许"
+ },
+ "accessSettingsIos": {
+  "message": "打开 iOS 设置"
+ },
+ "accessSettingsMac": {
+  "message": "打开系统设置"
+ },
+ "agentRuleCalNeeds": {
+  "message": "需要日历访问权限"
+ },
+ "agentPlanCalAsk": {
+  "message": "参考日历吗？"
+ },
+ "agentCalNotChecked": {
+  "message": "未检查日历：无访问权限"
+ },
+ "agentPlanFromChat": {
+  "message": "来自聊天：{0}"
+ },
+ "sendMenuNote": {
+  "message": "笔记"
+ },
+ "noteHintPointerDo": {
+  "message": "在按钮上滚动：向上写笔记，向下“执行”，也可以右键点按"
+ },
+ "setSecGeneral": {
+  "message": "通用"
+ },
+ "setSecButton": {
+  "message": "悬浮按钮与选择"
+ },
+ "setSecWriting": {
+  "message": "快速插入与写作"
+ },
+ "setSecAgent": {
+  "message": "“执行”：网页上的任务"
+ },
+ "setSecCookies": {
+  "message": "Cookie 窗口"
+ },
+ "setSecChats": {
+  "message": "对话与空间"
+ },
+ "setSecData": {
+  "message": "隐私与数据"
+ },
+ "setSecPlan": {
+  "message": "套餐与账户"
+ },
+ "setSecAbout": {
+  "message": "关于"
+ },
+ "fdICloudLocal": {
+  "message": "目前仅在此设备上"
+ },
+ "fdICloudSyncing": {
+  "message": "正在同步…"
+ },
+ "fdICloudSynced": {
+  "message": "已同步 · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "刚刚"
+ },
+ "fdICloudNoAccount": {
+  "message": "未同步：请在此设备上登录 iCloud"
+ },
+ "fdICloudFailed": {
+  "message": "未同步：iCloud 没有响应。下次会再试。"
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "提供服务的人——发型师、医生、老师、教练、讲师或导游——谁有空就谁。关闭：我会问你要找谁。"
+ },
+ "errLink": {
+  "message": "ContextFlow 与此页面的连接已断开(打开其他应用时 iOS 可能已将其停止)。请重试;如果再次发生,请重新加载页面。"
+ },
+ "reloadPage": {
+  "message": "重新加载页面"
+ },
+ "agentPlanVenueQ": {
+  "message": "在哪里预订(按你的规则选择)"
+ },
+ "agentPlanEmailQ": {
+  "message": "用于预订的邮箱（网站会要求填写）"
+ },
+ "agentPlanPhoneQ": {
+  "message": "用于预订的电话（网站会要求填写）"
+ },
+ "agentLinePopup": {
+  "message": "已关闭页面上的弹窗：「{0}」"
+ },
+ "agentPlanSpecialistQ": {
+  "message": "选择哪位服务人员？"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "任意服务人员"
+ },
+ "agentPlanServiceQ": {
+  "message": "选择哪项服务？"
+ },
+ "agentPlanSpecialistOnPage": {
+  "message": "在店铺页面再选"
+ },
+ "agentPlanVenueAuto": {
+  "message": "帮我选：评分 {0}+，最近"
+ },
+ "agentPlanLastTime": {
+  "message": "上次"
+ },
+ "agentPlanPlaceQ": {
+  "message": "在哪里预约？"
+ },
+ "agentBubbleCheck": {
+  "message": "继续之前请确认：{0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "请在网站上登录，我会等你"
+ },
+ "agentBubblePlan": {
+  "message": "计划在等你"
+ },
+ "agentBubbleFill": {
+  "message": "请确认表单要填写的内容"
+ },
+ "agentBubbleDone": {
+  "message": "已完成：{0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "未完成：{0}"
+ },
+ "agentBubbleOpen": {
+  "message": "打开"
+ },
+ "agentBubbleOther": {
+  "message": "其他…"
+ },
+ "agentBubbleShow": {
+  "message": "查看"
+ },
+ "agentRuleFreeCancel": {
+  "message": "只预订可免费取消的"
+ },
+ "agentRuleVenueHint": {
+  "message": "地点指餐厅、沙龙、诊所、酒店或公寓、租赁点、健身房或分店。在乎由谁或在哪里时（医生、旅行住的酒店）我会问；否则按这些规则选。"
+ },
+ "agentPlanPlaceQAny": {
+  "message": "在哪里预订？"
+ },
+ "agentRecapTitle": {
+  "message": "预订前请确认"
+ },
+ "agentRecapWhat": {
+  "message": "预订：{0}"
+ },
+ "agentRecapAsked": {
+  "message": "你要的是：{0}"
+ },
+ "agentRecapOtherPlace": {
+  "message": "换了地方：第一家没有合适的时间"
+ },
+ "agentRecapTerms": {
+  "message": "页面上的取消条款：{0}"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },
@@ -3220,6 +3916,15 @@
  },
  "tip_da5f7b74b1": {
   "message": "深入钻研"
+ },
+ "tip_8f191972e8": {
+  "message": "直接在网页上替你预订"
+ },
+ "tip_363625547a": {
+  "message": "要订餐厅座位或住宿，或者预约医生、发型师？在预订网站上打开面板，轻点输入框旁的 +，选择“执行”，说出你要什么：“订明天晚上 7 点的两人桌”。ContextFlow 会选好时间，用“我的信息”填上你的姓名和联系方式，然后完成预订。面板可以关掉：有问题或结果时，会出现在 ✦ 旁边。付款和登录仍由你自己来，“停止”随时都在。需要 Pro 或 Ultra。"
+ },
+ "tip_232e049197": {
+  "message": "要订餐厅座位或住宿，或者预约医生、发型师？在预订网站上打开面板，点按输入框旁的 +，选择“执行”，说出你要什么：“订明天晚上 7 点的两人桌”。ContextFlow 会选好时间，用“我的信息”填上你的姓名和联系方式，然后完成预订。面板可以关掉：有问题或结果时，会出现在 ✦ 旁边。付款和登录仍由你自己来，“停止”随时都在。需要 Pro 或 Ultra。"
  },
  "tip_6ba198cbff": {
   "message": "你自己的笔记"
@@ -3463,6 +4168,15 @@
  },
  "tip_6cc366173d": {
   "message": "某个网站上用不到 ✦？可以只在该网站隐藏它，或在扩展设置中全部关闭。ContextFlow 仍可从 Safari 的扩展菜单打开。"
+ },
+ "tip_92470c1789": {
+  "message": "Cookie 窗口自动关闭"
+ },
+ "tip_8534da4bd8": {
+  "message": "厌倦了一个个轻点关闭 Cookie 窗口？ContextFlow 会替你选择“仅必要”，前几次 ✦ 旁会有一行简短提示。想在某个网站继续看到它们？在扩展设置的“Cookie 窗口”中，为该网站关闭这项功能。"
+ },
+ "tip_fc1a61bcfa": {
+  "message": "厌倦了一个个点按关闭 Cookie 窗口？ContextFlow 会替你选择“仅必要”，前几次 ✦ 旁会有一行简短提示。想在某个网站继续看到它们？在扩展设置的“Cookie 窗口”中，为该网站关闭这项功能。"
  },
  "tip_cc54dd5946": {
   "message": "✦ 按钮旁的提示"

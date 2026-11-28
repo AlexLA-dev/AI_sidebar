@@ -3,6 +3,11 @@ import { render } from "preact"
 import { SHADOW_MODE, TARGET } from "../shared/config"
 import type { ContentRequest } from "../shared/types"
 import { uiDirection, uiLang } from "../shared/i18n"
+import type { ToolCall } from "../shared/agent/types"
+import { act, undo } from "./agent/hands"
+import { buildMap } from "./agent/map"
+import { closedInFrame, closeForAgent, startCookieCloser } from "./cookies/auto"
+import { announceClosed, announceLeft } from "./cookies/CookieLine"
 import { App } from "./App"
 import { tabPdf, tabSource } from "./context"
 import { detectPlatform, HOST_TAG } from "./page"
@@ -27,6 +32,7 @@ import inviteStyles from "./invite/invite.css"
 import spacesStyles from "./spaces.css"
 import collectionsStyles from "./collections.css"
 import quietStyles from "./quiet/quiet.css"
+import agentStyles from "./agent/agent.css"
 
 // Runs on every http(s) page (and again if injected on demand). Everything we
 // render lives in a closed-off shadow root so page CSS can't break it and our
@@ -53,6 +59,42 @@ function boot(): void {
       bus.dispatchEvent(new CustomEvent("openChat", { detail: { chat: message.chat, at: message.at } }))
       sendResponse({ ok: true })
     }
+    // The agent (2.7.1): the background's task asks for the page map, does a step, puts a step back, shows its state.
+    const agent = message as unknown as { type: string; call?: ToolCall; undo?: Parameters<typeof undo>[0]; state?: unknown }
+    if (agent?.type === "agentMap") {
+      // 2.7.1: the page's cookie banner answered first («only necessary», the cookie closer), so it's never a step.
+      const money = (message as unknown as { money?: boolean }).money === true
+      const part = Number((message as unknown as { part?: number }).part) || undefined
+      const m = message as unknown as { open?: unknown; openUrl?: unknown; words?: unknown }
+      const open = Array.isArray(m.open) ? m.open.filter((n): n is number => typeof n === "number").slice(0, 4) : undefined
+      const words = Array.isArray(m.words) ? m.words.filter((w): w is string => typeof w === "string").slice(0, 16) : undefined
+      const openUrl = typeof m.openUrl === "string" ? m.openUrl : undefined
+      closeForAgent().catch(() => null).then(() => sendResponse(buildMap(document, { money, ...(part ? { part } : {}), ...(open ? { open, openUrl } : {}), ...(words ? { words } : {}) })))
+      return true
+    }
+    if (agent?.type === "agentAct" && agent.call) {
+      act(agent.call).then(sendResponse, (err) => sendResponse({ ok: false, note: String(err).slice(0, 120) }))
+      return true
+    }
+    if (agent?.type === "agentUndoStep" && agent.undo) {
+      undo(agent.undo).then((ok) => sendResponse({ ok }), () => sendResponse({ ok: false }))
+      return true
+    }
+    if (agent?.type === "agentState") {
+      bus.dispatchEvent(new CustomEvent("agentState", { detail: agent.state }))
+      sendResponse({ ok: true })
+    }
+    // A task in another tab finished or needs the person (its ring on the circle here), or that's seen now (null).
+    if (agent?.type === "agentNotice") {
+      bus.dispatchEvent(new CustomEvent("agentNotice", { detail: (message as unknown as { notice?: unknown }).notice ?? null }))
+      sendResponse({ ok: true })
+    }
+    // The cookie closer answered a banner in a consent platform's own frame of this page (2.7.1).
+    if ((message as unknown as { type: string })?.type === "cookieFrameDone") {
+      const told = message as unknown as { via?: unknown; accepted?: unknown }
+      void closedInFrame(String(told.via ?? "frame"), announceClosed, told.accepted === true)
+      sendResponse({ ok: true })
+    }
     // A new install asks before it opens its «ContextFlow is ready» tab over this page (src/shared/welcomeTab.ts).
     if (message?.type === "here") sendResponse({ ok: true })
     return false
@@ -69,6 +111,8 @@ function boot(): void {
     setPanelRoot(root)
     // The page's touch handlers (Google's) can't stop our lists from scrolling (2.6).
     guardScroll(root)
+    // A page's focus trap (fresha's cookie dialog) can't keep our field from taking focus (TestFlight 118).
+    guardFocus(host, root)
     const style = document.createElement("style")
     style.textContent = `${styles}
 ${insertStyles}
@@ -84,7 +128,8 @@ ${sideStyles}
 ${pageHintStyles}
 ${inviteStyles}
 ${collectionsStyles}
-${quietStyles}`
+${quietStyles}
+${agentStyles}`
     root.appendChild(style)
     const container = document.createElement("div")
     root.appendChild(container)
@@ -99,8 +144,32 @@ ${quietStyles}`
     keepOverTopLayer(host)
   }
 
+  /**
+   * A page's focus trap (a cookie or sign-in dialog that keeps focus inside itself) pulled focus back out of our panel,
+   * so its field couldn't be typed in while the dialog was open (TestFlight 118, fresha.com). Traps listen for focus
+   * moving (focusin / focusout on the document): those that come from or go to our panel stop at the window, before the
+   * page sees them (the panel doesn't use them itself). A trap that cancels the press outside its dialog (no focus then)
+   * is met by the tap focusing our field itself.
+   */
+  function guardFocus(host: HTMLElement, root: ShadowRoot): void {
+    for (const type of ["focusin", "focusout"]) {
+      window.addEventListener(type, (e) => {
+        if (e.target === host || (e as FocusEvent).relatedTarget === host) e.stopImmediatePropagation()
+      }, true)
+    }
+    root.addEventListener("click", (e) => {
+      // (Inside our own root the target is the element itself.)
+      const el = e.target
+      if (!(el instanceof HTMLElement)) return
+      const field = el.closest<HTMLElement>("textarea, input:not([type=checkbox]):not([type=radio]), select, [contenteditable=true]")
+      if (field && root.activeElement !== field) field.focus()
+    })
+  }
+
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount, { once: true })
   else mount()
+  // 2.7.1: the page's cookie banner answered with «only necessary» (Settings: «Закрывать окна cookie»).
+  void startCookieCloser(announceClosed, announceLeft).catch(() => undefined)
   // A watched page the person opened is checked from here (2.5).
   if (TARGET === "safari") startLiveWatch()
 }

@@ -8,13 +8,17 @@
 
 /* Begin PBXBuildFile section */
 		CFA7E0000000000000000010 /* AppleItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA7E0000000000000000001 /* AppleItems.swift */; };
+		CFA273A00000000000000002 /* AgentApple.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA273A00000000000000001 /* AgentApple.swift */; };
 		CFB5E0000000000000000010 /* ShotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB5E0000000000000000001 /* ShotStore.swift */; };
 		CFB5E0000000000000000011 /* ShotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB5E0000000000000000001 /* ShotStore.swift */; };
 		CFB5E0000000000000000012 /* ShotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB5E0000000000000000001 /* ShotStore.swift */; };
 		CFB5E0000000000000000013 /* ShotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB5E0000000000000000001 /* ShotStore.swift */; };
 		CFA7E0000000000000000011 /* AppleItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA7E0000000000000000001 /* AppleItems.swift */; };
+		CFA273A00000000000000003 /* AgentApple.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA273A00000000000000001 /* AgentApple.swift */; };
 		CFA7E0000000000000000012 /* AppleItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA7E0000000000000000001 /* AppleItems.swift */; };
+		CFA273A00000000000000004 /* AgentApple.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA273A00000000000000001 /* AgentApple.swift */; };
 		CFA7E0000000000000000013 /* AppleItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA7E0000000000000000001 /* AppleItems.swift */; };
+		CFA273A00000000000000005 /* AgentApple.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA273A00000000000000001 /* AgentApple.swift */; };
 		CFA7E0000000000000000014 /* AppleAdd.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA7E0000000000000000002 /* AppleAdd.swift */; };
 		CFA7E0000000000000000015 /* AppleAdd.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA7E0000000000000000002 /* AppleAdd.swift */; };
 		CFA7E0000000000000000016 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = CFA7E0000000000000000003 /* InfoPlist.xcstrings */; };
@@ -23,11 +27,16 @@
 		CFA7E0000000000000000019 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = CFA7E0000000000000000003 /* InfoPlist.xcstrings */; };
 		CF3000000000000000000002 /* ChatSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3000000000000000000001 /* ChatSync.swift */; };
 		CFA100000000000000000002 /* TemplateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA100000000000000000001 /* TemplateStore.swift */; };
+		CFA271000000000000000002 /* FormData.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA271000000000000000001 /* FormData.swift */; };
 		CFA100000000000000000003 /* TemplateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA100000000000000000001 /* TemplateStore.swift */; };
+		CFA271000000000000000003 /* FormData.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA271000000000000000001 /* FormData.swift */; };
 		CFA100000000000000000004 /* TemplateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA100000000000000000001 /* TemplateStore.swift */; };
+		CFA271000000000000000004 /* FormData.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA271000000000000000001 /* FormData.swift */; };
 		CFA100000000000000000005 /* TemplateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA100000000000000000001 /* TemplateStore.swift */; };
+		CFA271000000000000000005 /* FormData.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA271000000000000000001 /* FormData.swift */; };
 		CFA200000000000000000002 /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA200000000000000000001 /* TemplatesView.swift */; };
 		CFD100000000000000000002 /* WatchOpen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD100000000000000000001 /* WatchOpen.swift */; };
+		CFA272000000000000000002 /* AgentApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA272000000000000000001 /* AgentApp.swift */; };
 		CF9500000000000000000002 /* SimilarCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9500000000000000000001 /* SimilarCards.swift */; };
 		CF9800000000000000000002 /* WhatsNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9800000000000000000001 /* WhatsNew.swift */; };
 		CF9810000000000000000002 /* MeaningSpot.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9810000000000000000001 /* MeaningSpot.swift */; };
@@ -44,6 +53,7 @@
 		CF1000000000000000000008 /* ShareButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1000000000000000000007 /* ShareButton.swift */; };
 		CFA200000000000000000003 /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA200000000000000000001 /* TemplatesView.swift */; };
 		CFD100000000000000000003 /* WatchOpen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD100000000000000000001 /* WatchOpen.swift */; };
+		CFA272000000000000000003 /* AgentApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA272000000000000000001 /* AgentApp.swift */; };
 		CF9500000000000000000003 /* SimilarCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9500000000000000000001 /* SimilarCards.swift */; };
 		CF9800000000000000000003 /* WhatsNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9800000000000000000001 /* WhatsNew.swift */; };
 		CF9810000000000000000003 /* MeaningSpot.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9810000000000000000001 /* MeaningSpot.swift */; };
@@ -88,12 +98,16 @@
 		CF9400000000000000000005 /* SimilarAway.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9400000000000000000001 /* SimilarAway.swift */; };
 		CF5EEC000000000000000005 /* SpeechSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5EEC000000000000000001 /* SpeechSync.swift */; };
 		CFC000000000000000000002 /* MessageReminders.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC000000000000000000001 /* MessageReminders.swift */; };
+		CFA270000000000000000002 /* AgentTasks.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA270000000000000000001 /* AgentTasks.swift */; };
 		CFD000000000000000000002 /* WatchStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD000000000000000000001 /* WatchStore.swift */; };
 		CFC000000000000000000003 /* MessageReminders.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC000000000000000000001 /* MessageReminders.swift */; };
+		CFA270000000000000000003 /* AgentTasks.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA270000000000000000001 /* AgentTasks.swift */; };
 		CFD000000000000000000003 /* WatchStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD000000000000000000001 /* WatchStore.swift */; };
 		CFC000000000000000000004 /* MessageReminders.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC000000000000000000001 /* MessageReminders.swift */; };
+		CFA270000000000000000004 /* AgentTasks.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA270000000000000000001 /* AgentTasks.swift */; };
 		CFD000000000000000000004 /* WatchStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD000000000000000000001 /* WatchStore.swift */; };
 		CFC000000000000000000005 /* MessageReminders.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC000000000000000000001 /* MessageReminders.swift */; };
+		CFA270000000000000000005 /* AgentTasks.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA270000000000000000001 /* AgentTasks.swift */; };
 		CFD000000000000000000005 /* WatchStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD000000000000000000001 /* WatchStore.swift */; };
 		CF5000000000000000000002 /* PdfText.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5000000000000000000001 /* PdfText.swift */; };
 		CF5000000000000000000003 /* PdfText.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5000000000000000000001 /* PdfText.swift */; };
@@ -197,13 +211,16 @@
 
 /* Begin PBXFileReference section */
 		CFA7E0000000000000000001 /* AppleItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleItems.swift; sourceTree = "<group>"; };
+		CFA273A00000000000000001 /* AgentApple.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentApple.swift; sourceTree = "<group>"; };
 		CFB5E0000000000000000001 /* ShotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShotStore.swift; sourceTree = "<group>"; };
 		CFA7E0000000000000000002 /* AppleAdd.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleAdd.swift; sourceTree = "<group>"; };
 		CFA7E0000000000000000003 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		CF3000000000000000000001 /* ChatSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSync.swift; sourceTree = "<group>"; };
 		CFA100000000000000000001 /* TemplateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateStore.swift; sourceTree = "<group>"; };
+		CFA271000000000000000001 /* FormData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormData.swift; sourceTree = "<group>"; };
 		CFA200000000000000000001 /* TemplatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplatesView.swift; sourceTree = "<group>"; };
 		CFD100000000000000000001 /* WatchOpen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchOpen.swift; sourceTree = "<group>"; };
+		CFA272000000000000000001 /* AgentApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentApp.swift; sourceTree = "<group>"; };
 		CF9500000000000000000001 /* SimilarCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimilarCards.swift; sourceTree = "<group>"; };
 		CF9800000000000000000001 /* WhatsNew.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsNew.swift; sourceTree = "<group>"; };
 		CF9810000000000000000001 /* MeaningSpot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeaningSpot.swift; sourceTree = "<group>"; };
@@ -232,6 +249,7 @@
 		CF9400000000000000000001 /* SimilarAway.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimilarAway.swift; sourceTree = "<group>"; };
 		CF5EEC000000000000000001 /* SpeechSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechSync.swift; sourceTree = "<group>"; };
 		CFC000000000000000000001 /* MessageReminders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageReminders.swift; sourceTree = "<group>"; };
+		CFA270000000000000000001 /* AgentTasks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentTasks.swift; sourceTree = "<group>"; };
 		CFD000000000000000000001 /* WatchStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchStore.swift; sourceTree = "<group>"; };
 		CF4000000000000000000001 /* Setup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Setup.swift; sourceTree = "<group>"; };
 		410D88922F41EE9800684748 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -339,6 +357,7 @@
 				CF7000000000000000000001 /* ChatsView.swift */,
 				CFA200000000000000000001 /* TemplatesView.swift */,
 				CFD100000000000000000001 /* WatchOpen.swift */,
+				CFA272000000000000000001 /* AgentApp.swift */,
 				CF9500000000000000000001 /* SimilarCards.swift */,
 				CF9800000000000000000001 /* WhatsNew.swift */,
 				CF9810000000000000000001 /* MeaningSpot.swift */,
@@ -382,14 +401,17 @@
 			isa = PBXGroup;
 			children = (
 				CFA7E0000000000000000001 /* AppleItems.swift */,
+				CFA273A00000000000000001 /* AgentApple.swift */,
 				CFB5E0000000000000000001 /* ShotStore.swift */,
 				CF8000000000000000000001 /* ChatMirror.swift */,
 				CF9400000000000000000001 /* SimilarAway.swift */,
 				CF5EEC000000000000000001 /* SpeechSync.swift */,
 				CFC000000000000000000001 /* MessageReminders.swift */,
+				CFA270000000000000000001 /* AgentTasks.swift */,
 				CFD000000000000000000001 /* WatchStore.swift */,
 				CF3000000000000000000001 /* ChatSync.swift */,
 				CFA100000000000000000001 /* TemplateStore.swift */,
+				CFA271000000000000000001 /* FormData.swift */,
 				CF5000000000000000000001 /* PdfText.swift */,
 				410D889D2F41EEAA00684748 /* SharedDefaults.swift */,
 				41FA28092F41ED2200FED9FC /* Resources */,
@@ -679,14 +701,17 @@
 			files = (
 				CFA7E0000000000000000014 /* AppleAdd.swift in Sources */,
 				CFA7E0000000000000000010 /* AppleItems.swift in Sources */,
+				CFA273A00000000000000002 /* AgentApple.swift in Sources */,
 				CFB5E0000000000000000010 /* ShotStore.swift in Sources */,
 				410D88962F41EE9800684748 /* SharedDefaults.swift in Sources */,
 				410D88972F41EE9800684748 /* StoreKitManager.swift in Sources */,
 				410D88982F41EE9800684748 /* ContentView.swift in Sources */,
 				CF3000000000000000000005 /* ChatSync.swift in Sources */,
 				CFA100000000000000000005 /* TemplateStore.swift in Sources */,
+				CFA271000000000000000005 /* FormData.swift in Sources */,
 				CFA200000000000000000002 /* TemplatesView.swift in Sources */,
 				CFD100000000000000000002 /* WatchOpen.swift in Sources */,
+				CFA272000000000000000002 /* AgentApp.swift in Sources */,
 				CF9500000000000000000002 /* SimilarCards.swift in Sources */,
 				CF9800000000000000000002 /* WhatsNew.swift in Sources */,
 				CF9810000000000000000002 /* MeaningSpot.swift in Sources */,
@@ -713,6 +738,7 @@
 				CF9400000000000000000002 /* SimilarAway.swift in Sources */,
 				CF5EEC000000000000000002 /* SpeechSync.swift in Sources */,
 				CFC000000000000000000002 /* MessageReminders.swift in Sources */,
+				CFA270000000000000000002 /* AgentTasks.swift in Sources */,
 				CFD000000000000000000002 /* WatchStore.swift in Sources */,
 				CF4000000000000000000002 /* Setup.swift in Sources */,
 				41FA27F32F41ED2100FED9FC /* ViewController.swift in Sources */,
@@ -727,12 +753,15 @@
 			files = (
 				CFA7E0000000000000000015 /* AppleAdd.swift in Sources */,
 				CFA7E0000000000000000011 /* AppleItems.swift in Sources */,
+				CFA273A00000000000000003 /* AgentApple.swift in Sources */,
 				CFB5E0000000000000000011 /* ShotStore.swift in Sources */,
 				41FA27F42F41ED2100FED9FC /* ViewController.swift in Sources */,
 				CF3000000000000000000004 /* ChatSync.swift in Sources */,
 				CFA100000000000000000004 /* TemplateStore.swift in Sources */,
+				CFA271000000000000000004 /* FormData.swift in Sources */,
 				CFA200000000000000000003 /* TemplatesView.swift in Sources */,
 				CFD100000000000000000003 /* WatchOpen.swift in Sources */,
+				CFA272000000000000000003 /* AgentApp.swift in Sources */,
 				CF9500000000000000000003 /* SimilarCards.swift in Sources */,
 				CF9800000000000000000003 /* WhatsNew.swift in Sources */,
 				CF9810000000000000000003 /* MeaningSpot.swift in Sources */,
@@ -762,6 +791,7 @@
 				CF9400000000000000000003 /* SimilarAway.swift in Sources */,
 				CF5EEC000000000000000003 /* SpeechSync.swift in Sources */,
 				CFC000000000000000000003 /* MessageReminders.swift in Sources */,
+				CFA270000000000000000003 /* AgentTasks.swift in Sources */,
 				CFD000000000000000000003 /* WatchStore.swift in Sources */,
 				CF4000000000000000000003 /* Setup.swift in Sources */,
 				41FA27D22F41ED2100FED9FC /* AppDelegate.swift in Sources */,
@@ -773,15 +803,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				CFA7E0000000000000000012 /* AppleItems.swift in Sources */,
+				CFA273A00000000000000004 /* AgentApple.swift in Sources */,
 				CFB5E0000000000000000012 /* ShotStore.swift in Sources */,
 				CF3000000000000000000002 /* ChatSync.swift in Sources */,
 				CFA100000000000000000002 /* TemplateStore.swift in Sources */,
+				CFA271000000000000000002 /* FormData.swift in Sources */,
 				410D889E2F41EEAA00684748 /* SharedDefaults.swift in Sources */,
 				CF5000000000000000000002 /* PdfText.swift in Sources */,
 				CF8000000000000000000004 /* ChatMirror.swift in Sources */,
 				CF9400000000000000000004 /* SimilarAway.swift in Sources */,
 				CF5EEC000000000000000004 /* SpeechSync.swift in Sources */,
 				CFC000000000000000000004 /* MessageReminders.swift in Sources */,
+				CFA270000000000000000004 /* AgentTasks.swift in Sources */,
 				CFD000000000000000000004 /* WatchStore.swift in Sources */,
 				41FA27F72F41ED2100FED9FC /* SafariWebExtensionHandler.swift in Sources */,
 			);
@@ -792,15 +825,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				CFA7E0000000000000000013 /* AppleItems.swift in Sources */,
+				CFA273A00000000000000005 /* AgentApple.swift in Sources */,
 				CFB5E0000000000000000013 /* ShotStore.swift in Sources */,
 				CF3000000000000000000003 /* ChatSync.swift in Sources */,
 				CFA100000000000000000003 /* TemplateStore.swift in Sources */,
+				CFA271000000000000000003 /* FormData.swift in Sources */,
 				410D889F2F41EEAA00684748 /* SharedDefaults.swift in Sources */,
 				CF5000000000000000000003 /* PdfText.swift in Sources */,
 				CF8000000000000000000005 /* ChatMirror.swift in Sources */,
 				CF9400000000000000000005 /* SimilarAway.swift in Sources */,
 				CF5EEC000000000000000005 /* SpeechSync.swift in Sources */,
 				CFC000000000000000000005 /* MessageReminders.swift in Sources */,
+				CFA270000000000000000005 /* AgentTasks.swift in Sources */,
 				CFD000000000000000000005 /* WatchStore.swift in Sources */,
 				41FA27F82F41ED2100FED9FC /* SafariWebExtensionHandler.swift in Sources */,
 			);
@@ -912,7 +948,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.7.1;
+				MARKETING_VERSION = 2.8;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -970,7 +1006,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.7.1;
+				MARKETING_VERSION = 2.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -994,7 +1030,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.7.1;
+				MARKETING_VERSION = 2.8;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -1029,7 +1065,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.7.1;
+				MARKETING_VERSION = 2.8;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -1070,7 +1106,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.7.1;
+				MARKETING_VERSION = 2.8;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -1112,7 +1148,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.7.1;
+				MARKETING_VERSION = 2.8;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -1154,7 +1190,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.7.1;
+				MARKETING_VERSION = 2.8;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -1193,7 +1229,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.7.1;
+				MARKETING_VERSION = 2.8;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -1234,7 +1270,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.7.1;
+				MARKETING_VERSION = 2.8;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -1277,7 +1313,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.7.1;
+				MARKETING_VERSION = 2.8;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,

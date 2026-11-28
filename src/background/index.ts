@@ -1,7 +1,7 @@
 import { tipClip } from "./tipClips"
 import { deviceNow } from "../shared/appleItems"
 import { mediaKinds, type MediaKind } from "../shared/attachments"
-import { API_BASE, LINKS, TARGET, VERSION } from "../shared/config"
+import { API_BASE, LINKS, TARGET, VERSION, TEST_PLAN } from "../shared/config"
 import { appLink, planOfProduct, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, ULTRA_DEFAULTS, WATCH_LIMITS, type PaidPlan, type Period } from "../shared/plan"
 import { consentStatus } from "../shared/consent"
 import { urlKey } from "../shared/conversation"
@@ -36,6 +36,7 @@ import { startInsert } from "./insert"
 import { startTranslate } from "./translate"
 import { inviteMarks, startInvite } from "./invite"
 import { startWatch } from "./watch"
+import { startAgent } from "./agent"
 import { matchTopic, nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./organize"
 import { organizeConfig } from "../shared/organize"
 import { collectAi } from "./collect"
@@ -92,32 +93,30 @@ async function ownKey(): Promise<string> {
 // whose consent screen names Anthropic (67 and later). Asked once per worker; Chrome has none.
 // 2.7.1: the same answer carries the app's random id (once the app has been opened), for linkApp below; the ping
 // carries this install's id, so the app has it from the extension's first message, not only once the panel opens.
-let nativeAsk: Promise<{ build: string; app: string | null }> | null = null
+let nativeAsk: Promise<{ build: string; app: string | null; test: boolean }> | null = null
 let nativeAppAskedAt = 0
 
-function nativeInfo(): Promise<{ build: string; app: string | null }> {
-  if (TARGET !== "safari") return Promise.resolve({ build: "", app: null })
+function nativeInfo(): Promise<{ build: string; app: string | null; test: boolean }> {
+  if (TARGET !== "safari") return Promise.resolve({ build: "", app: null, test: false })
   // No app id yet (the app not opened so far): asked again at most once a minute, never on every request.
   if (nativeAsk && nativeAppAskedAt && Date.now() - nativeAppAskedAt > 60_000) nativeAsk = null
   nativeAsk ??= installId()
-    .then((id) => callNative<{ build?: string; app?: string }>("ping", { installId: id }, 1500))
+    .then((id) => callNative<{ build?: string; app?: string; test?: boolean }>("ping", { installId: id }, 1500))
     .then((data) => {
       // No answer: asked again by the next caller.
       if (!data?.build) nativeAsk = null
       const app = typeof data?.app === "string" ? data.app : null
       nativeAppAskedAt = data?.build && !app ? Date.now() : 0
-      return { build: data?.build ?? "", app }
+      // 2.8 (В1.9): the app's side says it's a simulator or debug build (OurBuild): every request is marked as ours.
+      return { build: data?.build ?? "", app, test: data?.test === true }
     })
   return nativeAsk
 }
 
-function appBuild(): Promise<string> {
-  return nativeInfo().then((info) => info.build)
-}
-
 async function clientInfo() {
-  const [build, os, invite] = await Promise.all([appBuild(), platform(), inviteMarks().catch(() => ({}))])
-  return { version: VERSION, ...(build ? { build } : {}), platform: os, locale: uiLanguage(), ...invite }
+  const [native, os, invite] = await Promise.all([nativeInfo(), platform(), inviteMarks().catch(() => ({}))])
+  const { build, test } = native
+  return { version: VERSION, ...(build ? { build } : {}), platform: os, locale: uiLanguage(), ...invite, ...(test ? { audience: "test" } : {}) }
 }
 
 // ---------------------------------------------------- App Store subscription
@@ -1077,6 +1076,20 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       void reportUse(message)
       sendResponse({ ok: true })
       return false
+    // The cookie closer (2.7.1): a consent platform's own frame asks for the closer (frame.js), and says it answered
+    // (dist/cookieframe.js), which the page's top hears for its count and the confirmation by the ✦ button.
+    case "cookieFrameInject":
+      if (_sender.tab?.id !== undefined && _sender.frameId) {
+        void chrome.scripting.executeScript({ target: { tabId: _sender.tab.id, frameIds: [_sender.frameId] }, files: ["dist/cookieframe.js"] }).catch(() => undefined)
+      }
+      sendResponse({ ok: true })
+      return false
+    case "cookieFrameDone":
+      if (_sender.tab?.id !== undefined) {
+        chrome.tabs.sendMessage(_sender.tab.id, { type: "cookieFrameDone", via: message.via, accepted: message.accepted === true }, { frameId: 0 }, () => void chrome.runtime.lastError)
+      }
+      sendResponse({ ok: true })
+      return false
     case "appleStatus":
       appleStatus().then(sendResponse, () => sendResponse({ available: false }))
       return true
@@ -1270,6 +1283,25 @@ startTranslate({
   clientInfo,
   consented,
   statusChanged: () => (statusCache = null)
+})
+// The agent (2.7.1): a task per tab, its steps through /api/v2/act, deferred tasks, «Мои данные» through the app.
+startAgent({
+  installId,
+  entitlementJws: async () => {
+    const ent = await entitlement()
+    return ent?.active ? ent.jws : null
+  },
+  clientInfo,
+  consented,
+  plan: async () => {
+    // A test build against a local stand that signs its requests (the simulator has no subscription).
+    if (TEST_PLAN) return TEST_PLAN
+    const ent = await entitlement()
+    return ent?.active ? planFromProduct(ent.productId) : "free"
+  },
+  statusChanged: () => (statusCache = null),
+  // The agent's usage events (feature "agent", src/shared/usage.ts): kinds and counts only.
+  use: (fields) => void reportUse({ type: "useEvent", ...fields } as Extract<BackgroundRequest, { type: "useEvent" }>)
 })
 // Page watch (2.5): the checks run here while Safari runs; the AI plans a watch and reads a change.
 startWatch({

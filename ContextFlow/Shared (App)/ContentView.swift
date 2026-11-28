@@ -91,6 +91,7 @@ struct ContentView: View {
     @StateObject private var listenShown = ListenShown()
     /// Calendar and Reminders handed over by the Safari panel (2.7, contextflow://add?id=…).
     @StateObject private var appleAdd = AppleAdd.shared
+    @StateObject private var appleAccess = AppleAccessModel.shared
 
     /// What's new in 2.5 (organizing): once, to those who already have chats.
     @State private var whatsNew = false
@@ -219,6 +220,16 @@ struct ContentView: View {
                 // 2.7: a reminder or an event the panel couldn't add itself (access is asked here).
                 case "add":
                     appleAdd.open(url)
+                // 2.7.1: the agent needs Calendar or Reminders: the system's question, asked here (the extension can't).
+                // Turned down before (or «settings=1» from the panel): the system's Settings, where it's turned on.
+                case "access":
+                    let query = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+                    let item: AppleItems.Item.Kind = query.first { $0.name == "kind" }?.value == "calendar" ? .event : .reminder
+                    if query.contains(where: { $0.name == "settings" }) || AppleAccessModel.state(item) == "denied" {
+                        AppleAdd.openSettings(item)
+                    } else {
+                        Task { _ = await AppleItems.ask(item); appleAccess.refresh() }
+                    }
                 // 2.7: a friend's invite link opened where the app is installed: the code goes into the field.
                 case "invite":
                     let code = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "code" }?.value ?? ""
@@ -855,6 +866,31 @@ struct TipGroup {
         #endif
     }
 
+    // 2.8: the agent (Pro and Ultra), its card in What's new and at the top of Deeper work; tables, stays and visits as the
+    // passes showed them, never paying or signing in (the director, tracker А11, Д3.9, Д3.10). Its bubble by ✦ is a sentence
+    // here, not a card of its own (it shows only during a task).
+    static var agentTip: Tip {
+        #if os(iOS)
+        Tip(symbol: "sparkles", color: brandBlue, title: "It books for you, right on the page",
+            text: "Need a table or a stay booked, or a visit to a doctor or a stylist? On the booking site, open the panel, tap + by the field, choose Do and say what you need: “a table for two tomorrow at 7 pm”. ContextFlow picks the time, fills in your name and contacts from My details and books. You can close the panel: a question or the result shows up by ✦. Paying and signing in stay yours, and Stop is always there. With Pro or Ultra.", pro: true, since: "2.8")
+        #else
+        Tip(symbol: "sparkles", color: brandBlue, title: "It books for you, right on the page",
+            text: "Need a table or a stay booked, or a visit to a doctor or a stylist? On the booking site, open the panel, click + by the field, choose Do and say what you need: “a table for two tomorrow at 7 pm”. ContextFlow picks the time, fills in your name and contacts from My details and books. You can close the panel: a question or the result shows up by ✦. Paying and signing in stay yours, and Stop is always there. With Pro or Ultra.", pro: true, since: "2.8")
+        #endif
+    }
+
+    // 2.8 (built in 2.7.1): cookie windows answered with «only necessary», on by default for everyone; the per-site switch
+    // is in the extension settings under Cookie windows (Д4.6).
+    static var cookiesTip: Tip {
+        #if os(iOS)
+        Tip(symbol: "hand.raised", color: .green, title: "Cookie windows close themselves",
+            text: "Tired of tapping through cookie windows? ContextFlow answers them for you with “only necessary”, and the first few times a short line by ✦ says so. Want them back on a site? Turn it off for that site in the extension settings, under Cookie windows.", since: "2.8")
+        #else
+        Tip(symbol: "hand.raised", color: .green, title: "Cookie windows close themselves",
+            text: "Tired of clicking through cookie windows? ContextFlow answers them for you with “only necessary”, and the first few times a short line by ✦ says so. Want them back on a site? Turn it off for that site in the extension settings, under Cookie windows.", since: "2.8")
+        #endif
+    }
+
     // Calendar and Reminders (#170): the AI's card, the … menu, and Also in Reminders. Also in What's new (2.7).
     static var appleTip: Tip {
         Tip(symbol: "calendar.badge.plus", color: .red, title: "Add to Calendar or Reminders",
@@ -917,6 +953,7 @@ struct TipGroup {
                 text: "Turn on Google next to the question field to answer with Google Search: news, prices and anything recent, with sources.", clip: "google")
         ]),
         TipGroup(id: "deeper-work", title: "Deeper work", tips: [
+            agentTip,
             Tip(symbol: "pencil.line", color: .orange, title: "Notes of your own",
                 text: "Swipe the send button up or down (on a Mac, scroll on it) to write a note instead of asking, or tap + by the field and choose Note. It stays in the chat with its page, syncs with it and uses no answers.", clip: "notes"),
             shotTip,
@@ -984,6 +1021,7 @@ struct TipGroup {
                 text: "Add a line under About me — what you do, how you like answers — and ContextFlow will tailor them to you.", clip: "about"),
             Tip(symbol: "eye.slash", color: .blue, title: "Hide ✦ when you don't need it",
                 text: "Don't need ✦ on a site? Hide it on that site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu.", clip: "hide"),
+            cookiesTip,
             pageHintsTip,
             Tip(symbol: "key.fill", color: .gray, title: "Use your own API key",
                 text: "With Pro or the Own key plan, paste an OpenAI or Claude key in the extension settings in Safari. Requests then go straight to that provider."),
@@ -1991,6 +2029,9 @@ struct SettingsView: View {
     @ObservedObject private var store = StoreKitManager.shared
     @Environment(\.openURL) private var openURL
     @State private var restoring = false
+    @State private var showingMyDetails = false
+    @ObservedObject private var appleAccess = AppleAccessModel.shared
+    @Environment(\.scenePhase) private var scenePhase
     @State private var restoreMessage: String?
     @State private var switching = false
     /// "Hide" on the yearly line: away for 60 days (it's a line in Settings, never a prompt).
@@ -2076,6 +2117,31 @@ struct SettingsView: View {
                     .onChange(of: settings.organize) { on in
                         if on { ChatAI.reportOrganize("organize_optin", ["action": "accepted", "from": "settings"]) }
                     }
+            }
+
+            // 2.7.1: the agent's «My details» for forms on sites (the panel edits the same store).
+            Section(footer: Text("For filling in forms on sites. Kept on your device; the agent fills them in only after you agree, and the AI never sees them.")) {
+                Button("My details") { showingMyDetails = true }
+            }
+            .sheet(isPresented: $showingMyDetails) {
+                NavigationStack {
+                    MyDetailsView()
+                        .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { showingMyDetails = false } } }
+                }
+                #if os(macOS)
+                .frame(minWidth: 480, minHeight: 520)
+                #endif
+            }
+
+            // 2.7.1: the agent's Calendar and Reminders, seen and allowed here as in the panel's Settings.
+            Section(header: Text("Calendar and Reminders"), footer: Text("The agent picks times that are free in your calendar and can add bookings to it. What's in your calendar never leaves the device.")) {
+                AccessRow(title: "Calendar", state: appleAccess.calendar) { appleAccess.allow(.event) }
+                AccessRow(title: "Reminders", state: appleAccess.reminders) { appleAccess.allow(.reminder) }
+            }
+            .onAppear { appleAccess.refresh() }
+            .onChange(of: scenePhase) { phase in
+                // Back from the system's Settings: read it again.
+                if phase == .active { appleAccess.refresh() }
             }
 
             Section(

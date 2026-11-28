@@ -245,3 +245,58 @@ struct AppleAddView: View {
         .frame(minWidth: 360, minHeight: 260)
     }
 }
+
+/// 2.7.1: Calendar and Reminders access as the app's Settings shows it (the panel's Settings shows the same, read from
+/// the extension). «Allow» asks the system here; once turned down, it opens the system's Settings.
+@MainActor final class AppleAccessModel: ObservableObject {
+    static let shared = AppleAccessModel()
+    /// AgentApple.access: "yes", "none" (not asked), "denied", "unavailable".
+    @Published private(set) var calendar = AgentApple.access(.event)
+    @Published private(set) var reminders = AgentApple.access(.reminder)
+
+    func refresh() {
+        calendar = AgentApple.access(.event)
+        reminders = AgentApple.access(.reminder)
+    }
+
+    /// One kind's state as AgentApple says it ("yes", "none", "denied", "unavailable").
+    nonisolated static func state(_ kind: AppleItems.Item.Kind) -> String {
+        AgentApple.access(kind == .event ? EKEntityType.event : EKEntityType.reminder)
+    }
+
+    func allow(_ kind: AppleItems.Item.Kind) {
+        if Self.state(kind) == "denied" {
+            AppleAdd.openSettings(kind)
+            return
+        }
+        Task {
+            _ = await AppleItems.ask(kind)
+            refresh()
+        }
+    }
+}
+
+struct AccessRow: View {
+    let title: LocalizedStringKey
+    let state: String
+    let allow: () -> Void
+
+    var body: some View {
+        HStack {
+            Text(title)
+            Spacer()
+            Text(state == "yes" ? "Allowed" : "Not allowed")
+                .foregroundStyle(.secondary)
+            if state == "none" || state == "denied" {
+                Button(state == "denied" ? Self.settingsLabel : "Allow", action: allow)
+                    .buttonStyle(.borderless)
+            }
+        }
+    }
+
+    #if os(iOS)
+    private static let settingsLabel: LocalizedStringKey = "Open iOS Settings"
+    #else
+    private static let settingsLabel: LocalizedStringKey = "Open System Settings"
+    #endif
+}

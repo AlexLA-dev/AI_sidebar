@@ -2,7 +2,7 @@ import { Fragment, type ComponentChildren, type VNode } from "preact"
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import { composePage, readsMedia, type MediaKind } from "../shared/attachments"
-import { LINKS, PRODUCTS, SHADOW_MODE, TARGET } from "../shared/config"
+import { LINKS, PRODUCTS, SHADOW_MODE, TARGET, TEST_PLAN } from "../shared/config"
 import { RENEWAL_REASONS, type RenewalReason } from "../shared/renewal"
 import { freeAnswersBack, t, uiDirection, uiLang, uiLanguage, type MessageKey } from "../shared/i18n"
 import {
@@ -57,6 +57,19 @@ import { entryKey } from "../shared/conversation"
 import { withRemindWords } from "../shared/reminders"
 import type { CollectReply, OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
+import { AgentDeferredCard, AgentLaterCard, AgentNoticeCard, AgentPanel, AgentStrip, type LaterChoice, type PanelAgent } from "./agent/AgentPanel"
+import { AgentBubble, bubbleOf, type BubbleActions, type BubbleData } from "./agent/Bubble"
+import type { AgentNotice } from "../background/agent"
+import { factKey, noticeLabel, sameTaskPage, type TaskPlan } from "../shared/agent/taskplan"
+import { chatContext } from "../shared/agent/chatctx"
+import { onReturn, sendBackground, standTrace } from "./bgmsg"
+import { refusedEntry, type FormEntry } from "../shared/agent/formdata"
+import { onTarget } from "./agent/hands"
+import { elementOf } from "./agent/map"
+import { autoStartHere, setAutoStart, takeTaskMark } from "./agent/marks"
+import { active as agentActive, pendingKey, type Answer as AgentAnswer, type PlanApproval } from "../shared/agent/runner"
+import { WATCH_STORAGE } from "../shared/watch/types"
+import { urlKey as watchUrlKey } from "../shared/conversation"
 import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell, whereLabel } from "./similar/Similar"
 import { factsFrom, SIMILAR_CHIPS, SIMILAR_LIGHT_WEEKLY, SIMILAR_PRO_ANSWERS, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, similarMode, type SimilarAnswer, type SimilarAsk, type SimilarChip, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
 import { markdownWords } from "../shared/similarWords"
@@ -73,6 +86,7 @@ import { dodgeFab } from "./fabDodge"
 import { besideMenu, glassScale, setFixedProbe, toFixed } from "./fixedPlace"
 import { hasPro, isUltra, similarTone, ULTRA_DEFAULTS, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
+import type { SettingsAt } from "./settingsFold"
 import { shareLabels } from "./shareLabels"
 import { keptPlanNow, loadJobs, firstRunMarks, hintsWith, markHintSeen, marksAfterRead, markMemoryOffered, memoryOffered, onFirstRunChanged, onJobsChanged, resetHints, type HintKey } from "./store"
 import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, loadSpaces, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, refuseMerge, renameThread, renewalAskedPeriod, setOrgState, settleNameSuggestion, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat, voicedNow, onVoicedChanged, madeNow, onMadeChanged } from "./store"
@@ -99,7 +113,8 @@ import { restoredDraft, withoutStopped } from "./ux/stopped"
 import { type Jobs, extendsChat, interruption, isActive, pendingQuestion, repeatsLast, runningThreads, unreadThreads, withStoredEdits } from "../shared/jobs"
 import { linkChats, remindsAhead, watchesOn } from "../shared/chatMarks"
 import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
-import { appleNow } from "./ux/apple"
+import { appleNow, loadApple } from "./ux/apple"
+import { asksForAction } from "../shared/agent/hint"
 import { withoutItemMarker } from "../shared/appleItems"
 import { Tour, tourSteps } from "./Tour"
 import { answerLanguage, preferredLanguages, readerLanguageName, withAnswerLanguage } from "./answerLanguage"
@@ -120,8 +135,11 @@ import { usageText } from "./quiet/Spent"
 import { readSignals, selectionInField, watchWriting, writingOn } from "./quiet/signals"
 import { ToolsRow } from "./quiet/ToolsRow"
 import { useFabDrag, usePanelDrag } from "./side/drag"
+import { wheelSwitch, wheelSwitchStep } from "./ux/wheelSwitch"
+import { markPointerHintSeen, pointerHintSeen, SendMenu } from "./ux/SendMenu"
 import { EdgeGlow } from "./side/EdgeGlow"
 import { HintLine, hintText, revealOnce, usePageHints } from "./pagehints/PageHints"
+import { CookieLine, useCookieLine } from "./cookies/CookieLine"
 import { InviteRewardCard, markActiveSeen, seenActive } from "./invite/Invite"
 import { resolveSide, type Side } from "./side/snap"
 import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
@@ -144,6 +162,13 @@ const PRO_WEEKLY = 375
 // An Own key subscriber is offered Pro at a discount this long after the first refusal of the period.
 const BYOK_OFFER_AFTER_MS = 24 * 3600_000
 const APP_ID = "6759115793"
+// The agent's bubble by the circle (2.7.1): the task the person closed the chat for (it stays closed on the next page),
+// the finished task whose end was seen, and how long an end is worth a bubble on this tab's pages.
+const AGENT_QUIET = "cf:agentQuiet"
+const AGENT_END_SEEN = "cf:agentEndSeen"
+// This page load, as the background tells our pages apart (a tab's old page saying «hidden» after its next one showed).
+const PAGE_DOC = `p${Math.random().toString(36).slice(2, 10)}`
+const END_BUBBLE_MS = 15 * 60_000
 
 interface ChatError {
   code: ErrorCode
@@ -241,18 +266,6 @@ function forSelection(action: Action, text: string): Action | null {
   return action.id === "sel_translate" ? translateFor(text) : action
 }
 
-function sendBackground<T>(message: unknown): Promise<T | null> {
-  return new Promise((resolve) => {
-    try {
-      chrome.runtime.sendMessage(message, (response: T) => {
-        void chrome.runtime.lastError
-        resolve(response ?? null)
-      })
-    } catch {
-      resolve(null)
-    }
-  })
-}
 
 
 async function copyText(text: string): Promise<boolean> {
@@ -290,7 +303,7 @@ function offerUrl(code: string): string {
 }
 
 // A question whose answer was lost while nobody followed it shows these as they were; anything else as "interrupted".
-const RESUMABLE = ["STREAM", "NETWORK", "UPSTREAM", "BUSY", "LIMIT_REACHED"]
+const RESUMABLE = ["STREAM", "NETWORK", "UPSTREAM", "BUSY", "LIMIT_REACHED", "LINK"]
 
 /** The device's region from its language ("ru-RU" → "RU"), for Find similar's "near me" before the server says. */
 function localeCountry(): string | undefined {
@@ -309,6 +322,9 @@ function errorText(error: ChatError): string {
   switch (error.code) {
     case "NETWORK":
       return t("errNetwork")
+    // The tab's link to ContextFlow went (iOS put it away while another app was open): retry, else reload the page.
+    case "LINK":
+      return t("errLink")
     case "BUSY":
       // A message comes only from the user's own provider (OpenAI or Anthropic), in its own words.
       return error.message ? t("errProvider", error.message) : t("errBusy")
@@ -388,7 +404,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [reading, setReading] = useState<"video" | "pdf" | null>(null)
   // The question being prepared (page still being read); cleared when it's sent or stopped.
   const askToken = useRef<object | null>(null)
-  const sendRef = useRef<(base: Turn[], content: string, opts: { label?: string; action?: string; mode?: "google" }, full: PageRead, selection: string | null, history?: ChatDigest[]) => void>(() => undefined)
+  const sendRef = useRef<(base: Turn[], content: string, opts: { label?: string; action?: string; mode?: "google"; resent?: boolean }, full: PageRead, selection: string | null, history?: ChatDigest[]) => void>(() => undefined)
   // The chat shown is "Ask your chats" (Pro): questions about all the other chats, not the page.
   const [historyMode, setHistoryMode] = useState(false)
   const historyRef = useRef(false)
@@ -513,6 +529,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }
   const [noteHint, setNoteHint] = useState(false)
   const [error, setError] = useState<ChatError | null>(null)
+  // The tab's link to the extension is gone (no answer at all after coming back from another app, 123): said in the
+  // chat with «Повторить» and «Обновить страницу»; questions and tasks get that error at once instead of a silent wait.
+  const [linkLost, setLinkLostState] = useState(false)
+  const linkLostRef = useRef(false)
+  const setLinkLost = (v: boolean) => {
+    linkLostRef.current = v
+    setLinkLostState(v)
+  }
   // The Pro offer, shown once more to an install that ran out of free answers before.
   const [offerCard, setOfferCard] = useState(false)
   const [findConsent, setFindConsent] = useState<{ resolve: (agreed: boolean) => void } | null>(null)
@@ -545,6 +569,34 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const savedTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const bubbleHeld = () => selTyping.current || noteHold.current
   const [googleMode, setGoogleMode] = useState(false)
+  // The agent (2.7.1): «Сделать» in the composer, this tab's task (pushed by the background), a deferred task the
+  // notification brought (#cf-task), «Позже», the help text, and the offer of Pro to Free.
+  const [agentMode, setAgentMode] = useState(false)
+  // Do mode as the field shows it (the send button's own state, 2.7.1).
+  const doMode = agentMode && !noteMode && !historyMode
+  const [agentTask, setAgentTask] = useState<PanelAgent | null>(null)
+  // This tab's earlier tasks, kept in the chat folded to a line each (2.7.1).
+  const [agentPast, setAgentPast] = useState<PanelAgent[]>([])
+  // A task in another tab that finished or needs the person: a ring on the circle; a tap shows its card here (2.7.1).
+  const [agentNotice, setAgentNotice] = useState<AgentNotice | null>(null)
+  const agentNoticeRef = useRef<AgentNotice | null>(null)
+  agentNoticeRef.current = agentNotice
+  const [noticeOpen, setNoticeOpen] = useState(false)
+  // The bubble by the circle (2.7.1): the step it was closed for («×»; a tap on the circle brings a question back), the
+  // finished task whose end was seen, and a page field the person types in (the bubble steps aside for the keyboard).
+  const [bubbleGone, setBubbleGone] = useState("")
+  const bubbleGoneRef = useRef("")
+  bubbleGoneRef.current = bubbleGone
+  const [endSeen, setEndSeen] = useState<string | null>(null)
+  const [pageTyping, setPageTyping] = useState(false)
+  const agentBubbleRef = useRef<BubbleData | null>(null)
+  const [agentDeferred, setAgentDeferred] = useState<{ id: string; request: string; lang: string } | null>(null)
+  const [agentAutoHere, setAgentAutoHere] = useState(false)
+  const [agentLater, setAgentLater] = useState<{ note: string | null; hasWatch: boolean; watch?: string; ask?: { at?: number; watch?: boolean }; past?: boolean; canAlso?: boolean; also?: boolean; request?: string; plan?: TaskPlan } | null>(null)
+  const [agentHelp, setAgentHelp] = useState(false)
+  const [agentUpsell, setAgentUpsell] = useState(false)
+  // A start that didn't go (no answer from the background, or an error): said on a card, never silent.
+  const [agentStartError, setAgentStartError] = useState<string | null>(null)
   const [streamMode, setStreamMode] = useState<"google" | null>(null)
   const [copied, setCopied] = useState<number | null>(null)
   // The round button out of the selection buttons' way while they show (fabDodge.ts): its center, in px; null at home.
@@ -635,6 +687,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const allTips = tipsLabel() ? { label: t("hintAllTips"), run: () => setTipsOpen(true) } : undefined
   // Where Settings' back arrow goes: the chats list when it was opened from the list's "…" (build 94).
   const settingsBack = useRef<"chat" | "threads">("chat")
+  // 2.7.1: Settings opened at one setting (its section unfolds, Settings.tsx), from a link elsewhere in the panel.
+  const [settingsAt, setSettingsAt] = useState<SettingsAt | null>(null)
+  const openSettingsAt = (at: SettingsAt | null) => {
+    setSettingsAt(at)
+    setView("settings")
+  }
   const [remindSaved, setRemindSaved] = useState<number | null>(null)
 
   // The source learnt something new (the PDF popup: the document's title once it's read).
@@ -1217,7 +1275,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }
 
   // `cite`: Retry of a question asked on a selection that's gone now: about that text again (build 110).
-  const ask = useCallback((text: string, opts: { label?: string; action?: string; retry?: boolean; mode?: "google"; cite?: string } = {}) => {
+  // `resent`: the question sent again on its own once, because the background never got it (123).
+  const ask = useCallback((text: string, opts: { label?: string; action?: string; retry?: boolean; mode?: "google"; cite?: string; resent?: boolean } = {}) => {
     const content = text.trim()
     if (!content || portRef.current || askToken.current) return
     setUndoBar(null)
@@ -1329,7 +1388,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       return
     }
     portRef.current = port
-    listenChat(port, history)
+    // The background never got it (the tab's link went while Safari was away, 123): sent again once on its own, with
+    // a fresh port; then an error with «Повторить», never a question that silently vanishes.
+    pendingAskRef.current = { history, content, opts }
+    if (linkLostRef.current && opts.resent === undefined) {
+      // The link is known to be gone (seen on coming back): the error now, not after a silent wait.
+      undeliveredRef.current(history, content, { ...opts, resent: true })
+      return
+    }
+    listenChat(port, history, () => undeliveredRef.current(history, content, opts))
     // Sizes only, for /analytics: whether keeping 40 messages, 50 chats or a few pages gets in the way.
     const stats = { turns: history.length, pages: threadPages(history).length, chats: threadList.length }
     if (chats) {
@@ -1365,6 +1432,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           ...(guideRef.current && !planTour.current ? { tour: true as const } : {}),
           // 2.7: reminders and events can be added here, so the answer may suggest one (a card under it).
           ...(appleNow()?.available ? { items: true as const } : {}),
+          // 2.7.1: a question that asks for an action gets «Сделать на этой странице?» under it: the answer says so.
+          // (Plans with the agent only: Free's answer keeps its honest wording, the chip shows the Pro mark.)
+          // Only when the chip is really shown for this question (the owner on 121: the answer described a button that
+          // wasn't there): an action request, not in history, no task going on.
+          ...(!historyMode && hasPro(planNow) && opts.mode !== "google" && asksForAction(content) && !agentBusyRef.current ? { agent: true as const, agentLabel: t("agentHint") } : {}),
           ...(wholeChat ? { context: "chat" as const, pages } : {})
         }
       })
@@ -1379,9 +1451,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const heardRef = useRef(0)
 
   /** Follows a chat answer on `port`: what came so far first when it's a job followed again ("snapshot"). */
-  const listenChat = (port: chrome.runtime.Port, history: Turn[]) => {
+  const listenChat = (port: chrome.runtime.Port, history: Turn[], onUndelivered?: () => void) => {
     heardRef.current = Date.now()
     let settled = false
+    // Anything at all from the background on this port: then the question got there.
+    let heardAny = false
     let grounded: { text: string; grounding: Grounding } | null = null
     let lastSeq = 0
     type Followed = { type: "snapshot"; text: string; grounding?: { text: string; grounding: Grounding } } | { type: "beat" } | { type: "gone" }
@@ -1393,6 +1467,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       }
       if (portRef.current !== port) return
       heardRef.current = Date.now()
+      heardAny = true
+      pendingAskRef.current = null
+      if (linkLostRef.current) setLinkLost(false)
       if (event.type === "snapshot") {
         partialRef.current = event.text
         setPartial(event.text)
@@ -1420,7 +1497,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     })
     // Closed without an end: the job may well go on (the background still answers it), so the chat is read again.
     port.onDisconnect.addListener(() => {
-      if (!settled && portRef.current === port) lostRef.current()
+      standTrace(`chat port closed: settled=${settled} heardAny=${heardAny} err=${String(chrome.runtime.lastError?.message ?? "")}`)
+      if (settled || portRef.current !== port) return
+      if (!heardAny && onUndelivered) onUndelivered()
+      else lostRef.current()
     })
   }
 
@@ -1494,6 +1574,38 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }
   const lostRef = useRef(lost)
   lostRef.current = lost
+  // The question just sent, until anything comes back for it (then it reached the background).
+  const pendingAskRef = useRef<{ history: Turn[]; content: string; opts: { label?: string; action?: string; mode?: "google"; resent?: boolean } } | null>(null)
+  /** A quiet or closed answer: a question that never got there is undelivered; one that did is followed again. */
+  const quietRef = useRef(() => {
+    const p = pendingAskRef.current
+    if (p) undeliveredRef.current(p.history, p.content, p.opts)
+    else lostRef.current()
+  })
+
+  /** A question the background never got: asked again once (a fresh port), then an error the person can retry. */
+  const undelivered = (history: Turn[], content: string, opts: { label?: string; action?: string; mode?: "google"; resent?: boolean }) => {
+    const port = portRef.current
+    portRef.current = null
+    askToken.current = null
+    try {
+      port?.disconnect()
+    } catch {
+      // already closed
+    }
+    pendingAskRef.current = null
+    standTrace(`chat undelivered resent=${!!opts.resent}`)
+    if (!opts.resent) {
+      partialRef.current = ""
+      setPartial(null)
+      setTimeout(() => askRef.current(content, { label: opts.label, action: opts.action, mode: opts.mode, retry: true, resent: true }), 400)
+      return
+    }
+    setLinkLost(true)
+    finish(history, "", { code: "LINK" })
+  }
+  const undeliveredRef = useRef(undelivered)
+  undeliveredRef.current = undelivered
 
   // A followed answer that says nothing for a while (its port broke without closing: 2.6 (90), "Reading the page…" for
   // minutes) is looked up again; so is one coming back from sleep (the page in the background, the phone locked).
@@ -1502,10 +1614,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (partial === null) return
     const quiet = (ms: number) => portRef.current !== null && heardRef.current > 0 && Date.now() - heardRef.current > ms
     const timer = setInterval(() => {
-      if (quiet(20_000)) lostRef.current()
+      if (quiet(20_000)) quietRef.current()
     }, 5_000)
     const onVisible = () => {
-      if (document.visibilityState === "visible" && quiet(6_000)) lostRef.current()
+      if (document.visibilityState === "visible" && quiet(6_000)) quietRef.current()
     }
     document.addEventListener("visibilitychange", onVisible)
     return () => {
@@ -1597,7 +1709,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     void sendBackground({ type: "useEvent", f: "shot", a: crop ? "crop" : "uncrop" })
   }
 
-  const submit = () => (noteMode ? void saveNote(draft) : ask(draft, { mode: googleMode && !historyRef.current ? "google" : undefined }))
+  const submit = () => (noteMode ? void saveNote(draft) : agentMode ? void startAgent(draft, undefined, historyMode ? "" : threadFor()) : ask(draft, { mode: googleMode && !historyRef.current ? "google" : undefined }))
 
   // The chat and the field as they are now, for stop() (2.5 (75)).
   const nowRef = useRef({ messages, draft })
@@ -2356,12 +2468,31 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // The send button flips between asking and writing a note: swipe it up or down (touch), scroll on it
   // (trackpad, mouse wheel) or hold it. `switched` swallows the click that ends a hold.
+  // 2.7.1 (the director): on Pro and Ultra a swipe down is «Сделать» instead (up stays the note). Not on the ✦ circle:
+  // the circle follows the finger in every direction (its drag), so a swipe there would move it.
   const switched = useRef(false)
-  const gesture = useRef({ y: 0, moved: false, wheelAt: 0, hold: 0 })
+  const gesture = useRef({ y: 0, moved: false, hold: 0 })
+  // 2.7.1 (the owner on build 121, iPad + Magic Keyboard): two fingers on a trackpad, or a wheel, go the fingers' way
+  // as the touch swipe does (up: Note, down: Do), once per gesture (ux/wheelSwitch.ts). A pointer also has the
+  // button's menu (a right-click, or the button held with the pointer); a finger's hold still flips the note.
+  const wheelGesture = useRef(wheelSwitch())
+  const [sendMenu, setSendMenu] = useState(false)
+  // A pointer (a trackpad, a mouse) was last used on the field or the button: its hint, not the finger's.
+  const [pointerUsed, setPointerUsed] = useState(!touch)
+  const lastPointer = useRef<string>(touch ? "touch" : "mouse")
   const flipMode = useCallback(() => {
     setNoteMode((on) => !on)
+    setAgentMode(false)
     setNoteHint(false)
     void setNoteHintCount(-1)
+  }, [])
+  const swipeDo = hasPro(status?.plan ?? keptPlan ?? "free") && !historyMode
+  const flipDo = useCallback(() => {
+    setNoteMode(false)
+    setGoogleMode(false)
+    setAgentMode((on) => !on)
+    setNoteHint(false)
+    void sendBackground({ type: "useEvent", f: "quiet", a: "swipe_do" })
   }, [])
   const endHold = () => window.clearTimeout(gesture.current.hold)
   const switchGestures = {
@@ -2371,43 +2502,69 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     },
     onTouchMove: (e: TouchEvent) => {
       const g = gesture.current
-      if (!g.moved && Math.abs(e.touches[0].clientY - g.y) > 14) {
+      const dy = e.touches[0].clientY - g.y
+      if (!g.moved && Math.abs(dy) > 14) {
         g.moved = true
         switched.current = true
         endHold()
-        flipMode()
+        if (dy > 0 && swipeDo) flipDo()
+        else flipMode()
       }
       if (g.moved) e.preventDefault()
     },
     onWheel: (e: WheelEvent) => {
-      if (Math.abs(e.deltaY) < 3) return
       e.preventDefault()
-      const now = Date.now()
-      if (now - gesture.current.wheelAt > 500) flipMode()
-      gesture.current.wheelAt = now
+      if (!pointerUsed) setPointerUsed(true)
+      const dir = wheelSwitchStep(wheelGesture.current, {
+        deltaX: e.deltaX,
+        deltaY: e.deltaY,
+        deltaMode: e.deltaMode,
+        inverted: (e as WheelEvent & { webkitDirectionInvertedFromDevice?: boolean }).webkitDirectionInvertedFromDevice,
+        at: e.timeStamp || Date.now()
+      }, platform === "macos")
+      if (!dir) return
+      setSendMenu(false)
+      if (dir === "down" && swipeDo) flipDo()
+      else flipMode()
     },
-    onPointerDown: () => {
+    onPointerDown: (e: PointerEvent) => {
       switched.current = false
+      lastPointer.current = e.pointerType
+      const mouse = e.pointerType === "mouse"
+      if (mouse && !pointerUsed) setPointerUsed(true)
+      // A right-click opens the menu on its own (contextmenu).
+      if (e.button !== 0) return
       gesture.current.hold = window.setTimeout(() => {
         switched.current = true
-        flipMode()
+        if (mouse) setSendMenu(true)
+        else flipMode()
       }, 500)
     },
     onPointerUp: endHold,
     onPointerLeave: endHold,
     onPointerCancel: endHold,
-    onContextMenu: (e: Event) => e.preventDefault()
+    onContextMenu: (e: Event) => {
+      e.preventDefault()
+      if (lastPointer.current === "touch") return
+      endHold()
+      setSendMenu(true)
+    }
   }
+  const pointerHintKey = swipeDo ? "noteHintPointerDo" : "noteHintMouse"
+  const sendHintKey = touch && !pointerUsed ? (swipeDo ? "noteHintTouchDo" : "noteHintTouch") : pointerHintKey
 
   // While typing, the first few panel sessions show how to switch to a note (until it's been used once).
   const hintAsked = useRef(false)
   useEffect(() => {
     if (!draft.trim() || noteMode || hintAsked.current) return
     hintAsked.current = true
-    void noteHintCount().then((count) => {
-      if (count < 0 || count >= 3) return
+    // 2.7.1: a pointer's hint (up and down for Note and Do) once on this device, even after the finger's was used.
+    void Promise.all([noteHintCount(), pointerUsed ? pointerHintSeen() : Promise.resolve(true)]).then(([count, seen]) => {
+      const pointerFirst = !seen
+      if (!pointerFirst && (count < 0 || count >= 3)) return
       setNoteHint(true)
-      void setNoteHintCount(count + 1)
+      if (pointerFirst) markPointerHintSeen()
+      if (count >= 0 && count < 3) void setNoteHintCount(count + 1)
       window.setTimeout(() => setNoteHint(false), 8000)
     })
   }, [draft, noteMode])
@@ -2511,6 +2668,449 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const openApp = useCallback((target: "subscribe" | "manage", feature?: "ai" | "organize") => {
     openAppFromTap(touch, { target, feature })
   }, [touch])
+
+  // ------------------------------------------------------------ the agent (2.7.1)
+
+  // The agent's messages to the background (TestFlight 117: «Начать» did nothing, then «Something went wrong»): Safari can
+  // lose a message to a background it had put to sleep, the answer never comes. Tried again before giving up; every
+  // agent message is safe to repeat (a second start finds the first, a second «Начать» or answer is refused as stale).
+  const toAgent = async <T,>(message: Record<string, unknown>): Promise<T | null> => {
+    for (let i = 0; i < 3; i++) {
+      const r = await sendBackground<T>(message)
+      if (r) return r
+      await new Promise((ok) => setTimeout(ok, 400 * (i + 1)))
+    }
+    return null
+  }
+  const [agentPlanFailed, setAgentPlanFailed] = useState<string | null>(null)
+  // The watchdog (2.7.1, the director's round 3): while this tab's task runs and the page is seen, a ping every 20 s;
+  // the background picks up a run with no step for 45 s (a press whose answer Safari lost). Hidden: no ping, and the
+  // paused notification says so, as before.
+  useEffect(() => {
+    if (agentTask?.status !== "running") return
+    const ping = () => {
+      if (!document.hidden) void sendBackground({ type: "agentPing", doc: PAGE_DOC })
+    }
+    const timer = setInterval(ping, 20_000)
+    return () => clearInterval(timer)
+  }, [agentTask?.status, agentTask?.id])
+  // The person's saved facts (factKey → value), read when a plan card is up; and the plan's answers kept there (2.7.1,
+  // the owner on 117: answers about themselves aren't asked again). The values stay on the device: the card fills them
+  // in, and only an answer the person leaves goes with that task, as any answer does.
+  const [savedFacts, setSavedFacts] = useState<Record<string, string>>({})
+  const factEntries = useRef<FormEntry[]>([])
+  useEffect(() => {
+    if (agentTask?.status !== "plan") return
+    void sendBackground<{ entries: FormEntry[] }>({ type: "formData" }).then((d) => {
+      const live = (d?.entries ?? []).filter((e) => !e.deleted && e.key === "fact" && e.value.trim())
+      factEntries.current = live
+      setSavedFacts(Object.fromEntries(live.map((e) => [factKey(e.label), e.value])))
+    })
+  }, [agentTask?.status, agentTask?.id])
+  const rememberFacts = (facts: Array<{ fact: string; value: string; key?: FormEntry["key"] }>) => {
+    const now = Date.now()
+    const changes: FormEntry[] = facts.flatMap(({ fact, value, key }) => {
+      if (refusedEntry(fact, value)) return []
+      // A standard detail (an e-mail the agent asked for at a booking's form): a new entry of that key.
+      if (key && key !== "fact") return [{ id: `fd_${now.toString(36)}_${Math.random().toString(36).slice(2, 10)}`, key, label: "", value: value.slice(0, 500), updatedAt: now }]
+      const had = factEntries.current.find((e) => factKey(e.label) === factKey(fact))
+      return [had ? { ...had, value: value.slice(0, 500), updatedAt: now } : { id: `fd_${now.toString(36)}_${Math.random().toString(36).slice(2, 10)}`, key: "fact" as const, label: fact.slice(0, 60), value: value.slice(0, 500), updatedAt: now }]
+    })
+    if (changes.length) void sendBackground({ type: "formDataPut", changes })
+  }
+
+  // The chat thread a task starts in (its last turns, for «во втором», «в тот ресторан»): nothing from an empty chat.
+  const threadFor = (upTo = messages.length) => chatContext(messages.slice(0, upTo).filter((m) => !m.note).map((m) => ({ role: m.role, content: m.content })))
+
+  const startAgent = async (request: string, deferred?: string, chat?: string) => {
+    const text = request.trim()
+    if (!text) return
+    // The plan as last heard (a ref: a task started from a notification's tap runs before the panel has its status, in an
+    // older render). Not known yet: the background decides, and says PRO_ONLY when it isn't Pro.
+    const known = statusRef.current?.plan
+    if (known && !hasPro(known)) {
+      setAgentUpsell(true)
+      return
+    }
+    setDraft("")
+    // The field back to one line (a long request had grown it; the row then stood under it).
+    if (inputRef.current) inputRef.current.style.height = "auto"
+    setAgentLater(null)
+    setAgentStartError(null)
+    // The tab's link is known to be gone: said now (a task's start would wait on a background that can't hear it).
+    if (linkLostRef.current) {
+      setAgentStartError(t("errLink"))
+      setDraft(text)
+      return
+    }
+    // The last task's card, finished, gives way to the new one (its Undo goes with it).
+    if (agentTask && !agentActive(agentTask as never)) {
+      // (It stays in the chat, folded, without its Undo.)
+      const closed = await sendBackground<{ past?: PanelAgent[] }>({ type: "agentClose", keep: true })
+      if (closed?.past) setAgentPast(closed.past)
+      setAgentTask(null)
+    }
+    const r = await toAgent<{ ok: boolean; code?: string; why?: string; state?: PanelAgent }>({ type: "agentStart", request: text, lang: uiLanguage(), deferred, ...(chat ? { chat } : {}) })
+    if (r?.state) setAgentTask(r.state)
+    if (!r || (!r.ok && !r.state && r.code !== "CONSENT" && r.code !== "PRO_ONLY")) {
+      // What failed, in plain words: no answer from the extension, or what broke there (its code).
+      setAgentStartError(!r ? t("agentErrorNoReply") : t("agentStartFailed", r.why ? `${r.code}: ${r.why}` : r.code ?? "ERROR"))
+      setDraft(text)
+    }
+    if (r?.code === "CONSENT") {
+      // The page's map goes to the AI: the same consent as answers; asked here, then the task starts.
+      await agreeQuietly()
+      const again = await sendBackground<{ ok: boolean; state?: PanelAgent }>({ type: "agentStart", request: text, lang: uiLanguage(), deferred, ...(chat ? { chat } : {}) })
+      if (again?.state) setAgentTask(again.state)
+    } else if (r?.code === "PRO_ONLY") setAgentUpsell(true)
+  }
+
+  const markEndSeen = (id: string) => {
+    setEndSeen(id)
+    void chrome.storage.local.set({ [AGENT_END_SEEN]: id }).catch(() => undefined)
+  }
+
+  // The bubble's buttons: this tab's answers go the panel's way; another tab's go to its task by the notice's step key.
+  const agentBubbleActs = (b: BubbleData): BubbleActions => {
+    // (Counts only, feature "agent": the task's random id when it runs here, never the page or the question.)
+    const count = (fields: Record<string, string | number>) =>
+      void sendBackground({ type: "useEvent", f: "agent", ...(b.here && agentTask ? { task: agentTask.id } : {}), ...fields } as never)
+    const send = (a: AgentAnswer, chosen?: string[]) => {
+      setBubbleGone(b.key)
+      if (b.here) void answerAgent(a, chosen, "bubble")
+      else
+        void sendBackground<{ ok: boolean }>({ type: "agentNoticeAnswer", answer: a, chosen, key: b.key }).then((r) => {
+          // (The step moved on meanwhile: the card in that tab says what's next; this bubble goes.)
+          if (!r?.ok) setAgentNotice(null)
+        })
+    }
+    return {
+      reply: (text) => send("reply", [text]),
+      yes: () => send("yes"),
+      no: () => send("no"),
+      did: () => send("did"),
+      notNow: () => send("notnow"),
+      // (Not «gone»: the chat opened hides it; closed again unanswered, the question is back by the circle.)
+      open: () => {
+        if (!b.here) {
+          void sendBackground({ type: "agentGoTab" })
+          return
+        }
+        if (b.kind === "end") count({ a: "result", did: "show" })
+        if (b.kind === "end" && agentTask) markEndSeen(agentTask.id)
+        agentPeek.current = true
+        show()
+      },
+      close: () => {
+        setBubbleGone(b.key)
+        if (b.kind === "end") count({ a: "result", did: "dismissed" })
+        else if (b.kind === "ask") count({ a: "question", via: "bubble", options: b.options.length, did: "dismissed" })
+        if (b.kind !== "end") return
+        if (b.here && agentTask) markEndSeen(agentTask.id)
+        else if (!b.here) {
+          setAgentNotice(null)
+          void sendBackground({ type: "agentNoticeClear" })
+        }
+      }
+    }
+  }
+
+  const answerAgent = async (a: AgentAnswer, chosen?: string[], via: "chat" | "bubble" = "chat") => {
+    // The answer names its question (a second tap can't approve the next one).
+    const key = agentTask ? pendingKey(agentTask as never) : ""
+    const r = await toAgent<{ ok: boolean; state?: PanelAgent }>({ type: "agentAnswer", answer: a, chosen, key, via })
+    if (r?.state) setAgentTask(r.state)
+  }
+
+  const deferAgent = async (when: { at?: number; watch?: boolean }, also = agentLater?.also ?? false, from = agentLater) => {
+    // The plan card's «Позже» brings its request and approved plan; the card of its own, the field's text.
+    const request = (from?.request ?? draft).trim()
+    if (!request || !from) return
+    // A time already past would never ring (the notification waits for that date): the card asks for a later one.
+    if (when.at !== undefined && !(when.at > Date.now() + 30_000)) {
+      if (from.plan) setPlanLater((l) => (l ? { ...l, past: true } : l))
+      else setAgentLater({ ...from, note: null, past: true })
+      return
+    }
+    const host = location.hostname.replace(/^www\./, "")
+    const r = await sendBackground<{ ok: boolean; code?: string; limit?: number }>({
+      type: "agentDefer", request, lang: uiLanguage(), url: location.href, title: document.title,
+      ...(when.at ? { at: when.at } : {}), ...(when.watch && from.watch ? { watch: from.watch } : {}),
+      // On a lock screen: the plan's name for the task and the site, never the request (it holds phones, e-mails, names).
+      notifTitle: t("agentNotifTitle", host), notifBody: t("agentNotifBody", noticeLabel(from.plan, host)), ...(also ? { alsoReminder: true } : {}),
+      ...(from.plan ? { plan: from.plan } : {})
+    })
+    // Put off from the plan card: the task here closes, the «Позже» card says what was set.
+    if (r?.ok && from.plan) {
+      await sendBackground({ type: "agentClose" })
+      setAgentTask(null)
+      setPlanLater(null)
+    }
+    const note = r?.ok
+      ? when.at
+        ? t("agentLaterSaved", new Intl.DateTimeFormat(uiLanguage(), { dateStyle: "medium", timeStyle: "short" }).format(new Date(when.at)))
+        : t("agentLaterSavedWatch")
+      : r?.code === "NOTIF_ASK" ? t("agentLaterNotifyWhy") : r?.code === "NOTIF_OFF" ? t("agentLaterNotifOff") : r?.code === "DEFER_LIMIT" ? t("agentLaterLimit", String(r.limit ?? "")) : r?.code === "PRO_ONLY" ? t("agentProOnly") : t("agentError")
+    if (r?.ok && !from.plan) setDraft("")
+    // (Not set from the plan card: it stays, and «Позже» there says why on its own card.)
+    if (r?.ok || !from.plan || r?.code) setAgentLater({ ...from, note, past: false, ask: r?.code === "NOTIF_ASK" ? when : undefined, also })
+  }
+
+  // The plan card's «Позже»: whether this page has a watch, and Reminders to write to (asked once the card is up).
+  const [planLater, setPlanLater] = useState<{ hasWatch: boolean; watch?: string; canAlso: boolean; past?: boolean } | null>(null)
+  useEffect(() => {
+    if (agentTask?.status !== "plan") return
+    let live = true
+    void (async () => {
+      const watches = ((await chrome.storage.local.get(WATCH_STORAGE.watches))[WATCH_STORAGE.watches] as Array<{ id: string; url: string; metAt?: number }> | undefined) ?? []
+      const here = watches.find((w) => !w.metAt && watchUrlKey(w.url) === watchUrlKey(location.href))
+      const apple = await loadApple(sendBackground).catch(() => null)
+      if (live) setPlanLater({ hasWatch: !!here, ...(here ? { watch: here.id } : {}), canAlso: apple?.reminders === "write" })
+    })()
+    return () => {
+      live = false
+    }
+  }, [agentTask?.status, agentTask?.id])
+
+  /** The plan card's «Начать» (it goes on alone), or «Позже» (put off with the plan as approved). */
+  const planAgent = async (approval: PlanApproval, later?: LaterChoice) => {
+    const task = agentTask
+    if (!task?.plan) return
+    if (!later) {
+      setAgentPlanFailed(null)
+      const r = await toAgent<{ ok: boolean; state?: PanelAgent }>({ type: "agentPlan", approval })
+      if (r?.state) setAgentTask(r.state)
+      // «Начать» never fails silently: no answer, or the task wasn't waiting for it any more.
+      if (!r) setAgentPlanFailed(t("agentErrorNoReply"))
+      else if (!r.ok && !r.state) setAgentPlanFailed(t("agentStartFailed", "PLAN"))
+      return
+    }
+    const plan: TaskPlan = {
+      ...task.plan,
+      answers: task.plan.questions.map((q, i) => ({ q: q.q, a: approval.answers[i] ?? "" })),
+      perms: task.plan.perms.map((p) => ({ ...p, on: !approval.off.includes(p.id) })),
+      approved: true
+    }
+    await deferAgent(later.when, later.also, { note: null, hasWatch: !!planLater?.hasWatch, ...(planLater?.watch ? { watch: planLater.watch } : {}), request: task.request, plan })
+  }
+
+  /** «Включить уведомления» on the «Позже» card: the system's question (as under a set watch), then the task is set. */
+  const askAgentNotify = async () => {
+    const when = agentLater?.ask
+    if (!agentLater || !when) return
+    const reply = await sendBackground<{ notify?: string }>({ type: "watchNotifyAsk" })
+    if (reply?.notify === "ok") {
+      setAgentLater({ ...agentLater, note: null, ask: undefined })
+      await deferAgent(when)
+    } else setAgentLater({ ...agentLater, note: t("agentLaterNotifOff"), ask: undefined })
+  }
+
+  // Out of Safari while a task runs or waits (2.7.1): the background hears when a page of ours is hidden or seen again,
+  // with the notification's words in the panel's language.
+  useEffect(() => {
+    if (popup) return
+    const onVis = () => {
+      const visible = document.visibilityState === "visible"
+      void sendBackground({ type: "agentSeen", visible, doc: PAGE_DOC, ...(visible ? {} : { words: { title: "ContextFlow", paused: t("agentNotifPaused", "{0}"), done: t("agentNotifDone", "{0}"), needs: t("agentNotifNeeds", "{0}"), notBooked: t("agentNotifNotBooked", "{0}"), signIn: t("agentNeedSignIn"), pay: t("agentNeedPay"), answer: t("agentNeedAnswer") } }) })
+    }
+    document.addEventListener("visibilitychange", onVis)
+    // A page that opens visible fires no change: it says so at once (a new tab otherwise left the background thinking
+    // Safari was away, and «Дело на паузе» came while the person was in Safari).
+    if (document.visibilityState === "visible") onVis()
+    return () => document.removeEventListener("visibilitychange", onVis)
+  }, [popup])
+
+  // Another tab's task: what it came to, pushed when it stops for the person or ends there (and null once it's seen).
+  useEffect(() => {
+    if (popup) return
+    const onNotice = (e: Event) => {
+      const n = ((e as CustomEvent).detail as AgentNotice | null) ?? null
+      setAgentNotice(n)
+      if (!n) setNoticeOpen(false)
+    }
+    bus.addEventListener("agentNotice", onNotice)
+    void sendBackground<{ notice: AgentNotice | null }>({ type: "agentNoticeGet" }).then((r) => setAgentNotice(r?.notice ?? null))
+    return () => bus.removeEventListener("agentNotice", onNotice)
+  }, [popup, bus])
+
+  // A page field the person types in (the keyboard is up on iPhone and iPad): the bubble by the circle steps aside.
+  useEffect(() => {
+    if (popup) return
+    const check = () => {
+      const a = document.activeElement as HTMLElement | null
+      const kind = a?.tagName === "INPUT" ? ((a as HTMLInputElement).type || "text") : ""
+      setPageTyping(!!a && (a.isContentEditable || a.tagName === "TEXTAREA" || (a.tagName === "INPUT" && !/^(checkbox|radio|button|submit|reset|range|color|file|image|hidden)$/.test(kind))))
+    }
+    const later = () => setTimeout(check, 0)
+    document.addEventListener("focusin", check, true)
+    document.addEventListener("focusout", later, true)
+    return () => {
+      document.removeEventListener("focusin", check, true)
+      document.removeEventListener("focusout", later, true)
+    }
+  }, [popup])
+
+  // Back from another app or tab (the ContextFlow app after «Разрешить»): this tab's task and the plan's status read
+  // again, through a background Safari may have put away meanwhile (123: no answers until a reload).
+  useEffect(() => {
+    if (popup) return
+    return onReturn(() => {
+      standTrace(`return: runtime id=${String((chrome.runtime as { id?: string } | undefined)?.id ?? "none")}`)
+      // The tab's link checked on coming back: no answer at all means it's gone (the panel says so at once).
+      void sendBackground<{ state: PanelAgent | null }>({ type: "agentGet" }).then((r) => {
+        setLinkLost(r === null)
+        if (r?.state) setAgentTask(r.state)
+      })
+      void refreshStatus()
+    })
+  }, [popup, refreshStatus])
+
+  // This tab's task as the background has it (pushed at every change), and a deferred task the notification brought.
+  useEffect(() => {
+    if (popup) return
+    const onState = (e: Event) => setAgentTask(((e as CustomEvent).detail as PanelAgent) ?? null)
+    bus.addEventListener("agentState", onState)
+    void sendBackground<{ state: PanelAgent | null; past?: PanelAgent[] }>({ type: "agentGet" }).then((r) => {
+      if (r?.past) setAgentPast(r.past)
+      // A task still running in this tab (the page went on mid-task): the panel shows it (not the page's chat).
+      if (r?.state && agentActive(r.state as never)) {
+        setAgentTask(r.state)
+        // The person closed the chat during this task: it goes on with the chat closed (its questions come as bubbles).
+        const id = r.state.id
+        void chrome.storage.local.get([AGENT_QUIET, AGENT_END_SEEN]).then((v) => {
+          setEndSeen((v[AGENT_END_SEEN] as string | undefined) ?? null)
+          if (v[AGENT_QUIET] !== id) show()
+        }, () => show())
+      } else void chrome.storage.local.get(AGENT_END_SEEN).then((v) => setEndSeen((v[AGENT_END_SEEN] as string | undefined) ?? null), () => undefined)
+    })
+    const take = async () => {
+      const id = takeTaskMark()
+      if (!id) return
+      // A running task's notification (left Safari mid-task): its own tab comes to the front, or it's this one.
+      if (id.startsWith("run_")) {
+        const r = await sendBackground<{ ok: boolean; here?: boolean }>({ type: "agentFocus", id })
+        if (r?.here) show()
+        return
+      }
+      const list = await sendBackground<{ tasks: Array<{ id: string; request: string; lang: string; url?: string }> }>({ type: "agentDeferred" })
+      const task = list?.tasks.find((x) => x.id === id)
+      if (!task) return
+      // Only on the task's own page (the security review: any page could carry the mark and be offered the task).
+      if (!task.url || !sameTaskPage(task.url, location.href)) return
+      void sendBackground({ type: "useEvent", f: "notif", a: "panel", what: "agent" })
+      // Like a notification's other taps: the panel opens, it doesn't pick the page's chat.
+      show()
+      setAgentLater(null)
+      const auto = await autoStartHere(location.hostname)
+      setAgentAutoHere(auto)
+      if (auto) void startAgent(task.request, task.id)
+      else setAgentDeferred(task)
+    }
+    void take()
+    const onHash = () => void take()
+    window.addEventListener("hashchange", onHash)
+    return () => {
+      bus.removeEventListener("agentState", onState)
+      window.removeEventListener("hashchange", onHash)
+    }
+  }, [popup, bus, show])
+
+  // The control the agent is about to use, ringed on the page (the director: «The person must see what the agent does»).
+  const [agentRing, setAgentRing] = useState<Range | null>(null)
+  useEffect(() => onTarget((el) => {
+    if (!el || el.ownerDocument !== document) return setAgentRing(null)
+    const range = document.createRange()
+    range.selectNode(el)
+    setAgentRing(range)
+  }), [])
+  // On the sheet (iPhone, iPad without a pointer) the panel would cover the page: while a step runs it steps aside to
+  // the strip, and it comes back when the agent needs the person (a card) or is done. A tap on the strip brings it back
+  // early; it stays then until the task's next stop.
+  const agentAway = useRef(false)
+  const agentPeek = useRef(false)
+  const agentStatus = agentTask?.status
+  // An agent task's card (or a deferred one's) is on screen: the greeting and its chips step aside for it.
+  const agentCardShown = !!agentTask || !!agentDeferred || agentPast.length > 0
+  const lastUserIndex = messages.findLastIndex((m) => m.role === "user" && !m.note)
+  // «Сделать на этой странице?» for the latest request that asks for an action (the owner on 121: «Забукай меня…» got an
+  // answer pointing at a chip that wasn't there — a past task in the chat hid it). Hidden only while a task is going on.
+  const agentBusy = !!agentTask && agentActive(agentTask as never)
+  const recheckLink = () => void sendBackground({ type: "agentGet" }).then((r) => setLinkLost(r === null))
+  const agentBusyRef = useRef(false)
+  agentBusyRef.current = agentBusy
+  // A request a task was already started from (going on, ended, or folded in this tab's past tasks) doesn't offer itself
+  // again (the director on 03a95321: the chip stayed under the reply after its task was done); asking again brings it back.
+  const startedFrom = (text: string) => [agentTask, ...agentPast].some((p) => !!p && p.request.trim() === text.trim())
+  const offerFor = lastUserIndex >= 0 && !historyMode && !agentBusy && messages[lastUserIndex].similarAsk === undefined && asksForAction(messages[lastUserIndex].content) && !startedFrom(messages[lastUserIndex].content) ? lastUserIndex : -1
+  // Under the answer once it's there (where the answer says it is), under the question while it's written.
+  const offerAt = offerFor < 0 ? -1 : messages[offerFor + 1]?.role === "assistant" ? offerFor + 1 : offerFor
+  const offerChip = (at: number) =>
+    at === offerAt && (
+      <button type="button" class="cf-chip cf-agent-hint" onClick={() => void startAgent(messages[offerFor].content, undefined, threadFor(offerFor))}>
+        <Icon.Sparkle size={13} /> {t("agentHint")}{!hasPro(plan) && <span class="cf-pro-badge">Pro</span>}
+      </button>
+    )
+  // A task that ended (done, asked, stopped, failed, blocked) puts the field back to asking (the owner on 117: it stayed in
+  // Do). Only on the change itself: a finished task shown again later doesn't touch the mode.
+  const endedFor = useRef("")
+  useEffect(() => {
+    const ended = agentTask && ["done", "stopped", "error", "blocked"].includes(agentTask.status)
+    if (!ended || endedFor.current === agentTask.id) return
+    endedFor.current = agentTask.id
+    setAgentMode(false)
+  }, [agentTask?.status, agentTask?.id])
+
+  // The plan's own step (the page read before the plan card): the panel stays, the card comes there.
+  const agentPlanning = agentStatus === "running" && (agentTask?.step ?? 0) === 0
+  useEffect(() => {
+    const running = agentStatus === "running" && !agentPlanning
+    if (!running) {
+      agentPeek.current = false
+      if (agentStatus !== "confirm" && agentStatus !== "fill" && agentStatus !== "self") setAgentRing(null)
+      // Waiting for the person: the control it's about, in view above the panel, ringed.
+      const id = agentTask?.pending?.call.id
+      const el = id ? elementOf(id) : null
+      if (el && el.ownerDocument === document) {
+        ;(el as HTMLElement).scrollIntoView?.({ block: "center" })
+        // On the sheet the panel takes the lower part: the control goes near the top, above it.
+        // (A question about one control keeps the panel aside on the sheet: the control stays in the middle, above the strip.)
+        if (layout === "sheet" && agentStatus === "fill") window.scrollBy(0, Math.round(el.getBoundingClientRect().top - window.innerHeight * 0.1))
+        const range = document.createRange()
+        range.selectNode(el)
+        setAgentRing(range)
+      }
+    }
+    if (layout !== "sheet") return
+    // A question about one control («Сделать?», the person's own step): the panel stays aside so the control is seen and
+    // can be reached; the strip asks.
+    const ask = agentStatus === "self" || agentStatus === "confirm"
+    if ((running || ask) && open && !agentPeek.current) {
+      agentAway.current = true
+      hide()
+    } else if (ask) {
+      // Already aside: stays so.
+    } else if (!running && agentAway.current && agentStatus) {
+      agentAway.current = false
+      // What the bubble by the circle answers (a question with short answers, «Сделать?», the person's own step, the
+      // end) stays there: the chat stays closed (2.7.1). A form to check or a warning to read brings the chat back.
+      const b = agentTask ? bubbleOf(agentTask, pendingKey(agentTask as never), true) : null
+      if (!b || b.kind === "open") show()
+    }
+  }, [agentStatus, agentPlanning])
+
+  // The person closed the chat while the task goes on: kept for the task, so the next page doesn't open it again; opened
+  // again, it's the chat's once more. A finished task seen in the chat has no end bubble after.
+  const wasOpen = useRef(open)
+  useEffect(() => {
+    if (popup) return
+    if (wasOpen.current && !open && agentBusyRef.current && !agentAway.current && agentTask) void chrome.storage.local.set({ [AGENT_QUIET]: agentTask.id }).catch(() => undefined)
+    if (open && agentTask) {
+      void chrome.storage.local.remove(AGENT_QUIET).catch(() => undefined)
+      if (!agentActive(agentTask as never)) markEndSeen(agentTask.id)
+    }
+    wasOpen.current = open
+  }, [open, agentTask?.status])
+
 
   // 2.6 (100): the App Store's "Write a Review", when tapped (the "…" menu's Other…, Settings' links). iPhone and iPad:
   // the App Store app's link, followed in the tap itself (Safari asks "Open in App Store?" only then); a Mac: the Mac
@@ -2721,12 +3321,21 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       if (to !== sideRef.current) void sendBackground({ type: "useEvent", f: "side", a: "drag_fab", what: to })
       updateSettings({ fabY, fabSide: to, fabSideChosen: true })
     },
-    onTap: () => show(undefined, { pageChat: true }),
+    // A question the bubble was closed for comes back first (it waits until answered); another tab's task with no bubble
+    // shows its card; otherwise the chat.
+    onTap: () => {
+      const b = agentBubbleRef.current
+      if (b && b.kind !== "end" && bubbleGoneRef.current === b.key) return setBubbleGone("")
+      if (agentNoticeRef.current && !b) return setNoticeOpen(true)
+      show(undefined, { pageChat: true })
+    },
     // Held down: the page's translation by hand (the pill by the circle), on any page.
     onHold: () => setFabHeld((n) => n + 1)
   })
   // 2.7 (plan section 6): page hints in the first days — a line by the circle, a how-to in the chat, a glowing button.
   const openFromHint = useCallback(() => show(undefined, { pageChat: true }), [show])
+  // 2.7.1: the cookie closer's confirmation by the circle, the first few times a banner is answered.
+  const cookieLine = useCookieLine(fabVisible && !open && !bubble?.rect)
   const pageHints = usePageHints({ plan: status?.plan ?? keptPlan ?? "free", ready: fabVisible && !fabDrag.state.dragging && !bubble?.rect && !open, firstRunAhead: !tourSeen, open: openFromHint })
   const panelDrag = usePanelDrag({
     panel: panelRef,
@@ -2912,10 +3521,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
   }, [status?.plan])
   useEffect(() => {
-    if (!planTourDue || !open || guide || touring || view !== "chat" || streaming || partial !== null) return
+    // (Not over an agent task that runs or waits for the person: the tour would cover its question.)
+    const agentBusy = !!agentTask && ["running", "confirm", "fill", "self"].includes(agentTask.status)
+    if (!planTourDue || !open || guide || touring || view !== "chat" || streaming || partial !== null || agentBusy) return
     setPlanTourDue(null)
     startPlanTourRef.current(planTourDue.tier, "plan", planTourDue.from)
-  }, [planTourDue, open, guide, touring, view, streaming, partial])
+  }, [planTourDue, open, guide, touring, view, streaming, partial, agentTask?.status])
   const plan = status?.plan ?? keptPlan ?? "free"
   proRef.current = plan === "pro" || plan === "ultra"
   // "Ultra" on Ultra's actions for anyone without it, once the plan is known: the selection buttons come before the
@@ -3992,11 +4603,22 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // 2.7.1: the circle stays blue; its space shows as a halo (Spaces.tsx fabHalo), glowing up once as the space changes.
   const halo = fabHalo(spaces.fabSpace?.color)
-  // The panel's send button glows the same way, weaker, in the panel's own space (styles.css .cf-send[data-halo]).
-  const sendHalo = spaces.multi && fabHalo(spaces.current.color)
+  // (2.7.1, the owner on 117: no space halo on the send button — the chat's header already shows the space.)
 
   // The circle's height, and the in-page translation pill's beside it (2.7).
   const fabTop = fabDodge !== null ? `${fabDodge}px` : `${settings.fabY}%`
+
+  // The agent's bubble by the circle (2.7.1): this tab's task with the chat closed, else another tab's notice.
+  const hereBubble = !popup && !open && agentTask ? bubbleOf(agentTask, pendingKey(agentTask as never), true) : null
+  const hereFresh = hereBubble && !(hereBubble.kind === "end" && (endSeen === agentTask?.id || Date.now() - (agentTask?.touchedAt ?? 0) > END_BUBBLE_MS))
+  // (Another tab's finished task doesn't speak over a task working here: 126, a stand booking's «Not finished» over the
+  // clinic task running in this tab.)
+  const otherBubble = !popup && agentNotice ? bubbleOf(agentNotice, agentNotice.key ?? "", false) : null
+  const workingHere = agentTask?.status === "running"
+  const agentBubble = hereFresh ? hereBubble : otherBubble && !(workingHere && otherBubble.kind === "end") ? otherBubble : null
+  agentBubbleRef.current = agentBubble
+  const bubbleUp = !!agentBubble && fabVisible && !fabDrag.state.dragging && !bubble?.rect && !pageTyping && bubbleGone !== agentBubble.key
+  const fabRing = agentBubble ? (agentBubble.kind === "end" && agentBubble.ok ? "done" : "needs") : agentNotice ? (agentNotice.status === "done" ? "done" : "needs") : null
 
   // ------------------------------------------------------------ render
   return (
@@ -4009,7 +4631,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         <button
           type="button"
           ref={fabRef}
-          class={`cf-fab ${side} ${fabDrag.state.dragging ? "dragged" : "glide"}${haloFlash ? " flash" : ""}`}
+          class={`cf-fab ${side} ${fabDrag.state.dragging ? "dragged" : "glide"}${haloFlash ? " flash" : ""}${fabRing ? ` agent-ring ${fabRing}` : ""}`}
           data-halo={halo ? spaces.fabSpace?.color : undefined}
           style={{ top: fabTop, ...(halo && spaces.fabSpace ? spaceVars(spaces.fabSpace.color) : {}) }}
           aria-label={t("fabLabel")}
@@ -4028,7 +4650,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         <TranslatePill
           side={side}
           top={fabTop}
-          show={fabVisible && !fabDrag.state.dragging && !bubble?.rect}
+          show={fabVisible && !fabDrag.state.dragging && !bubble?.rect && !bubbleUp}
           free={!hasPro(plan)}
           held={fabHeld}
           onPlans={() => {
@@ -4038,9 +4660,33 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         />
       )}
 
+      {/* The agent's question, the person's step or the task's end, by the circle with the chat closed (2.7.1). */}
+      {bubbleUp && agentBubble && <AgentBubble data={agentBubble} side={side} top={fabTop} low={fabDodge !== null ? fabDodge > window.innerHeight / 2 : settings.fabY > 50} act={agentBubbleActs(agentBubble)} />}
+
+      {/* Another tab's task with nothing to ask, by the circle: what it came to, and «Перейти к вкладке» (2.7.1). */}
+      {agentNotice && noticeOpen && !agentBubble && fabVisible && (
+        <AgentNoticeCard
+          notice={agentNotice}
+          side={side}
+          top={fabTop}
+          onGo={() => {
+            setNoticeOpen(false)
+            void sendBackground({ type: "agentGoTab" })
+          }}
+          onClose={() => {
+            setNoticeOpen(false)
+            setAgentNotice(null)
+            void sendBackground({ type: "agentNoticeClear" })
+          }}
+        />
+      )}
+
       {/* 2.7 (plan section 6): the page's hint by the circle, on its side (never with the translate pill). */}
-      {pageHints.line && fabVisible && !fabDrag.state.dragging && !bubble?.rect && (
+      {pageHints.line && fabVisible && !fabDrag.state.dragging && !bubble?.rect && !bubbleUp && (
         <HintLine id={pageHints.line} side={side} top={fabTop} onTap={pageHints.tap} onClose={pageHints.close} />
+      )}
+      {cookieLine.line && !pageHints.line && !fabDrag.state.dragging && !bubbleUp && (
+        <CookieLine line={cookieLine.line} side={side} top={fabTop} onClose={cookieLine.close} />
       )}
 
       {/* The page reminder is set: said here too (on iPhone the selection, and its buttons, are gone by now). */}
@@ -4185,6 +4831,18 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
       {/* 2.6 (92), the owner: the selection the panel or its pop-up is about is ringed on the page. */}
       {glowRange && <SelectionGlow range={glowRange} />}
+      {agentRing && agentTask && <AgentRing range={agentRing} />}
+      {agentTask?.status === "running" && !open && (
+        <AgentStrip
+          state={agentTask}
+          onOpen={() => {
+            agentPeek.current = true
+            show()
+          }}
+          onStop={() => void answerAgent("stop")}
+          onAnswer={(a) => void answerAgent(a)}
+        />
+      )}
 
       {open && (
         <section
@@ -4315,7 +4973,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       setPageMenu(false)
                       void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: view === "threads" ? "list" : "chat", what: "settings" })
                       settingsBack.current = view === "threads" ? "threads" : "chat"
-                      setView("settings")
+                      openSettingsAt(null)
                     }}
                     onListen={view === "chat" && TARGET === "safari" && source.readable() && source.kind() === "page" ? () => {
                       setPageMenu(false)
@@ -4509,6 +5167,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             />
           ) : view === "settings" ? (
             <SettingsView
+              key={settingsAt ?? "settings"}
+              at={settingsAt}
               settings={settings}
               status={status}
               usage={usage}
@@ -4558,7 +5218,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             <>
               {/* The empty chat in a phone's sheet sits by the field (quiet.css), unless the guide or the tour has a card up
                   (the card then lies on nothing). A class, not :has(): Safari on iOS left the :has() rule unapplied. */}
-              <div class={`cf-messages${messages.length === 0 && partial === null && !touring && !(guide !== null && guideIdle && !ON_PAGE.includes(guide)) ? " is-empty" : ""}`} ref={listRef} onClick={ux.onListClick}>
+              <div class={`cf-messages${messages.length === 0 && partial === null && !agentCardShown && !touring && !(guide !== null && guideIdle && !ON_PAGE.includes(guide)) ? " is-empty" : ""}`} ref={listRef} onClick={ux.onListClick}>
                 {/* 2.6 (100): the bars in one place of their own, kept by its key. When the suggestions bar came, the list's
                     first child turned from the pinned bar into this box, and Preact took every message out and put it
                     back in: the chat jumped to its start (the owner on build 100). */}
@@ -4581,7 +5241,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   </div>
                 )}
 
-                {!historyMode && messages.length === 0 && partial === null && (
+                {/* (Not while an agent task's card is there: the card comes first, the director on the real-Safari shots.) */}
+                {!historyMode && messages.length === 0 && partial === null && !agentCardShown && (
                   <div class="cf-empty">
                     <div class="cf-empty-icon"><Icon.Sparkle size={28} /></div>
                     <h2>{t("emptyTitle")}</h2>
@@ -4622,6 +5283,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         </>
                       )}
                       {m.sources && m.sources.length > 0 && <UsedSources notes={m.sources} />}
+                      {/* 2.7.1, the design: an ordinary question that asks for an action gets «Сделать на этой странице?»
+                          under it (the latest one only); the agent starts on the tap, with the question's words. */}
+                      {!m.note && offerChip(idx)}
                       {m.note && messageFooter(m, idx, () => noteCopyText(m), () => noteShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
                       {m.note && !picked && ux.addCard(m, idx)}
                     </div>
@@ -4640,6 +5304,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         </>
                       ), !picked)}
                       {messageFooter(m, idx, () => toPlainText(m.content), () => answerShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
+                      {!picked && offerChip(idx)}
                       {!picked && ux.addCard(m, idx)}
                     </div>
                   )
@@ -4651,6 +5316,85 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   </div>
                 )}
 
+                {agentUpsell && (
+                  <div class="cf-card cf-agent" role="region">
+                    <p>{t("agentProOnly")}</p>
+                    <p class="cf-hint">{t("agentHelp")}</p>
+                    <div class="cf-card-actions">
+                      <button type="button" class="cf-primary" onClick={() => { setAgentUpsell(false); void openApp("subscribe") }}>{t("getPro")}</button>
+                      <button type="button" class="cf-secondary" onClick={() => setAgentUpsell(false)}>{t("close")}</button>
+                    </div>
+                  </div>
+                )}
+                {agentDeferred && !agentTask && (
+                  <AgentDeferredCard
+                    request={agentDeferred.request}
+                    autoHere={agentAutoHere}
+                    onStart={() => {
+                      const d = agentDeferred
+                      setAgentDeferred(null)
+                      void startAgent(d.request, d.id)
+                    }}
+                    onCancel={() => {
+                      void sendBackground({ type: "agentDeferCancel", id: agentDeferred.id })
+                      setAgentDeferred(null)
+                    }}
+                    onAuto={(on) => {
+                      setAgentAutoHere(on)
+                      void setAutoStart(location.hostname, on)
+                    }}
+                  />
+                )}
+                {agentPast.map((p) => (
+                  <AgentPanel
+                    key={`past-${p.id}`}
+                    state={p}
+                    past
+                    onAnswer={() => undefined}
+                    onUndo={() => undefined}
+                    onClose={() => {
+                      void sendBackground({ type: "agentForgetPast", id: p.id })
+                      setAgentPast((list) => list.filter((x) => x.id !== p.id))
+                    }}
+                    onHelp={() => setAgentHelp(!agentHelp)}
+                  />
+                ))}
+                {agentTask && (
+                  <AgentPanel
+                    key={`${agentTask.id}-${agentTask.status}-${agentTask.step}`}
+                    state={agentTask}
+                    onAnswer={(a, chosen) => void answerAgent(a, chosen)}
+                    onPlan={(approval, later) => void planAgent(approval, later)}
+                    planFailed={agentPlanFailed}
+                    saved={savedFacts}
+                    onRemember={rememberFacts}
+                    later={planLater ?? undefined}
+                    onUndo={() => void sendBackground({ type: "agentUndo" })}
+                    onClose={() => {
+                      void sendBackground({ type: "agentClose" })
+                      setAgentTask(null)
+                    }}
+                    onHelp={() => setAgentHelp(!agentHelp)}
+                  />
+                )}
+                {agentHelp && <div class="cf-card cf-agent-help" role="note"><p>{t("agentHelp")}</p></div>}
+                {agentStartError && !agentTask && (
+                  <div class="cf-card cf-agent" role="alert">
+                    <p>{agentStartError}</p>
+                    <div class="cf-card-actions"><button type="button" class="cf-secondary" onClick={() => setAgentStartError(null)}>{t("close")}</button></div>
+                  </div>
+                )}
+                {agentLater && (
+                  <AgentLaterCard
+                    hasWatch={agentLater.hasWatch}
+                    note={agentLater.note}
+                    onClose={() => setAgentLater(null)}
+                    onSet={(when, also) => void deferAgent(when, also)}
+                    canAlso={!!agentLater.canAlso}
+                    onAsk={agentLater.ask ? () => void askAgentNotify() : undefined}
+                    past={!!agentLater.past}
+                  />
+                )}
                 {similarCard === "pick" && partial === null && (
                   <SimilarPicker
                     title={similarSubject ? t("noteQuote", clip(similarSubject, 140)) : source.title() || source.site()}
@@ -4806,7 +5550,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                             <button type="button" class="cf-link" onClick={() => { event("note"); writeNote() }}>{t("writeNote")}</button>
                           </p>
                           {!hasPro(plan) && TARGET === "safari" && (
-                            <p class="cf-offer-own"><button type="button" class="cf-link" onClick={() => { event("own_key"); setView("settings") }}>{t("useOwnKey")}</button></p>
+                            <p class="cf-offer-own"><button type="button" class="cf-link" onClick={() => { event("own_key"); openSettingsAt("ownKey") }}>{t("useOwnKey")}</button></p>
                           )}
                         </>}
                       />
@@ -4832,7 +5576,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       {byok && (
                         <div class="cf-card-actions">
                           {upgradeButton("limit")}
-                          {!status?.hasOwnKey && <button type="button" class="cf-secondary" onClick={() => setView("settings")}>{t("useOwnKey")}</button>}
+                          {!status?.hasOwnKey && <button type="button" class="cf-secondary" onClick={() => openSettingsAt("ownKey")}>{t("useOwnKey")}</button>}
                           {/* The key is there now (added from this card, or the question was a Google one): the same
                               question again, answered with the key. Until 109 it had to be typed again. */}
                           {status?.hasOwnKey && lastIsUser && (
@@ -4849,7 +5593,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                           ) : (
                             <button type="button" class="cf-primary" onClick={() => void openApp("subscribe")}><Icon.Sparkle size={14} /> {t("getPro")}</button>
                           )}
-                          <button type="button" class="cf-secondary" onClick={() => setView("settings")}>{t("useOwnKey")}</button>
+                          <button type="button" class="cf-secondary" onClick={() => openSettingsAt("ownKey")}>{t("useOwnKey")}</button>
                         </div>
                       )}
                     </div>
@@ -4900,6 +5644,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   />
                 )}
 
+                {linkLost && !error && (
+                  <div class="cf-card error" role="status">
+                    <p>{t("errLink")}</p>
+                    <div class="cf-card-actions">
+                      <button type="button" class="cf-secondary" onClick={recheckLink}><Icon.Retry /> {t("retry")}</button>
+                      <button type="button" class="cf-secondary" onClick={() => location.reload()}>{t("reloadPage")}</button>
+                    </div>
+                  </div>
+                )}
+
                 {error && error.code !== "LIMIT_REACHED" && error.code !== "PRO_ONLY" && (
                   <div class="cf-card error">
                     <p>{errorText(error)}</p>
@@ -4912,7 +5666,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       {lastIsUser && (error.code === "SEARCH_LIMIT" || error.code === "SEARCH_UNAVAILABLE") && (
                         <button type="button" class="cf-secondary" onClick={() => retry(true)}><Icon.Sparkle size={14} /> {t("askWithoutGoogle")}</button>
                       )}
-                      {error.code === "BAD_KEY" && <button type="button" class="cf-secondary" onClick={() => setView("settings")}>{t("settings")}</button>}
+                      {error.code === "BAD_KEY" && <button type="button" class="cf-secondary" onClick={() => openSettingsAt("ownKey")}>{t("settings")}</button>}
+                      {/* The tab's link to ContextFlow is gone: a reload brings a panel that talks to it again. */}
+                      {error.code === "LINK" && <button type="button" class="cf-secondary" onClick={() => location.reload()}>{t("reloadPage")}</button>}
                       {error.ownKey && (
                         <button type="button" class="cf-secondary" onClick={() => { const { provider, problem } = error.ownKey!; void sendBackground({ type: "openUrl", url: ownKeyPlace(provider, problem).url }) }}>
                           {ownKeyPlace(error.ownKey.provider, error.ownKey.problem).label}
@@ -5001,7 +5757,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 <footer class="cf-composer">
                   {listenBar}
                   {undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}
-                  {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
+                  {noteHint && draft.trim() && !noteMode && !sendMenu && <div class="cf-note-hint" role="status">{t(sendHintKey)}</div>}
+                  {sendMenu && !streaming && (
+                    <SendMenu note={noteMode} doing={doMode} canDo={swipeDo} onNote={flipMode} onDo={flipDo} onClose={() => setSendMenu(false)} />
+                  )}
                   {weightNote && <div class="cf-weight-note" title={t("longPageWeightHint", pageWeight)}>{t("longPageWeight", pageWeight)}</div>}
                   {/* 2.7 (after 107), the owner's decision 4: no row with the page's title here (it's in the chat's "New
                       page" divider). What isn't the page keeps its row: a selection (with its bell and eye), "Ask your
@@ -5028,6 +5787,22 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         void sendBackground({ type: "useEvent", f: "quiet", a: "plus_pick", what: "note" })
                         flipMode()
                         inputRef.current?.focus()
+                      }}
+                      agent={historyMode ? null : {
+                        on: agentMode,
+                        locked: !hasPro(plan),
+                        onPick: () => {
+                          setPlusOpen(false)
+                          void sendBackground({ type: "useEvent", f: "quiet", a: "plus_pick", what: "agent" })
+                          if (!hasPro(plan)) {
+                            setAgentUpsell(true)
+                            return
+                          }
+                          if (noteMode) flipMode()
+                          setAgentMode(!agentMode)
+                          if (!agentMode) setGoogleMode(false)
+                          inputRef.current?.focus()
+                        }
                       }}
                       shot={historyMode ? null : {
                         on: shotPref.on,
@@ -5061,8 +5836,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       onClose={() => setPlusOpen(false)}
                     />
                   )}
-                  <div class={`cf-input ${noteMode ? "note" : ""}`}>
-                    <button
+                  <div class={`cf-input ${noteMode ? "note" : ""} ${doMode ? "agent" : ""}`}>
+                    {/* 2.7.1 (the owner on 117): Do mode is the send button's own state, like Note — no chip, the field
+                        keeps its width; «+» stays, and its «Сделать» leaves it as «Заметка» leaves a note. */}
+                    {<button
                       type="button"
                       class={`cf-plus ${plusOpen ? "on" : ""}`}
                       aria-haspopup="menu"
@@ -5075,8 +5852,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       }}
                     >
                       <Icon.Plus />
-                    </button>
-                    {!noteMode && !historyMode && (
+                    </button>}
+                    {!noteMode && !historyMode && !agentMode && (
                       <button
                         type="button"
                         class={`cf-mode ${googleMode ? "on" : ""}`}
@@ -5087,12 +5864,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                         <Icon.Search size={14} /> {t("actGoogle")}
                       </button>
                     )}
+
                     <textarea
                       ref={inputRef}
                       rows={1}
                       dir="auto"
                       value={draft}
-                      placeholder={t(noteMode ? "placeholderNote" : historyMode ? "placeholderHistory" : googleMode ? "placeholderGoogle" : contextKind === "selection" ? "placeholderSelection" : contextKind === "page" ? "placeholderPage" : "placeholderNone")}
+                      placeholder={t(noteMode ? "placeholderNote" : historyMode ? "placeholderHistory" : agentMode ? "placeholderAgent" : googleMode ? "placeholderGoogle" : contextKind === "selection" ? "placeholderSelection" : contextKind === "page" ? "placeholderPage" : "placeholderNone")}
                       enterkeyhint="send"
                       // What the screen does once the field has the focus tells a hardware keyboard from the one on
                       // screen (quiet/density.ts): noted for the next opening.
@@ -5115,7 +5893,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     />
                     {/* The answers left, as a number by the field (the count itself is in «+»), on Free and when few are
                         left, on every layout. A tap opens «+», where it stands in full. */}
-                    {leftNow && !noteMode && (
+                    {leftNow && !noteMode && !agentMode && (
                       <button type="button" class={`cf-left ${leftNow.low ? "low" : ""}`} aria-label={usageLine} title={usageLine} onClick={() => {
                         // 110: «+» opens with what the answers went on.
                         void sendBackground({ type: "useEvent", f: "quiet", a: "spent", via: "number" })
@@ -5129,17 +5907,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       <span class="cf-send-wrap" {...switchGestures}>
                         <button
                           type="button"
-                          class={`cf-send ${noteMode ? "note" : ""}`}
-                          data-halo={sendHalo ? spaces.current.color : undefined}
+                          class={`cf-send ${noteMode ? "note" : ""} ${doMode ? "do" : ""}`}
                           disabled={!draft.trim()}
                           onClick={() => {
                             if (switched.current) switched.current = false
                             else submit()
                           }}
-                          aria-label={t(noteMode ? "saveNote" : "send")}
-                          title={`${t(noteMode ? "saveNote" : "send")} · ${t(touch ? "noteHintTouch" : "noteHintMouse")}`}
+                          aria-label={t(noteMode ? "saveNote" : doMode ? "agentMode" : "send")}
+                          title={`${t(noteMode ? "saveNote" : "send")} · ${t(sendHintKey)}`}
                         >
-                          <span class="cf-send-icon" key={noteMode ? "note" : "send"}>{noteMode ? <Icon.Pencil /> : <Icon.ArrowUp />}</span>
+                          <span class="cf-send-icon" key={noteMode ? "note" : doMode ? "do" : "send"}>{noteMode ? <Icon.Pencil /> : doMode ? <Icon.Sparkle size={16} /> : <Icon.ArrowUp />}</span>
                         </button>
                       </span>
                     )}
@@ -5426,6 +6203,48 @@ function SelField({ touch, chips, placeholder, markUltra, tone, onChip, children
  * compositor (a turning gradient under a fixed mask); it moves with the page by the scroll events, nothing runs while
  * the page is still.
  */
+/**
+ * The agent's ring on the control it's about (2.7.1): measured again every few frames, as the page moves under it (a list
+ * that closes, a row that appears), and gone while the control isn't shown.
+ */
+function AgentRing({ range }: { range: Range }): VNode | null {
+  const [box, setBox] = useState<DOMRect | null>(null)
+  useLayoutEffect(() => {
+    // Measured when the page scrolls or resizes, and a few times as the step settles (a list that closes, a row that
+    // appears) — then nothing runs while the page is still (2.7.1, the owner on 117: it was every 200 ms, and the phone
+    // got hot while Do ran).
+    let frame = 0
+    const place = () => {
+      frame = 0
+      const r = toFixed(range.getBoundingClientRect())
+      setBox(r.width > 1 && r.height > 1 ? r : null)
+    }
+    const soon = () => {
+      if (!frame) frame = requestAnimationFrame(place)
+    }
+    place()
+    const settles = [300, 900, 1800].map((ms) => window.setTimeout(soon, ms))
+    window.addEventListener("scroll", soon, { passive: true, capture: true })
+    window.addEventListener("resize", soon)
+    window.visualViewport?.addEventListener("resize", soon)
+    window.visualViewport?.addEventListener("scroll", soon)
+    return () => {
+      cancelAnimationFrame(frame)
+      for (const t of settles) window.clearTimeout(t)
+      window.removeEventListener("scroll", soon, true)
+      window.removeEventListener("resize", soon)
+      window.visualViewport?.removeEventListener("resize", soon)
+      window.visualViewport?.removeEventListener("scroll", soon)
+    }
+  }, [range])
+  if (!box) return null
+  return (
+    <div class="cf-sel-glow cf-agent-ring" aria-hidden="true" style={{ left: `${box.left - 5}px`, top: `${box.top - 4}px`, width: `${box.width + 10}px`, height: `${box.height + 8}px` }}>
+      <span class="cf-glow-run" />
+    </div>
+  )
+}
+
 function SelectionGlow({ range }: { range: Range }): VNode | null {
   const [box, setBox] = useState<DOMRect | null>(null)
   useLayoutEffect(() => {

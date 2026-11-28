@@ -121,18 +121,20 @@ test("native: iOS 17 and macOS 14 only, the keys and the Mac's Calendars entitle
   const items = read("../ContextFlow/Shared (Extension)/AppleItems.swift")
   assert.match(items, /if #available\(iOS 17\.0, macOS 14\.0, \*\) \{ return true \}/)
   assert.match(items, /requestFullAccessToReminders\(\)/)
-  assert.match(items, /requestWriteOnlyAccessToEvents\(\)/)
+  // 2.7.1: full access to Calendar (the agent's free times and conflicts, found on the device).
+  assert.match(items, /requestFullAccessToEvents\(\)/)
   const handler = read("../ContextFlow/Shared (Extension)/SafariWebExtensionHandler.swift")
   for (const c of ["apple_status", "apple_add", "apple_remove"]) assert.match(handler, new RegExp(`case "${c}":`))
   for (const plist of ["iOS (App)", "iOS (Extension)", "macOS (App)", "macOS (Extension)"]) {
     assert.match(read(`../ContextFlow/${plist}/Info.plist`), /NSRemindersFullAccessUsageDescription/, plist)
+    assert.match(read(`../ContextFlow/${plist}/Info.plist`), /NSCalendarsFullAccessUsageDescription/, plist)
   }
   for (const plist of ["macOS (App)", "macOS (Extension)"]) assert.match(read(`../ContextFlow/${plist}/Info.plist`), /NSCalendarsWriteOnlyAccessUsageDescription/)
   for (const e of ["ContextFlow (macOS).entitlements", "ContextFlow Extension (macOS).entitlements"]) {
     assert.match(read(`../ContextFlow/${e}`), /<key>com\.apple\.security\.personal-information\.calendars<\/key>\s*<true\/>/, e)
   }
   const strings = JSON.parse(read("../ContextFlow/Shared (App)/InfoPlist.xcstrings")).strings
-  for (const key of ["NSRemindersFullAccessUsageDescription", "NSCalendarsWriteOnlyAccessUsageDescription"]) {
+  for (const key of ["NSRemindersFullAccessUsageDescription", "NSCalendarsWriteOnlyAccessUsageDescription", "NSCalendarsFullAccessUsageDescription"]) {
     assert.equal(Object.keys(strings[key].localizations).length, 15, key)
   }
   assert.match(read("../ContextFlow/Shared (App)/ContentView.swift"), /case "add":\s*appleAdd\.open\(url\)/)

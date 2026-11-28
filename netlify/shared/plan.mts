@@ -6,7 +6,7 @@ import { logEvent, upsertEntitlement, type Counter } from "./db.mts"
 import { hasPro, isUltra, PLAN_RANK } from "../../src/shared/plan.ts"
 import { USE_KINDS, useSubject, type UseKind } from "../../src/shared/spent.ts"
 
-export { hasPro, isUltra } from "../../src/shared/plan.ts"
+export { agentDaily, agentDeferred, hasPro, isUltra } from "../../src/shared/plan.ts"
 
 export interface Access {
   plan: Plan
@@ -105,6 +105,17 @@ function evalSigned(header: string, installId: string): boolean {
 
 export function evalAccess(req: Request, installId: string, context?: { deploy?: { context?: string } }): Access | null {
   return evalCheck(req, installId, context).access
+}
+
+// A measuring run's step cap (round 138: whether 30 steps is too few on marketplace pages): a request that evalAccess
+// lets through (signed with the measuring key, deploy previews only) may ask for more steps, up to this. Nothing else
+// reads it: it relaxes the step count only, never a guard. The shipped panel never sends it.
+export const MEASURED_STEPS_MAX = 60
+
+/** The step cap for one request: the configured cap; a measuring request may raise it (never lower it), up to 60. */
+export function stepCap(measuring: Access | null, asked: unknown, cap: number): number {
+  if (!measuring || typeof asked !== "number" || !Number.isInteger(asked)) return cap
+  return Math.max(cap, Math.min(MEASURED_STEPS_MAX, asked))
 }
 
 /** evalAccess and, when it says no to a request that tried, why ("context", "token"): never the token itself. */

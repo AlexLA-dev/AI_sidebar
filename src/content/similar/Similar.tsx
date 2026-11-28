@@ -6,7 +6,8 @@
 import type { VNode } from "preact"
 import { useState } from "preact/hooks"
 
-import { t, uiLang } from "../../shared/i18n"
+import { AMAZON_TEXT, isAmazon } from "../../shared/amazon"
+import { t, uiLang, type MessageKey } from "../../shared/i18n"
 import { closeAndLess, SIMILAR_CHIPS, type SimilarAnswer, type SimilarAsk, type SimilarChip, type SimilarItem, type SimilarPricing, type SimilarStep } from "../../shared/similar"
 import { moneyIn } from "../../shared/watch/compare"
 import { parseNumber } from "../../shared/watch/extract"
@@ -304,7 +305,7 @@ function Item({ item, n, onOpen, onWatch, less = false, light = false }: { item:
               <a class="cf-similar-pay" href={item.pricing.url} target="_blank" rel="noopener noreferrer" dir="auto" onClick={opening(item.pricing.url, onOpen)}>{payText(item.pricing)}</a>
             )}
             {facts.map((f) => <span key={f}>{f}</span>)}
-            {!item.checked && <span class="cf-similar-unopened">{t("similarNotOpened")}</span>}
+            {!item.checked && <span class="cf-similar-unopened">{t(isAmazon(item.url) ? (AMAZON_TEXT.similar as MessageKey) : "similarNotOpened")}</span>}
             {onWatch && item.watch && item.source === "item" && watchable(item.watch.value) && (
               <button type="button" class="cf-similar-watch" onClick={() => onWatch(item)}><Icon.Eye size={13} /> {t("similarWatchPrice")}</button>
             )}

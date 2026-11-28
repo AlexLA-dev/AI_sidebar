@@ -66,7 +66,7 @@
   "message": "Fiyatı takip et"
  },
  "plusButton": {
-  "message": "Diğer: not, sayfa görüntüsü, tüm sohbet"
+  "message": "Diğer: not, yap, sayfa görüntüsü, tüm sohbet"
  },
  "hintShow": {
   "message": "Göster"
@@ -2825,6 +2825,27 @@
  "setPageHintsHint": {
   "message": "İlk günlerinizde bir sayfada neler yapabileceğinizi gösterir."
  },
+ "setCookies": {
+  "message": "Çerez pencerelerini kapat"
+ },
+ "setCookiesHint": {
+  "message": "“Yalnızca gerekli” seçeneğini seçer."
+ },
+ "setCookiesAccept": {
+  "message": "Reddetmek mümkün değilse kabul et"
+ },
+ "cookiesOffOnSite": {
+  "message": "Bu sitede kapatma"
+ },
+ "cookiesOnOnSite": {
+  "message": "Bu sitede kapat"
+ },
+ "cookieClosedLine": {
+  "message": "Çerez penceresi kapatıldı: yalnızca gerekli"
+ },
+ "cookieAcceptedLine": {
+  "message": "Çerezler kabul edildi: başka seçenek yoktu"
+ },
  "phSimilarBodyUpBoth": {
   "message": "Bu özellik Pro ve Ultra'da: Pro'da hızlı arama, Ultra'da tam arama. Aynı ürün daha ucuza ve başka mağazalardan benzerleri. Vurgulanan düğmeye dokunun."
  },
@@ -3137,6 +3158,681 @@
  "writeInserted": {
   "message": "Eklendi"
  },
+ "agentMode": {
+  "message": "Yap"
+ },
+ "agentModeHint": {
+  "message": "Bunu bu sayfada ContextFlow yapsın"
+ },
+ "placeholderAgent": {
+  "message": "Bu sayfada ne yapayım?"
+ },
+ "agentWorking": {
+  "message": "Çalışıyorum · adım {0}"
+ },
+ "agentConfirmTitle": {
+  "message": "Yapayım mı?"
+ },
+ "agentYes": {
+  "message": "Evet"
+ },
+ "agentNo": {
+  "message": "Hayır"
+ },
+ "agentNoUndo": {
+  "message": "Bu işlem geri alınamaz."
+ },
+ "agentOffRequest": {
+  "message": "Bu, istediğiniz şeye benzemiyor: {0}"
+ },
+ "agentStepClick": {
+  "message": "“{0}” düğmesine bas"
+ },
+ "agentRecapAgain": {
+  "message": "Yeniden soruluyor: sayfa ilk denemeyi “{0}” yüzünden kabul etmedi."
+ },
+ "agentRecapAgainTo": {
+  "message": "Yeniden soruluyor: sayfa ilk denemeyi “{0}” yüzünden kabul etmedi; şimdi “{1}” seçili."
+ },
+ "agentStepServiceOther": {
+  "message": "Sayfada “{0}” yok. Bunun yerine “{1}” seçilsin mi?"
+ },
+ "agentRecapService": {
+  "message": "Hizmet: {0}"
+ },
+ "agentRecapServiceOther": {
+  "message": "İstenen “{0}” değil: bunu siz seçtiniz."
+ },
+ "agentStepPricedChoice": {
+  "message": "“{0}” seç — fiyatı olan bir seçim, ödeme değil"
+ },
+ "agentStepType": {
+  "message": "“{1}” alanına “{0}” yaz"
+ },
+ "agentStepSelect": {
+  "message": "“{1}” alanında “{0}” seç"
+ },
+ "agentStepGo": {
+  "message": "{0} adresine git"
+ },
+ "agentFillTitle": {
+  "message": "“Bilgilerim” ile doldurulsun mu?"
+ },
+ "agentFillButton": {
+  "message": "Doldur"
+ },
+ "agentFillSkip": {
+  "message": "Gerek yok"
+ },
+ "agentSelfTitle": {
+  "message": "Bu adım sizin"
+ },
+ "agentSelfPay": {
+  "message": "Ödemeyi veya siparişi kendiniz tamamlayın: her şeyi kontrol edince “{0}” düğmesine basın."
+ },
+ "agentSelfSend": {
+  "message": "Kendiniz gönderin: okuyunca “{0}” düğmesine basın."
+ },
+ "agentSelfAuth": {
+  "message": "Girişi kendiniz yapın (Safari parolanızı doldurabilir). Bekliyorum."
+ },
+ "agentSelfConsent": {
+  "message": "Kabul ediyorsanız “{0}” kutusunu kendiniz işaretleyin."
+ },
+ "agentSelfRate": {
+  "message": "Yorum, puan ve oy vermek yalnızca size kalmış."
+ },
+ "agentSelfOther": {
+  "message": "Bunu kendiniz yapın: “{0}”."
+ },
+ "agentSelfNewTab": {
+  "message": "“{0}” öğesine kendiniz dokunun: sayfa bunu yeni sekmede açıyor ve bunu yalnızca sizin dokunuşunuz yapabilir. Oradan devam edeceğim."
+ },
+ "agentSelfFile": {
+  "message": "Dosyayı kendiniz seçin."
+ },
+ "agentSelfDone": {
+  "message": "Bitti"
+ },
+ "agentSelfNotNow": {
+  "message": "Şimdi değil"
+ },
+ "agentDoneTitle": {
+  "message": "Tamamlandı"
+ },
+ "agentAskedTitle": {
+  "message": "Yanıtınız gerekiyor"
+ },
+ "agentStopped": {
+  "message": "Durduruldu."
+ },
+ "agentUndo": {
+  "message": "Geri al"
+ },
+ "agentUndone": {
+  "message": "Geri alınabilen her şeyi geri aldım."
+ },
+ "agentLimit": {
+  "message": "Ajanın bugünkü görev hakkı doldu (günde {0}). Yarın yenilenir."
+ },
+ "agentProOnly": {
+  "message": "Ajan, Pro ve Ultra ile gelir."
+ },
+ "agentError": {
+  "message": "Bir sorun oluştu. Tekrar deneyin."
+ },
+ "agentErrorPage": {
+  "message": "Sayfa yanıt vermiyor. Sayfayı yeniden yükleyip tekrar deneyin."
+ },
+ "agentSteps": {
+  "message": "Çok fazla adım gerekti, burada durdum."
+ },
+ "agentBlockedSite": {
+  "message": "Banka, ödeme, devlet ve benzeri sitelerde ContextFlow sizin yerinize işlem yapmaz. Ama sayfayla ilgili soruları yine de yanıtlayabilir."
+ },
+ "amazonAgent": {
+  "message": "Amazon'da ContextFlow yalnızca sayfayla ilgili soruları yanıtlayabilir: Amazon, otomatik araçların sitesinde sizin yerinize işlem yapmasına izin vermiyor."
+ },
+ "amazonSimilar": {
+  "message": "Kontrol edilmedi: Amazon, sunucumuzun sayfalarını açmasına izin vermiyor."
+ },
+ "agentStart": {
+  "message": "Başla"
+ },
+ "agentDeferredTitle": {
+  "message": "Sonraya bırakılan görev"
+ },
+ "agentDontAskHere": {
+  "message": "Bir dahaki sefere bu sitede hemen başla"
+ },
+ "agentLater": {
+  "message": "Sonra"
+ },
+ "agentLaterAt": {
+  "message": "Belirli bir saatte"
+ },
+ "agentLaterWatch": {
+  "message": "Bu sayfanın takibi haber verdiğinde"
+ },
+ "agentLaterSet": {
+  "message": "Tamam"
+ },
+ "agentLaterSaved": {
+  "message": "{0} tarihinde size bir bildirim gelecek. Dokunun, bunu bu sayfada sizinle birlikte yapayım."
+ },
+ "agentLaterSavedWatch": {
+  "message": "Takip haber verdiğinde size bir bildirim gelecek. Dokunun, bunu sizinle birlikte yapayım."
+ },
+ "agentLaterNotifOff": {
+  "message": "ContextFlow için bildirimler kapalı. Ayarlar → Bildirimler → ContextFlow bölümünden açın."
+ },
+ "agentLaterNotifyWhy": {
+  "message": "Bu görevi size hatırlatabilmem için bildirimleri açın."
+ },
+ "agentLaterPast": {
+  "message": "Bu saat geçti. Daha sonraki bir saat seçin."
+ },
+ "agentYouMark": {
+  "message": "Siz"
+ },
+ "agentHint": {
+  "message": "Bu sayfada yapılsın mı?"
+ },
+ "agentWaitingStep": {
+  "message": "Adım {0} · sizi bekliyor"
+ },
+ "agentStepReminderAdd": {
+  "message": "“{0}” anımsatıcısını “{1}” listesine ekle"
+ },
+ "agentStepReminderAddDue": {
+  "message": "“{0}” anımsatıcısını {2} için “{1}” listesine ekle"
+ },
+ "agentStepReminderDone": {
+  "message": "Anımsatıcılar’da “{0}” öğesini tamamlandı olarak işaretle"
+ },
+ "agentStepEventAdd": {
+  "message": "“{0}” etkinliğini takviminize ekle: {1}"
+ },
+ "agentSelfAccessReminders": {
+  "message": "ContextFlow’un Anımsatıcılar’ı kullanmasına izin verin: uygulamayı açın, “İzin Ver”e dokunun, sonra buraya dönüp “Bitti”ye dokunun."
+ },
+ "agentSelfAccessCalendar": {
+  "message": "ContextFlow’un Takviminizi kullanmasına izin verin: uygulamayı açın, “Tam Erişime İzin Ver”e dokunun, sonra buraya dönüp “Bitti”ye dokunun."
+ },
+ "agentOpenApp": {
+  "message": "ContextFlow’u aç"
+ },
+ "agentStepReminderAddDefault": {
+  "message": "“{0}” anımsatıcısını varsayılan listenize ekle"
+ },
+ "agentStepReminderAddDefaultDue": {
+  "message": "“{0}” anımsatıcısını {1} için varsayılan listenize ekle"
+ },
+ "agentLaterLimit": {
+  "message": "Zaten {0} görev bekliyor; planınızın izin verdiği en fazla sayı bu."
+ },
+ "agentNotifTitle": {
+  "message": "{0} için bir görev"
+ },
+ "agentNotifBody": {
+  "message": "Dokunun, sizinle birlikte yapayım: {0}"
+ },
+ "agentHelpLink": {
+  "message": "Ajanın yapmayacakları"
+ },
+ "agentHelp": {
+  "message": "Ajan açık sayfada işlem yapar: basar, yazar, seçer. Bir formu göndermeden önce “Yapayım mı?” diye sorar; satın almayı, ödemeyi, mesajları ve girişi size bırakır. Parolaları, kartları ve belge numaralarını asla görmez ve yazmaz. Captcha, dosya seçme ve bazı alışılmadık düğmeler onun elinden gelmez: o zaman bu adımı sizden ister. Sonraya bırakılan görev bildirim olarak gelir: dokunun, ajan sizinle birlikte devam eder."
+ },
+ "setAgentAuto": {
+  "message": "Sonraya bırakılan görevler şu sitelerde hemen başlar"
+ },
+ "setAgentAutoHint": {
+  "message": "Bu sitelerde bildirime dokununca görev, “Başla” düğmesine basmadan başlar. “Yapayım mı?” sorusu ve size kalan adımlar yine sorulur."
+ },
+ "fdTitle": {
+  "message": "Bilgilerim"
+ },
+ "fdHint": {
+  "message": "Sitelerdeki formları doldurmak için. Cihazınızda saklanır; ajan bunları yalnızca siz onay verdikten sonra doldurur ve yapay zekâ bunları asla görmez."
+ },
+ "fdNameFull": {
+  "message": "Ad soyad"
+ },
+ "fdNameGiven": {
+  "message": "Ad"
+ },
+ "fdNameFamily": {
+  "message": "Soyadı"
+ },
+ "fdNameLatin": {
+  "message": "Latin harfleriyle ad"
+ },
+ "fdNamePhonetic": {
+  "message": "Adın okunuşu"
+ },
+ "fdEmail": {
+  "message": "E-posta"
+ },
+ "fdPhone": {
+  "message": "Telefon"
+ },
+ "fdAddressLine": {
+  "message": "Sokak ve bina numarası"
+ },
+ "fdAddressApartment": {
+  "message": "Daire, kat"
+ },
+ "fdAddressCity": {
+  "message": "Şehir"
+ },
+ "fdAddressRegion": {
+  "message": "Bölge veya eyalet"
+ },
+ "fdAddressPostal": {
+  "message": "Posta kodu"
+ },
+ "fdAddressCountry": {
+  "message": "Ülke"
+ },
+ "fdCompany": {
+  "message": "Şirket"
+ },
+ "fdJobTitle": {
+  "message": "Unvan"
+ },
+ "fdWebsite": {
+  "message": "Web sitesi"
+ },
+ "fdBirthDate": {
+  "message": "Doğum tarihi"
+ },
+ "fdFact": {
+  "message": "Başka bir bilgi"
+ },
+ "fdFactLabel": {
+  "message": "Bu nedir (ör. ayakkabı numarası)"
+ },
+ "fdAdd": {
+  "message": "Ekle"
+ },
+ "fdDelete": {
+  "message": "Sil"
+ },
+ "fdDeleteAll": {
+  "message": "Tümünü sil"
+ },
+ "fdDeleteAllAsk": {
+  "message": "Tüm bilgileriniz bu cihazdan (eşzamanlanıyorsa iCloud'dan da) silinsin mi?"
+ },
+ "fdRefused": {
+  "message": "Parolaları, kartları, banka bilgilerini, belge numaralarını, kodları ve sağlık verilerini saklamam."
+ },
+ "fdICloudAsk": {
+  "message": "Bilgileriniz cihazlarınız arasında iCloud ile eşzamanlansın mı?"
+ },
+ "fdICloudHint": {
+  "message": "Bizim erişemediğimiz kendi iCloud hesabınız üzerinden. Bu olmadan bilgiler bu cihazda kalır."
+ },
+ "fdICloud": {
+  "message": "iCloud ile eşzamanla"
+ },
+ "agentPlanTitle": {
+  "message": "Şunları yapacağım"
+ },
+ "agentPlanReading": {
+  "message": "Sayfayı okuyorum…"
+ },
+ "agentPlanAllowed": {
+  "message": "Sormadan yapacağım"
+ },
+ "agentPlanSelf": {
+  "message": "Bunları siz yapacaksınız"
+ },
+ "agentPlanOwn": {
+  "message": "Başka…"
+ },
+ "agentPlanNow": {
+  "message": "Şimdi"
+ },
+ "agentPermPersonal": {
+  "message": "İstekteki bilgilerinizi yazmak: {0}"
+ },
+ "agentPermFill": {
+  "message": "“Bilgilerim” ile doldurmak: {0}"
+ },
+ "agentLineFilled": {
+  "message": "Dolduruldu: {0}"
+ },
+ "agentLinePressed": {
+  "message": "Dokunuldu: {0}"
+ },
+ "agentPermConsent": {
+  "message": "{0} sitesinin koşullarını kabul kutusunu işaretlemek"
+ },
+ "agentPermReminder": {
+  "message": "Anımsatıcılar'a eklemek: “{0}”"
+ },
+ "agentPermReminderDone": {
+  "message": "Anımsatıcılar'da tamamlandı olarak işaretlemek: “{0}”"
+ },
+ "agentPermEvent": {
+  "message": "Takvim'e eklemek: “{0}”"
+ },
+ "agentPlanSelfPay": {
+  "message": "Ödemek veya siparişi vermek: “{0}”"
+ },
+ "agentPlanSelfSend": {
+  "message": "Göndermek: “{0}”"
+ },
+ "agentPlanSelfAuth": {
+  "message": "Siteye giriş yapmak"
+ },
+ "agentPriceChanged": {
+  "message": "Buradaki fiyat daha önce görünenden farklı ({0}). Devam etmeden önce kontrol edin."
+ },
+ "agentMarkPaused": {
+  "message": "Duraklatıldı"
+ },
+ "agentMarkStopped": {
+  "message": "Durduruldu"
+ },
+ "agentMarkFailed": {
+  "message": "Olmadı"
+ },
+ "agentShowSteps": {
+  "message": "Adımlar ve sonuç"
+ },
+ "agentModeOff": {
+  "message": "“Yap”ı kapat"
+ },
+ "noteHintTouchDo": {
+  "message": "Not için düğmeyi yukarı, “Yap” için aşağı kaydırın"
+ },
+ "agentNoticeNeeds": {
+  "message": "Sizi bekliyor"
+ },
+ "agentGoToTab": {
+  "message": "Sekmeye git"
+ },
+ "agentNotifPaused": {
+  "message": "Görev duraklatıldı — bitirmek için Safari'yi açın: {0}"
+ },
+ "agentNotifDone": {
+  "message": "Bitti: {0}"
+ },
+ "agentNotifNeeds": {
+  "message": "Sizi bekliyor: {0}"
+ },
+ "agentNotifNotBooked": {
+  "message": "Rezerve edilmedi: {0}"
+ },
+ "agentPlanStepYours": {
+  "message": "“{0}” — siz basacaksınız"
+ },
+ "agentPlanAnswerFirst": {
+  "message": "Önce şunu yanıtlayın: “{0}”"
+ },
+ "agentErrorNoReply": {
+  "message": "Uzantı yanıt vermedi. Yeniden deneyin; tekrarlarsa sayfayı yenileyin."
+ },
+ "agentStartFailed": {
+  "message": "Görev başlatılamadı ({0}). Yeniden deneyin."
+ },
+ "agentPlanRemember": {
+  "message": "“Bilgilerim”e kaydet"
+ },
+ "agentPlanFromSaved": {
+  "message": "“Bilgilerim”den — orada güncelle"
+ },
+ "agentMarkUnfinished": {
+  "message": "Bitmedi"
+ },
+ "agentNothingBooked": {
+  "message": "Hiçbir şey rezerve edilmedi."
+ },
+ "agentLastDone": {
+  "message": "Yapılan son adım: {0}"
+ },
+ "agentStuck": {
+  "message": "Sayfa değişmeyi bıraktı, burada durdum. Yapabildiklerim yukarıda."
+ },
+ "agentNeedSignIn": {
+  "message": "siteye giriş"
+ },
+ "agentNeedPay": {
+  "message": "sitede ödeme"
+ },
+ "agentNeedAnswer": {
+  "message": "bir yanıt"
+ },
+ "agentAutoLine": {
+  "message": "Soru yok — Bilgilerim ve kurallarından: {0}"
+ },
+ "agentLineCalendar": {
+  "message": "Takvime eklendi: {0}"
+ },
+ "agentRulesTitle": {
+  "message": "Rezervasyon kuralları"
+ },
+ "agentRulesHint": {
+  "message": "Ajan bunlara göre sormadan rezervasyon yapar. Ödeme, kodlar ve giriş her zaman sende."
+ },
+ "agentRuleWindow": {
+  "message": "Söylediğim saat kayabilir, dk"
+ },
+ "agentRuleDays": {
+  "message": "O gün doluysa: en fazla … gün sonra"
+ },
+ "agentRuleParty": {
+  "message": "Söylemezsem kişi sayısı (misafir, bilet, koltuk)"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "Herhangi bir uzman (kuaför, doktor, öğretmen, antrenör, rehber…)"
+ },
+ "agentRuleUsual": {
+  "message": "O sitede geçen sefer seçtiğim hizmet"
+ },
+ "agentRuleCalendar": {
+  "message": "Yalnızca Takvimimde boş saatler"
+ },
+ "agentRuleAuto": {
+  "message": "Her şey biliniyor ve ücretli bir şey yoksa plansız rezervasyon yap"
+ },
+ "agentPlanHow": {
+  "message": "Yeri ben seçerim: {0}+ puanlı, uygun, en yakın"
+ },
+ "agentPlanHowCal": {
+  "message": "Takviminde boş bir saat, oraya da eklerim"
+ },
+ "agentRuleVenue": {
+  "message": "Bir yer söylemezsem yeri kendim seç"
+ },
+ "agentRuleRating": {
+  "message": "Yer puanı en az"
+ },
+ "accessGroup": {
+  "message": "Takvim ve Anımsatıcılar"
+ },
+ "accessHint": {
+  "message": "Ajan takviminizdeki boş saatleri seçer ve rezervasyonları takvime ekleyebilir. Takviminizin içeriği cihazdan asla çıkmaz."
+ },
+ "accessCalendar": {
+  "message": "Takvim"
+ },
+ "accessReminders": {
+  "message": "Anımsatıcılar"
+ },
+ "accessYes": {
+  "message": "Erişim var"
+ },
+ "accessNo": {
+  "message": "Erişim yok"
+ },
+ "accessAllow": {
+  "message": "İzin ver"
+ },
+ "accessSettingsIos": {
+  "message": "iOS Ayarları'nı aç"
+ },
+ "accessSettingsMac": {
+  "message": "Sistem Ayarları'nı aç"
+ },
+ "agentRuleCalNeeds": {
+  "message": "Takvim erişimi gerekiyor"
+ },
+ "agentPlanCalAsk": {
+  "message": "Takvim dikkate alınsın mı?"
+ },
+ "agentCalNotChecked": {
+  "message": "Takvim kontrol edilmedi: erişim yok"
+ },
+ "agentPlanFromChat": {
+  "message": "Sohbetten: {0}"
+ },
+ "sendMenuNote": {
+  "message": "Not"
+ },
+ "noteHintPointerDo": {
+  "message": "Düğmenin üzerinde kaydırın: not için yukarı, “Yap” için aşağı. Ya da sağ tıklayın"
+ },
+ "setSecGeneral": {
+  "message": "Genel"
+ },
+ "setSecButton": {
+  "message": "Kayan düğme ve seçim"
+ },
+ "setSecWriting": {
+  "message": "Hızlı ekleme ve yazma"
+ },
+ "setSecAgent": {
+  "message": "“Yap”: sayfalardaki görevler"
+ },
+ "setSecCookies": {
+  "message": "Çerez pencereleri"
+ },
+ "setSecChats": {
+  "message": "Sohbetler ve alanlar"
+ },
+ "setSecData": {
+  "message": "Gizlilik ve veriler"
+ },
+ "setSecPlan": {
+  "message": "Plan ve hesap"
+ },
+ "setSecAbout": {
+  "message": "Hakkında"
+ },
+ "fdICloudLocal": {
+  "message": "Şimdilik yalnızca bu cihazda"
+ },
+ "fdICloudSyncing": {
+  "message": "Eşzamanlanıyor…"
+ },
+ "fdICloudSynced": {
+  "message": "Eşzamanlandı · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "az önce"
+ },
+ "fdICloudNoAccount": {
+  "message": "Eşzamanlanmadı: bu cihazda iCloud’a giriş yapın"
+ },
+ "fdICloudFailed": {
+  "message": "Eşzamanlanmadı: iCloud yanıt vermedi. Bir dahaki sefere yeniden denenecek."
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "Hizmeti veren kişi — kuaför, doktor, öğretmen, antrenör, eğitmen ya da rehber — kim müsaitse. Kapalı: kimi istediğinizi sorarım."
+ },
+ "errLink": {
+  "message": "ContextFlow bu sayfayla bağlantısını kaybetti (başka bir uygulama açıkken iOS onu kapatmış olabilir). Yeniden deneyin ya da tekrar olursa sayfayı yenileyin."
+ },
+ "reloadPage": {
+  "message": "Sayfayı yenile"
+ },
+ "agentPlanVenueQ": {
+  "message": "Nerede rezervasyon (kurallarınıza göre seçildi)"
+ },
+ "agentPlanEmailQ": {
+  "message": "Rezervasyon için e-postanız (site isteyecek)"
+ },
+ "agentPlanPhoneQ": {
+  "message": "Rezervasyon için telefonunuz (site isteyecek)"
+ },
+ "agentLinePopup": {
+  "message": "Sayfanın üstündeki pencere kapatıldı: «{0}»"
+ },
+ "agentPlanSpecialistQ": {
+  "message": "Hangi uzman?"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "Herhangi bir uzman"
+ },
+ "agentPlanServiceQ": {
+  "message": "Hangi hizmet?"
+ },
+ "agentPlanSpecialistOnPage": {
+  "message": "İşletmenin sayfasında seçerim"
+ },
+ "agentPlanVenueAuto": {
+  "message": "Benim için seç: {0}+ puan, en yakın"
+ },
+ "agentPlanLastTime": {
+  "message": "geçen sefer"
+ },
+ "agentPlanPlaceQ": {
+  "message": "Nereden randevu alalım?"
+ },
+ "agentBubbleCheck": {
+  "message": "Devam etmeden önce kontrol edin: {0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "Sitede oturum açın, bekliyorum"
+ },
+ "agentBubblePlan": {
+  "message": "Plan sizi bekliyor"
+ },
+ "agentBubbleFill": {
+  "message": "Forma ne yazılacağını kontrol edin"
+ },
+ "agentBubbleDone": {
+  "message": "Bitti: {0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "Tamamlanmadı: {0}"
+ },
+ "agentBubbleOpen": {
+  "message": "Aç"
+ },
+ "agentBubbleOther": {
+  "message": "Başka…"
+ },
+ "agentBubbleShow": {
+  "message": "Göster"
+ },
+ "agentRuleFreeCancel": {
+  "message": "Yalnızca ücretsiz iptalle rezervasyon yap"
+ },
+ "agentRuleVenueHint": {
+  "message": "Yer; restoran, salon, klinik, otel ya da daire, kiralama noktası, spor salonu veya şubedir. Kimin ya da nerenin önemli olduğu yerde (doktor, seyahat için otel) sorarım; değilse bu kurallarla seçerim."
+ },
+ "agentPlanPlaceQAny": {
+  "message": "Nerede rezervasyon yapalım?"
+ },
+ "agentRecapTitle": {
+  "message": "Rezervasyondan önce kontrol edin"
+ },
+ "agentRecapWhat": {
+  "message": "Rezervasyon: {0}"
+ },
+ "agentRecapAsked": {
+  "message": "İstediğiniz: {0}"
+ },
+ "agentRecapOtherPlace": {
+  "message": "Başka yer: ilkinde uygun saat yoktu"
+ },
+ "agentRecapTerms": {
+  "message": "Sayfaya göre iptal: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "İpuçları"
  },
@@ -3220,6 +3916,15 @@
  },
  "tip_da5f7b74b1": {
   "message": "Daha derine inin"
+ },
+ "tip_8f191972e8": {
+  "message": "Sizin yerinize, sayfanın içinde rezervasyon yapar"
+ },
+ "tip_363625547a": {
+  "message": "Masa ya da konaklama ayırtmanız, doktordan ya da kuaförden randevu almanız mı gerekiyor? Rezervasyon sitesinde paneli açın, alanın yanındaki + düğmesine dokunun, “Yap” seçeneğini seçin ve ne istediğinizi yazın: “yarın saat 19.00'da iki kişilik masa”. ContextFlow saati seçer, adınızı ve iletişim bilgilerinizi “Bilgilerim” bölümünden doldurur ve rezervasyonu yapar. Paneli kapatabilirsiniz: bir soru ya da sonuç ✦ düğmesinin yanında görünür. Ödeme ve oturum açma sizde kalır, “Durdur” düğmesi ise her zaman elinizin altındadır. Pro veya Ultra ile."
+ },
+ "tip_232e049197": {
+  "message": "Masa ya da konaklama ayırtmanız, doktordan ya da kuaförden randevu almanız mı gerekiyor? Rezervasyon sitesinde paneli açın, alanın yanındaki + düğmesine tıklayın, “Yap” seçeneğini seçin ve ne istediğinizi yazın: “yarın saat 19.00'da iki kişilik masa”. ContextFlow saati seçer, adınızı ve iletişim bilgilerinizi “Bilgilerim” bölümünden doldurur ve rezervasyonu yapar. Paneli kapatabilirsiniz: bir soru ya da sonuç ✦ düğmesinin yanında görünür. Ödeme ve oturum açma sizde kalır, “Durdur” düğmesi ise her zaman elinizin altındadır. Pro veya Ultra ile."
  },
  "tip_6ba198cbff": {
   "message": "Kendi notlarınız"
@@ -3463,6 +4168,15 @@
  },
  "tip_6cc366173d": {
   "message": "Bir sitede ✦ düğmesine ihtiyacınız yok mu? O sitede gizleyin ya da uzantı ayarlarından her yerde kapatın. ContextFlow yine de Safari'nin uzantılar menüsünden açılır."
+ },
+ "tip_92470c1789": {
+  "message": "Çerez pencereleri kendiliğinden kapanır"
+ },
+ "tip_8534da4bd8": {
+  "message": "Çerez pencerelerine dokunup durmaktan bıktınız mı? ContextFlow bunları sizin yerinize “yalnızca gerekli” ile yanıtlar; ilk birkaç seferde ✦ düğmesinin yanındaki kısa bir satır bunu söyler. Bir sitede yeniden görmek mi istiyorsunuz? Uzantı ayarlarındaki “Çerez pencereleri” bölümünden o site için kapatın."
+ },
+ "tip_fc1a61bcfa": {
+  "message": "Çerez pencerelerine tıklayıp durmaktan bıktınız mı? ContextFlow bunları sizin yerinize “yalnızca gerekli” ile yanıtlar; ilk birkaç seferde ✦ düğmesinin yanındaki kısa bir satır bunu söyler. Bir sitede yeniden görmek mi istiyorsunuz? Uzantı ayarlarındaki “Çerez pencereleri” bölümünden o site için kapatın."
  },
  "tip_cc54dd5946": {
   "message": "✦ düğmesinin yanındaki ipuçları"

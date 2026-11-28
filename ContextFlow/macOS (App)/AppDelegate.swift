@@ -25,6 +25,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         UNUserNotificationCenter.current().delegate = self
         // Page watch: this device's watches in Watching, and the notification question when they need it.
         WatchOpen.start()
+        AgentApp.start()
         // The Tips clips for the Safari panel, into the App Group once per build (TipClipShare), as on iOS. Until
         // build 95 this sat in the Debug-only launch below, so a Mac from TestFlight or the App Store had none.
         DispatchQueue.global(qos: .utility).async { TipClipShare.publish() }
@@ -45,6 +46,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             await MainActor.run {
                 ChatAI.reportOrganize("use", ["f": "notif", "a": "tap", "what": "similar", "s": "notif"])
                 guard let page = SimilarAway.opened(info) else { return }
+                if let safari = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.Safari") {
+                    NSWorkspace.shared.open([page], withApplicationAt: safari, configuration: NSWorkspace.OpenConfiguration())
+                } else {
+                    _ = NSWorkspace.shared.open(page)
+                }
+            }
+            return
+        }
+        // A deferred agent task (2.7.1): its page in Safari with #cf-task=<id> (AgentTasks).
+        if info["agentTask"] is String {
+            await MainActor.run {
+                ChatAI.reportOrganize("use", ["f": "notif", "a": "tap", "what": "agent", "s": "notif"])
+                guard let page = AgentTasks.opened(info) else { return }
                 if let safari = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.Safari") {
                     NSWorkspace.shared.open([page], withApplicationAt: safari, configuration: NSWorkspace.OpenConfiguration())
                 } else {

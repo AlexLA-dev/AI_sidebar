@@ -66,7 +66,7 @@
   "message": "Следить за ценой"
  },
  "plusButton": {
-  "message": "Ещё: заметка, снимок, весь чат"
+  "message": "Ещё: заметка, сделать, снимок, весь чат"
  },
  "hintShow": {
   "message": "Показать"
@@ -2825,6 +2825,27 @@
  "setPageHintsHint": {
   "message": "В первые дни подсказывают, что можно сделать на странице."
  },
+ "setCookies": {
+  "message": "Закрывать окна cookie"
+ },
+ "setCookiesHint": {
+  "message": "Выбирает «только необходимые»."
+ },
+ "setCookiesAccept": {
+  "message": "Если отказаться нельзя — принимать"
+ },
+ "cookiesOffOnSite": {
+  "message": "Не закрывать на этом сайте"
+ },
+ "cookiesOnOnSite": {
+  "message": "Закрывать на этом сайте"
+ },
+ "cookieClosedLine": {
+  "message": "Закрыл окно cookie: только необходимые"
+ },
+ "cookieAcceptedLine": {
+  "message": "Принял cookie: другого выбора не было"
+ },
  "phSimilarBodyUpBoth": {
   "message": "Это в Pro и Ultra: в Pro — быстрый поиск, в Ultra — полный. Тот же товар дешевле и похожие варианты из других магазинов. Нажмите подсвеченную кнопку."
  },
@@ -3137,6 +3158,681 @@
  "writeInserted": {
   "message": "Вставлено"
  },
+ "agentMode": {
+  "message": "Сделать"
+ },
+ "agentModeHint": {
+  "message": "Пусть ContextFlow сделает это на странице"
+ },
+ "placeholderAgent": {
+  "message": "Что сделать на этой странице?"
+ },
+ "agentWorking": {
+  "message": "Работаю · шаг {0}"
+ },
+ "agentConfirmTitle": {
+  "message": "Сделать?"
+ },
+ "agentYes": {
+  "message": "Да"
+ },
+ "agentNo": {
+  "message": "Нет"
+ },
+ "agentNoUndo": {
+  "message": "Это нельзя будет отменить."
+ },
+ "agentOffRequest": {
+  "message": "Похоже, вы об этом не просили: {0}"
+ },
+ "agentStepClick": {
+  "message": "Нажать «{0}»"
+ },
+ "agentRecapAgain": {
+  "message": "Спрашиваю снова: страница не приняла первую попытку из‑за поля «{0}»."
+ },
+ "agentRecapAgainTo": {
+  "message": "Спрашиваю снова: страница не приняла первую попытку из‑за поля «{0}»; выбрано «{1}»."
+ },
+ "agentStepServiceOther": {
+  "message": "На странице нет «{0}». Выбрать вместо неё «{1}»?"
+ },
+ "agentRecapService": {
+  "message": "Услуга: {0}"
+ },
+ "agentRecapServiceOther": {
+  "message": "Не «{0}», о которой просили: эту вы выбрали сами."
+ },
+ "agentStepPricedChoice": {
+  "message": "Выбрать «{0}» — это выбор с ценой, а не оплата"
+ },
+ "agentStepType": {
+  "message": "Ввести «{0}» в поле «{1}»"
+ },
+ "agentStepSelect": {
+  "message": "Выбрать «{0}» в «{1}»"
+ },
+ "agentStepGo": {
+  "message": "Перейти на {0}"
+ },
+ "agentFillTitle": {
+  "message": "Заполнить из «Моих данных»?"
+ },
+ "agentFillButton": {
+  "message": "Заполнить"
+ },
+ "agentFillSkip": {
+  "message": "Не надо"
+ },
+ "agentSelfTitle": {
+  "message": "Этот шаг — ваш"
+ },
+ "agentSelfPay": {
+  "message": "Оплатите или оформите заказ сами: нажмите «{0}», когда всё проверите."
+ },
+ "agentSelfSend": {
+  "message": "Отправьте сами: нажмите «{0}», когда прочитаете."
+ },
+ "agentSelfAuth": {
+  "message": "Войдите сами (Safari может подставить пароль). Я подожду."
+ },
+ "agentSelfConsent": {
+  "message": "Поставьте галочку «{0}» сами, если согласны."
+ },
+ "agentSelfRate": {
+  "message": "Отзывы, оценки и голоса — только ваши."
+ },
+ "agentSelfOther": {
+  "message": "Сделайте это сами: «{0}»."
+ },
+ "agentSelfNewTab": {
+  "message": "Нажмите «{0}» сами: страница открывает это в новой вкладке, и сделать это может только ваше нажатие. Дальше я продолжу там."
+ },
+ "agentSelfFile": {
+  "message": "Выберите файл сами."
+ },
+ "agentSelfDone": {
+  "message": "Готово"
+ },
+ "agentSelfNotNow": {
+  "message": "Не сейчас"
+ },
+ "agentDoneTitle": {
+  "message": "Готово"
+ },
+ "agentAskedTitle": {
+  "message": "Нужен ваш ответ"
+ },
+ "agentStopped": {
+  "message": "Остановлено."
+ },
+ "agentUndo": {
+  "message": "Отменить"
+ },
+ "agentUndone": {
+  "message": "Вернул всё, что можно вернуть."
+ },
+ "agentLimit": {
+  "message": "Дела агента на сегодня закончились ({0} в день). Завтра будут снова."
+ },
+ "agentProOnly": {
+  "message": "Агент есть в Pro и Ultra."
+ },
+ "agentError": {
+  "message": "Что-то пошло не так. Попробуйте ещё раз."
+ },
+ "agentErrorPage": {
+  "message": "Страница не отвечает. Обновите её и попробуйте снова."
+ },
+ "agentSteps": {
+  "message": "Шагов вышло слишком много, я остановился здесь."
+ },
+ "agentBlockedSite": {
+  "message": "На сайтах банков, платёжных сервисов, госпорталов и подобных ContextFlow не действует за вас. Но может отвечать на вопросы о странице."
+ },
+ "amazonAgent": {
+  "message": "На Amazon ContextFlow может только отвечать на вопросы о странице: Amazon не разрешает автоматически действовать на своём сайте за вас."
+ },
+ "amazonSimilar": {
+  "message": "Не проверено: Amazon не даёт нашему серверу открывать свои страницы."
+ },
+ "agentStart": {
+  "message": "Начать"
+ },
+ "agentDeferredTitle": {
+  "message": "Отложенное дело"
+ },
+ "agentDontAskHere": {
+  "message": "На этом сайте начинать сразу"
+ },
+ "agentLater": {
+  "message": "Позже"
+ },
+ "agentLaterAt": {
+  "message": "В нужное время"
+ },
+ "agentLaterWatch": {
+  "message": "Когда сработает слежение за этой страницей"
+ },
+ "agentLaterSet": {
+  "message": "Готово"
+ },
+ "agentLaterSaved": {
+  "message": "В {0} придёт уведомление. Нажмёте — сделаю это на странице вместе с вами."
+ },
+ "agentLaterSavedWatch": {
+  "message": "Когда сработает слежение, придёт уведомление. Нажмёте — сделаю вместе с вами."
+ },
+ "agentLaterNotifOff": {
+  "message": "Уведомления для ContextFlow выключены. Включите их в Настройках → Уведомления → ContextFlow."
+ },
+ "agentLaterNotifyWhy": {
+  "message": "Включите уведомления, чтобы я мог напомнить об этом деле."
+ },
+ "agentLaterPast": {
+  "message": "Это время уже прошло. Выберите время позже."
+ },
+ "agentYouMark": {
+  "message": "Вы"
+ },
+ "agentHint": {
+  "message": "Сделать на этой странице?"
+ },
+ "agentWaitingStep": {
+  "message": "Шаг {0} · ждёт вас"
+ },
+ "agentStepReminderAdd": {
+  "message": "Добавить напоминание «{0}» в список «{1}»"
+ },
+ "agentStepReminderAddDue": {
+  "message": "Добавить напоминание «{0}» в список «{1}» на {2}"
+ },
+ "agentStepReminderDone": {
+  "message": "Отметить «{0}» выполненным в Напоминаниях"
+ },
+ "agentStepEventAdd": {
+  "message": "Добавить «{0}» в календарь: {1}"
+ },
+ "agentSelfAccessReminders": {
+  "message": "Разрешите ContextFlow пользоваться Напоминаниями: откройте приложение, нажмите «Разрешить», вернитесь сюда и нажмите «Готово»."
+ },
+ "agentSelfAccessCalendar": {
+  "message": "Разрешите ContextFlow пользоваться Календарём: откройте приложение, нажмите «Разрешить полный доступ», вернитесь сюда и нажмите «Готово»."
+ },
+ "agentOpenApp": {
+  "message": "Открыть ContextFlow"
+ },
+ "agentStepReminderAddDefault": {
+  "message": "Добавить напоминание «{0}» в список по умолчанию"
+ },
+ "agentStepReminderAddDefaultDue": {
+  "message": "Добавить напоминание «{0}» в список по умолчанию на {1}"
+ },
+ "agentLaterLimit": {
+  "message": "Уже ждут {0} дел — это предел вашего тарифа."
+ },
+ "agentNotifTitle": {
+  "message": "Дело на {0}"
+ },
+ "agentNotifBody": {
+  "message": "Нажмите — сделаю вместе с вами: {0}"
+ },
+ "agentHelpLink": {
+  "message": "Чего агент не сделает"
+ },
+ "agentHelp": {
+  "message": "Агент делает дело на открытой странице: нажимает, печатает, выбирает. Перед отправкой формы он спрашивает «Сделать?», а покупку, оплату, письма и вход оставляет вам. Пароли, карты и номера документов он не видит и не вводит. С капчей, выбором файла и некоторыми необычными кнопками он не справится — тогда попросит сделать этот шаг вас. Отложенное дело приходит уведомлением: нажмёте — агент продолжит вместе с вами."
+ },
+ "setAgentAuto": {
+  "message": "Отложенные дела начинаются сразу на сайтах"
+ },
+ "setAgentAutoHint": {
+  "message": "Там дело начинается сразу после нажатия на уведомление, без «Начать». «Сделать?» и ваши шаги всё равно спрашивают."
+ },
+ "fdTitle": {
+  "message": "Мои данные"
+ },
+ "fdHint": {
+  "message": "Для заполнения форм на сайтах. Хранятся на устройстве; агент подставляет их только после вашего согласия, ИИ их не видит."
+ },
+ "fdNameFull": {
+  "message": "Имя и фамилия"
+ },
+ "fdNameGiven": {
+  "message": "Имя"
+ },
+ "fdNameFamily": {
+  "message": "Фамилия"
+ },
+ "fdNameLatin": {
+  "message": "Имя латиницей"
+ },
+ "fdNamePhonetic": {
+  "message": "Произношение имени"
+ },
+ "fdEmail": {
+  "message": "Электронная почта"
+ },
+ "fdPhone": {
+  "message": "Телефон"
+ },
+ "fdAddressLine": {
+  "message": "Улица и дом"
+ },
+ "fdAddressApartment": {
+  "message": "Квартира, этаж"
+ },
+ "fdAddressCity": {
+  "message": "Город"
+ },
+ "fdAddressRegion": {
+  "message": "Регион"
+ },
+ "fdAddressPostal": {
+  "message": "Индекс"
+ },
+ "fdAddressCountry": {
+  "message": "Страна"
+ },
+ "fdCompany": {
+  "message": "Компания"
+ },
+ "fdJobTitle": {
+  "message": "Должность"
+ },
+ "fdWebsite": {
+  "message": "Сайт"
+ },
+ "fdBirthDate": {
+  "message": "Дата рождения"
+ },
+ "fdFact": {
+  "message": "Другое"
+ },
+ "fdFactLabel": {
+  "message": "Что это (например, размер обуви)"
+ },
+ "fdAdd": {
+  "message": "Добавить"
+ },
+ "fdDelete": {
+  "message": "Удалить"
+ },
+ "fdDeleteAll": {
+  "message": "Удалить все"
+ },
+ "fdDeleteAllAsk": {
+  "message": "Удалить все ваши данные с этого устройства (и из iCloud, если они синхронизируются)?"
+ },
+ "fdRefused": {
+  "message": "Пароли, карты, банковские реквизиты, номера документов, коды и данные о здоровье я не храню."
+ },
+ "fdICloudAsk": {
+  "message": "Синхронизировать ваши данные на ваших устройствах через iCloud?"
+ },
+ "fdICloudHint": {
+  "message": "Через ваш личный iCloud, к которому у нас нет доступа. Без этого они остаются на этом устройстве."
+ },
+ "fdICloud": {
+  "message": "Синхронизировать через iCloud"
+ },
+ "agentPlanTitle": {
+  "message": "Вот что сделаю"
+ },
+ "agentPlanReading": {
+  "message": "Читаю страницу…"
+ },
+ "agentPlanAllowed": {
+  "message": "Сделаю без вопроса"
+ },
+ "agentPlanSelf": {
+  "message": "Это сделаете вы"
+ },
+ "agentPlanOwn": {
+  "message": "Своё…"
+ },
+ "agentPlanNow": {
+  "message": "Сейчас"
+ },
+ "agentPermPersonal": {
+  "message": "Вписать ваши данные из просьбы: {0}"
+ },
+ "agentPermFill": {
+  "message": "Заполнить из «Моих данных»: {0}"
+ },
+ "agentLineFilled": {
+  "message": "Заполнено: {0}"
+ },
+ "agentLinePressed": {
+  "message": "Нажато: {0}"
+ },
+ "agentPermConsent": {
+  "message": "Отметить согласие с условиями сайта {0}"
+ },
+ "agentPermReminder": {
+  "message": "Добавить в Напоминания: «{0}»"
+ },
+ "agentPermReminderDone": {
+  "message": "Отметить выполненным в Напоминаниях: «{0}»"
+ },
+ "agentPermEvent": {
+  "message": "Добавить в Календарь: «{0}»"
+ },
+ "agentPlanSelfPay": {
+  "message": "Оплатить или оформить заказ: «{0}»"
+ },
+ "agentPlanSelfSend": {
+  "message": "Отправить: «{0}»"
+ },
+ "agentPlanSelfAuth": {
+  "message": "Войти на сайт"
+ },
+ "agentPriceChanged": {
+  "message": "Цена здесь не та, что была раньше ({0}). Проверьте её, прежде чем продолжить."
+ },
+ "agentMarkPaused": {
+  "message": "На паузе"
+ },
+ "agentMarkStopped": {
+  "message": "Остановлено"
+ },
+ "agentMarkFailed": {
+  "message": "Не вышло"
+ },
+ "agentShowSteps": {
+  "message": "Шаги и итог"
+ },
+ "agentModeOff": {
+  "message": "Выключить «Сделать»"
+ },
+ "noteHintTouchDo": {
+  "message": "Смахните кнопку вверх — заметка, вниз — «Сделать»"
+ },
+ "agentNoticeNeeds": {
+  "message": "Нужны вы"
+ },
+ "agentGoToTab": {
+  "message": "Перейти к вкладке"
+ },
+ "agentNotifPaused": {
+  "message": "Дело на паузе — откройте Safari, чтобы закончить: {0}"
+ },
+ "agentNotifDone": {
+  "message": "Готово: {0}"
+ },
+ "agentNotifNeeds": {
+  "message": "Нужны вы: {0}"
+ },
+ "agentNotifNotBooked": {
+  "message": "Не забронировано: {0}"
+ },
+ "agentPlanStepYours": {
+  "message": "«{0}» — нажмёте вы"
+ },
+ "agentPlanAnswerFirst": {
+  "message": "Сначала ответьте: «{0}»"
+ },
+ "agentErrorNoReply": {
+  "message": "Расширение не ответило. Попробуйте ещё раз, а если повторится — обновите страницу."
+ },
+ "agentStartFailed": {
+  "message": "Не удалось начать дело ({0}). Попробуйте ещё раз."
+ },
+ "agentPlanRemember": {
+  "message": "Запомнить в «Моих данных»"
+ },
+ "agentPlanFromSaved": {
+  "message": "Из «Моих данных» — обновлять там"
+ },
+ "agentMarkUnfinished": {
+  "message": "Не закончено"
+ },
+ "agentNothingBooked": {
+  "message": "Ничего не забронировано."
+ },
+ "agentLastDone": {
+  "message": "Последний сделанный шаг: {0}"
+ },
+ "agentStuck": {
+  "message": "Страница перестала меняться — я остановился. Что успел — выше."
+ },
+ "agentNeedSignIn": {
+  "message": "вход на сайт"
+ },
+ "agentNeedPay": {
+  "message": "оплата на сайте"
+ },
+ "agentNeedAnswer": {
+  "message": "ваш ответ"
+ },
+ "agentAutoLine": {
+  "message": "Без вопросов — из «Моих данных» и правил: {0}"
+ },
+ "agentLineCalendar": {
+  "message": "Добавлено в Календарь: {0}"
+ },
+ "agentRulesTitle": {
+  "message": "Правила поручений"
+ },
+ "agentRulesHint": {
+  "message": "По ним агент бронирует без вопросов. Оплата, коды и вход — всегда ваши."
+ },
+ "agentRuleWindow": {
+  "message": "Названное время можно сдвинуть, мин"
+ },
+ "agentRuleDays": {
+  "message": "Если день занят — позже, до … дней"
+ },
+ "agentRuleParty": {
+  "message": "Сколько человек, если не сказал (гости, билеты, места)"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "Любой специалист (мастер, врач, репетитор, тренер, гид…)"
+ },
+ "agentRuleUsual": {
+  "message": "Услуга — как в прошлый раз на этом сайте"
+ },
+ "agentRuleCalendar": {
+  "message": "Только время, свободное в Календаре"
+ },
+ "agentRuleAuto": {
+  "message": "Бронировать без плана, если всё известно и ничего не платно"
+ },
+ "agentPlanHow": {
+  "message": "Место выберу сам: рейтинг от {0}, подходящее, ближайшее"
+ },
+ "agentPlanHowCal": {
+  "message": "время, свободное в Календаре, и добавлю туда"
+ },
+ "agentRuleVenue": {
+  "message": "Выбирать место самому, если я его не назвал"
+ },
+ "agentRuleRating": {
+  "message": "Рейтинг места от"
+ },
+ "accessGroup": {
+  "message": "Календарь и Напоминания"
+ },
+ "accessHint": {
+  "message": "Агент выбирает время, свободное в календаре, и может добавлять брони. Содержимое календаря не покидает устройство."
+ },
+ "accessCalendar": {
+  "message": "Календарь"
+ },
+ "accessReminders": {
+  "message": "Напоминания"
+ },
+ "accessYes": {
+  "message": "Доступ есть"
+ },
+ "accessNo": {
+  "message": "Нет доступа"
+ },
+ "accessAllow": {
+  "message": "Разрешить"
+ },
+ "accessSettingsIos": {
+  "message": "Открыть настройки iOS"
+ },
+ "accessSettingsMac": {
+  "message": "Открыть Системные настройки"
+ },
+ "agentRuleCalNeeds": {
+  "message": "Нужен доступ к календарю"
+ },
+ "agentPlanCalAsk": {
+  "message": "Учитывать календарь?"
+ },
+ "agentCalNotChecked": {
+  "message": "Календарь не проверял: нет доступа"
+ },
+ "agentPlanFromChat": {
+  "message": "Из чата: {0}"
+ },
+ "sendMenuNote": {
+  "message": "Заметка"
+ },
+ "noteHintPointerDo": {
+  "message": "Прокрутите над кнопкой: вверх — заметка, вниз — «Сделать». Или правый клик по ней"
+ },
+ "setSecGeneral": {
+  "message": "Основное"
+ },
+ "setSecButton": {
+  "message": "Плавающая кнопка и выделение"
+ },
+ "setSecWriting": {
+  "message": "Вставка и письмо"
+ },
+ "setSecAgent": {
+  "message": "«Сделать»: задачи на страницах"
+ },
+ "setSecCookies": {
+  "message": "Окна cookie"
+ },
+ "setSecChats": {
+  "message": "Чаты и пространства"
+ },
+ "setSecData": {
+  "message": "Приватность и данные"
+ },
+ "setSecPlan": {
+  "message": "Подписка и аккаунт"
+ },
+ "setSecAbout": {
+  "message": "О приложении"
+ },
+ "fdICloudLocal": {
+  "message": "Пока только на этом устройстве"
+ },
+ "fdICloudSyncing": {
+  "message": "Синхронизирую…"
+ },
+ "fdICloudSynced": {
+  "message": "Синхронизировано · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "только что"
+ },
+ "fdICloudNoAccount": {
+  "message": "Не синхронизировано: войдите в iCloud на этом устройстве"
+ },
+ "fdICloudFailed": {
+  "message": "Не синхронизировано: iCloud не ответил. В следующий раз попробую снова."
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "Тот, кто оказывает услугу, — мастер, врач, репетитор, тренер, инструктор, гид — кто свободен. Выключено — спрошу, к кому."
+ },
+ "errLink": {
+  "message": "ContextFlow потерял связь с этой страницей (iOS мог выгрузить его, пока было открыто другое приложение). Повторите или, если не поможет, обновите страницу."
+ },
+ "reloadPage": {
+  "message": "Обновить страницу"
+ },
+ "agentPlanVenueQ": {
+  "message": "Где бронировать (выбрано по вашим правилам)"
+ },
+ "agentPlanEmailQ": {
+  "message": "Ваш e-mail для брони (сайт его попросит)"
+ },
+ "agentPlanPhoneQ": {
+  "message": "Ваш телефон для брони (сайт его попросит)"
+ },
+ "agentLinePopup": {
+  "message": "Закрыл окно поверх страницы: «{0}»"
+ },
+ "agentPlanSpecialistQ": {
+  "message": "Какой мастер?"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "Любой мастер"
+ },
+ "agentPlanServiceQ": {
+  "message": "Какая услуга?"
+ },
+ "agentPlanSpecialistOnPage": {
+  "message": "Выберу на странице салона"
+ },
+ "agentPlanVenueAuto": {
+  "message": "Подобрать самому: рейтинг {0}+, ближе всего"
+ },
+ "agentPlanLastTime": {
+  "message": "в прошлый раз"
+ },
+ "agentPlanPlaceQ": {
+  "message": "Где записаться?"
+ },
+ "agentBubbleCheck": {
+  "message": "Проверьте, прежде чем я продолжу: {0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "Войдите на сайте — я подожду"
+ },
+ "agentBubblePlan": {
+  "message": "План ждёт вас"
+ },
+ "agentBubbleFill": {
+  "message": "Проверьте, что вписать в форму"
+ },
+ "agentBubbleDone": {
+  "message": "Готово: {0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "Не закончено: {0}"
+ },
+ "agentBubbleOpen": {
+  "message": "Открыть"
+ },
+ "agentBubbleOther": {
+  "message": "Другое…"
+ },
+ "agentBubbleShow": {
+  "message": "Показать"
+ },
+ "agentRuleFreeCancel": {
+  "message": "Бронировать только с бесплатной отменой"
+ },
+ "agentRuleVenueHint": {
+  "message": "Место — ресторан, салон, клиника, отель или квартира, прокат, зал, филиал. Где важно, кто или где (врач, отель для поездки), — спрошу; иначе выберу по этим правилам."
+ },
+ "agentPlanPlaceQAny": {
+  "message": "Где бронировать?"
+ },
+ "agentRecapTitle": {
+  "message": "Проверьте перед бронью"
+ },
+ "agentRecapWhat": {
+  "message": "Бронирую: {0}"
+ },
+ "agentRecapAsked": {
+  "message": "Вы просили: {0}"
+ },
+ "agentRecapOtherPlace": {
+  "message": "Другое место: в первом не было подходящего времени"
+ },
+ "agentRecapTerms": {
+  "message": "Отмена, как пишет страница: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },
@@ -3220,6 +3916,15 @@
  },
  "tip_da5f7b74b1": {
   "message": "Вникать глубже"
+ },
+ "tip_8f191972e8": {
+  "message": "Забронирует за вас прямо на странице"
+ },
+ "tip_363625547a": {
+  "message": "Нужно забронировать столик или жильё, записаться к врачу или мастеру? На сайте бронирования откройте панель, нажмите + у поля, выберите «Сделать» и напишите, что нужно: «столик на двоих завтра в 19:00». ContextFlow выберет время, подставит имя и контакты из «Моих данных» и забронирует. Панель можно закрыть: вопрос или итог появится у ✦. Оплата и вход остаются за вами, а «Стоп» всегда под рукой. С Pro или Ultra."
+ },
+ "tip_232e049197": {
+  "message": "Нужно забронировать столик или жильё, записаться к врачу или мастеру? На сайте бронирования откройте панель, щёлкните + у поля, выберите «Сделать» и напишите, что нужно: «столик на двоих завтра в 19:00». ContextFlow выберет время, подставит имя и контакты из «Моих данных» и забронирует. Панель можно закрыть: вопрос или итог появится у ✦. Оплата и вход остаются за вами, а «Стоп» всегда под рукой. С Pro или Ultra."
  },
  "tip_6ba198cbff": {
   "message": "Свои заметки"
@@ -3463,6 +4168,15 @@
  },
  "tip_6cc366173d": {
   "message": "✦ не нужен на каком-то сайте? Скройте его на этом сайте или выключите везде в настройках расширения. ContextFlow по-прежнему открывается из меню расширений Safari."
+ },
+ "tip_92470c1789": {
+  "message": "Окна cookie закрываются сами"
+ },
+ "tip_8534da4bd8": {
+  "message": "Надоело закрывать окна cookie? ContextFlow отвечает на них сам — «только необходимые», а первые несколько раз об этом скажет короткая строка у ✦. Хотите видеть их на каком-то сайте — выключите для него в настройках расширения, в разделе «Окна cookie»."
+ },
+ "tip_fc1a61bcfa": {
+  "message": "Надоело закрывать окна cookie? ContextFlow отвечает на них сам — «только необходимые», а первые несколько раз об этом скажет короткая строка у ✦. Хотите видеть их на каком-то сайте — выключите для него в настройках расширения, в разделе «Окна cookie»."
  },
  "tip_cc54dd5946": {
   "message": "Подсказки у кнопки ✦"

@@ -18,15 +18,48 @@ interface Feature {
   actions: readonly string[]
   /** How people got to it. */
   via?: readonly string[]
-  /** Extra named values; "int" is a whole number 0–9999, "code" 2–3 capital letters (a currency, a country). */
-  fields?: Record<string, readonly string[] | "int" | "code">
+  /** Extra named values; "int" is a whole number 0–9999, "code" 2–3 capital letters (a currency, a country), "uuid" a
+   *  random id (an agent task's, never anything about the person), "rules" the agent's rule codes with counts
+   *  ("contact_kind:1,slot_time:2": codes from AGENT_RULES, counts 1–99). */
+  fields?: Record<string, readonly string[] | "int" | "code" | "uuid" | "rules">
   /** Sent as its own event kind (or logged by the server), never as "use": named here for prev and reports. */
   own?: true
 }
 
+/** The device's rules that refuse or hold an agent's step (runner.ts), as the end event names them: codes only, never
+ *  what was refused. */
+export const AGENT_RULES = [
+  "done_press", "place_find", "day_grey", "next_free", "date_field", "day_unseen", "place_again", "field_kind",
+  "contact_kind", "given_words", "other_person", "search_first", "list_open", "date_step", "link_dates", "place_ask",
+  "place_unfit", "made_up", "slot_time", "slot_window", "slot_nearer", "slot_busy", "book_again", "book_hold",
+  "days_unset", "blocked", "apple_access", "said_no", "book_unseen", "count_other", "place_other",
+  "back_floor", "details_next", "dates_none", "cookie_device", "given_ask", "contact_empty", "dial_set", "service_unasked", "time_bound"
+] as const
+export type AgentRule = (typeof AGENT_RULES)[number]
+
 const ENTRIES = ["list", "search", "ai_search", "move_bar", "reminder", "deeplink"] as const
 
 export const FEATURES: Record<string, Feature> = {
+  // The browser agent (2.7.1): one task's start and end, tied by its random id (also on the server's agent_step rows);
+  // the person's answer to the recap before a booking; a question and where it was answered; the end's «Show».
+  // Kinds and counts only: never a site, a name, a time or the request.
+  agent: {
+    since: "2.8", tracked: "2.8", on: "ext",
+    actions: ["start", "end", "accepted", "rejected", "question", "result"],
+    via: ["card", "bubble", "chat"],
+    fields: {
+      task: "uuid",
+      what: ["book_table", "book_stay", "book_visit", "cart", "form", "other"],
+      page: ["product", "article", "video", "form", "event", "stay", "other"],
+      card: ["shown", "skipped"],
+      result: ["done", "failed", "stopped", "asked"],
+      err: ["steps", "stuck", "page", "unbooked", "blocked", "upstream", "other"],
+      recap: ["yes", "no"],
+      did: ["answered", "dismissed", "show"],
+      steps: "int", secs: "int", calls: "int", options: "int",
+      rules: "rules"
+    }
+  },
   panel: {
     since: "2.0", on: "ext", actions: ["open", "close"],
     via: ["toolbar", "shortcut", "fab", "bubble", "note_open", "qi", "app"],
@@ -305,6 +338,26 @@ export const FEATURES: Record<string, Feature> = {
     fields: { cards: "int", what: ["collection", "card"] }
   },
 
+  // 2.7.1, the cookie closer (src/content/cookies): a day's counts, sent once the next day — banners answered with
+  // «only necessary» by each consent platform's rule, the generic closer or a TCF page ("closed", what, count), and
+  // banners left to the person and why ("left": only «Accept» offered, no button we know, pressed but it stayed, a
+  // «pay or accept» wall).
+  // Settings: the switch and the per-site exception. Never a site or an address.
+  cookies: {
+    since: "2.8", tracked: "2.8", on: "ext",
+    // 121, the owner: "accepted" — no way to refuse, «Если отказаться нельзя — принимать» on ("accept_on"/"accept_off").
+    actions: ["closed", "accepted", "left", "switch_on", "switch_off", "site_off", "site_on", "accept_on", "accept_off"],
+    fields: {
+      what: [
+        "onetrust", "cookiebot", "didomi", "quantcast", "trustarc", "usercentrics", "sourcepoint", "cookieyes", "complianz",
+        "iubenda", "osano", "termly", "klaro", "consentmanager", "axeptio", "funding_choices", "cookie_notice", "cookieconsent",
+        "borlabs", "shopify", "evidon", "just_eat", "tcf", "generic"
+      ],
+      why: ["only_accept", "none", "stuck", "wall"],
+      count: "int"
+    }
+  },
+
   // Their own kinds (2.4 and 2.5) and server rows, under the names reports and prev use.
   ext: { since: "2.4", tracked: "2.4", on: "ext", actions: ["on"], own: true },
   limit: { since: "2.0", tracked: "2.0", actions: ["hit"], own: true },
@@ -364,10 +417,27 @@ export function useFields(body: Record<string, unknown>): Record<string, unknown
   if (has(spec.via, body.via)) out.via = body.via
   for (const [name, allowed] of Object.entries(spec.fields ?? {})) {
     const value = allowed === "int" ? count(body[name]) : body[name]
-    const ok = allowed === "int" ? whole(value, 9999) : allowed === "code" ? typeof value === "string" && /^[A-Z]{2,3}$/.test(value) : has(allowed, value)
-    if (ok) out[name] = value
+    const ok = allowed === "int" ? whole(value, 9999) : allowed === "code" ? typeof value === "string" && /^[A-Z]{2,3}$/.test(value) : allowed === "uuid" ? typeof value === "string" && UUID.test(value) : allowed === "rules" ? rulesField(value) : has(allowed, value)
+    if (ok) out[name] = allowed === "uuid" ? (value as string).toLowerCase() : value
   }
   return out
+}
+
+/** Whether a value is the agent's rule codes with their counts: "code:n" pairs from AGENT_RULES, each once, n 1–99. */
+export function rulesField(value: unknown): boolean {
+  if (typeof value !== "string" || !value || value.length > 400) return false
+  const seen = new Set<string>()
+  return value.split(",").every((pair) => {
+    const m = /^([a-z_]+):([1-9]\d?)$/.exec(pair)
+    if (!m || seen.has(m[1]) || !(AGENT_RULES as readonly string[]).includes(m[1])) return false
+    seen.add(m[1])
+    return true
+  })
+}
+
+/** The agent's rule counts as the end event's field ("" for none). */
+export function rulesValue(rules: Partial<Record<string, number>> | undefined): string {
+  return Object.entries(rules ?? {}).filter(([k, n]) => (AGENT_RULES as readonly string[]).includes(k) && (n ?? 0) > 0).sort(([a], [b]) => a.localeCompare(b)).map(([k, n]) => `${k}:${Math.min(99, n!)}`).join(",")
 }
 
 /** The entry point an AI request came through (ask, ai_search, ask_chats), for the server's own row. */

@@ -10,7 +10,7 @@ import { answerCost, clientBuild, startAnswer, type Answer } from "../shared/ans
 import { freeMemory, sanitizeMessages, sanitizeOtherPages, sanitizePage, systemPromptParts } from "../shared/llm.mts"
 import { geminiModels } from "../shared/models.mts"
 import { pageForModel } from "../../src/shared/attachments.ts"
-import { hasMarks, MAX_APP_OTHER_PAGES, MAX_OTHER_PAGES, withItemRule } from "../../src/shared/prompt.ts"
+import { hasMarks, MAX_APP_OTHER_PAGES, MAX_OTHER_PAGES, withAgentRule, withItemRule } from "../../src/shared/prompt.ts"
 import { uiFields } from "../../src/shared/usage.ts"
 import { historyPrompt, MAX_HISTORY_CHARS, MAX_HISTORY_CHATS, sanitizeDigests } from "../../src/shared/history.ts"
 import { blockReason, countersFor, hasPro, proOffer, resolveAccess, searchCountersFor, visibleUsage, withUse } from "../shared/plan.mts"
@@ -59,6 +59,10 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const google = body.mode === "google" && !history
   // 2.7: the client can add reminders and events (Safari on iOS 17+ and macOS 14+): the chat may suggest one.
   const items = body.items === true && !history
+  const agentHint = body.agent === true && !history
+  // The chip's own words as the panel shows them (the answer named it «Выполнить на этой странице?» while the chip read
+  // «Do it on this page?»): a short label, plain text only.
+  const agentLabel = typeof body.agentLabel === "string" ? body.agentLabel.replace(/[«»"<>\n]/g, "").trim().slice(0, 40) : ""
   // The step this answer is in the user's session (where it was asked, the step before), for /analytics;
   // a question from the app says so even from builds that don't send it.
   const step = {
@@ -133,7 +137,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   let answer: Answer | null = null
   try {
     if (google) completion = await startGoogle(withItemRule([googlePrompt(page, profile, locale, others, hasMarks(messages)), ""], items)[0], messages, await geminiModels(), req.signal)
-    else answer = await startAnswer(history ? historyPrompt(chats, profile, locale, body.links === true) : (tokens) => withItemRule(systemPromptParts(page, profile, locale, others, fromApp, hasMarks(messages), tokens), items), messages, hasPro(access.plan) ? "pro" : "free", build, req.signal)
+    else answer = await startAnswer(history ? historyPrompt(chats, profile, locale, body.links === true) : (tokens) => withAgentRule(withItemRule(systemPromptParts(page, profile, locale, others, fromApp, hasMarks(messages), tokens), items), agentHint, agentLabel), messages, hasPro(access.plan) ? "pro" : "free", build, req.signal)
   } catch (err) {
     console.error("[cf] upstream failed:", err instanceof Error ? err.message : err)
     context.waitUntil(Promise.all([

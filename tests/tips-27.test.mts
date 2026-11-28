@@ -47,7 +47,8 @@ test("each 2.7 feature has its card in the block its readers look in, with the p
   assert.deepEqual(order("quick-insert").slice(0, 3), ["Insert into any field", "Check or rewrite before you send", "Mistakes underlined as you type"])
   assert.deepEqual(order("watch-and-remind"), ["Remind me about this page", "Add to Calendar or Reminders", "Know when a price drops"])
   assert.deepEqual(order("chats-in-order").slice(0, 3), ["Start fresh or go back", "Spaces for work and home", "The chat for this page"])
-  assert.deepEqual(order("deeper-work").slice(0, 2), ["Notes of your own", "A snapshot with your note"])
+  // (2.8: the agent's card heads the block.)
+  assert.deepEqual(order("deeper-work").slice(0, 3), ["It books for you, right on the page", "Notes of your own", "A snapshot with your note"])
   // Plans: the underlines are Pro and Ultra's; Find similar starts at Pro (Pro's quick search, #167), Ultra's in full.
   assert.ok(card("Mistakes underlined as you type").pro && !card("Mistakes underlined as you type").ultra)
   assert.ok(card("Find similar").pro && !card("Find similar").ultra)
@@ -89,11 +90,11 @@ test("the cards name the panel's own buttons, as the panel says them", () => {
   assert.ok(say("Move ✦ out of the way").includes(en.setSide))
 })
 
-test("What's new 2.7: the five everyone has, as Tips shows them; clips wherever they exist", () => {
-  assert.match(whatsNew, /static let version = "2\.7"/)
-  assert.match(whatsNew, /\[TipGroup\.translateTip, TipGroup\.writeTip, TipGroup\.spacesTip, TipGroup\.appleTip, TipGroup\.shotTip\]/)
-  // Shared with Tips, so not private there.
-  for (const name of ["translateTip", "writeTip", "spacesTip", "appleTip", "shotTip"]) assert.match(content, new RegExp(`\\n    static var ${name}: Tip \\{`), name)
+test("What's new 2.8: the agent, then cookie windows, as Tips shows them (2.7's five stay in Tips); clips wherever they exist", () => {
+  assert.match(whatsNew, /static let version = "2\.8"/)
+  assert.match(whatsNew, /\[TipGroup\.agentTip, TipGroup\.cookiesTip\]/)
+  // Shared with Tips, so not private there; 2.7's cards are still there for Tips.
+  for (const name of ["agentTip", "cookiesTip", "translateTip", "writeTip", "spacesTip", "appleTip", "shotTip"]) assert.match(content, new RegExp(`\\n    static var ${name}: Tip \\{`), name)
   // "Each shown in a short clip" only when every card has one (2.7's are made: tips.test checks every card's clip).
   assert.match(whatsNew, /items\.allSatisfy \{ tip in tip\.clip\.flatMap\(TipClip\.url\) != nil \}/)
   assert.match(whatsNew, /Text\(WhatsNew\.allClips \? LocalizedStringKey\("The main things this version brings, each shown in a short clip\."\) : LocalizedStringKey\("The main things this version brings\."\)\)/)

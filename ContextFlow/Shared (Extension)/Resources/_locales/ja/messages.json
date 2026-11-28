@@ -66,7 +66,7 @@
   "message": "価格を見守る"
  },
  "plusButton": {
-  "message": "その他：メモ、スナップショット、チャット全体"
+  "message": "その他：メモ、実行、スナップショット、チャット全体"
  },
  "hintShow": {
   "message": "表示"
@@ -2825,6 +2825,27 @@
  "setPageHintsHint": {
   "message": "最初の数日、ページでできることを教えてくれます。"
  },
+ "setCookies": {
+  "message": "Cookieの確認画面を閉じる"
+ },
+ "setCookiesHint": {
+  "message": "「必須のみ」を選びます。"
+ },
+ "setCookiesAccept": {
+  "message": "拒否できない場合は同意する"
+ },
+ "cookiesOffOnSite": {
+  "message": "このサイトでは閉じない"
+ },
+ "cookiesOnOnSite": {
+  "message": "このサイトでも閉じる"
+ },
+ "cookieClosedLine": {
+  "message": "Cookieの画面を閉じました：必須のみ"
+ },
+ "cookieAcceptedLine": {
+  "message": "Cookieに同意しました：ほかに選択肢がありませんでした"
+ },
  "phSimilarBodyUpBoth": {
   "message": "ProとUltraの機能です。Proはクイック検索、Ultraはフル検索。同じ商品をより安く、似た商品も他のお店から探します。ハイライトされたボタンをタップしてください。"
  },
@@ -3137,6 +3158,681 @@
  "writeInserted": {
   "message": "挿入しました"
  },
+ "agentMode": {
+  "message": "実行"
+ },
+ "agentModeHint": {
+  "message": "このページでContextFlowに操作してもらう"
+ },
+ "placeholderAgent": {
+  "message": "このページで何をしますか？"
+ },
+ "agentWorking": {
+  "message": "実行中 · ステップ{0}"
+ },
+ "agentConfirmTitle": {
+  "message": "実行しますか？"
+ },
+ "agentYes": {
+  "message": "はい"
+ },
+ "agentNo": {
+  "message": "いいえ"
+ },
+ "agentNoUndo": {
+  "message": "この操作は取り消せません。"
+ },
+ "agentOffRequest": {
+  "message": "ご依頼の内容とは違うようです：{0}"
+ },
+ "agentStepClick": {
+  "message": "「{0}」を押す"
+ },
+ "agentRecapAgain": {
+  "message": "もう一度確認します：「{0}」のため、ページが最初の送信を受け付けませんでした。"
+ },
+ "agentRecapAgainTo": {
+  "message": "もう一度確認します：「{0}」のため、ページが最初の送信を受け付けませんでした。「{1}」に変更しました。"
+ },
+ "agentStepServiceOther": {
+  "message": "このページに「{0}」はありません。代わりに「{1}」を選びますか？"
+ },
+ "agentRecapService": {
+  "message": "メニュー：{0}"
+ },
+ "agentRecapServiceOther": {
+  "message": "ご依頼の「{0}」ではありません：こちらを選ばれました。"
+ },
+ "agentStepPricedChoice": {
+  "message": "「{0}」を選ぶ（価格付きの選択で、支払いではありません）"
+ },
+ "agentStepType": {
+  "message": "「{1}」に「{0}」と入力"
+ },
+ "agentStepSelect": {
+  "message": "「{1}」で「{0}」を選ぶ"
+ },
+ "agentStepGo": {
+  "message": "{0} に移動"
+ },
+ "agentFillTitle": {
+  "message": "「自分の情報」から入力しますか？"
+ },
+ "agentFillButton": {
+  "message": "入力する"
+ },
+ "agentFillSkip": {
+  "message": "入力しない"
+ },
+ "agentSelfTitle": {
+  "message": "このステップはご自身で"
+ },
+ "agentSelfPay": {
+  "message": "支払いや注文の確定はご自身でお願いします。すべて確認したら「{0}」を押してください。"
+ },
+ "agentSelfSend": {
+  "message": "送信はご自身でお願いします。読み終えたら「{0}」を押してください。"
+ },
+ "agentSelfAuth": {
+  "message": "ログインはご自身でお願いします（パスワードはSafariが入力できます）。待っています。"
+ },
+ "agentSelfConsent": {
+  "message": "同意する場合は、「{0}」にご自身でチェックを入れてください。"
+ },
+ "agentSelfRate": {
+  "message": "レビュー、評価、投票はご自身で行ってください。"
+ },
+ "agentSelfOther": {
+  "message": "これはご自身でお願いします：「{0}」。"
+ },
+ "agentSelfNewTab": {
+  "message": "「{0}」はご自身でタップしてください。このページは新しいタブで開き、それができるのはご自身のタップだけです。続きはそちらで進めます。"
+ },
+ "agentSelfFile": {
+  "message": "ファイルはご自身で選んでください。"
+ },
+ "agentSelfDone": {
+  "message": "完了"
+ },
+ "agentSelfNotNow": {
+  "message": "今はしない"
+ },
+ "agentDoneTitle": {
+  "message": "完了"
+ },
+ "agentAskedTitle": {
+  "message": "質問があります"
+ },
+ "agentStopped": {
+  "message": "停止しました。"
+ },
+ "agentUndo": {
+  "message": "取り消す"
+ },
+ "agentUndone": {
+  "message": "元に戻せるものは戻しました。"
+ },
+ "agentLimit": {
+  "message": "今日のエージェントのタスクを使い切りました（1日{0}件）。明日また使えます。"
+ },
+ "agentProOnly": {
+  "message": "エージェントはProとUltraで使えます。"
+ },
+ "agentError": {
+  "message": "問題が発生しました。もう一度お試しください。"
+ },
+ "agentErrorPage": {
+  "message": "ページが応答しません。再読み込みしてから、もう一度お試しください。"
+ },
+ "agentSteps": {
+  "message": "ステップが多くなりすぎたため、ここで止めました。"
+ },
+ "agentBlockedSite": {
+  "message": "銀行、決済サービス、行政などのサイトでは、ContextFlowは代わりに操作しません。ページについての質問には答えられます。"
+ },
+ "amazonAgent": {
+  "message": "Amazonでは、ContextFlowはページについての質問に答えることしかできません。Amazonは、自動化ツールがあなたの代わりにサイトで操作することを認めていないためです。"
+ },
+ "amazonSimilar": {
+  "message": "未確認：Amazonは当社のサーバーがページを開くことを認めていません。"
+ },
+ "agentStart": {
+  "message": "開始"
+ },
+ "agentDeferredTitle": {
+  "message": "あとでやるタスク"
+ },
+ "agentDontAskHere": {
+  "message": "次回からこのサイトではすぐに開始"
+ },
+ "agentLater": {
+  "message": "あとで"
+ },
+ "agentLaterAt": {
+  "message": "時間を指定"
+ },
+ "agentLaterWatch": {
+  "message": "このページの見守りで変化があったとき"
+ },
+ "agentLaterSet": {
+  "message": "設定する"
+ },
+ "agentLaterSaved": {
+  "message": "{0}に通知が届きます。タップすると、このページで一緒に進めます。"
+ },
+ "agentLaterSavedWatch": {
+  "message": "見守りで変化があると通知が届きます。タップすると、一緒に進めます。"
+ },
+ "agentLaterNotifOff": {
+  "message": "ContextFlowの通知がオフになっています。設定 → 通知 → ContextFlow でオンにしてください。"
+ },
+ "agentLaterNotifyWhy": {
+  "message": "このタスクをお知らせできるよう、通知をオンにしてください。"
+ },
+ "agentLaterPast": {
+  "message": "その時刻はもう過ぎています。もっと後の時刻を選んでください。"
+ },
+ "agentYouMark": {
+  "message": "あなた"
+ },
+ "agentHint": {
+  "message": "このページで実行しますか？"
+ },
+ "agentWaitingStep": {
+  "message": "ステップ {0} · あなたの操作待ち"
+ },
+ "agentStepReminderAdd": {
+  "message": "リマインダー「{0}」を「{1}」に追加"
+ },
+ "agentStepReminderAddDue": {
+  "message": "リマインダー「{0}」を「{1}」に追加（期限 {2}）"
+ },
+ "agentStepReminderDone": {
+  "message": "リマインダーで「{0}」を完了にする"
+ },
+ "agentStepEventAdd": {
+  "message": "「{0}」をカレンダーに追加：{1}"
+ },
+ "agentSelfAccessReminders": {
+  "message": "ContextFlow にリマインダーの使用を許可してください：アプリを開いて「許可」をタップし、ここに戻って「完了」をタップします。"
+ },
+ "agentSelfAccessCalendar": {
+  "message": "ContextFlow にカレンダーの使用を許可してください：アプリを開いて「フルアクセスを許可」をタップし、ここに戻って「完了」をタップします。"
+ },
+ "agentOpenApp": {
+  "message": "ContextFlow を開く"
+ },
+ "agentStepReminderAddDefault": {
+  "message": "リマインダー「{0}」をデフォルトのリストに追加"
+ },
+ "agentStepReminderAddDefaultDue": {
+  "message": "リマインダー「{0}」をデフォルトのリストに追加（期限 {1}）"
+ },
+ "agentLaterLimit": {
+  "message": "すでに{0}件のタスクが待っています。ご利用のプランではこれが上限です。"
+ },
+ "agentNotifTitle": {
+  "message": "{0} でのタスク"
+ },
+ "agentNotifBody": {
+  "message": "タップすると一緒に進めます：{0}"
+ },
+ "agentHelpLink": {
+  "message": "エージェントがしないこと"
+ },
+ "agentHelp": {
+  "message": "エージェントは開いているページで操作します：押す、入力する、選ぶ。フォームを送信する前には「実行しますか？」と確認し、購入、支払い、メッセージ、ログインはあなたに任せます。パスワード、カード、身分証明書などの番号は見ることも入力することもありません。CAPTCHA、ファイルの選択、一部の特殊なボタンは扱えないため、そのステップはあなたにお願いします。あとでやるタスクは通知で届きます。タップすると、エージェントがあなたと一緒に続けます。"
+ },
+ "setAgentAuto": {
+  "message": "あとでやるタスクをすぐに開始するサイト"
+ },
+ "setAgentAutoHint": {
+  "message": "これらのサイトでは、通知をタップすると「開始」を押さずにタスクが始まります。「実行しますか？」と、ご自身で行うステップの確認はこれまでどおりです。"
+ },
+ "fdTitle": {
+  "message": "自分の情報"
+ },
+ "fdHint": {
+  "message": "サイトのフォーム入力に使います。このデバイスに保存され、エージェントはあなたが同意したときだけ入力します。AIがこの情報を見ることはありません。"
+ },
+ "fdNameFull": {
+  "message": "氏名"
+ },
+ "fdNameGiven": {
+  "message": "名"
+ },
+ "fdNameFamily": {
+  "message": "姓"
+ },
+ "fdNameLatin": {
+  "message": "氏名（ローマ字）"
+ },
+ "fdNamePhonetic": {
+  "message": "フリガナ"
+ },
+ "fdEmail": {
+  "message": "メールアドレス"
+ },
+ "fdPhone": {
+  "message": "電話番号"
+ },
+ "fdAddressLine": {
+  "message": "町名・番地"
+ },
+ "fdAddressApartment": {
+  "message": "建物名・部屋番号"
+ },
+ "fdAddressCity": {
+  "message": "市区町村"
+ },
+ "fdAddressRegion": {
+  "message": "都道府県・州"
+ },
+ "fdAddressPostal": {
+  "message": "郵便番号"
+ },
+ "fdAddressCountry": {
+  "message": "国"
+ },
+ "fdCompany": {
+  "message": "会社名"
+ },
+ "fdJobTitle": {
+  "message": "役職"
+ },
+ "fdWebsite": {
+  "message": "ウェブサイト"
+ },
+ "fdBirthDate": {
+  "message": "生年月日"
+ },
+ "fdFact": {
+  "message": "その他"
+ },
+ "fdFactLabel": {
+  "message": "項目名（例：靴のサイズ）"
+ },
+ "fdAdd": {
+  "message": "追加"
+ },
+ "fdDelete": {
+  "message": "削除"
+ },
+ "fdDeleteAll": {
+  "message": "すべて削除"
+ },
+ "fdDeleteAllAsk": {
+  "message": "このデバイスから（同期している場合はiCloudからも）すべての情報を削除しますか？"
+ },
+ "fdRefused": {
+  "message": "パスワード、カード、銀行口座や身分証明書の番号、認証コード、健康に関するデータは保存しません。"
+ },
+ "fdICloudAsk": {
+  "message": "iCloudを使って、お使いのデバイス間で情報を同期しますか？"
+ },
+ "fdICloudHint": {
+  "message": "当社がアクセスできない、あなた専用のiCloudを使います。同期しない場合、情報はこのデバイスにだけ保存されます。"
+ },
+ "fdICloud": {
+  "message": "iCloudで同期"
+ },
+ "agentPlanTitle": {
+  "message": "こう進めます"
+ },
+ "agentPlanReading": {
+  "message": "ページを読んでいます…"
+ },
+ "agentPlanAllowed": {
+  "message": "確認せずに行うこと"
+ },
+ "agentPlanSelf": {
+  "message": "ご自身で行うこと"
+ },
+ "agentPlanOwn": {
+  "message": "その他…"
+ },
+ "agentPlanNow": {
+  "message": "今すぐ"
+ },
+ "agentPermPersonal": {
+  "message": "依頼文にある情報を入力：{0}"
+ },
+ "agentPermFill": {
+  "message": "「自分の情報」から入力：{0}"
+ },
+ "agentLineFilled": {
+  "message": "入力しました：{0}"
+ },
+ "agentLinePressed": {
+  "message": "タップしました：{0}"
+ },
+ "agentPermConsent": {
+  "message": "{0} の利用規約への同意にチェック"
+ },
+ "agentPermReminder": {
+  "message": "リマインダーに追加：「{0}」"
+ },
+ "agentPermReminderDone": {
+  "message": "リマインダーで完了にする：「{0}」"
+ },
+ "agentPermEvent": {
+  "message": "カレンダーに追加：「{0}」"
+ },
+ "agentPlanSelfPay": {
+  "message": "支払い・注文の確定：「{0}」"
+ },
+ "agentPlanSelfSend": {
+  "message": "送信：「{0}」"
+ },
+ "agentPlanSelfAuth": {
+  "message": "サイトにログイン"
+ },
+ "agentPriceChanged": {
+  "message": "ここの価格は先ほど表示された価格（{0}）と違います。続ける前に確認してください。"
+ },
+ "agentMarkPaused": {
+  "message": "一時停止中"
+ },
+ "agentMarkStopped": {
+  "message": "停止"
+ },
+ "agentMarkFailed": {
+  "message": "できませんでした"
+ },
+ "agentShowSteps": {
+  "message": "手順と結果"
+ },
+ "agentModeOff": {
+  "message": "「実行」をオフ"
+ },
+ "noteHintTouchDo": {
+  "message": "ボタンを上にスワイプでメモ、下で「実行」"
+ },
+ "agentNoticeNeeds": {
+  "message": "確認が必要です"
+ },
+ "agentGoToTab": {
+  "message": "タブへ移動"
+ },
+ "agentNotifPaused": {
+  "message": "作業は一時停止中です。終えるには Safari を開いてください：{0}"
+ },
+ "agentNotifDone": {
+  "message": "完了：{0}"
+ },
+ "agentNotifNeeds": {
+  "message": "確認が必要です：{0}"
+ },
+ "agentNotifNotBooked": {
+  "message": "未予約：{0}"
+ },
+ "agentPlanStepYours": {
+  "message": "「{0}」はご自身で押してください"
+ },
+ "agentPlanAnswerFirst": {
+  "message": "先に答えてください：「{0}」"
+ },
+ "agentErrorNoReply": {
+  "message": "拡張機能が応答しませんでした。もう一度お試しください。続く場合はページを再読み込みしてください。"
+ },
+ "agentStartFailed": {
+  "message": "作業を始められませんでした（{0}）。もう一度お試しください。"
+ },
+ "agentPlanRemember": {
+  "message": "「自分の情報」に保存"
+ },
+ "agentPlanFromSaved": {
+  "message": "「自分の情報」から（変更を保存）"
+ },
+ "agentMarkUnfinished": {
+  "message": "未完了"
+ },
+ "agentNothingBooked": {
+  "message": "何も予約されていません。"
+ },
+ "agentLastDone": {
+  "message": "最後に済んだ手順：{0}"
+ },
+ "agentStuck": {
+  "message": "ページが変わらなくなったので、ここで止めました。進んだところまでは上にあります。"
+ },
+ "agentNeedSignIn": {
+  "message": "サイトへのログイン"
+ },
+ "agentNeedPay": {
+  "message": "サイトでの支払い"
+ },
+ "agentNeedAnswer": {
+  "message": "回答"
+ },
+ "agentAutoLine": {
+  "message": "質問なし — マイデータとルールから: {0}"
+ },
+ "agentLineCalendar": {
+  "message": "カレンダーに追加: {0}"
+ },
+ "agentRulesTitle": {
+  "message": "予約のルール"
+ },
+ "agentRulesHint": {
+  "message": "エージェントはこれに従い、質問せずに予約します。支払い・コード・ログインは常にあなたが行います。"
+ },
+ "agentRuleWindow": {
+  "message": "指定した時間をずらせる幅（分）"
+ },
+ "agentRuleDays": {
+  "message": "その日が埋まっていたら、最大何日後まで"
+ },
+ "agentRuleParty": {
+  "message": "指定しない時の人数（ゲスト・チケット・席）"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "担当者はだれでも（美容師・医師・講師・トレーナー・ガイドなど）"
+ },
+ "agentRuleUsual": {
+  "message": "前回そのサイトで選んだメニュー"
+ },
+ "agentRuleCalendar": {
+  "message": "カレンダーで空いている時間だけ"
+ },
+ "agentRuleAuto": {
+  "message": "すべて分かっていて支払いがなければ、プランなしで予約"
+ },
+ "agentPlanHow": {
+  "message": "場所はこちらで選びます：評価{0}以上・条件に合う・最寄り"
+ },
+ "agentPlanHowCal": {
+  "message": "カレンダーで空いている時間に、予定も追加"
+ },
+ "agentRuleVenue": {
+  "message": "場所を指定しないときは自分で選ぶ"
+ },
+ "agentRuleRating": {
+  "message": "場所の評価（以上）"
+ },
+ "accessGroup": {
+  "message": "カレンダーとリマインダー"
+ },
+ "accessHint": {
+  "message": "エージェントはカレンダーの空いている時間を選び、予約を追加できます。カレンダーの内容がデバイスの外に出ることはありません。"
+ },
+ "accessCalendar": {
+  "message": "カレンダー"
+ },
+ "accessReminders": {
+  "message": "リマインダー"
+ },
+ "accessYes": {
+  "message": "アクセスあり"
+ },
+ "accessNo": {
+  "message": "アクセスなし"
+ },
+ "accessAllow": {
+  "message": "許可"
+ },
+ "accessSettingsIos": {
+  "message": "iOSの設定を開く"
+ },
+ "accessSettingsMac": {
+  "message": "システム設定を開く"
+ },
+ "agentRuleCalNeeds": {
+  "message": "カレンダーへのアクセスが必要"
+ },
+ "agentPlanCalAsk": {
+  "message": "カレンダーを確認しますか？"
+ },
+ "agentCalNotChecked": {
+  "message": "カレンダーは未確認：アクセスなし"
+ },
+ "agentPlanFromChat": {
+  "message": "チャットから：{0}"
+ },
+ "sendMenuNote": {
+  "message": "メモ"
+ },
+ "noteHintPointerDo": {
+  "message": "ボタンの上でスクロール：上でメモ、下で「実行」。右クリックでも選べます"
+ },
+ "setSecGeneral": {
+  "message": "一般"
+ },
+ "setSecButton": {
+  "message": "フローティングボタンと選択"
+ },
+ "setSecWriting": {
+  "message": "クイック挿入と文章"
+ },
+ "setSecAgent": {
+  "message": "「実行」：ページでの作業"
+ },
+ "setSecCookies": {
+  "message": "Cookieの確認画面"
+ },
+ "setSecChats": {
+  "message": "チャットとスペース"
+ },
+ "setSecData": {
+  "message": "プライバシーとデータ"
+ },
+ "setSecPlan": {
+  "message": "プランとアカウント"
+ },
+ "setSecAbout": {
+  "message": "このアプリについて"
+ },
+ "fdICloudLocal": {
+  "message": "今はこのデバイスのみ"
+ },
+ "fdICloudSyncing": {
+  "message": "同期中…"
+ },
+ "fdICloudSynced": {
+  "message": "同期済み · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "たった今"
+ },
+ "fdICloudNoAccount": {
+  "message": "未同期：このデバイスでiCloudにサインインしてください"
+ },
+ "fdICloudFailed": {
+  "message": "未同期：iCloudから応答がありません。次回もう一度試します。"
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "サービスを担当する人（美容師・医師・講師・トレーナー・インストラクター・ガイド）のうち空いている人。オフ：だれがよいか聞きます。"
+ },
+ "errLink": {
+  "message": "ContextFlow とこのページの接続が切れました(別のアプリを開いている間に iOS が停止した可能性があります)。もう一度試すか、繰り返す場合はページを再読み込みしてください。"
+ },
+ "reloadPage": {
+  "message": "ページを再読み込み"
+ },
+ "agentPlanVenueQ": {
+  "message": "予約先(あなたのルールで選択)"
+ },
+ "agentPlanEmailQ": {
+  "message": "予約用のメールアドレス（サイトで求められます）"
+ },
+ "agentPlanPhoneQ": {
+  "message": "予約用の電話番号（サイトで求められます）"
+ },
+ "agentLinePopup": {
+  "message": "ページ上のウィンドウを閉じました：「{0}」"
+ },
+ "agentPlanSpecialistQ": {
+  "message": "担当者は？"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "指名なし"
+ },
+ "agentPlanServiceQ": {
+  "message": "どのメニュー？"
+ },
+ "agentPlanSpecialistOnPage": {
+  "message": "お店のページで選ぶ"
+ },
+ "agentPlanVenueAuto": {
+  "message": "おまかせ：評価{0}以上・近い順"
+ },
+ "agentPlanLastTime": {
+  "message": "前回"
+ },
+ "agentPlanPlaceQ": {
+  "message": "どこで予約しますか？"
+ },
+ "agentBubbleCheck": {
+  "message": "続ける前に確認してください：{0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "サイトでサインインしてください。お待ちします"
+ },
+ "agentBubblePlan": {
+  "message": "プランがあなたを待っています"
+ },
+ "agentBubbleFill": {
+  "message": "フォームに入力する内容を確認してください"
+ },
+ "agentBubbleDone": {
+  "message": "完了：{0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "未完了：{0}"
+ },
+ "agentBubbleOpen": {
+  "message": "開く"
+ },
+ "agentBubbleOther": {
+  "message": "その他…"
+ },
+ "agentBubbleShow": {
+  "message": "表示"
+ },
+ "agentRuleFreeCancel": {
+  "message": "無料キャンセルできる予約だけにする"
+ },
+ "agentRuleVenueHint": {
+  "message": "場所とは、レストラン・サロン・クリニック・ホテルや部屋・レンタル店・ジム・支店などです。だれ・どこが大事なとき（医師、旅行のホテル）は聞きます。そうでなければこのルールで選びます。"
+ },
+ "agentPlanPlaceQAny": {
+  "message": "どこで予約しますか？"
+ },
+ "agentRecapTitle": {
+  "message": "予約する前に確認してください"
+ },
+ "agentRecapWhat": {
+  "message": "予約内容：{0}"
+ },
+ "agentRecapAsked": {
+  "message": "ご希望：{0}"
+ },
+ "agentRecapOtherPlace": {
+  "message": "別の場所：最初の場所に合う時間がありませんでした"
+ },
+ "agentRecapTerms": {
+  "message": "ページに書かれたキャンセル条件：{0}"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },
@@ -3220,6 +3916,15 @@
  },
  "tip_da5f7b74b1": {
   "message": "じっくり深掘り"
+ },
+ "tip_8f191972e8": {
+  "message": "ページ上でそのまま、代わりに予約します"
+ },
+ "tip_363625547a": {
+  "message": "レストランの席や宿、病院や美容院の予約が必要ですか？予約サイトでパネルを開き、入力欄の横の＋をタップして「実行」を選び、してほしいことを書きます：「明日19時に2名で席を予約して」。ContextFlow が時間を選び、「自分の情報」から名前と連絡先を入力して予約します。パネルは閉じてもかまいません。質問や結果は ✦ の横に表示されます。支払いとサインインはご自身で行い、「停止」はいつでも押せます。Pro か Ultra で使えます。"
+ },
+ "tip_232e049197": {
+  "message": "レストランの席や宿、病院や美容院の予約が必要ですか？予約サイトでパネルを開き、入力欄の横の＋をクリックして「実行」を選び、してほしいことを書きます：「明日19時に2名で席を予約して」。ContextFlow が時間を選び、「自分の情報」から名前と連絡先を入力して予約します。パネルは閉じてもかまいません。質問や結果は ✦ の横に表示されます。支払いとサインインはご自身で行い、「停止」はいつでも押せます。Pro か Ultra で使えます。"
  },
  "tip_6ba198cbff": {
   "message": "自分のメモ"
@@ -3463,6 +4168,15 @@
  },
  "tip_6cc366173d": {
   "message": "あるサイトで ✦ が不要なら、そのサイトだけで隠すか、拡張機能の設定ですべてのサイトでオフにできます。その場合もSafariの拡張機能メニューから開けます。"
+ },
+ "tip_92470c1789": {
+  "message": "Cookieの確認画面が自動で閉じます"
+ },
+ "tip_8534da4bd8": {
+  "message": "Cookieの確認画面を毎回タップして閉じるのが面倒ですか？ContextFlow が代わりに「必須のみ」で答え、最初の数回は ✦ の横に短い一行でお知らせします。あるサイトでは表示させたいときは、拡張機能の設定の「Cookieの確認画面」で、そのサイトだけオフにします。"
+ },
+ "tip_fc1a61bcfa": {
+  "message": "Cookieの確認画面を毎回クリックして閉じるのが面倒ですか？ContextFlow が代わりに「必須のみ」で答え、最初の数回は ✦ の横に短い一行でお知らせします。あるサイトでは表示させたいときは、拡張機能の設定の「Cookieの確認画面」で、そのサイトだけオフにします。"
  },
  "tip_cc54dd5946": {
   "message": "✦ボタンのヒント"

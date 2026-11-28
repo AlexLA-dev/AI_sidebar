@@ -693,5 +693,9 @@
   "768737d596d7": "Dokunuş başına bir yanıt: ücretsiz planda günde 5; yazarken altı çizme Pro'da",
   "e51f743693e5": "Daha fazlası: <a href=\"/translate-web-page-safari-iphone\">Safari'de web sayfası çevirme</a>",
   "ee6188a287b5": "Kendi API anahtarım var",
-  "4b7a73ec677d": "Bu plan için kendi OpenAI veya Claude API anahtarınız gerekir. Yanıtların ücretini o sağlayıcıya ayrıca ödersiniz."
+  "4b7a73ec677d": "Bu plan için kendi OpenAI veya Claude API anahtarınız gerekir. Yanıtların ücretini o sağlayıcıya ayrıca ödersiniz.",
+  "87ecec147ad9": "Sizin yerinize, sayfanın içinde rezervasyon yapar <span class=\"pro-badge\">Pro</span>",
+  "49e74a3072f4": "Masa ya da konaklama ayırtmanız, doktordan ya da kuaförden randevu almanız mı gerekiyor? Rezervasyon sitesinde paneli açın, alanın yanındaki + düğmesine dokunun (Mac'te tıklayın), “Yap” seçeneğini seçin ve ne istediğinizi yazın: “yarın saat 19.00'da iki kişilik masa”. ContextFlow saati seçer, adınızı ve iletişim bilgilerinizi “Bilgilerim” bölümünden doldurur ve rezervasyonu yapar. Paneli kapatabilirsiniz: bir soru ya da sonuç ✦ düğmesinin yanında görünür. Ödeme ve oturum açma sizde kalır, “Durdur” düğmesi ise her zaman elinizin altındadır.",
+  "92470c1789c3": "Çerez pencereleri kendiliğinden kapanır",
+  "69c3bdff6c19": "Çerez pencerelerinden bıktınız mı? ContextFlow bunları sizin yerinize “yalnızca gerekli” ile yanıtlar; ilk birkaç seferde ✦ düğmesinin yanındaki kısa bir satır bunu söyler. Bir sitede yeniden görmek mi istiyorsunuz? Uzantı ayarlarındaki “Çerez pencereleri” bölümünden o site için kapatın."
 }

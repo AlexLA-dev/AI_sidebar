@@ -65551,6 +65551,4060 @@
           }
         }
       }
+    },
+    "Full name": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الاسم الكامل"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vor- und Nachname"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombre completo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nom complet"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nome e cognome"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "氏名"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "성명"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nome completo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Имя и фамилия"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ad soyad"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ім’я та прізвище"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Họ và tên"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "姓名"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "姓名"
+          }
+        }
+      }
+    },
+    "First name": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الاسم الأول"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorname"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombre"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prénom"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nome"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이름"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nome"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Имя"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ad"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ім’я"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tên"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名字"
+          }
+        }
+      }
+    },
+    "Last name": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اسم العائلة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nachname"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apellidos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nom"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cognome"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "姓"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "성"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sobrenome"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Фамилия"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soyadı"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Прізвище"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Họ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "姓"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "姓氏"
+          }
+        }
+      }
+    },
+    "Name in Latin letters": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الاسم بالحروف اللاتينية"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name in lateinischer Schrift"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombre en alfabeto latino"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nom en caractères latins"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nome in caratteri latini"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "氏名（ローマ字）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "영문 이름"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nome em letras latinas"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Имя латиницей"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Latin harfleriyle ad"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ім’я латиницею"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tên bằng chữ Latinh (không dấu)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "姓名拼音"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "英文姓名"
+          }
+        }
+      }
+    },
+    "Name reading (phonetic)": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نطق الاسم"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aussprache des Namens"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pronunciación del nombre"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prononciation du nom"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pronuncia del nome"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フリガナ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이름 발음"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pronúncia do nome"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Произношение имени"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adın okunuşu"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вимова імені"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cách đọc tên"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "姓名读音"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "姓名讀音"
+          }
+        }
+      }
+    },
+    "E-mail": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "البريد الإلكتروني"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E-Mail"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Correo electrónico"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E-mail"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E-mail"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "メールアドレス"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이메일"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E-mail"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Электронная почта"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E-posta"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Електронна пошта"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "电子邮件"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "電子郵件"
+          }
+        }
+      }
+    },
+    "Phone": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الهاتف"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Telefon"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teléfono"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Téléphone"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Telefono"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "電話番号"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "전화번호"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Telefone"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Телефон"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Telefon"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Телефон"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Điện thoại"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "电话"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "電話"
+          }
+        }
+      }
+    },
+    "Street and house": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الشارع ورقم المبنى"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Straße und Hausnummer"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calle y número"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Numéro et rue"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Via e numero civico"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "町名・番地"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "도로명 주소"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rua e número"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Улица и дом"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sokak ve bina numarası"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вулиця й будинок"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Số nhà, tên đường"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "街道和门牌号"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "街道和門牌號碼"
+          }
+        }
+      }
+    },
+    "Apartment, floor": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الشقة، الطابق"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wohnung, Etage"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Piso, puerta"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appartement, étage"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interno, piano"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "建物名・部屋番号"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "동·호수, 층"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Complemento (apto., andar)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Квартира, этаж"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daire, kat"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Квартира, поверх"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Căn hộ, tầng"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "单元、楼层、房间号"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "樓層、室號"
+          }
+        }
+      }
+    },
+    "City": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المدينة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ort"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ciudad"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ville"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Città"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "市区町村"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "도시"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cidade"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Город"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Şehir"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Місто"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thành phố"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "城市"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "城市"
+          }
+        }
+      }
+    },
+    "Region or state": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المنطقة أو الولاية"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Region oder Bundesland"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Provincia o estado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Région ou État"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Provincia o stato"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "都道府県・州"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "시/도 또는 주"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estado ou região"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Регион"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bölge veya eyalet"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Область або регіон"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tỉnh hoặc bang"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "省/州"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "州或省"
+          }
+        }
+      }
+    },
+    "Postal code": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الرمز البريدي"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Postleitzahl"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Código postal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code postal"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CAP"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "郵便番号"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "우편번호"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CEP"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Индекс"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posta kodu"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поштовий індекс"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mã bưu chính"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邮政编码"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "郵遞區號"
+          }
+        }
+      }
+    },
+    "Country": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "البلد"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Land"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "País"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pays"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paese"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "国"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "국가"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "País"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Страна"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ülke"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Країна"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quốc gia"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "国家/地区"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "國家或地區"
+          }
+        }
+      }
+    },
+    "Company": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الشركة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Firma"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empresa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entreprise"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Azienda"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会社名"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "회사"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empresa"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Компания"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Şirket"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Компанія"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Công ty"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "公司"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "公司"
+          }
+        }
+      }
+    },
+    "Job title": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المسمى الوظيفي"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Position"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cargo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poste"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ruolo"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "役職"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "직함"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cargo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Должность"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unvan"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Посада"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chức danh"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "职位"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "職稱"
+          }
+        }
+      }
+    },
+    "Website": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الموقع الإلكتروني"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Website"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sitio web"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Site web"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sito web"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ウェブサイト"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "웹사이트"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Site"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сайт"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Web sitesi"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сайт"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trang web"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "网站"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "網站"
+          }
+        }
+      }
+    },
+    "Date of birth": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تاريخ الميلاد"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geburtsdatum"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fecha de nacimiento"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Date de naissance"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data di nascita"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "生年月日"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "생년월일"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data de nascimento"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дата рождения"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Doğum tarihi"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дата народження"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ngày sinh"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "出生日期"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "出生日期"
+          }
+        }
+      }
+    },
+    "What is it (e.g. shoe size)": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ما هو (مثلًا مقاس الحذاء)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Was ist das (z. B. Schuhgröße)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qué es (p. ej., talla de zapato)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que c’est (p. ex. pointure)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cos’è (es. numero di scarpe)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "項目名（例：靴のサイズ）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "항목 이름(예: 신발 사이즈)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O que é (por exemplo, tamanho do calçado)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Что это (например, размер обуви)"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu nedir (ör. ayakkabı numarası)"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Що це (наприклад, розмір взуття)"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đây là gì (ví dụ: cỡ giày)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名称（例如鞋码）"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "項目名稱（例如鞋子尺寸）"
+          }
+        }
+      }
+    },
+    "Delete all": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حذف الكل"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle löschen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar todo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout supprimer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elimina tutto"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すべて削除"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모두 삭제"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apagar tudo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить все"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tümünü sil"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Видалити всі"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xóa tất cả"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部删除"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部刪除"
+          }
+        }
+      }
+    },
+    "My details": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بياناتي"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meine Daten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mis datos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mes infos"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I miei dati"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自分の情報"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내 정보"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meus dados"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Мои данные"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bilgilerim"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Мої дані"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thông tin của tôi"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我的信息"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我的資料"
+          }
+        }
+      }
+    },
+    "For filling in forms on sites. Kept on your device; the agent fills them in only after you agree, and the AI never sees them.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لملء النماذج في المواقع. تُحفظ على جهازك، ولا يملؤها الوكيل إلا بعد موافقتك، ولا يراها الذكاء الاصطناعي أبدًا."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zum Ausfüllen von Formularen auf Websites. Sie bleiben auf deinem Gerät; der Agent setzt sie nur ein, wenn du zustimmst, und die KI sieht sie nie."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para rellenar formularios en sitios web. Se guardan en tu dispositivo; el agente solo los rellena si aceptas, y la IA nunca los ve."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour remplir les formulaires sur les sites. Elles restent sur votre appareil ; l’agent ne les remplit qu’avec votre accord, et l’IA ne les voit jamais."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Per compilare i moduli sui siti. Restano sul tuo dispositivo; l’agente li inserisce solo se sei d’accordo, e l’IA non li vede mai."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サイトのフォーム入力に使います。このデバイスに保存され、エージェントはあなたが同意したときだけ入力します。AIがこの情報を見ることはありません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사이트에서 양식을 채울 때 써요. 이 기기에 보관되고, 에이전트는 동의를 받은 뒤에만 채워요. AI는 이 정보를 보지 않아요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para preencher formulários em sites. Ficam no seu dispositivo; o agente só os preenche depois que você concorda, e a IA nunca os vê."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Для заполнения форм на сайтах. Хранятся на устройстве; агент подставляет их только после вашего согласия, ИИ их не видит."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sitelerdeki formları doldurmak için. Cihazınızda saklanır; ajan bunları yalnızca siz onay verdikten sonra doldurur ve yapay zekâ bunları asla görmez."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Для заповнення форм на сайтах. Зберігаються на пристрої; агент підставляє їх лише з вашої згоди, а ШІ їх не бачить."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dùng để điền biểu mẫu trên các trang web. Lưu trên thiết bị của bạn; tác nhân chỉ điền sau khi bạn đồng ý, và AI không bao giờ thấy chúng."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用于在网站上填写表单。保存在你的设备上；只有你同意后智能体才会填写，AI 模型看不到这些信息。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用來在網站上填寫表單。儲存在你的裝置上；只有在你同意後，AI 代理才會填入，AI 模型看不到這些資料。"
+          }
+        }
+      }
+    },
+    "I don't keep passwords, cards, bank or document numbers, codes or health data.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا أحفظ كلمات السر أو البطاقات أو البيانات المصرفية أو أرقام الوثائق أو الرموز أو البيانات الصحية."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passwörter, Karten, Bank- und Ausweisnummern, Codes und Gesundheitsdaten speichere ich nicht."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No guardo contraseñas, tarjetas, datos bancarios, números de documentos, códigos ni datos de salud."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je ne garde ni mots de passe, ni cartes, ni numéros bancaires ou de documents, ni codes, ni données de santé."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non conservo password, carte, coordinate bancarie, numeri di documenti, codici o dati sanitari."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パスワード、カード、銀行口座や身分証明書の番号、認証コード、健康に関するデータは保存しません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "암호, 카드, 은행 계좌나 신분증 번호, 인증 코드, 건강 정보는 보관하지 않아요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não guardo senhas, cartões, dados bancários, números de documentos, códigos nem dados de saúde."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пароли, карты, банковские реквизиты, номера документов, коды и данные о здоровье я не храню."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parolaları, kartları, banka bilgilerini, belge numaralarını, kodları ve sağlık verilerini saklamam."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Паролі, картки, банківські реквізити, номери документів, коди й дані про здоров’я я не зберігаю."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tôi không lưu mật khẩu, thẻ, thông tin ngân hàng, số giấy tờ, mã hay dữ liệu sức khỏe."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我不保存密码、银行卡、银行账户或证件号码、验证码，也不保存健康数据。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我不會保存密碼、信用卡、銀行帳號或證件號碼、驗證碼，也不保存健康資料。"
+          }
+        }
+      }
+    },
+    "Through your private iCloud, which we can't access. Without it, they stay on this device.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عبر iCloud الخاص بك، الذي لا نستطيع الوصول إليه. ومن دونه تبقى على هذا الجهاز."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Über deine private iCloud, auf die wir keinen Zugriff haben. Ohne sie bleiben die Daten auf diesem Gerät."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A través de tu iCloud privado, al que no tenemos acceso. Sin él, se quedan en este dispositivo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Via votre iCloud privé, auquel nous n’avons pas accès. Sans cela, elles restent sur cet appareil."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tramite il tuo iCloud privato, a cui non abbiamo accesso. Senza, restano su questo dispositivo."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当社がアクセスできない、あなた専用のiCloudを使います。同期しない場合、情報はこのデバイスにだけ保存されます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "저희가 접근할 수 없는 개인 iCloud를 통해 동기화해요. 동기화하지 않으면 이 기기에만 남아요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pelo seu iCloud pessoal, ao qual não temos acesso. Sem isso, eles ficam neste dispositivo."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Через ваш личный iCloud, к которому у нас нет доступа. Без этого они остаются на этом устройстве."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bizim erişemediğimiz kendi iCloud hesabınız üzerinden. Bu olmadan bilgiler bu cihazda kalır."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Через ваш особистий iCloud, до якого ми не маємо доступу. Без цього вони залишаються на цьому пристрої."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qua iCloud riêng của bạn, nơi chúng tôi không thể truy cập. Nếu không bật, thông tin chỉ nằm trên thiết bị này."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通过你的私人 iCloud 同步，我们无法访问。不同步的话，信息只保存在这台设备上。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "透過你私人的 iCloud 同步，我們無法存取。不同步的話，資料只會留在這台裝置上。"
+          }
+        }
+      }
+    },
+    "Sync through iCloud": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المزامنة عبر iCloud"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Über iCloud synchronisieren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronizar con iCloud"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchroniser avec iCloud"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronizza con iCloud"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloudで同期"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud로 동기화"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronizar pelo iCloud"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Синхронизировать через iCloud"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud ile eşzamanla"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Синхронізувати через iCloud"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đồng bộ qua iCloud"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通过 iCloud 同步"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "透過 iCloud 同步"
+          }
+        }
+      }
+    },
+    "Sync your details on your devices through iCloud?": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هل تريد مزامنة بياناتك بين أجهزتك عبر iCloud؟"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Daten über iCloud auf deinen Geräten synchronisieren?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Sincronizar tus datos en tus dispositivos con iCloud?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchroniser vos infos sur vos appareils via iCloud ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronizzare i tuoi dati sui tuoi dispositivi tramite iCloud?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloudを使って、お使いのデバイス間で情報を同期しますか？"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud로 내 기기 간에 정보를 동기화할까요?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronizar seus dados entre seus dispositivos pelo iCloud?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Синхронизировать ваши данные на ваших устройствах через iCloud?"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bilgileriniz cihazlarınız arasında iCloud ile eşzamanlansın mı?"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Синхронізувати ваші дані між вашими пристроями через iCloud?"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đồng bộ thông tin của bạn giữa các thiết bị qua iCloud?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要通过 iCloud 在你的各台设备间同步这些信息吗？"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要透過 iCloud 在你的各台裝置間同步這些資料嗎？"
+          }
+        }
+      }
+    },
+    "Delete all your details from this device (and from iCloud, if they sync)?": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هل تريد حذف كل بياناتك من هذا الجهاز (ومن iCloud إن كانت تُزامَن)؟"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle deine Daten von diesem Gerät löschen (und aus iCloud, falls sie synchronisiert werden)?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Eliminar todos tus datos de este dispositivo (y de iCloud, si se sincronizan)?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer toutes vos infos de cet appareil (et d’iCloud, si elles sont synchronisées) ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminare tutti i tuoi dati da questo dispositivo (e da iCloud, se sono sincronizzati)?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデバイスから（同期している場合はiCloudからも）すべての情報を削除しますか？"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 기기에서(동기화 중이라면 iCloud에서도) 내 정보를 모두 삭제할까요?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apagar todos os seus dados deste dispositivo (e do iCloud, se estiverem sincronizados)?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить все ваши данные с этого устройства (и из iCloud, если они синхронизируются)?"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tüm bilgileriniz bu cihazdan (eşzamanlanıyorsa iCloud'dan da) silinsin mi?"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Видалити всі ваші дані з цього пристрою (і з iCloud, якщо вони синхронізуються)?"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xóa tất cả thông tin của bạn khỏi thiết bị này (và khỏi iCloud, nếu có đồng bộ)?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要从这台设备上删除你的所有信息吗？（如果已通过 iCloud 同步，也会从 iCloud 中删除。）"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要從這台裝置刪除你的所有資料嗎？（如果有透過 iCloud 同步，也會從 iCloud 刪除。）"
+          }
+        }
+      }
+    },
+    "Yes": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نعم"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ja"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sí"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oui"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sì"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "はい"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "예"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sim"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Да"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evet"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Так"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Có"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "是"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "是"
+          }
+        }
+      }
+    },
+    "No": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nein"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "いいえ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아니요"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hayır"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ні"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "否"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "否"
+          }
+        }
+      }
+    },
+    "Calendar and Reminders": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التقويم والتذكيرات"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kalender und Erinnerungen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendario y Recordatorios"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendrier et Rappels"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendario e Promemoria"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カレンダーとリマインダー"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "캘린더 및 미리 알림"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendário e Lembretes"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Календарь и Напоминания"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Takvim ve Anımsatıcılar"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Календар і Нагадування"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lịch và Lời nhắc"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日历和提醒事项"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "行事曆與提醒事項"
+          }
+        }
+      }
+    },
+    "The agent picks times that are free in your calendar and can add bookings to it. What's in your calendar never leaves the device.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يختار الوكيل أوقاتًا متاحة في تقويمك ويمكنه إضافة الحجوزات إليه. لا يغادر محتوى تقويمك الجهاز أبدًا."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Agent wählt Zeiten, die in deinem Kalender frei sind, und kann Buchungen eintragen. Was in deinem Kalender steht, verlässt das Gerät nicht."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El agente elige horas libres en tu calendario y puede añadir las reservas. Lo que hay en tu calendario nunca sale del dispositivo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'agent choisit des horaires libres dans votre calendrier et peut y ajouter vos réservations. Le contenu de votre calendrier ne quitte jamais l'appareil."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'agente sceglie orari liberi nel tuo calendario e può aggiungervi le prenotazioni. Il contenuto del calendario non lascia mai il dispositivo."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エージェントはカレンダーの空いている時間を選び、予約を追加できます。カレンダーの内容がデバイスの外に出ることはありません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "에이전트가 캘린더에서 비어 있는 시간을 고르고 예약을 추가할 수 있습니다. 캘린더 내용은 기기 밖으로 나가지 않습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O agente escolhe horários livres no seu calendário e pode adicionar as reservas. O conteúdo do seu calendário nunca sai do aparelho."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Агент выбирает время, свободное в календаре, и может добавлять брони. Содержимое календаря не покидает устройство."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajan takviminizdeki boş saatleri seçer ve rezervasyonları takvime ekleyebilir. Takviminizin içeriği cihazdan asla çıkmaz."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Агент вибирає час, вільний у календарі, і може додавати бронювання. Вміст календаря не залишає пристрій."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tác nhân chọn giờ còn trống trong lịch của bạn và có thể thêm lượt đặt vào đó. Nội dung lịch không bao giờ rời khỏi thiết bị."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "代理会选择日历中空闲的时间，并可添加预订。日历内容绝不会离开设备。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "代理會選擇行事曆中空閒的時間，並可加入預訂。行事曆內容絕不會離開裝置。"
+          }
+        }
+      }
+    },
+    "Allowed": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الوصول مسموح"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zugriff erlaubt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acceso permitido"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accès autorisé"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accesso consentito"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アクセスあり"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "접근 허용됨"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acesso permitido"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Доступ есть"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erişim var"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Доступ є"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã cho phép"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已允许"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已允許"
+          }
+        }
+      }
+    },
+    "Not allowed": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا وصول"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kein Zugriff"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin acceso"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas d'accès"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessun accesso"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アクセスなし"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "접근 없음"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sem acesso"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет доступа"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erişim yok"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Немає доступу"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chưa có quyền"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无访问权限"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無取用權限"
+          }
+        }
+      }
+    },
+    "Open iOS Settings": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فتح إعدادات iOS"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS-Einstellungen öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir Ajustes de iOS"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir les Réglages iOS"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri Impostazioni iOS"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOSの設定を開く"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS 설정 열기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir Ajustes do iOS"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть настройки iOS"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS Ayarları'nı aç"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відкрити Параметри iOS"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở Cài đặt iOS"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开 iOS 设置"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開 iOS 設定"
+          }
+        }
+      }
+    },
+    "Open System Settings": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فتح إعدادات النظام"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Systemeinstellungen öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir Ajustes del Sistema"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir les Réglages Système"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri Impostazioni di Sistema"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "システム設定を開く"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "시스템 설정 열기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir Ajustes do Sistema"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть Системные настройки"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistem Ayarları'nı aç"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відкрити Системні параметри"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở Cài đặt hệ thống"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开系统设置"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開系統設定"
+          }
+        }
+      }
+    },
+    "Only on this device for now": {
+      "comment": "My details: the line under «Sync through iCloud» (2.7.1).",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "على هذا الجهاز فقط حاليًا"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorerst nur auf diesem Gerät"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por ahora solo en este dispositivo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour l’instant, uniquement sur cet appareil"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Per ora solo su questo dispositivo"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今はこのデバイスのみ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지금은 이 기기에만 있어요"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por enquanto, só neste dispositivo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пока только на этом устройстве"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Şimdilik yalnızca bu cihazda"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поки що лише на цьому пристрої"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiện chỉ có trên thiết bị này"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目前仅在此设备上"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目前僅在此裝置上"
+          }
+        }
+      }
+    },
+    "Syncing…": {
+      "comment": "My details: the line under «Sync through iCloud» (2.7.1).",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جارٍ المزامنة…"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird synchronisiert …"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronizando…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronisation…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronizzazione…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同期中…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "동기화 중…"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronizando…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Синхронизирую…"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eşzamanlanıyor…"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Синхронізую…"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang đồng bộ…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在同步…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在同步…"
+          }
+        }
+      }
+    },
+    "Synced · %@": {
+      "comment": "My details: the line under «Sync through iCloud» (2.7.1).",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تمت المزامنة · %@"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronisiert · %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronizado · %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Synchronisé · %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronizzato · %@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同期済み · %@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "동기화됨 · %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sincronizado · %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Синхронизировано · %@"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eşzamanlandı · %@"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Синхронізовано · %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã đồng bộ · %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已同步 · %@"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已同步 · %@"
+          }
+        }
+      }
+    },
+    "just now": {
+      "comment": "My details: the line under «Sync through iCloud» (2.7.1).",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الآن"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gerade eben"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ahora mismo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "à l’instant"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "proprio ora"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "たった今"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "방금"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "agora mesmo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "только что"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "az önce"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "щойно"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vừa xong"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刚刚"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "剛剛"
+          }
+        }
+      }
+    },
+    "Not synced: sign in to iCloud on this device": {
+      "comment": "My details: the line under «Sync through iCloud» (2.7.1).",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لم تتم المزامنة: سجّل الدخول إلى iCloud على هذا الجهاز"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht synchronisiert: Melde dich auf diesem Gerät bei iCloud an"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin sincronizar: inicia sesión en iCloud en este dispositivo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non synchronisé : connectez-vous à iCloud sur cet appareil"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non sincronizzato: accedi a iCloud su questo dispositivo"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未同期：このデバイスでiCloudにサインインしてください"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "동기화 안 됨: 이 기기에서 iCloud에 로그인하세요"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não sincronizado: entre no iCloud neste dispositivo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не синхронизировано: войдите в iCloud на этом устройстве"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eşzamanlanmadı: bu cihazda iCloud’a giriş yapın"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не синхронізовано: увійдіть в iCloud на цьому пристрої"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chưa đồng bộ: hãy đăng nhập iCloud trên thiết bị này"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未同步：请在此设备上登录 iCloud"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未同步：請在此裝置上登入 iCloud"
+          }
+        }
+      }
+    },
+    "Not synced: iCloud didn't answer. It tries again next time.": {
+      "comment": "My details: the line under «Sync through iCloud» (2.7.1).",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لم تتم المزامنة: لم يستجب iCloud. ستتم المحاولة مرة أخرى في المرة القادمة."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht synchronisiert: iCloud hat nicht geantwortet. Beim nächsten Mal wird es erneut versucht."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin sincronizar: iCloud no respondió. Se intentará de nuevo la próxima vez."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non synchronisé : iCloud n’a pas répondu. Nouvel essai la prochaine fois."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non sincronizzato: iCloud non ha risposto. Si riproverà la prossima volta."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未同期：iCloudから応答がありません。次回もう一度試します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "동기화 안 됨: iCloud가 응답하지 않았어요. 다음에 다시 시도해요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não sincronizado: o iCloud não respondeu. Tenta de novo na próxima vez."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не синхронизировано: iCloud не ответил. В следующий раз попробую снова."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eşzamanlanmadı: iCloud yanıt vermedi. Bir dahaki sefere yeniden denenecek."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не синхронізовано: iCloud не відповів. Наступного разу спробую знову."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chưa đồng bộ: iCloud không phản hồi. Lần sau sẽ thử lại."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未同步：iCloud 没有响应。下次会再试。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未同步：iCloud 沒有回應。下次會再試。"
+          }
+        }
+      }
+    },
+    "It books for you, right on the page": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يحجز لك مباشرةً في الصفحة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es bucht für dich, direkt auf der Seite"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reserva por ti, en la misma página"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il réserve pour vous, directement sur la page"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prenota per te, direttamente nella pagina"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページ上でそのまま、代わりに予約します"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지에서 바로 대신 예약해 줘요"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ele reserva por você, direto na página"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Забронирует за вас прямо на странице"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sizin yerinize, sayfanın içinde rezervasyon yapar"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Забронює за вас просто на сторінці"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đặt chỗ giúp bạn, ngay trên trang"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "直接在网页上替你预订"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "直接在頁面上幫你預訂"
+          }
+        }
+      }
+    },
+    "Need a table or a stay booked, or a visit to a doctor or a stylist? On the booking site, open the panel, tap + by the field, choose Do and say what you need: “a table for two tomorrow at 7 pm”. ContextFlow picks the time, fills in your name and contacts from My details and books. You can close the panel: a question or the result shows up by ✦. Paying and signing in stay yours, and Stop is always there. With Pro or Ultra.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تحتاج إلى حجز طاولة أو مكان إقامة، أو موعد عند طبيب أو مصفف شعر؟ في موقع الحجز، افتح اللوحة، واضغط + بجانب الحقل، واختر «نفّذ» وقل ما تحتاج إليه: «طاولة لشخصين غدًا الساعة 7 مساءً». يختار ContextFlow الوقت، ويملأ اسمك وبيانات التواصل من «بياناتي» ثم يحجز. يمكنك إغلاق اللوحة: سيظهر السؤال أو النتيجة بجانب ✦. الدفع وتسجيل الدخول يبقيان لك، و«إيقاف» موجود دائمًا. مع Pro أو Ultra."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Musst du einen Tisch oder eine Unterkunft buchen oder einen Termin beim Arzt oder Friseur machen? Öffne auf der Buchungsseite das Panel, tippe auf + neben dem Feld, wähle „Erledigen“ und schreib, was du brauchst: „einen Tisch für zwei morgen um 19 Uhr“. ContextFlow wählt die Uhrzeit, trägt deinen Namen und deine Kontaktdaten aus „Meine Daten“ ein und bucht. Du kannst das Panel schließen: Eine Frage oder das Ergebnis erscheint bei ✦. Bezahlen und Anmelden übernimmst du selbst, und „Stopp“ ist immer da. Mit Pro oder Ultra."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Necesitas reservar una mesa o un alojamiento, o pedir cita con un médico o un estilista? En la web de reservas, abre el panel, toca + junto al campo, elige «Hacer» y di lo que necesitas: «mesa para dos mañana a las 19:00». ContextFlow elige la hora, rellena tu nombre y tus datos de contacto desde «Mis datos» y reserva. Puedes cerrar el panel: una pregunta o el resultado aparece junto a ✦. El pago y el inicio de sesión quedan en tus manos, y «Detener» siempre está a mano. Con Pro o Ultra."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Besoin de réserver une table ou un logement, ou de prendre rendez-vous chez le médecin ou le coiffeur ? Sur le site de réservation, ouvrez le panneau, touchez + à côté du champ, choisissez « Faire » et écrivez ce qu’il vous faut : « une table pour deux demain à 19 h ». ContextFlow choisit l’heure, remplit votre nom et vos coordonnées depuis « Mes infos » et réserve. Vous pouvez fermer le panneau : une question ou le résultat s’affiche près de ✦. Le paiement et la connexion restent entre vos mains, et « Arrêter » est toujours là. Avec Pro ou Ultra."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Devi prenotare un tavolo o un alloggio, o un appuntamento dal medico o dal parrucchiere? Sul sito di prenotazione apri il pannello, tocca + accanto al campo, scegli «Fai» e scrivi cosa ti serve: «un tavolo per due domani alle 19». ContextFlow sceglie l’orario, inserisce il tuo nome e i tuoi contatti da «I miei dati» e prenota. Puoi chiudere il pannello: una domanda o il risultato compare accanto a ✦. Pagare e accedere restano compito tuo, e «Interrompi» è sempre lì. Con Pro o Ultra."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "レストランの席や宿、病院や美容院の予約が必要ですか？予約サイトでパネルを開き、入力欄の横の＋をタップして「実行」を選び、してほしいことを書きます：「明日19時に2名で席を予約して」。ContextFlow が時間を選び、「自分の情報」から名前と連絡先を入力して予約します。パネルは閉じてもかまいません。質問や結果は ✦ の横に表示されます。支払いとサインインはご自身で行い、「停止」はいつでも押せます。Pro か Ultra で使えます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "식당이나 숙소, 병원이나 미용실 예약이 필요하세요? 예약 사이트에서 패널을 열고 입력란 옆의 +를 탭한 뒤 ‘실행’을 고르고, ‘내일 저녁 7시에 두 명 자리 예약해 줘’처럼 원하는 걸 적으세요. ContextFlow가 시간을 고르고 ‘내 정보’에서 이름과 연락처를 채워 예약해요. 패널은 닫아도 돼요. 질문이나 결과는 ✦ 옆에 나타나요. 결제와 로그인은 직접 하시고, ‘중지’는 언제든 누를 수 있어요. Pro나 Ultra에서 쓸 수 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Precisa reservar uma mesa ou uma hospedagem, ou marcar horário com um médico ou um cabeleireiro? No site de reservas, abra o painel, toque em + ao lado do campo, escolha “Fazer” e diga o que precisa: “mesa para dois amanhã às 19h”. O ContextFlow escolhe o horário, preenche seu nome e seus contatos a partir de “Meus dados” e faz a reserva. Você pode fechar o painel: uma pergunta ou o resultado aparece ao lado do ✦. Pagar e entrar na conta continuam com você, e “Parar” está sempre à mão. Com o Pro ou o Ultra."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нужно забронировать столик или жильё, записаться к врачу или мастеру? На сайте бронирования откройте панель, нажмите + у поля, выберите «Сделать» и напишите, что нужно: «столик на двоих завтра в 19:00». ContextFlow выберет время, подставит имя и контакты из «Моих данных» и забронирует. Панель можно закрыть: вопрос или итог появится у ✦. Оплата и вход остаются за вами, а «Стоп» всегда под рукой. С Pro или Ultra."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masa ya da konaklama ayırtmanız, doktordan ya da kuaförden randevu almanız mı gerekiyor? Rezervasyon sitesinde paneli açın, alanın yanındaki + düğmesine dokunun, “Yap” seçeneğini seçin ve ne istediğinizi yazın: “yarın saat 19.00'da iki kişilik masa”. ContextFlow saati seçer, adınızı ve iletişim bilgilerinizi “Bilgilerim” bölümünden doldurur ve rezervasyonu yapar. Paneli kapatabilirsiniz: bir soru ya da sonuç ✦ düğmesinin yanında görünür. Ödeme ve oturum açma sizde kalır, “Durdur” düğmesi ise her zaman elinizin altındadır. Pro veya Ultra ile."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Треба забронювати столик чи житло, записатися до лікаря чи майстра? На сайті бронювання відкрийте панель, натисніть + поруч із полем, виберіть «Зробити» й напишіть, що потрібно: «столик на двох завтра о 19:00». ContextFlow вибере час, підставить ім’я та контакти з розділу «Мої дані» й забронює. Панель можна закрити: запитання чи результат з’явиться біля ✦. Оплата й вхід лишаються за вами, а кнопка «Зупинити» завжди під рукою. З Pro або Ultra."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cần đặt bàn, đặt chỗ ở, hay hẹn lịch với bác sĩ hoặc thợ làm tóc? Trên trang đặt chỗ, mở bảng, chạm + cạnh ô nhập, chọn Làm và nói điều bạn cần: “bàn cho hai người lúc 19:00 ngày mai”. ContextFlow chọn giờ, điền tên và thông tin liên hệ của bạn từ Thông tin của tôi rồi đặt chỗ. Bạn có thể đóng bảng: câu hỏi hoặc kết quả sẽ hiện cạnh ✦. Thanh toán và đăng nhập vẫn do bạn tự làm, và Dừng luôn ở đó. Với Pro hoặc Ultra."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要订餐厅座位或住宿，或者预约医生、发型师？在预订网站上打开面板，轻点输入框旁的 +，选择“执行”，说出你要什么：“订明天晚上 7 点的两人桌”。ContextFlow 会选好时间，用“我的信息”填上你的姓名和联系方式，然后完成预订。面板可以关掉：有问题或结果时，会出现在 ✦ 旁边。付款和登录仍由你自己来，“停止”随时都在。需要 Pro 或 Ultra。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "想訂餐廳座位或住宿，或是預約看醫生、剪頭髮？在預訂網站上打開面板，點一下輸入欄旁的 +，選擇「執行」，說出你的需求：「訂明天晚上 7 點的兩人座位」。ContextFlow 會挑好時間，從「我的資料」填入你的姓名和聯絡方式，然後完成預訂。面板可以關掉：有問題或結果時，會出現在 ✦ 旁邊。付款和登入仍由你自己來，「停止」隨時都在。需搭配 Pro 或 Ultra。"
+          }
+        }
+      }
+    },
+    "Need a table or a stay booked, or a visit to a doctor or a stylist? On the booking site, open the panel, click + by the field, choose Do and say what you need: “a table for two tomorrow at 7 pm”. ContextFlow picks the time, fills in your name and contacts from My details and books. You can close the panel: a question or the result shows up by ✦. Paying and signing in stay yours, and Stop is always there. With Pro or Ultra.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تحتاج إلى حجز طاولة أو مكان إقامة، أو موعد عند طبيب أو مصفف شعر؟ في موقع الحجز، افتح اللوحة، وانقر + بجانب الحقل، واختر «نفّذ» وقل ما تحتاج إليه: «طاولة لشخصين غدًا الساعة 7 مساءً». يختار ContextFlow الوقت، ويملأ اسمك وبيانات التواصل من «بياناتي» ثم يحجز. يمكنك إغلاق اللوحة: سيظهر السؤال أو النتيجة بجانب ✦. الدفع وتسجيل الدخول يبقيان لك، و«إيقاف» موجود دائمًا. مع Pro أو Ultra."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Musst du einen Tisch oder eine Unterkunft buchen oder einen Termin beim Arzt oder Friseur machen? Öffne auf der Buchungsseite das Panel, klick auf + neben dem Feld, wähle „Erledigen“ und schreib, was du brauchst: „einen Tisch für zwei morgen um 19 Uhr“. ContextFlow wählt die Uhrzeit, trägt deinen Namen und deine Kontaktdaten aus „Meine Daten“ ein und bucht. Du kannst das Panel schließen: Eine Frage oder das Ergebnis erscheint bei ✦. Bezahlen und Anmelden übernimmst du selbst, und „Stopp“ ist immer da. Mit Pro oder Ultra."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Necesitas reservar una mesa o un alojamiento, o pedir cita con un médico o un estilista? En la web de reservas, abre el panel, haz clic en + junto al campo, elige «Hacer» y di lo que necesitas: «mesa para dos mañana a las 19:00». ContextFlow elige la hora, rellena tu nombre y tus datos de contacto desde «Mis datos» y reserva. Puedes cerrar el panel: una pregunta o el resultado aparece junto a ✦. El pago y el inicio de sesión quedan en tus manos, y «Detener» siempre está a mano. Con Pro o Ultra."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Besoin de réserver une table ou un logement, ou de prendre rendez-vous chez le médecin ou le coiffeur ? Sur le site de réservation, ouvrez le panneau, cliquez sur + à côté du champ, choisissez « Faire » et écrivez ce qu’il vous faut : « une table pour deux demain à 19 h ». ContextFlow choisit l’heure, remplit votre nom et vos coordonnées depuis « Mes infos » et réserve. Vous pouvez fermer le panneau : une question ou le résultat s’affiche près de ✦. Le paiement et la connexion restent entre vos mains, et « Arrêter » est toujours là. Avec Pro ou Ultra."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Devi prenotare un tavolo o un alloggio, o un appuntamento dal medico o dal parrucchiere? Sul sito di prenotazione apri il pannello, fai clic su + accanto al campo, scegli «Fai» e scrivi cosa ti serve: «un tavolo per due domani alle 19». ContextFlow sceglie l’orario, inserisce il tuo nome e i tuoi contatti da «I miei dati» e prenota. Puoi chiudere il pannello: una domanda o il risultato compare accanto a ✦. Pagare e accedere restano compito tuo, e «Interrompi» è sempre lì. Con Pro o Ultra."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "レストランの席や宿、病院や美容院の予約が必要ですか？予約サイトでパネルを開き、入力欄の横の＋をクリックして「実行」を選び、してほしいことを書きます：「明日19時に2名で席を予約して」。ContextFlow が時間を選び、「自分の情報」から名前と連絡先を入力して予約します。パネルは閉じてもかまいません。質問や結果は ✦ の横に表示されます。支払いとサインインはご自身で行い、「停止」はいつでも押せます。Pro か Ultra で使えます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "식당이나 숙소, 병원이나 미용실 예약이 필요하세요? 예약 사이트에서 패널을 열고 입력란 옆의 +를 클릭한 뒤 ‘실행’을 고르고, ‘내일 저녁 7시에 두 명 자리 예약해 줘’처럼 원하는 걸 적으세요. ContextFlow가 시간을 고르고 ‘내 정보’에서 이름과 연락처를 채워 예약해요. 패널은 닫아도 돼요. 질문이나 결과는 ✦ 옆에 나타나요. 결제와 로그인은 직접 하시고, ‘중지’는 언제든 누를 수 있어요. Pro나 Ultra에서 쓸 수 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Precisa reservar uma mesa ou uma hospedagem, ou marcar horário com um médico ou um cabeleireiro? No site de reservas, abra o painel, clique em + ao lado do campo, escolha “Fazer” e diga o que precisa: “mesa para dois amanhã às 19h”. O ContextFlow escolhe o horário, preenche seu nome e seus contatos a partir de “Meus dados” e faz a reserva. Você pode fechar o painel: uma pergunta ou o resultado aparece ao lado do ✦. Pagar e entrar na conta continuam com você, e “Parar” está sempre à mão. Com o Pro ou o Ultra."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нужно забронировать столик или жильё, записаться к врачу или мастеру? На сайте бронирования откройте панель, щёлкните + у поля, выберите «Сделать» и напишите, что нужно: «столик на двоих завтра в 19:00». ContextFlow выберет время, подставит имя и контакты из «Моих данных» и забронирует. Панель можно закрыть: вопрос или итог появится у ✦. Оплата и вход остаются за вами, а «Стоп» всегда под рукой. С Pro или Ultra."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masa ya da konaklama ayırtmanız, doktordan ya da kuaförden randevu almanız mı gerekiyor? Rezervasyon sitesinde paneli açın, alanın yanındaki + düğmesine tıklayın, “Yap” seçeneğini seçin ve ne istediğinizi yazın: “yarın saat 19.00'da iki kişilik masa”. ContextFlow saati seçer, adınızı ve iletişim bilgilerinizi “Bilgilerim” bölümünden doldurur ve rezervasyonu yapar. Paneli kapatabilirsiniz: bir soru ya da sonuç ✦ düğmesinin yanında görünür. Ödeme ve oturum açma sizde kalır, “Durdur” düğmesi ise her zaman elinizin altındadır. Pro veya Ultra ile."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Треба забронювати столик чи житло, записатися до лікаря чи майстра? На сайті бронювання відкрийте панель, клацніть + поруч із полем, виберіть «Зробити» й напишіть, що потрібно: «столик на двох завтра о 19:00». ContextFlow вибере час, підставить ім’я та контакти з розділу «Мої дані» й забронює. Панель можна закрити: запитання чи результат з’явиться біля ✦. Оплата й вхід лишаються за вами, а кнопка «Зупинити» завжди під рукою. З Pro або Ultra."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cần đặt bàn, đặt chỗ ở, hay hẹn lịch với bác sĩ hoặc thợ làm tóc? Trên trang đặt chỗ, mở bảng, bấm + cạnh ô nhập, chọn Làm và nói điều bạn cần: “bàn cho hai người lúc 19:00 ngày mai”. ContextFlow chọn giờ, điền tên và thông tin liên hệ của bạn từ Thông tin của tôi rồi đặt chỗ. Bạn có thể đóng bảng: câu hỏi hoặc kết quả sẽ hiện cạnh ✦. Thanh toán và đăng nhập vẫn do bạn tự làm, và Dừng luôn ở đó. Với Pro hoặc Ultra."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要订餐厅座位或住宿，或者预约医生、发型师？在预订网站上打开面板，点按输入框旁的 +，选择“执行”，说出你要什么：“订明天晚上 7 点的两人桌”。ContextFlow 会选好时间，用“我的信息”填上你的姓名和联系方式，然后完成预订。面板可以关掉：有问题或结果时，会出现在 ✦ 旁边。付款和登录仍由你自己来，“停止”随时都在。需要 Pro 或 Ultra。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "想訂餐廳座位或住宿，或是預約看醫生、剪頭髮？在預訂網站上打開面板，按一下輸入欄旁的 +，選擇「執行」，說出你的需求：「訂明天晚上 7 點的兩人座位」。ContextFlow 會挑好時間，從「我的資料」填入你的姓名和聯絡方式，然後完成預訂。面板可以關掉：有問題或結果時，會出現在 ✦ 旁邊。付款和登入仍由你自己來，「停止」隨時都在。需搭配 Pro 或 Ultra。"
+          }
+        }
+      }
+    },
+    "Cookie windows close themselves": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نوافذ ملفات تعريف الارتباط تُغلق وحدها"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cookie-Fenster schließen sich von selbst"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las ventanas de cookies se cierran solas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les fenêtres de cookies se ferment toutes seules"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le finestre dei cookie si chiudono da sole"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cookieの確認画面が自動で閉じます"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "쿠키 창이 알아서 닫혀요"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As janelas de cookies se fecham sozinhas"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Окна cookie закрываются сами"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Çerez pencereleri kendiliğinden kapanır"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вікна cookie закриваються самі"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cửa sổ cookie tự đóng"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cookie 窗口自动关闭"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cookie 視窗會自動關閉"
+          }
+        }
+      }
+    },
+    "Tired of tapping through cookie windows? ContextFlow answers them for you with “only necessary”, and the first few times a short line by ✦ says so. Want them back on a site? Turn it off for that site in the extension settings, under Cookie windows.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سئمت الضغط على نوافذ ملفات تعريف الارتباط؟ يرد ContextFlow عليها نيابةً عنك بـ«الضرورية فقط»، وفي المرات القليلة الأولى يخبرك بذلك سطر قصير بجانب ✦. تريد أن تظهر من جديد في موقع ما؟ أوقف ذلك لهذا الموقع من إعدادات الامتداد، ضمن «نوافذ ملفات تعريف الارتباط»."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Lust mehr, dich durch Cookie-Fenster zu tippen? ContextFlow beantwortet sie für dich mit „Nur notwendige“, und die ersten paar Male sagt dir eine kurze Zeile bei ✦ Bescheid. Willst du sie auf einer Website wieder sehen? Schalte das für diese Website in den Erweiterungseinstellungen unter „Cookie-Fenster“ aus."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Te cansa ir tocando ventanas de cookies? ContextFlow las responde por ti con «solo necesarias», y las primeras veces te lo dice una línea corta junto a ✦. ¿Quieres volver a verlas en un sitio? Desactívalo para ese sitio en los ajustes de la extensión, en «Ventanas de cookies»."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous en avez assez de toucher les fenêtres de cookies une à une ? ContextFlow y répond pour vous avec « uniquement nécessaires », et les premières fois, une courte ligne près de ✦ vous le signale. Vous voulez les revoir sur un site ? Désactivez cette fonction pour ce site dans les réglages de l’extension, sous « Fenêtres de cookies »."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne hai abbastanza di toccare le finestre dei cookie una dopo l’altra? ContextFlow risponde per te con «solo necessari», e le prime volte te lo dice una breve riga accanto a ✦. Vuoi rivederle su un sito? Disattiva l’opzione per quel sito nelle impostazioni dell’estensione, in «Finestre dei cookie»."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cookieの確認画面を毎回タップして閉じるのが面倒ですか？ContextFlow が代わりに「必須のみ」で答え、最初の数回は ✦ の横に短い一行でお知らせします。あるサイトでは表示させたいときは、拡張機能の設定の「Cookieの確認画面」で、そのサイトだけオフにします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "쿠키 창을 일일이 탭해서 닫기 지겨우세요? ContextFlow가 ‘필수만’으로 대신 답하고, 처음 몇 번은 ✦ 옆에 짧은 한 줄로 알려 줘요. 어떤 사이트에서는 다시 보고 싶다면 확장 프로그램 설정의 ‘쿠키 창’에서 그 사이트만 끄세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cansou de tocar em janela de cookies? O ContextFlow responde por você com “somente necessários”, e nas primeiras vezes uma linha curta ao lado do ✦ avisa. Quer vê-las de volta em um site? Desative para esse site nos ajustes da extensão, em “Janelas de cookies”."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Надоело закрывать окна cookie? ContextFlow отвечает на них сам — «только необходимые», а первые несколько раз об этом скажет короткая строка у ✦. Хотите видеть их на каком-то сайте — выключите для него в настройках расширения, в разделе «Окна cookie»."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Çerez pencerelerine dokunup durmaktan bıktınız mı? ContextFlow bunları sizin yerinize “yalnızca gerekli” ile yanıtlar; ilk birkaç seferde ✦ düğmesinin yanındaki kısa bir satır bunu söyler. Bir sitede yeniden görmek mi istiyorsunuz? Uzantı ayarlarındaki “Çerez pencereleri” bölümünden o site için kapatın."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Набридло щоразу натискати у вікнах cookie? ContextFlow відповідає на них сам — «лише необхідні», а перші кілька разів про це скаже короткий рядок біля ✦. Хочете бачити їх на якомусь сайті? Вимкніть це для нього в налаштуваннях розширення, у розділі «Вікна cookie»."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mệt vì phải chạm qua từng cửa sổ cookie? ContextFlow trả lời thay bạn bằng “chỉ cần thiết”, và vài lần đầu sẽ có một dòng ngắn cạnh ✦ báo cho bạn biết. Muốn chúng hiện lại trên một trang web? Tắt cho trang đó trong phần cài đặt tiện ích mở rộng, ở mục Cửa sổ cookie."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "厌倦了一个个轻点关闭 Cookie 窗口？ContextFlow 会替你选择“仅必要”，前几次 ✦ 旁会有一行简短提示。想在某个网站继续看到它们？在扩展设置的“Cookie 窗口”中，为该网站关闭这项功能。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "受夠了一直點掉 Cookie 視窗？ContextFlow 會幫你選擇「僅必要」，前幾次 ✦ 旁會有一行簡短說明。想在某個網站繼續看到它們？在延伸功能設定的「Cookie 視窗」中，為該網站關閉這項功能。"
+          }
+        }
+      }
+    },
+    "Tired of clicking through cookie windows? ContextFlow answers them for you with “only necessary”, and the first few times a short line by ✦ says so. Want them back on a site? Turn it off for that site in the extension settings, under Cookie windows.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سئمت النقر على نوافذ ملفات تعريف الارتباط؟ يرد ContextFlow عليها نيابةً عنك بـ«الضرورية فقط»، وفي المرات القليلة الأولى يخبرك بذلك سطر قصير بجانب ✦. تريد أن تظهر من جديد في موقع ما؟ أوقف ذلك لهذا الموقع من إعدادات الامتداد، ضمن «نوافذ ملفات تعريف الارتباط»."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Lust mehr, dich durch Cookie-Fenster zu klicken? ContextFlow beantwortet sie für dich mit „Nur notwendige“, und die ersten paar Male sagt dir eine kurze Zeile bei ✦ Bescheid. Willst du sie auf einer Website wieder sehen? Schalte das für diese Website in den Erweiterungseinstellungen unter „Cookie-Fenster“ aus."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Te cansa ir haciendo clic en ventanas de cookies? ContextFlow las responde por ti con «solo necesarias», y las primeras veces te lo dice una línea corta junto a ✦. ¿Quieres volver a verlas en un sitio? Desactívalo para ese sitio en los ajustes de la extensión, en «Ventanas de cookies»."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous en avez assez de cliquer dans les fenêtres de cookies une à une ? ContextFlow y répond pour vous avec « uniquement nécessaires », et les premières fois, une courte ligne près de ✦ vous le signale. Vous voulez les revoir sur un site ? Désactivez cette fonction pour ce site dans les réglages de l’extension, sous « Fenêtres de cookies »."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne hai abbastanza di fare clic sulle finestre dei cookie una dopo l’altra? ContextFlow risponde per te con «solo necessari», e le prime volte te lo dice una breve riga accanto a ✦. Vuoi rivederle su un sito? Disattiva l’opzione per quel sito nelle impostazioni dell’estensione, in «Finestre dei cookie»."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cookieの確認画面を毎回クリックして閉じるのが面倒ですか？ContextFlow が代わりに「必須のみ」で答え、最初の数回は ✦ の横に短い一行でお知らせします。あるサイトでは表示させたいときは、拡張機能の設定の「Cookieの確認画面」で、そのサイトだけオフにします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "쿠키 창을 일일이 클릭해서 닫기 지겨우세요? ContextFlow가 ‘필수만’으로 대신 답하고, 처음 몇 번은 ✦ 옆에 짧은 한 줄로 알려 줘요. 어떤 사이트에서는 다시 보고 싶다면 확장 프로그램 설정의 ‘쿠키 창’에서 그 사이트만 끄세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cansou de clicar em janela de cookies? O ContextFlow responde por você com “somente necessários”, e nas primeiras vezes uma linha curta ao lado do ✦ avisa. Quer vê-las de volta em um site? Desative para esse site nos ajustes da extensão, em “Janelas de cookies”."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Надоело закрывать окна cookie? ContextFlow отвечает на них сам — «только необходимые», а первые несколько раз об этом скажет короткая строка у ✦. Хотите видеть их на каком-то сайте — выключите для него в настройках расширения, в разделе «Окна cookie»."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Çerez pencerelerine tıklayıp durmaktan bıktınız mı? ContextFlow bunları sizin yerinize “yalnızca gerekli” ile yanıtlar; ilk birkaç seferde ✦ düğmesinin yanındaki kısa bir satır bunu söyler. Bir sitede yeniden görmek mi istiyorsunuz? Uzantı ayarlarındaki “Çerez pencereleri” bölümünden o site için kapatın."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Набридло щоразу клацати у вікнах cookie? ContextFlow відповідає на них сам — «лише необхідні», а перші кілька разів про це скаже короткий рядок біля ✦. Хочете бачити їх на якомусь сайті? Вимкніть це для нього в налаштуваннях розширення, у розділі «Вікна cookie»."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mệt vì phải bấm qua từng cửa sổ cookie? ContextFlow trả lời thay bạn bằng “chỉ cần thiết”, và vài lần đầu sẽ có một dòng ngắn cạnh ✦ báo cho bạn biết. Muốn chúng hiện lại trên một trang web? Tắt cho trang đó trong phần cài đặt tiện ích mở rộng, ở mục Cửa sổ cookie."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "厌倦了一个个点按关闭 Cookie 窗口？ContextFlow 会替你选择“仅必要”，前几次 ✦ 旁会有一行简短提示。想在某个网站继续看到它们？在扩展设置的“Cookie 窗口”中，为该网站关闭这项功能。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "受夠了一直按掉 Cookie 視窗？ContextFlow 會幫你選擇「僅必要」，前幾次 ✦ 旁會有一行簡短說明。想在某個網站繼續看到它們？在延伸功能設定的「Cookie 視窗」中，為該網站關閉這項功能。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

@@ -66,7 +66,7 @@
   "message": "Acompanhar o preço"
  },
  "plusButton": {
-  "message": "Mais: nota, captura, chat inteiro"
+  "message": "Mais: nota, fazer, captura, chat inteiro"
  },
  "hintShow": {
   "message": "Ver"
@@ -2825,6 +2825,27 @@
  "setPageHintsHint": {
   "message": "Nos primeiros dias, mostram o que você pode fazer numa página."
  },
+ "setCookies": {
+  "message": "Fechar janelas de cookies"
+ },
+ "setCookiesHint": {
+  "message": "Escolhe “somente necessários”."
+ },
+ "setCookiesAccept": {
+  "message": "Se não der para recusar, aceitar"
+ },
+ "cookiesOffOnSite": {
+  "message": "Não fechar neste site"
+ },
+ "cookiesOnOnSite": {
+  "message": "Fechar neste site"
+ },
+ "cookieClosedLine": {
+  "message": "Janela de cookies fechada: somente necessários"
+ },
+ "cookieAcceptedLine": {
+  "message": "Cookies aceitos: não havia outra opção"
+ },
  "phSimilarBodyUpBoth": {
   "message": "Isso está no Pro e no Ultra: no Pro, a busca rápida; no Ultra, a completa. O mesmo produto mais barato e parecidos de outras lojas. Toque no botão destacado."
  },
@@ -3137,6 +3158,681 @@
  "writeInserted": {
   "message": "Inserido"
  },
+ "agentMode": {
+  "message": "Fazer"
+ },
+ "agentModeHint": {
+  "message": "Deixe o ContextFlow fazer isso nesta página"
+ },
+ "placeholderAgent": {
+  "message": "O que fazer nesta página?"
+ },
+ "agentWorking": {
+  "message": "Trabalhando · passo {0}"
+ },
+ "agentConfirmTitle": {
+  "message": "Posso fazer?"
+ },
+ "agentYes": {
+  "message": "Sim"
+ },
+ "agentNo": {
+  "message": "Não"
+ },
+ "agentNoUndo": {
+  "message": "Isso não pode ser desfeito."
+ },
+ "agentOffRequest": {
+  "message": "Parece que não foi isso que você pediu: {0}"
+ },
+ "agentStepClick": {
+  "message": "Apertar “{0}”"
+ },
+ "agentRecapAgain": {
+  "message": "Pergunto de novo: a página recusou a primeira tentativa por causa de “{0}”."
+ },
+ "agentRecapAgainTo": {
+  "message": "Pergunto de novo: a página recusou a primeira tentativa por causa de “{0}”; agora está escolhido “{1}”."
+ },
+ "agentStepServiceOther": {
+  "message": "A página não tem “{0}”. Escolher “{1}” no lugar?"
+ },
+ "agentRecapService": {
+  "message": "Serviço: {0}"
+ },
+ "agentRecapServiceOther": {
+  "message": "Não é “{0}”, o pedido: você escolheu este."
+ },
+ "agentStepPricedChoice": {
+  "message": "Escolher “{0}” — uma opção com preço, não um pagamento"
+ },
+ "agentStepType": {
+  "message": "Digitar “{0}” em “{1}”"
+ },
+ "agentStepSelect": {
+  "message": "Escolher “{0}” em “{1}”"
+ },
+ "agentStepGo": {
+  "message": "Ir para {0}"
+ },
+ "agentFillTitle": {
+  "message": "Preencher com “Meus dados”?"
+ },
+ "agentFillButton": {
+  "message": "Preencher"
+ },
+ "agentFillSkip": {
+  "message": "Não precisa"
+ },
+ "agentSelfTitle": {
+  "message": "Este passo é seu"
+ },
+ "agentSelfPay": {
+  "message": "O pagamento ou o pedido fica com você: aperte “{0}” depois de conferir tudo."
+ },
+ "agentSelfSend": {
+  "message": "O envio fica com você: aperte “{0}” depois de ler."
+ },
+ "agentSelfAuth": {
+  "message": "O login fica com você (o Safari pode preencher a senha). Eu espero."
+ },
+ "agentSelfConsent": {
+  "message": "Se você concordar, marque “{0}” por conta própria."
+ },
+ "agentSelfRate": {
+  "message": "Avaliações, notas e votos são só seus."
+ },
+ "agentSelfOther": {
+  "message": "Faça isto por conta própria: “{0}”."
+ },
+ "agentSelfNewTab": {
+  "message": "Toque em “{0}” você mesmo: a página abre isso numa nova aba, e só o seu próprio toque consegue. Eu continuo por lá."
+ },
+ "agentSelfFile": {
+  "message": "Escolha o arquivo por conta própria."
+ },
+ "agentSelfDone": {
+  "message": "Pronto"
+ },
+ "agentSelfNotNow": {
+  "message": "Agora não"
+ },
+ "agentDoneTitle": {
+  "message": "Pronto"
+ },
+ "agentAskedTitle": {
+  "message": "Preciso da sua resposta"
+ },
+ "agentStopped": {
+  "message": "Interrompido."
+ },
+ "agentUndo": {
+  "message": "Desfazer"
+ },
+ "agentUndone": {
+  "message": "Desfiz o que dava para desfazer."
+ },
+ "agentLimit": {
+  "message": "As tarefas do agente de hoje acabaram ({0} por dia). Amanhã tem mais."
+ },
+ "agentProOnly": {
+  "message": "O agente vem no Pro e no Ultra."
+ },
+ "agentError": {
+  "message": "Algo deu errado. Tente novamente."
+ },
+ "agentErrorPage": {
+  "message": "A página não está respondendo. Recarregue e tente de novo."
+ },
+ "agentSteps": {
+  "message": "Foram passos demais, então parei aqui."
+ },
+ "agentBlockedSite": {
+  "message": "Em sites de bancos, pagamentos, governo e parecidos, o ContextFlow não age por você. Mas ainda responde perguntas sobre a página."
+ },
+ "amazonAgent": {
+  "message": "Na Amazon, o ContextFlow só responde perguntas sobre a página: a Amazon não permite que ferramentas automáticas ajam no site dela por você."
+ },
+ "amazonSimilar": {
+  "message": "Não verificado: a Amazon não deixa nosso servidor abrir as páginas dela."
+ },
+ "agentStart": {
+  "message": "Começar"
+ },
+ "agentDeferredTitle": {
+  "message": "Tarefa para depois"
+ },
+ "agentDontAskHere": {
+  "message": "Da próxima vez, começar direto neste site"
+ },
+ "agentLater": {
+  "message": "Depois"
+ },
+ "agentLaterAt": {
+  "message": "Em um horário"
+ },
+ "agentLaterWatch": {
+  "message": "Quando o acompanhamento desta página avisar"
+ },
+ "agentLaterSet": {
+  "message": "OK"
+ },
+ "agentLaterSaved": {
+  "message": "Em {0} você recebe uma notificação. Toque nela e eu faço isso nesta página com você."
+ },
+ "agentLaterSavedWatch": {
+  "message": "Quando o acompanhamento avisar, você recebe uma notificação. Toque nela e eu faço isso com você."
+ },
+ "agentLaterNotifOff": {
+  "message": "As notificações do ContextFlow estão desativadas. Ative em Ajustes → Notificações → ContextFlow."
+ },
+ "agentLaterNotifyWhy": {
+  "message": "Ative as notificações para eu poder lembrar você desta tarefa."
+ },
+ "agentLaterPast": {
+  "message": "Esse horário já passou. Escolha um mais tarde."
+ },
+ "agentYouMark": {
+  "message": "Você"
+ },
+ "agentHint": {
+  "message": "Fazer nesta página?"
+ },
+ "agentWaitingStep": {
+  "message": "Etapa {0} · aguardando você"
+ },
+ "agentStepReminderAdd": {
+  "message": "Adicionar o lembrete “{0}” à lista “{1}”"
+ },
+ "agentStepReminderAddDue": {
+  "message": "Adicionar o lembrete “{0}” à lista “{1}” para {2}"
+ },
+ "agentStepReminderDone": {
+  "message": "Marcar “{0}” como concluído em Lembretes"
+ },
+ "agentStepEventAdd": {
+  "message": "Adicionar “{0}” ao seu calendário: {1}"
+ },
+ "agentSelfAccessReminders": {
+  "message": "Permita que o ContextFlow use seus Lembretes: abra o app, toque em “Permitir”, volte aqui e toque em “Concluído”."
+ },
+ "agentSelfAccessCalendar": {
+  "message": "Permita que o ContextFlow use seu Calendário: abra o app, toque em “Permitir Acesso Total”, volte aqui e toque em “Concluído”."
+ },
+ "agentOpenApp": {
+  "message": "Abrir o ContextFlow"
+ },
+ "agentStepReminderAddDefault": {
+  "message": "Adicionar o lembrete “{0}” à sua lista padrão"
+ },
+ "agentStepReminderAddDefaultDue": {
+  "message": "Adicionar o lembrete “{0}” à sua lista padrão para {1}"
+ },
+ "agentLaterLimit": {
+  "message": "Já há {0} tarefas esperando, o máximo do seu plano."
+ },
+ "agentNotifTitle": {
+  "message": "Uma tarefa em {0}"
+ },
+ "agentNotifBody": {
+  "message": "Toque e eu faço isso com você: {0}"
+ },
+ "agentHelpLink": {
+  "message": "O que o agente não faz"
+ },
+ "agentHelp": {
+  "message": "O agente faz coisas na página aberta: aperta, digita, escolhe. Antes de enviar um formulário, ele pergunta “Posso fazer?”, e deixa com você compras, pagamentos, mensagens e login. Ele nunca vê nem digita senhas, cartões ou números de documentos. Captcha, escolha de arquivo e alguns botões incomuns estão fora do alcance dele: nesses casos, ele pede que você faça esse passo. Uma tarefa para depois chega como notificação: toque nela e o agente continua com você."
+ },
+ "setAgentAuto": {
+  "message": "Tarefas para depois começam direto em"
+ },
+ "setAgentAutoHint": {
+  "message": "Nesses sites, tocar na notificação já inicia a tarefa, sem “Começar”. “Posso fazer?” e os passos que ficam com você continuam aparecendo."
+ },
+ "fdTitle": {
+  "message": "Meus dados"
+ },
+ "fdHint": {
+  "message": "Para preencher formulários em sites. Ficam no seu dispositivo; o agente só os preenche depois que você concorda, e a IA nunca os vê."
+ },
+ "fdNameFull": {
+  "message": "Nome completo"
+ },
+ "fdNameGiven": {
+  "message": "Nome"
+ },
+ "fdNameFamily": {
+  "message": "Sobrenome"
+ },
+ "fdNameLatin": {
+  "message": "Nome em letras latinas"
+ },
+ "fdNamePhonetic": {
+  "message": "Pronúncia do nome"
+ },
+ "fdEmail": {
+  "message": "E-mail"
+ },
+ "fdPhone": {
+  "message": "Telefone"
+ },
+ "fdAddressLine": {
+  "message": "Rua e número"
+ },
+ "fdAddressApartment": {
+  "message": "Complemento (apto., andar)"
+ },
+ "fdAddressCity": {
+  "message": "Cidade"
+ },
+ "fdAddressRegion": {
+  "message": "Estado ou região"
+ },
+ "fdAddressPostal": {
+  "message": "CEP"
+ },
+ "fdAddressCountry": {
+  "message": "País"
+ },
+ "fdCompany": {
+  "message": "Empresa"
+ },
+ "fdJobTitle": {
+  "message": "Cargo"
+ },
+ "fdWebsite": {
+  "message": "Site"
+ },
+ "fdBirthDate": {
+  "message": "Data de nascimento"
+ },
+ "fdFact": {
+  "message": "Outra coisa"
+ },
+ "fdFactLabel": {
+  "message": "O que é (por exemplo, tamanho do calçado)"
+ },
+ "fdAdd": {
+  "message": "Adicionar"
+ },
+ "fdDelete": {
+  "message": "Apagar"
+ },
+ "fdDeleteAll": {
+  "message": "Apagar tudo"
+ },
+ "fdDeleteAllAsk": {
+  "message": "Apagar todos os seus dados deste dispositivo (e do iCloud, se estiverem sincronizados)?"
+ },
+ "fdRefused": {
+  "message": "Não guardo senhas, cartões, dados bancários, números de documentos, códigos nem dados de saúde."
+ },
+ "fdICloudAsk": {
+  "message": "Sincronizar seus dados entre seus dispositivos pelo iCloud?"
+ },
+ "fdICloudHint": {
+  "message": "Pelo seu iCloud pessoal, ao qual não temos acesso. Sem isso, eles ficam neste dispositivo."
+ },
+ "fdICloud": {
+  "message": "Sincronizar pelo iCloud"
+ },
+ "agentPlanTitle": {
+  "message": "Vou fazer assim"
+ },
+ "agentPlanReading": {
+  "message": "Lendo a página…"
+ },
+ "agentPlanAllowed": {
+  "message": "Vou fazer sem perguntar"
+ },
+ "agentPlanSelf": {
+  "message": "Isso você faz"
+ },
+ "agentPlanOwn": {
+  "message": "Outro…"
+ },
+ "agentPlanNow": {
+  "message": "Agora"
+ },
+ "agentPermPersonal": {
+  "message": "Digitar seus dados do pedido: {0}"
+ },
+ "agentPermFill": {
+  "message": "Preencher com “Meus dados”: {0}"
+ },
+ "agentLineFilled": {
+  "message": "Preenchido: {0}"
+ },
+ "agentLinePressed": {
+  "message": "Tocado: {0}"
+ },
+ "agentPermConsent": {
+  "message": "Marcar a concordância com os termos de {0}"
+ },
+ "agentPermReminder": {
+  "message": "Adicionar aos Lembretes: “{0}”"
+ },
+ "agentPermReminderDone": {
+  "message": "Marcar como concluído nos Lembretes: “{0}”"
+ },
+ "agentPermEvent": {
+  "message": "Adicionar ao Calendário: “{0}”"
+ },
+ "agentPlanSelfPay": {
+  "message": "Pagar ou fechar o pedido: “{0}”"
+ },
+ "agentPlanSelfSend": {
+  "message": "Enviar: “{0}”"
+ },
+ "agentPlanSelfAuth": {
+  "message": "Entrar no site"
+ },
+ "agentPriceChanged": {
+  "message": "O preço aqui é diferente do que apareceu antes ({0}). Confira antes de continuar."
+ },
+ "agentMarkPaused": {
+  "message": "Em pausa"
+ },
+ "agentMarkStopped": {
+  "message": "Interrompido"
+ },
+ "agentMarkFailed": {
+  "message": "Não deu certo"
+ },
+ "agentShowSteps": {
+  "message": "Passos e resultado"
+ },
+ "agentModeOff": {
+  "message": "Desligar “Fazer”"
+ },
+ "noteHintTouchDo": {
+  "message": "Deslize o botão para cima para uma nota, para baixo para “Fazer”"
+ },
+ "agentNoticeNeeds": {
+  "message": "Precisa de você"
+ },
+ "agentGoToTab": {
+  "message": "Ir para a aba"
+ },
+ "agentNotifPaused": {
+  "message": "Tarefa pausada — abra o Safari para terminar: {0}"
+ },
+ "agentNotifDone": {
+  "message": "Pronto: {0}"
+ },
+ "agentNotifNeeds": {
+  "message": "Precisa de você: {0}"
+ },
+ "agentNotifNotBooked": {
+  "message": "Não reservado: {0}"
+ },
+ "agentPlanStepYours": {
+  "message": "“{0}” — você aperta"
+ },
+ "agentPlanAnswerFirst": {
+  "message": "Responda primeiro: “{0}”"
+ },
+ "agentErrorNoReply": {
+  "message": "A extensão não respondeu. Tente de novo — se acontecer de novo, recarregue a página."
+ },
+ "agentStartFailed": {
+  "message": "Não deu para começar a tarefa ({0}). Tente de novo."
+ },
+ "agentPlanRemember": {
+  "message": "Lembrar em “Meus dados”"
+ },
+ "agentPlanFromSaved": {
+  "message": "De “Meus dados” — atualizar lá"
+ },
+ "agentMarkUnfinished": {
+  "message": "Não terminou"
+ },
+ "agentNothingBooked": {
+  "message": "Nada foi reservado."
+ },
+ "agentLastDone": {
+  "message": "Último passo feito: {0}"
+ },
+ "agentStuck": {
+  "message": "A página parou de mudar, então parei aqui. O que consegui está acima."
+ },
+ "agentNeedSignIn": {
+  "message": "entrar no site"
+ },
+ "agentNeedPay": {
+  "message": "pagar no site"
+ },
+ "agentNeedAnswer": {
+  "message": "uma resposta"
+ },
+ "agentAutoLine": {
+  "message": "Sem perguntas — de Meus dados e das suas regras: {0}"
+ },
+ "agentLineCalendar": {
+  "message": "Adicionado ao Calendário: {0}"
+ },
+ "agentRulesTitle": {
+  "message": "Regras de reserva"
+ },
+ "agentRulesHint": {
+  "message": "Com elas o agente reserva sem perguntar. Pagamento, códigos e login continuam com você."
+ },
+ "agentRuleWindow": {
+  "message": "Um horário que eu disser pode mudar até, min"
+ },
+ "agentRuleDays": {
+  "message": "Se o dia estiver cheio: até … dias depois"
+ },
+ "agentRuleParty": {
+  "message": "Pessoas quando eu não disser (convidados, ingressos, lugares)"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "Qualquer especialista (cabeleireiro, médico, professor, treinador, guia…)"
+ },
+ "agentRuleUsual": {
+  "message": "O serviço que escolhi lá da última vez"
+ },
+ "agentRuleCalendar": {
+  "message": "Só horários livres no meu Calendário"
+ },
+ "agentRuleAuto": {
+  "message": "Reservar sem plano quando tudo é conhecido e nada é pago"
+ },
+ "agentPlanHow": {
+  "message": "Escolho o lugar: nota {0}+, adequado, o mais próximo"
+ },
+ "agentPlanHowCal": {
+  "message": "um horário livre no seu Calendário, adicionado lá"
+ },
+ "agentRuleVenue": {
+  "message": "Escolher o lugar sozinho se eu não disser qual"
+ },
+ "agentRuleRating": {
+  "message": "Nota do lugar a partir de"
+ },
+ "accessGroup": {
+  "message": "Calendário e Lembretes"
+ },
+ "accessHint": {
+  "message": "O agente escolhe horários livres no seu calendário e pode adicionar as reservas. O conteúdo do seu calendário nunca sai do aparelho."
+ },
+ "accessCalendar": {
+  "message": "Calendário"
+ },
+ "accessReminders": {
+  "message": "Lembretes"
+ },
+ "accessYes": {
+  "message": "Acesso permitido"
+ },
+ "accessNo": {
+  "message": "Sem acesso"
+ },
+ "accessAllow": {
+  "message": "Permitir"
+ },
+ "accessSettingsIos": {
+  "message": "Abrir Ajustes do iOS"
+ },
+ "accessSettingsMac": {
+  "message": "Abrir Ajustes do Sistema"
+ },
+ "agentRuleCalNeeds": {
+  "message": "Precisa de acesso ao calendário"
+ },
+ "agentPlanCalAsk": {
+  "message": "Considerar o calendário?"
+ },
+ "agentCalNotChecked": {
+  "message": "Não verifiquei o calendário: sem acesso"
+ },
+ "agentPlanFromChat": {
+  "message": "Do chat: {0}"
+ },
+ "sendMenuNote": {
+  "message": "Nota"
+ },
+ "noteHintPointerDo": {
+  "message": "Role sobre o botão: para cima para uma nota, para baixo para “Fazer”, ou clique com o botão direito"
+ },
+ "setSecGeneral": {
+  "message": "Geral"
+ },
+ "setSecButton": {
+  "message": "Botão flutuante e seleção"
+ },
+ "setSecWriting": {
+  "message": "Inserção rápida e escrita"
+ },
+ "setSecAgent": {
+  "message": "“Fazer”: tarefas nas páginas"
+ },
+ "setSecCookies": {
+  "message": "Janelas de cookies"
+ },
+ "setSecChats": {
+  "message": "Conversas e espaços"
+ },
+ "setSecData": {
+  "message": "Privacidade e dados"
+ },
+ "setSecPlan": {
+  "message": "Plano e conta"
+ },
+ "setSecAbout": {
+  "message": "Sobre"
+ },
+ "fdICloudLocal": {
+  "message": "Por enquanto, só neste dispositivo"
+ },
+ "fdICloudSyncing": {
+  "message": "Sincronizando…"
+ },
+ "fdICloudSynced": {
+  "message": "Sincronizado · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "agora mesmo"
+ },
+ "fdICloudNoAccount": {
+  "message": "Não sincronizado: entre no iCloud neste dispositivo"
+ },
+ "fdICloudFailed": {
+  "message": "Não sincronizado: o iCloud não respondeu. Tenta de novo na próxima vez."
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "Quem presta o serviço — cabeleireiro, médico, professor, treinador, instrutor ou guia —, quem estiver livre. Desligado: pergunto com quem."
+ },
+ "errLink": {
+  "message": "O ContextFlow perdeu a ligação com esta página (o iOS pode tê-lo encerrado enquanto outro app estava aberto). Tente de novo ou, se acontecer outra vez, recarregue a página."
+ },
+ "reloadPage": {
+  "message": "Recarregar a página"
+ },
+ "agentPlanVenueQ": {
+  "message": "Onde reservar (escolhido pelas suas regras)"
+ },
+ "agentPlanEmailQ": {
+  "message": "Seu e-mail para a reserva (o site vai pedir)"
+ },
+ "agentPlanPhoneQ": {
+  "message": "Seu telefone para a reserva (o site vai pedir)"
+ },
+ "agentLinePopup": {
+  "message": "Fechei uma janela sobre a página: «{0}»"
+ },
+ "agentPlanSpecialistQ": {
+  "message": "Qual profissional?"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "Qualquer profissional"
+ },
+ "agentPlanServiceQ": {
+  "message": "Qual serviço?"
+ },
+ "agentPlanSpecialistOnPage": {
+  "message": "Escolho na página do local"
+ },
+ "agentPlanVenueAuto": {
+  "message": "Escolher por mim: nota {0}+, mais perto"
+ },
+ "agentPlanLastTime": {
+  "message": "da última vez"
+ },
+ "agentPlanPlaceQ": {
+  "message": "Onde agendar?"
+ },
+ "agentBubbleCheck": {
+  "message": "Confira antes de eu continuar: {0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "Entre no site — eu espero"
+ },
+ "agentBubblePlan": {
+  "message": "O plano está esperando por você"
+ },
+ "agentBubbleFill": {
+  "message": "Confira o que vai no formulário"
+ },
+ "agentBubbleDone": {
+  "message": "Pronto: {0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "Não terminado: {0}"
+ },
+ "agentBubbleOpen": {
+  "message": "Abrir"
+ },
+ "agentBubbleOther": {
+  "message": "Outro…"
+ },
+ "agentBubbleShow": {
+  "message": "Mostrar"
+ },
+ "agentRuleFreeCancel": {
+  "message": "Reservar só com cancelamento grátis"
+ },
+ "agentRuleVenueHint": {
+  "message": "Um lugar é um restaurante, salão, clínica, hotel ou apartamento, locadora, academia ou filial. Quando importa quem ou onde (um médico, um hotel para uma viagem), pergunto; senão escolho por estas regras."
+ },
+ "agentPlanPlaceQAny": {
+  "message": "Onde reservar?"
+ },
+ "agentRecapTitle": {
+  "message": "Confira antes de eu reservar"
+ },
+ "agentRecapWhat": {
+  "message": "Reservando: {0}"
+ },
+ "agentRecapAsked": {
+  "message": "Você pediu: {0}"
+ },
+ "agentRecapOtherPlace": {
+  "message": "Outro lugar: o primeiro não tinha horário que servisse"
+ },
+ "agentRecapTerms": {
+  "message": "Cancelamento, segundo a página: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "Dicas"
  },
@@ -3220,6 +3916,15 @@
  },
  "tip_da5f7b74b1": {
   "message": "Ir mais a fundo"
+ },
+ "tip_8f191972e8": {
+  "message": "Ele reserva por você, direto na página"
+ },
+ "tip_363625547a": {
+  "message": "Precisa reservar uma mesa ou uma hospedagem, ou marcar horário com um médico ou um cabeleireiro? No site de reservas, abra o painel, toque em + ao lado do campo, escolha “Fazer” e diga o que precisa: “mesa para dois amanhã às 19h”. O ContextFlow escolhe o horário, preenche seu nome e seus contatos a partir de “Meus dados” e faz a reserva. Você pode fechar o painel: uma pergunta ou o resultado aparece ao lado do ✦. Pagar e entrar na conta continuam com você, e “Parar” está sempre à mão. Com o Pro ou o Ultra."
+ },
+ "tip_232e049197": {
+  "message": "Precisa reservar uma mesa ou uma hospedagem, ou marcar horário com um médico ou um cabeleireiro? No site de reservas, abra o painel, clique em + ao lado do campo, escolha “Fazer” e diga o que precisa: “mesa para dois amanhã às 19h”. O ContextFlow escolhe o horário, preenche seu nome e seus contatos a partir de “Meus dados” e faz a reserva. Você pode fechar o painel: uma pergunta ou o resultado aparece ao lado do ✦. Pagar e entrar na conta continuam com você, e “Parar” está sempre à mão. Com o Pro ou o Ultra."
  },
  "tip_6ba198cbff": {
   "message": "Suas próprias notas"
@@ -3463,6 +4168,15 @@
  },
  "tip_6cc366173d": {
   "message": "Não precisa do ✦ em um site? Oculte-o nesse site ou desative-o em todos nos ajustes da extensão. O ContextFlow continua abrindo pelo menu de extensões do Safari."
+ },
+ "tip_92470c1789": {
+  "message": "As janelas de cookies se fecham sozinhas"
+ },
+ "tip_8534da4bd8": {
+  "message": "Cansou de tocar em janela de cookies? O ContextFlow responde por você com “somente necessários”, e nas primeiras vezes uma linha curta ao lado do ✦ avisa. Quer vê-las de volta em um site? Desative para esse site nos ajustes da extensão, em “Janelas de cookies”."
+ },
+ "tip_fc1a61bcfa": {
+  "message": "Cansou de clicar em janela de cookies? O ContextFlow responde por você com “somente necessários”, e nas primeiras vezes uma linha curta ao lado do ✦ avisa. Quer vê-las de volta em um site? Desative para esse site nos ajustes da extensão, em “Janelas de cookies”."
  },
  "tip_cc54dd5946": {
   "message": "Dicas no botão ✦"

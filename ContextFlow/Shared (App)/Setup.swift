@@ -204,11 +204,8 @@ final class Activation: ObservableObject {
         var body: [String: Any] = [
             "kind": "app_open",
             "appId": appId,
-            "client": [
-                "platform": Self.platform,
-                "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "",
-                "locale": Bundle.main.preferredLocalizations.first ?? ""
-            ],
+            // 2.8 (В1.9): with the test mark on a simulator or debug build.
+            "client": ChatAI.eventClient(platform: Self.platform, locale: Bundle.main.preferredLocalizations.first ?? ""),
             "extension": state.rawValue
         ]
         body["notifications"] = await SetupReminders.permission()

@@ -19,8 +19,10 @@
 	<string>public.app-category.productivity</string>
 	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
 	<string>ContextFlow adds the events you confirm to your calendar. It can't see your calendar.</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>ContextFlow finds free time and checks for conflicts on this device when you ask it to book something, and adds the events you confirm. Only free times go to the AI, never your events.</string>
 	<key>NSRemindersFullAccessUsageDescription</key>
-	<string>ContextFlow adds the reminders you confirm. It doesn't read your reminders or send them anywhere.</string>
+	<string>ContextFlow adds the reminders you confirm. When you ask it to do something, it looks through your lists on this device to put things in the right place; only what the task needs goes to the AI.</string>
 	<key>SFSafariWebExtensionConverterVersion</key>
 	<string>26.2</string>
 </dict>

@@ -66,7 +66,7 @@
   "message": "追蹤價格"
  },
  "plusButton": {
-  "message": "更多：筆記、快照、整段對話"
+  "message": "更多：筆記、執行、快照、整段對話"
  },
  "hintShow": {
   "message": "查看"
@@ -2825,6 +2825,27 @@
  "setPageHintsHint": {
   "message": "剛開始的幾天，提示你在頁面上能做什麼。"
  },
+ "setCookies": {
+  "message": "關閉 Cookie 視窗"
+ },
+ "setCookiesHint": {
+  "message": "選擇「僅必要」。"
+ },
+ "setCookiesAccept": {
+  "message": "無法拒絕時接受"
+ },
+ "cookiesOffOnSite": {
+  "message": "在此網站不關閉"
+ },
+ "cookiesOnOnSite": {
+  "message": "在此網站關閉"
+ },
+ "cookieClosedLine": {
+  "message": "已關閉 Cookie 視窗：僅必要"
+ },
+ "cookieAcceptedLine": {
+  "message": "已接受 Cookie：沒有其他選擇"
+ },
  "phSimilarBodyUpBoth": {
   "message": "這是 Pro 和 Ultra 的功能：Pro 是快速搜尋，Ultra 是完整搜尋。同款更便宜的，以及其他商店的相似商品。點一下亮起的按鈕。"
  },
@@ -3137,6 +3158,681 @@
  "writeInserted": {
   "message": "已插入"
  },
+ "agentMode": {
+  "message": "執行"
+ },
+ "agentModeHint": {
+  "message": "讓 ContextFlow 在這個頁面上幫你做"
+ },
+ "placeholderAgent": {
+  "message": "要在這個頁面上做什麼？"
+ },
+ "agentWorking": {
+  "message": "執行中 · 第 {0} 步"
+ },
+ "agentConfirmTitle": {
+  "message": "要執行嗎？"
+ },
+ "agentYes": {
+  "message": "是"
+ },
+ "agentNo": {
+  "message": "否"
+ },
+ "agentNoUndo": {
+  "message": "此動作無法復原。"
+ },
+ "agentOffRequest": {
+  "message": "這似乎不是你要求的：{0}"
+ },
+ "agentStepClick": {
+  "message": "點一下「{0}」"
+ },
+ "agentRecapAgain": {
+  "message": "再次確認：頁面因「{0}」未接受第一次送出。"
+ },
+ "agentRecapAgainTo": {
+  "message": "再次確認：頁面因「{0}」未接受第一次送出；已改為「{1}」。"
+ },
+ "agentStepServiceOther": {
+  "message": "頁面上沒有「{0}」。改選「{1}」嗎？"
+ },
+ "agentRecapService": {
+  "message": "服務：{0}"
+ },
+ "agentRecapServiceOther": {
+  "message": "不是您要的「{0}」：這是您選的。"
+ },
+ "agentStepPricedChoice": {
+  "message": "選擇「{0}」——這是附價格的選項，不是付款"
+ },
+ "agentStepType": {
+  "message": "在「{1}」中輸入「{0}」"
+ },
+ "agentStepSelect": {
+  "message": "在「{1}」中選擇「{0}」"
+ },
+ "agentStepGo": {
+  "message": "前往 {0}"
+ },
+ "agentFillTitle": {
+  "message": "要用「我的資料」填寫嗎？"
+ },
+ "agentFillButton": {
+  "message": "填寫"
+ },
+ "agentFillSkip": {
+  "message": "不用了"
+ },
+ "agentSelfTitle": {
+  "message": "這一步請你來"
+ },
+ "agentSelfPay": {
+  "message": "請自己付款或送出訂單：全部確認後，點一下「{0}」。"
+ },
+ "agentSelfSend": {
+  "message": "請自己傳送：讀完後，點一下「{0}」。"
+ },
+ "agentSelfAuth": {
+  "message": "請自己登入（Safari 可以幫你填入密碼）。我會等你。"
+ },
+ "agentSelfConsent": {
+  "message": "如果同意，請自己勾選「{0}」。"
+ },
+ "agentSelfRate": {
+  "message": "評論、評分和投票，都要由你自己來。"
+ },
+ "agentSelfOther": {
+  "message": "這一步請自己來：「{0}」。"
+ },
+ "agentSelfNewTab": {
+  "message": "請自己點一下「{0}」：這個頁面會在新分頁中開啟，只有你親手點才行。接著我會在那裡繼續。"
+ },
+ "agentSelfFile": {
+  "message": "請自己選擇檔案。"
+ },
+ "agentSelfDone": {
+  "message": "完成"
+ },
+ "agentSelfNotNow": {
+  "message": "現在不要"
+ },
+ "agentDoneTitle": {
+  "message": "已完成"
+ },
+ "agentAskedTitle": {
+  "message": "需要你回答"
+ },
+ "agentStopped": {
+  "message": "已停止。"
+ },
+ "agentUndo": {
+  "message": "還原"
+ },
+ "agentUndone": {
+  "message": "能復原的都已復原。"
+ },
+ "agentLimit": {
+  "message": "今天的 AI 代理任務已用完（每天 {0} 個），明天會恢復。"
+ },
+ "agentProOnly": {
+  "message": "AI 代理包含在 Pro 和 Ultra 方案中。"
+ },
+ "agentError": {
+  "message": "出了點問題，請再試一次。"
+ },
+ "agentErrorPage": {
+  "message": "頁面沒有回應。請重新載入後再試一次。"
+ },
+ "agentSteps": {
+  "message": "步驟太多了，所以我先停在這裡。"
+ },
+ "agentBlockedSite": {
+  "message": "在銀行、支付、政府機關等網站上，ContextFlow 不會代替你操作，但仍可以回答關於頁面的問題。"
+ },
+ "amazonAgent": {
+  "message": "在 Amazon 上，ContextFlow 只能回答關於頁面的問題：Amazon 不允許自動化工具在它的網站上代替你操作。"
+ },
+ "amazonSimilar": {
+  "message": "未確認：Amazon 不讓我們的伺服器開啟它的頁面。"
+ },
+ "agentStart": {
+  "message": "開始"
+ },
+ "agentDeferredTitle": {
+  "message": "稍後執行的任務"
+ },
+ "agentDontAskHere": {
+  "message": "下次在這個網站直接開始"
+ },
+ "agentLater": {
+  "message": "稍後"
+ },
+ "agentLaterAt": {
+  "message": "指定時間"
+ },
+ "agentLaterWatch": {
+  "message": "追蹤的這個頁面有變化時"
+ },
+ "agentLaterSet": {
+  "message": "確定"
+ },
+ "agentLaterSaved": {
+  "message": "到了 {0}，你會收到通知。點一下通知，我就和你一起在這個頁面上完成。"
+ },
+ "agentLaterSavedWatch": {
+  "message": "追蹤的頁面有變化時，你會收到通知。點一下通知，我就和你一起完成。"
+ },
+ "agentLaterNotifOff": {
+  "message": "ContextFlow 的通知已關閉。請在「設定 → 通知 → ContextFlow」中開啟。"
+ },
+ "agentLaterNotifyWhy": {
+  "message": "請開啟通知，這樣我才能提醒你這件事。"
+ },
+ "agentLaterPast": {
+  "message": "這個時間已經過了，請選一個更晚的時間。"
+ },
+ "agentYouMark": {
+  "message": "你"
+ },
+ "agentHint": {
+  "message": "在此頁面上執行？"
+ },
+ "agentWaitingStep": {
+  "message": "第 {0} 步 · 等你操作"
+ },
+ "agentStepReminderAdd": {
+  "message": "將提醒事項「{0}」加入「{1}」"
+ },
+ "agentStepReminderAddDue": {
+  "message": "將提醒事項「{0}」加入「{1}」，截止 {2}"
+ },
+ "agentStepReminderDone": {
+  "message": "在提醒事項中將「{0}」標為已完成"
+ },
+ "agentStepEventAdd": {
+  "message": "將「{0}」加入你的行事曆：{1}"
+ },
+ "agentSelfAccessReminders": {
+  "message": "允許 ContextFlow 使用你的提醒事項：打開 App，點一下「允許」，然後回到這裡點一下「完成」。"
+ },
+ "agentSelfAccessCalendar": {
+  "message": "允許 ContextFlow 使用你的行事曆：打開 App，點一下「允許完整取用」，然後回到這裡點一下「完成」。"
+ },
+ "agentOpenApp": {
+  "message": "打開 ContextFlow"
+ },
+ "agentStepReminderAddDefault": {
+  "message": "將提醒事項「{0}」加入預設列表"
+ },
+ "agentStepReminderAddDefaultDue": {
+  "message": "將提醒事項「{0}」加入預設列表，截止 {1}"
+ },
+ "agentLaterLimit": {
+  "message": "已有 {0} 個任務在等待，這是你的方案上限。"
+ },
+ "agentNotifTitle": {
+  "message": "{0} 上的任務"
+ },
+ "agentNotifBody": {
+  "message": "點一下，我就和你一起完成：{0}"
+ },
+ "agentHelpLink": {
+  "message": "AI 代理不會做的事"
+ },
+ "agentHelp": {
+  "message": "AI 代理會在開啟的頁面上操作：點按、輸入、選擇。送出表單前，它會問「要執行嗎？」；購買、付款、傳訊息和登入都交給你自己。它從不查看、也不輸入密碼、信用卡和證件號碼。驗證碼、選擇檔案和一些特殊按鈕它處理不了，這時會請你自己完成這一步。稍後執行的任務會以通知送達：點一下通知，AI 代理就會和你一起繼續。"
+ },
+ "setAgentAuto": {
+  "message": "在這些網站上，稍後執行的任務會直接開始"
+ },
+ "setAgentAutoHint": {
+  "message": "在這些網站上，點一下任務通知就會直接開始，不必點「開始」。「要執行嗎？」和需要你自己做的步驟仍會詢問你。"
+ },
+ "fdTitle": {
+  "message": "我的資料"
+ },
+ "fdHint": {
+  "message": "用來在網站上填寫表單。儲存在你的裝置上；只有在你同意後，AI 代理才會填入，AI 模型看不到這些資料。"
+ },
+ "fdNameFull": {
+  "message": "姓名"
+ },
+ "fdNameGiven": {
+  "message": "名字"
+ },
+ "fdNameFamily": {
+  "message": "姓氏"
+ },
+ "fdNameLatin": {
+  "message": "英文姓名"
+ },
+ "fdNamePhonetic": {
+  "message": "姓名讀音"
+ },
+ "fdEmail": {
+  "message": "電子郵件"
+ },
+ "fdPhone": {
+  "message": "電話"
+ },
+ "fdAddressLine": {
+  "message": "街道和門牌號碼"
+ },
+ "fdAddressApartment": {
+  "message": "樓層、室號"
+ },
+ "fdAddressCity": {
+  "message": "城市"
+ },
+ "fdAddressRegion": {
+  "message": "州或省"
+ },
+ "fdAddressPostal": {
+  "message": "郵遞區號"
+ },
+ "fdAddressCountry": {
+  "message": "國家或地區"
+ },
+ "fdCompany": {
+  "message": "公司"
+ },
+ "fdJobTitle": {
+  "message": "職稱"
+ },
+ "fdWebsite": {
+  "message": "網站"
+ },
+ "fdBirthDate": {
+  "message": "出生日期"
+ },
+ "fdFact": {
+  "message": "其他"
+ },
+ "fdFactLabel": {
+  "message": "項目名稱（例如鞋子尺寸）"
+ },
+ "fdAdd": {
+  "message": "加入"
+ },
+ "fdDelete": {
+  "message": "刪除"
+ },
+ "fdDeleteAll": {
+  "message": "全部刪除"
+ },
+ "fdDeleteAllAsk": {
+  "message": "要從這台裝置刪除你的所有資料嗎？（如果有透過 iCloud 同步，也會從 iCloud 刪除。）"
+ },
+ "fdRefused": {
+  "message": "我不會保存密碼、信用卡、銀行帳號或證件號碼、驗證碼，也不保存健康資料。"
+ },
+ "fdICloudAsk": {
+  "message": "要透過 iCloud 在你的各台裝置間同步這些資料嗎？"
+ },
+ "fdICloudHint": {
+  "message": "透過你私人的 iCloud 同步，我們無法存取。不同步的話，資料只會留在這台裝置上。"
+ },
+ "fdICloud": {
+  "message": "透過 iCloud 同步"
+ },
+ "agentPlanTitle": {
+  "message": "我會這樣做"
+ },
+ "agentPlanReading": {
+  "message": "正在讀取頁面…"
+ },
+ "agentPlanAllowed": {
+  "message": "不再詢問就會執行"
+ },
+ "agentPlanSelf": {
+  "message": "這些由你來做"
+ },
+ "agentPlanOwn": {
+  "message": "其他…"
+ },
+ "agentPlanNow": {
+  "message": "現在"
+ },
+ "agentPermPersonal": {
+  "message": "填入你在請求中提供的資料：{0}"
+ },
+ "agentPermFill": {
+  "message": "用「我的資料」填寫：{0}"
+ },
+ "agentLineFilled": {
+  "message": "已填寫：{0}"
+ },
+ "agentLinePressed": {
+  "message": "已點按：{0}"
+ },
+ "agentPermConsent": {
+  "message": "勾選同意 {0} 的條款"
+ },
+ "agentPermReminder": {
+  "message": "加入提醒事項：「{0}」"
+ },
+ "agentPermReminderDone": {
+  "message": "在提醒事項中標為完成：「{0}」"
+ },
+ "agentPermEvent": {
+  "message": "加入行事曆：「{0}」"
+ },
+ "agentPlanSelfPay": {
+  "message": "付款或下單：「{0}」"
+ },
+ "agentPlanSelfSend": {
+  "message": "傳送：「{0}」"
+ },
+ "agentPlanSelfAuth": {
+  "message": "登入網站"
+ },
+ "agentPriceChanged": {
+  "message": "這裡的價格和先前顯示的（{0}）不一樣。繼續前請先核對。"
+ },
+ "agentMarkPaused": {
+  "message": "已暫停"
+ },
+ "agentMarkStopped": {
+  "message": "已停止"
+ },
+ "agentMarkFailed": {
+  "message": "沒成功"
+ },
+ "agentShowSteps": {
+  "message": "步驟和結果"
+ },
+ "agentModeOff": {
+  "message": "關閉「執行」"
+ },
+ "noteHintTouchDo": {
+  "message": "向上滑動按鈕寫筆記，向下滑動「執行」"
+ },
+ "agentNoticeNeeds": {
+  "message": "需要你"
+ },
+ "agentGoToTab": {
+  "message": "前往該分頁"
+ },
+ "agentNotifPaused": {
+  "message": "任務已暫停——打開 Safari 來完成：{0}"
+ },
+ "agentNotifDone": {
+  "message": "完成：{0}"
+ },
+ "agentNotifNeeds": {
+  "message": "需要你：{0}"
+ },
+ "agentNotifNotBooked": {
+  "message": "未預訂：{0}"
+ },
+ "agentPlanStepYours": {
+  "message": "「{0}」——由你來點按"
+ },
+ "agentPlanAnswerFirst": {
+  "message": "請先回答：「{0}」"
+ },
+ "agentErrorNoReply": {
+  "message": "擴充功能沒有回應。請再試一次；若仍如此，請重新載入頁面。"
+ },
+ "agentStartFailed": {
+  "message": "無法開始任務（{0}）。請再試一次。"
+ },
+ "agentPlanRemember": {
+  "message": "記在「我的資料」中"
+ },
+ "agentPlanFromSaved": {
+  "message": "來自「我的資料」——變更後更新"
+ },
+ "agentMarkUnfinished": {
+  "message": "未完成"
+ },
+ "agentNothingBooked": {
+  "message": "沒有預訂任何內容。"
+ },
+ "agentLastDone": {
+  "message": "最後完成的步驟：{0}"
+ },
+ "agentStuck": {
+  "message": "頁面不再變化，我在這裡停下了。完成的部分在上面。"
+ },
+ "agentNeedSignIn": {
+  "message": "登入網站"
+ },
+ "agentNeedPay": {
+  "message": "在網站上付款"
+ },
+ "agentNeedAnswer": {
+  "message": "你的回答"
+ },
+ "agentAutoLine": {
+  "message": "不必提問 — 來自「我的資料」和你的規則：{0}"
+ },
+ "agentLineCalendar": {
+  "message": "已加入行事曆：{0}"
+ },
+ "agentRulesTitle": {
+  "message": "預訂規則"
+ },
+ "agentRulesHint": {
+  "message": "代理會依這些規則直接預訂，不再詢問。付款、驗證碼和登入一律由你來做。"
+ },
+ "agentRuleWindow": {
+  "message": "說好的時間可前後調整（分鐘）"
+ },
+ "agentRuleDays": {
+  "message": "當天額滿時：最多延後幾天"
+ },
+ "agentRuleParty": {
+  "message": "沒說時的人數（客人、票、座位）"
+ },
+ "agentRuleAnySpecialist": {
+  "message": "任何專業人員（髮型師、醫師、老師、教練、導遊…）"
+ },
+ "agentRuleUsual": {
+  "message": "上次在該網站選的服務"
+ },
+ "agentRuleCalendar": {
+  "message": "只選行事曆中空閒的時間"
+ },
+ "agentRuleAuto": {
+  "message": "資訊齊全且不需付款時，不顯示計畫直接預訂"
+ },
+ "agentPlanHow": {
+  "message": "地點由我來選：評分 {0} 以上、符合需求、最近"
+ },
+ "agentPlanHowCal": {
+  "message": "選行事曆中空閒的時間，並加入行事曆"
+ },
+ "agentRuleVenue": {
+  "message": "我沒指定地點時，自行選擇"
+ },
+ "agentRuleRating": {
+  "message": "地點評分不低於"
+ },
+ "accessGroup": {
+  "message": "行事曆與提醒事項"
+ },
+ "accessHint": {
+  "message": "代理會選擇行事曆中空閒的時間，並可加入預訂。行事曆內容絕不會離開裝置。"
+ },
+ "accessCalendar": {
+  "message": "行事曆"
+ },
+ "accessReminders": {
+  "message": "提醒事項"
+ },
+ "accessYes": {
+  "message": "已允許"
+ },
+ "accessNo": {
+  "message": "無取用權限"
+ },
+ "accessAllow": {
+  "message": "允許"
+ },
+ "accessSettingsIos": {
+  "message": "打開 iOS 設定"
+ },
+ "accessSettingsMac": {
+  "message": "打開系統設定"
+ },
+ "agentRuleCalNeeds": {
+  "message": "需要行事曆取用權限"
+ },
+ "agentPlanCalAsk": {
+  "message": "要參考行事曆嗎？"
+ },
+ "agentCalNotChecked": {
+  "message": "未檢查行事曆：無取用權限"
+ },
+ "agentPlanFromChat": {
+  "message": "來自聊天：{0}"
+ },
+ "sendMenuNote": {
+  "message": "筆記"
+ },
+ "noteHintPointerDo": {
+  "message": "在按鈕上捲動：向上寫筆記，向下「執行」，也可以按右鍵"
+ },
+ "setSecGeneral": {
+  "message": "一般"
+ },
+ "setSecButton": {
+  "message": "浮動按鈕與選取"
+ },
+ "setSecWriting": {
+  "message": "快速插入與寫作"
+ },
+ "setSecAgent": {
+  "message": "「執行」：網頁上的任務"
+ },
+ "setSecCookies": {
+  "message": "Cookie 視窗"
+ },
+ "setSecChats": {
+  "message": "對話與空間"
+ },
+ "setSecData": {
+  "message": "隱私權與資料"
+ },
+ "setSecPlan": {
+  "message": "方案與帳號"
+ },
+ "setSecAbout": {
+  "message": "關於"
+ },
+ "fdICloudLocal": {
+  "message": "目前僅在此裝置上"
+ },
+ "fdICloudSyncing": {
+  "message": "正在同步…"
+ },
+ "fdICloudSynced": {
+  "message": "已同步 · {0}"
+ },
+ "fdICloudJustNow": {
+  "message": "剛剛"
+ },
+ "fdICloudNoAccount": {
+  "message": "未同步：請在此裝置上登入 iCloud"
+ },
+ "fdICloudFailed": {
+  "message": "未同步：iCloud 沒有回應。下次會再試。"
+ },
+ "agentRuleAnySpecialistHint": {
+  "message": "提供服務的人——髮型師、醫師、老師、教練、講師或導遊——誰有空就誰。關閉：我會問你要找誰。"
+ },
+ "errLink": {
+  "message": "ContextFlow 與此頁面的連線已中斷(開啟其他 App 時 iOS 可能已將其停止)。請重試;若再次發生,請重新載入頁面。"
+ },
+ "reloadPage": {
+  "message": "重新載入頁面"
+ },
+ "agentPlanVenueQ": {
+  "message": "在哪裡預訂(依你的規則選擇)"
+ },
+ "agentPlanEmailQ": {
+  "message": "用於預訂的電子郵件（網站會要求填寫）"
+ },
+ "agentPlanPhoneQ": {
+  "message": "用於預訂的電話（網站會要求填寫）"
+ },
+ "agentLinePopup": {
+  "message": "已關閉頁面上的彈出視窗：「{0}」"
+ },
+ "agentPlanSpecialistQ": {
+  "message": "選擇哪位服務人員？"
+ },
+ "agentPlanAnySpecialist": {
+  "message": "任一服務人員"
+ },
+ "agentPlanServiceQ": {
+  "message": "選擇哪項服務？"
+ },
+ "agentPlanSpecialistOnPage": {
+  "message": "在店家頁面再選"
+ },
+ "agentPlanVenueAuto": {
+  "message": "幫我選：評分 {0}+，最近"
+ },
+ "agentPlanLastTime": {
+  "message": "上次"
+ },
+ "agentPlanPlaceQ": {
+  "message": "在哪裡預約？"
+ },
+ "agentBubbleCheck": {
+  "message": "繼續之前請確認：{0}"
+ },
+ "agentBubbleSignIn": {
+  "message": "請在網站上登入，我會等你"
+ },
+ "agentBubblePlan": {
+  "message": "計畫在等你"
+ },
+ "agentBubbleFill": {
+  "message": "請確認表單要填寫的內容"
+ },
+ "agentBubbleDone": {
+  "message": "已完成：{0}"
+ },
+ "agentBubbleNotDone": {
+  "message": "未完成：{0}"
+ },
+ "agentBubbleOpen": {
+  "message": "開啟"
+ },
+ "agentBubbleOther": {
+  "message": "其他…"
+ },
+ "agentBubbleShow": {
+  "message": "查看"
+ },
+ "agentRuleFreeCancel": {
+  "message": "只預訂可免費取消的"
+ },
+ "agentRuleVenueHint": {
+  "message": "地點指餐廳、沙龍、診所、飯店或公寓、租賃點、健身房或分店。在乎由誰或在哪裡時（醫師、旅行住的飯店）我會問；否則依這些規則選。"
+ },
+ "agentPlanPlaceQAny": {
+  "message": "在哪裡預訂？"
+ },
+ "agentRecapTitle": {
+  "message": "預訂前請確認"
+ },
+ "agentRecapWhat": {
+  "message": "預訂：{0}"
+ },
+ "agentRecapAsked": {
+  "message": "你要的是：{0}"
+ },
+ "agentRecapOtherPlace": {
+  "message": "換了地方：第一家沒有合適的時間"
+ },
+ "agentRecapTerms": {
+  "message": "頁面上的取消條款：{0}"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },
@@ -3220,6 +3916,15 @@
  },
  "tip_da5f7b74b1": {
   "message": "深入使用"
+ },
+ "tip_8f191972e8": {
+  "message": "直接在頁面上幫你預訂"
+ },
+ "tip_363625547a": {
+  "message": "想訂餐廳座位或住宿，或是預約看醫生、剪頭髮？在預訂網站上打開面板，點一下輸入欄旁的 +，選擇「執行」，說出你的需求：「訂明天晚上 7 點的兩人座位」。ContextFlow 會挑好時間，從「我的資料」填入你的姓名和聯絡方式，然後完成預訂。面板可以關掉：有問題或結果時，會出現在 ✦ 旁邊。付款和登入仍由你自己來，「停止」隨時都在。需搭配 Pro 或 Ultra。"
+ },
+ "tip_232e049197": {
+  "message": "想訂餐廳座位或住宿，或是預約看醫生、剪頭髮？在預訂網站上打開面板，按一下輸入欄旁的 +，選擇「執行」，說出你的需求：「訂明天晚上 7 點的兩人座位」。ContextFlow 會挑好時間，從「我的資料」填入你的姓名和聯絡方式，然後完成預訂。面板可以關掉：有問題或結果時，會出現在 ✦ 旁邊。付款和登入仍由你自己來，「停止」隨時都在。需搭配 Pro 或 Ultra。"
  },
  "tip_6ba198cbff": {
   "message": "你自己的筆記"
@@ -3463,6 +4168,15 @@
  },
  "tip_6cc366173d": {
   "message": "某個網站用不到 ✦？可以只在該網站隱藏它，或在延伸功能設定中全部關閉。ContextFlow 仍可從 Safari 的延伸功能選單開啟。"
+ },
+ "tip_92470c1789": {
+  "message": "Cookie 視窗會自動關閉"
+ },
+ "tip_8534da4bd8": {
+  "message": "受夠了一直點掉 Cookie 視窗？ContextFlow 會幫你選擇「僅必要」，前幾次 ✦ 旁會有一行簡短說明。想在某個網站繼續看到它們？在延伸功能設定的「Cookie 視窗」中，為該網站關閉這項功能。"
+ },
+ "tip_fc1a61bcfa": {
+  "message": "受夠了一直按掉 Cookie 視窗？ContextFlow 會幫你選擇「僅必要」，前幾次 ✦ 旁會有一行簡短說明。想在某個網站繼續看到它們？在延伸功能設定的「Cookie 視窗」中，為該網站關閉這項功能。"
  },
  "tip_cc54dd5946": {
   "message": "✦ 按鈕旁的提示"

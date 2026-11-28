@@ -41,6 +41,11 @@ import AppKit
 /// - `shot_put` / `shot_get` / `shot_delete` → a note's picture of the page (2.7, see ShotStore): from the panel in parts
 ///   (`id`, `part`, `of`, base64 `data`, `cloud`: chats sync with iCloud), kept in the App Group and in iCloud; back in
 ///   parts of `ShotStore.readLength` bytes (`offset`; `total`), from iCloud when another device made it; deleted.
+/// - `agent_schedule` / `agent_notify` / `agent_cancel` / `agent_sync` → deferred agent tasks (2.7.1, see AgentTasks):
+///   the notification at a time or now (a watch's condition came true), cancelled, and this device's tasks for the
+///   app's list (back: the ones cancelled in the app).
+/// - `formdata_get` / `formdata_put` / `formdata_icloud` → «Мои данные» (2.7.1, see FormData): the entries (the panel's
+///   changes merged in, iCloud only after the person's yes) and the iCloud choice; the choice set (off: iCloud's copy goes).
 /// - `ping` → health check: the app's version and build, and (2.7.1) the app's random id once it has made one.
 ///
 /// Every message also tells the app that the extension is switched on (and, for `getEntitlement`, which
@@ -246,6 +251,48 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             // This device's watches for the app's list; back, the ones stopped in the app.
             let stopped = WatchStore.sync(message["watches"] as? [[String: Any]] ?? [])
             Self.reply(context, ["success": true, "data": ["cancelled": stopped]])
+        case "agent_schedule", "agent_notify":
+            // A deferred agent task (2.7.1): its notification at a time (schedule) or now, a watch's condition came
+            // true (notify). The tap opens the page in Safari with #cf-task=<id> (AgentTasks).
+            guard let id = message["id"] as? String, let page = (message["url"] as? String).flatMap(URL.init(string:)) else {
+                Self.reply(context, ["success": false, "error": "\(command): id and url"])
+                return
+            }
+            let title = message["title"] as? String ?? "ContextFlow"
+            let body = message["body"] as? String ?? ""
+            let at = (message["at"] as? NSNumber)?.doubleValue
+            Task {
+                let outcome = command == "agent_notify" || at == nil
+                    ? await AgentTasks.notify(id: id, title: title, body: body, open: page)
+                    : await AgentTasks.schedule(id: id, at: Date(timeIntervalSince1970: at! / 1000), title: title, body: body, open: page)
+                Self.reply(context, ["success": true, "data": ["outcome": outcome.rawValue]])
+            }
+        case "formdata_get", "formdata_put":
+            // «Мои данные» (2.7.1, see FormData): the panel's changes into this device's store, then iCloud when the
+            // person said yes to it; the merged entries and the iCloud choice (true, false, or not asked) back.
+            if command == "formdata_put" {
+                FormDataStore.merge((message["changes"] as? [[String: Any]] ?? []).compactMap { FormDataEntry.decode($0["data"] as? String) })
+            }
+            Task {
+                if FormDataStore.syncChoice == true { _ = await Self.withTimeout(seconds: 12) { await FormDataSync.syncNoted() } }
+                Self.reply(context, ["success": true, "data": Self.formDataReply()])
+            }
+        case "formdata_icloud":
+            // The answer to «Синхронизировать через iCloud?», or a change of it in the settings. Off: the iCloud copy
+            // goes, the entries stay here.
+            let on = message["on"] as? Bool ?? false
+            FormDataStore.syncChoice = on
+            Task {
+                if on { _ = await Self.withTimeout(seconds: 12) { await FormDataSync.syncNoted() } } else { await FormDataSync.removeCloud() }
+                Self.reply(context, ["success": true, "data": Self.formDataReply()])
+            }
+        case "agent_cancel":
+            if let id = message["id"] as? String { AgentTasks.cancel(id) }
+            Self.reply(context, ["success": true])
+        case "agent_sync":
+            // This device's deferred tasks for the app's list; back, the ones cancelled in the app.
+            let cancelled = AgentTasks.sync(message["tasks"] as? [[String: Any]] ?? [])
+            Self.reply(context, ["success": true, "data": ["cancelled": cancelled]])
         case "listen":
             let parts = (message["parts"] as? [String] ?? []).prefix(80).map { String($0.prefix(4000)) }
             guard !parts.isEmpty else {
@@ -461,8 +508,31 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 #endif
             }
         case "apple_remove":
-            if let key = message["key"] as? String { AppleItems.remove(key: key) }
+            if let key = message["key"] as? String {
+                if message["done"] as? Bool == true { AppleItems.complete(key: key) } else { AppleItems.remove(key: key) }
+            }
             Self.reply(context, ["success": true])
+        // 2.7.1, the agent's Calendar and Reminders (AgentApple): read, find, add, mark done, free times.
+        case "agent_apple":
+            guard AppleItems.available else {
+                Self.reply(context, ["success": true, "data": ["access": "unavailable"]])
+                return
+            }
+            Task {
+                let out = await AgentApple.handle(message)
+                Self.reply(context, ["success": true, "data": out])
+            }
+        // The agent needs access the app hasn't asked for: on a Mac the extension opens the app, which asks.
+        case "agent_access_open":
+            #if os(macOS)
+            let kind = (message["kind"] as? String) == "calendar" ? "calendar" : "reminders"
+            DispatchQueue.main.async {
+                let opened = NSWorkspace.shared.open(URL(string: "contextflow://access?kind=\(kind)")!)
+                Self.reply(context, ["success": true, "data": ["opened": opened]])
+            }
+            #else
+            Self.reply(context, ["success": true, "data": ["opened": false]])
+            #endif
         // 2.7, invite a friend: what the app kept (a friend's code entered there, the inviter's own code), a DeviceCheck
         // token for a code entered in the panel, and the panel's marks back (linked, its code).
         case "invite":
@@ -490,6 +560,8 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             // own install id until the server has the two together (src/background/link.ts). Nothing when the app hasn't
             // been opened yet: the extension asks again later.
             if let app = SharedDefaults.shared.appId() { data["app"] = app }
+            // 2.8 (В1.9): a simulator or debug build: the extension marks its requests as ours too.
+            if OurBuild.isOurs { data["test"] = true }
             Self.reply(context, ["success": true, "data": data])
         default:
             Self.reply(context, ["success": false, "error": "Unknown command: \(command)"])
@@ -502,6 +574,16 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         return await withCheckedContinuation { done in
             DCDevice.current.generateToken { data, _ in done.resume(returning: data?.base64EncodedString()) }
         }
+    }
+
+    /// «Мои данные» as the panel takes them: every entry (tombstones too, for merging) and the iCloud choice.
+    private static func formDataReply() -> [String: Any] {
+        var out: [String: Any] = ["entries": FormDataStore.all().map { ["id": $0.id, "updatedAt": $0.updatedAt, "data": $0.json] as [String: Any] }]
+        if let choice = FormDataStore.syncChoice { out["icloud"] = choice }
+        // 2.7.1: the last sync's result, for the line under the switch.
+        if let at = FormDataStore.syncedAt { out["syncedAt"] = at }
+        if let error = FormDataStore.syncError { out["syncError"] = error }
+        return out
     }
 
     private static func reply(_ context: NSExtensionContext, _ payload: [String: Any]) {

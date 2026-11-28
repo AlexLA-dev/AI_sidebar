@@ -120,6 +120,10 @@ export interface AskPayload {
   // 2.7: this device can add reminders and events (Safari, iOS 17+ and macOS 14+): the answer may end with the marker
   // for a card (appleItems.ts ITEM_MARKER). Older clients don't send it and never get the marker.
   items?: true
+  // 2.7.1: the panel can hand an action to the agent («Сделать на этой странице?» under the question).
+  agent?: true
+  // The chip's own words (the answer names the button with them).
+  agentLabel?: string
 }
 
 /** Where an Own key subscriber met Pro: a refusal (answers, Google, a Pro-only feature), the discount card, Settings. */
@@ -177,6 +181,8 @@ export type ErrorCode =
   | "BUSY"
   | "UPSTREAM"
   | "NETWORK"
+  // The tab lost its link to the extension (iOS put it away while another app was open; 123).
+  | "LINK"
   | "STREAM"
   | "EMPTY"
   | "BAD_KEY"
@@ -284,7 +290,10 @@ export type BackgroundRequest =
   // Chat UX counts (2.5), no text: see UX_KINDS in netlify/functions/v2-event.mts.
   | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind"; action: string; what?: string; how?: string; preset?: string }
   // A step for the feature counters: the analytics registry's "use" kind (src/shared/usage.ts), named values only.
-  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate" | "apple" | "space" | "match" | "write" | "shot" | "similar" | "collect"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number; val?: string; spaces?: number; match?: number; where?: string; screens?: number; cards?: number }
+  // The cookie closer in a consent platform's own frame (2.7.1).
+  | { type: "cookieFrameInject" }
+  | { type: "cookieFrameDone"; via: string; accepted?: boolean }
+  | { type: "useEvent"; f: "agent" | "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans" | "notif" | "org" | "rate" | "apple" | "space" | "match" | "write" | "shot" | "similar" | "collect" | "cookies"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string; why?: string; gap_s?: number; moment?: number; val?: string; spaces?: number; match?: number; where?: string; screens?: number; cards?: number; count?: number; task?: string; did?: string; options?: number; card?: string; page?: string; result?: string; err?: string; steps?: number; secs?: number; calls?: number; recap?: string }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =
